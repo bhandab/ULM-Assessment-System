@@ -10,7 +10,7 @@ var router = express.Router()
 
 // @route POST api/outcomes/create
 // @desc Creates a new learning outcome
-// @access Protected
+// @access Private
 
 router.post('/create',passport.authenticate('jwt',{session:false}),(req,res)=>{
 
@@ -19,7 +19,7 @@ router.post('/create',passport.authenticate('jwt',{session:false}),(req,res)=>{
         return res.status(400).json(errors)
     }
 
-    let outcome = db.escape(req.body.outcomeDescription)
+    let outcome = db.escape(req.body.outcomeDescription.trim())
     let sql = "SELECT * FROM LEARNING_OUTCOME WHERE learnDesc="+outcome
     db.query(sql, (err,result)=>{
         if(err){
@@ -42,5 +42,29 @@ router.post('/create',passport.authenticate('jwt',{session:false}),(req,res)=>{
 
 })
 
-module.exports = router
+// @route POST api/outcomes/
+// @desc Creates a new learning outcome
+// @access Private
+
+module.exports = router.get('/learningOutcomes',passport.authenticate('jwt',{session:false}),(req, res)=>{
+    let sql = "SELECT * FROM LEARNING_OUTCOME WHERE corId="+db.escape(req.user.id)
+    let outcomes = []
+    db.query(sql,(err, result)=>{
+        if(err){
+           return res.status(500).json(err)
+        }
+        else if(result.length>0){
+            result.forEach(row => {
+                outcome = {
+                    outcomeID:row.learnID,
+                    outcomeDescription:row.learnDesc
+                }
+                outcomes.push(outcome)
+            })
+            
+        }
+        res.status(200).json(outcomes)
+        
+    })
+})
 
