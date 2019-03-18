@@ -1,7 +1,7 @@
 const  express = require('express')
-const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const keys = require('../../config/keys')
+const passport = require('../../config/passport')
 
 //Load database connection
 const db = require('../../config/dbconnection')
@@ -56,6 +56,88 @@ router.post('/register', (req, res)=>{
                         return res.status(400).json(err)
                     }
                 })
+    })
+})
+
+// @route POST api/users/login
+// @desc Login User
+// @access Public
+
+router.post('/login',(req, res)=>{
+    //req body input validation
+    const {errors, isValid} = validateLoginInput(req.body)
+    if(!isValid){
+        return res.status(400).json(errors)
+    }
+    let email = req.body.email
+    let password = req.body.password
+
+    let sql = "SELECT * from COORDINATOR WHERE corEmail="+db.escape(email)+" and corPWHash=password("+db.escape(password)+")"
+    db.query(sql, (err, result)=>{
+        if(err){
+            return res.status(500).json(err)
+        }
+
+        //User email and password exists
+        else if (result.length>0){
+            const payload = {
+                email,
+                name:result[0].corName,
+                role:'coordinator'
+            }
+
+            jwt.sign(
+                payload,
+                keys.secretOrkey,
+                {
+                    expiresIn:5400
+                },
+                (err, token)=>{
+                    res.json({
+                        success:true,
+                        token:'Bearer '+token
+                    })
+                }
+
+            )
+        }
+        else if (result.length<=0){
+            sql = "SELECT * from EVALUATOR WHERE evalEmail="+db.escape(email)+" and evalPWHash=password("+db.escape(password)+")"
+            db.query(sql,(err,result)=>{
+                if(err){
+                    return res.status(500).json(err)
+                }
+        
+                //User email and password exists
+                else if (result.length>0){
+                    const payload = {
+                        email,
+                        name:result[0].evalName,
+                        role:'evaluator'
+                    }
+        
+                    jwt.sign(
+                        payload,
+                        keys.secretOrkey,
+                        {
+                            expiresIn:5400
+                        },
+                        (err, token)=>{
+                            res.json({
+                                success:true,
+                                token:'Bearer '+token
+                            })
+                        }
+        
+                    )
+                }
+                else{
+                    errors.password = "Password Incorrect"
+                    res.status(400).json(errors);
+                }
+            })
+        }
+        
     })
 })
 
