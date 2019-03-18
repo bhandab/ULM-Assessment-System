@@ -1,7 +1,8 @@
 const  express = require('express')
 const jwt = require('jsonwebtoken')
+const passport = require('passport')
+
 const keys = require('../../config/keys')
-const passport = require('../../config/passport')
 
 //Load database connection
 const db = require('../../config/dbconnection')
@@ -83,6 +84,7 @@ router.post('/login',(req, res)=>{
             const payload = {
                 email,
                 name:result[0].corName,
+                id:result[0].corId,
                 role:'coordinator'
             }
 
@@ -93,7 +95,7 @@ router.post('/login',(req, res)=>{
                     expiresIn:5400
                 },
                 (err, token)=>{
-                    res.json({
+                    res.status(200).json({
                         success:true,
                         token:'Bearer '+token
                     })
@@ -113,6 +115,7 @@ router.post('/login',(req, res)=>{
                     const payload = {
                         email,
                         name:result[0].evalName,
+                        id:result[0].evalID,
                         role:'evaluator'
                     }
         
@@ -123,7 +126,7 @@ router.post('/login',(req, res)=>{
                             expiresIn:5400
                         },
                         (err, token)=>{
-                            res.json({
+                            res.status(200).json({
                                 success:true,
                                 token:'Bearer '+token
                             })

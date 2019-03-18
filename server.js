@@ -1,9 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser')
+const passport = require('passport');
 
 const db = require('./config/dbconnection')
 const userRouter = require('./routes/api/users')
-const passport = require('passport');
+const outcomeRouter = require('./routes/api/outcomes')
+
 
 const app = express()
 
@@ -21,6 +23,7 @@ app.use(passport.initialize());
 require("./config/passport")(passport);
 
 app.use('/api/users',userRouter)
+app.use('/api/outcomes',outcomeRouter)
 
 const port = process.env.PORT || 3000
 
