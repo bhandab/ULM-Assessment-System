@@ -26,11 +26,6 @@ app.use('/api/users',userRouter)
 app.use('/api/outcomes',outcomeRouter)
 app.use('/api/measures',measureRouter)
 
-app.get('/', (req, res) => {
-    // res.sendFile(path.join(__dirname, "client","public","index.html"))
-    res.send("hello from express");
-});
-
 
 const port = process.env.PORT || 5000
 
