@@ -104,7 +104,7 @@ router.post('/login',(req, res)=>{
             )
         }
         else if (result.length<=0){
-            sql = "SELECT * from EVALUATOR WHERE evalEmail="+db.escape(email)+" and evalPWHash=password("+db.escape(password)+")"
+            sql = "SELECT * from EVALUATOR WHERE evalEmail="+db.escape(email)+" and evalPWHash= password("+db.escape(password)+")"
             db.query(sql,(err,result)=>{
                 if(err){
                     return res.status(500).json(err)

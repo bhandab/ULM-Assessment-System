@@ -48,6 +48,7 @@ router.post('/createOutcome',passport.authenticate('jwt',{session:false}),(req,r
 // @access Private
 
 router.get('/learningOutcomes',passport.authenticate('jwt',{session:false}),(req, res)=>{
+    console.log("learning outcomes")
     let sql = "SELECT * FROM LEARNING_OUTCOME WHERE corId="+db.escape(req.user.id)
     let outcomes = []
     db.query(sql,(err, result)=>{
