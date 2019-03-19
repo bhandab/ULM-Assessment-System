@@ -8,11 +8,11 @@ const validateOutcomeInput = require('../../validation/learning-outcome')
 
 var router = express.Router()
 
-// @route POST api/outcomes/create
+// @route POST api/outcomes/createOutcome
 // @desc Creates a new learning outcome
 // @access Private
 
-router.post('/create',passport.authenticate('jwt',{session:false}),(req,res)=>{
+router.post('/createOutcome',passport.authenticate('jwt',{session:false}),(req,res)=>{
 
     let {errors, isValid} = validateOutcomeInput(req.body)
     if(!isValid){
@@ -20,7 +20,8 @@ router.post('/create',passport.authenticate('jwt',{session:false}),(req,res)=>{
     }
 
     let outcome = db.escape(req.body.outcomeDescription.trim())
-    let sql = "SELECT * FROM LEARNING_OUTCOME WHERE learnDesc="+outcome
+    let adminID = db.escape(req.user.id)
+    let sql = "SELECT * FROM LEARNING_OUTCOME WHERE learnDesc="+outcome+" AND corId="+adminID
     db.query(sql, (err,result)=>{
         if(err){
             return res.status(500).json(err)
@@ -30,7 +31,7 @@ router.post('/create',passport.authenticate('jwt',{session:false}),(req,res)=>{
             errors.outcomeDescription = "This Learning Outcome Already Exists"
             return res.status(400).json(errors)
         }
-        sql = "INSERT INTO LEARNING_OUTCOME (learnDesc, corId) VALUES ("+outcome+","+db.escape(req.user.id) + ")"
+        sql = "INSERT INTO LEARNING_OUTCOME (learnDesc, corId) VALUES ("+outcome+","+adminID + ")"
         db.query(sql,(err,result)=>{
             if(err){
                 return res.status(500).json(err)
@@ -42,11 +43,11 @@ router.post('/create',passport.authenticate('jwt',{session:false}),(req,res)=>{
 
 })
 
-// @route POST api/outcomes/
-// @desc Creates a new learning outcome
+// @route GET api/outcomes/learningOutcomes
+// @desc Generates all outcomes created by the coordinator
 // @access Private
 
-module.exports = router.get('/learningOutcomes',passport.authenticate('jwt',{session:false}),(req, res)=>{
+router.get('/learningOutcomes',passport.authenticate('jwt',{session:false}),(req, res)=>{
     let sql = "SELECT * FROM LEARNING_OUTCOME WHERE corId="+db.escape(req.user.id)
     let outcomes = []
     db.query(sql,(err, result)=>{
@@ -67,4 +68,5 @@ module.exports = router.get('/learningOutcomes',passport.authenticate('jwt',{ses
         
     })
 })
+module.exports = router
 
