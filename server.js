@@ -6,7 +6,6 @@ const db = require('./config/dbconnection')
 const userRouter = require('./routes/api/users')
 const outcomeRouter = require('./routes/api/outcomes')
 const measureRouter = require('./routes/api/measures')
-const cycleRouter = require('./routes/api/assessment-cycles')
 
 const app = express()
 
@@ -26,7 +25,6 @@ require("./config/passport")(passport);
 app.use('/api/users',userRouter)
 app.use('/api/outcomes',outcomeRouter)
 app.use('/api/measures',measureRouter)
-app.use('/api/cycles',cycleRouter)
 
 
 const port = process.env.PORT || 5000

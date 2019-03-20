@@ -47,9 +47,13 @@ router.post('/createOutcome',passport.authenticate('jwt',{session:false}),(req,r
 // @desc Generates all outcomes created by the coordinator
 // @access Private
 
+<<<<<<< HEAD
 
 router.get('/',passport.authenticate('jwt',{session:false}),(req, res)=>{
 
+=======
+router.get('/learningOutcomes',passport.authenticate('jwt',{session:false}),(req, res)=>{
+>>>>>>> parent of ebe095e... Modified routes, Created selection and retrieval routes for outcomes of an assessmnent cycle, all routes working
     let sql = "SELECT * FROM LEARNING_OUTCOME WHERE corId="+db.escape(req.user.id)
     let outcomes = []
     db.query(sql,(err, result)=>{
