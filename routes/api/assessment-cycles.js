@@ -67,7 +67,7 @@ router.get('/',passport.authenticate('jwt',{session:false}),(req, res)=>{
             }
             cycles.push(cycleInfo)
         })
-        res.status(200).json(cycles)
+        res.status(200).json({cycles})
     })
 })
 
@@ -93,7 +93,7 @@ router.get('/:cycleIdentifier',passport.authenticate('jwt',{session:false}),(req
             }
             outcomes.push(outcome)
         })
-        res.status(200).json(outcomes)
+        res.status(200).json({outcomes,cycleIdentifier})
 
     })
 
@@ -139,6 +139,75 @@ router.post('/:cycleIdentifier/:outcomeIdentifier',passport.authenticate('jwt',{
         })
     })
 
+})
+
+// @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier
+// @desc Retrieves measure associated with the given cycle and outcome
+// @access Private
+
+router.get('/:cycleIdentifier/:outcomeIdentifier',passport.authenticate('jwt',{session:false}),(req, res)=>{
+
+    let cycleID = db.escape(req.params.cycleIdentifier)
+    let outcomeID = db.escape(req.params.outcomeIdentifier)
+    let adminID = db.escape(req.user.id)
+
+    let measures = []
+
+    let sql = "SELECT * FROM OUTCOME_MEASURE_ASSOCIATION NATURAL JOIN CYCLE_OUTCOME_ASSOCIATION "+
+                "NATURAL JOIN PERFORMANCE_MEASURE WHERE cycleID="+cycleID+" AND learnID="+outcomeID+
+                " AND corId="+adminID
+
+    db.query(sql,(err,result)=>{
+        if(err){
+            return res.status(500).json(err)
+        }
+        result.forEach(row=>{
+            measure = {
+                measureName:row.measureDesc,
+                measureID:row.measureID
+            }
+            measures.push(measure)
+        })
+        res.status(200).json({measures, cycleID,outcomeID})
+    })
+})
+
+
+// @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier
+// @desc Relates a measure with a outcome which in turn to cycle
+// @access Private 
+
+router.post('/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier',passport.authenticate('jwt',{session:false}),(req, res)=>{
+    let cycleID = db.escape(req.params.cycleIdentifier)
+    let outcomeID = db.escape(req.params.outcomeIdentifier)
+    let measureID = db.escape(req.params.measureIdentifier)
+    let adminID = db.escape(req.user.id)
+
+    let sql = "SELECT * FROM OUTCOME_MEASURE_ASSOCIATION WHERE cycleID="+cycleID+" AND learnID="+outcomeID+" AND measureID="+measureID
+    db.query(sql,(err, result)=>{
+        if(err){
+            return res.status(500).json(err)
+        }
+        else if(result.length>0){
+            return res.status(400).json({errors:"The selected performance measure is already associated with this learning outcome"})
+        }
+        else{
+            sql = "INSERT INTO OUTCOME_MEASURE_ASSOCIATION (cycleID, learnID, measureID) VALUES ("+cycleID+", "+outcomeID+", "+measureID+")"
+            db.query(sql,(err,result)=>{
+                if(err){
+                    return res.status(500).json(err)
+                }
+                let sql1 = "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID="+measureID+" AND corId="+adminID
+                db.query(sql1,(err,result)=>{
+                    if(err){
+                        return res.status(500).json(err)
+                    }
+                    measureName = result[0].measureDesc
+                    res.status(200).json({cycleID,outcomeID,measureID,adminID,measureName})
+                })
+            })
+        }
+    })
 })
 
 module.exports = router
