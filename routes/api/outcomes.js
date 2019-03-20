@@ -47,16 +47,7 @@ router.post('/createOutcome',passport.authenticate('jwt',{session:false}),(req,r
 // @desc Generates all outcomes created by the coordinator
 // @access Private
 
-<<<<<<< HEAD
-router.get('/',passport.authenticate('jwt',{session:false}),(req, res)=>{
-<<<<<<< HEAD
-
-=======
-=======
-router.get('/learningOutcomes',passport.authenticate('jwt',{session:false}),(req, res)=>{
-    console.log("learning outcomes")
->>>>>>> 660cfceeb02dea8df31be354a007581bca8e6b4a
->>>>>>> parent of 3e5304c... Pull conflict totally resolved
+outer.get('/',passport.authenticate('jwt',{session:false}),(req, res)=>{
     let sql = "SELECT * FROM LEARNING_OUTCOME WHERE corId="+db.escape(req.user.id)
     let outcomes = []
     db.query(sql,(err, result)=>{
@@ -78,4 +69,3 @@ router.get('/learningOutcomes',passport.authenticate('jwt',{session:false}),(req
     })
 })
 module.exports = router
-
