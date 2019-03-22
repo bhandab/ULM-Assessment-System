@@ -5,7 +5,7 @@ import { GET_OUTCOMES, GET_ERRORS } from './types';
 export const getOutcomes = () => dispatch => {
 
     axios
-        .get("/api/outcomes/learningOutcomes")
+        .get("/api/outcomes")
         .then(res => {
             //console.log(res.data);
             dispatch({
@@ -22,9 +22,10 @@ export const getOutcomes = () => dispatch => {
         )
 }
 
-export const addOutcome = (outcome, history) => dispatch => {
+export const addOutcome = (outcomeDescription, history) => dispatch => {
+    console.log(history)
     axios
-        .post("/api/outcomes/createOutcome", outcome)
+        .post("/api/outcomes/createOutcome", outcomeDescription)
         .then(res => history.push("/admin/outcomes"))
         .catch(err =>
             dispatch({

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GET_MEASURES } from './types';
+import { GET_MEASURES, GET_ERRORS } from './types';
 
 
 export const getMeasures = () => dispatch => {
@@ -20,3 +20,16 @@ export const getMeasures = () => dispatch => {
         })
         )
 } 
+
+export const addMeasure = (measureDescription, history) => dispatch => {
+    console.log(history)
+    axios
+        .post("/api/measures/createMeasure", measureDescription)
+        .then(res => history.push("/admin/measures"))
+        .catch(err =>
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+            }))
+}
+

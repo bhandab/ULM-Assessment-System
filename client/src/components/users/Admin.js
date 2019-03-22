@@ -22,7 +22,7 @@ class Admin extends Component {
 
                 <main>
                     
-                    <Route path='/admin/outcomes' component={Outcomes} />
+                    <Route exact path='/admin/outcomes' component={Outcomes} />
                     <Route path= '/admin/measures' component={Measures} />
                 </main>
             </Fragment>
