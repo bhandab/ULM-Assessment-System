@@ -45,7 +45,7 @@ router.post('/createMeasure',passport.authenticate('jwt',{session:false}),(req, 
 // @desc Generates all performance measures created by the coordinator
 // @access Private
 
-router.get('/',passport.authenticate('jwt',{session:false}),(req, res)=>{
+router.get('/measures',passport.authenticate('jwt',{session:false}),(req, res)=>{
     let sql = "SELECT * FROM PERFORMANCE_MEASURE WHERE corId="+db.escape(req.user.id)
     let measures = []
     db.query(sql,(err, result)=>{
