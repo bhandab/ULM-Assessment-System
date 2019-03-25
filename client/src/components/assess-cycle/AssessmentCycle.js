@@ -18,7 +18,7 @@ class AssessmentCycle extends Component {
     clickHandler = (e) => {
         this.props.getCycleMeasures(e.target.name)
         //console.log(e.target.name)
-        localStorage.setItem("outcomeID",e.target.name)
+        localStorage.setItem("cycleID",e.target.name)
         //console.log(localStorage.getItem("outcomeID"))
     }
 
