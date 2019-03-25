@@ -1,10 +1,10 @@
 const Validator = require('validator');
-const isEmpty = require('is-empty')
+const isEmpty = require('./isEmpty')
 
 module.exports = function validateOutcomeInput(data){
     let errors = {};
 
-    data.outcomeDescription = !isEmpty(data.outcomeDescription) ? data.outcomeDescription : ""
+    data.outcomeDescription = !isEmpty(data.outcomeDescription) ? data.outcomeDescription.trim() : ""
 
     if(Validator.isEmpty(data.outcomeDescription)){
         errors.outcomeDescription = "Learning Outcome Description Field is required"

@@ -1,10 +1,10 @@
 const Validator = require('validator')
-const isEmpty = require('is-empty')
+const isEmpty = require('./isEmpty')
 
 module.exports = function validateCycleInput(data){
 
     const errors = {};
-    data.cycleTitle = !isEmpty(data.cycleTitle) ? data.cycleTitle : ""
+    data.cycleTitle = !isEmpty(data.cycleTitle) ? data.cycleTitle.trim() : ""
 
 
     //Validate for empty cycle title
