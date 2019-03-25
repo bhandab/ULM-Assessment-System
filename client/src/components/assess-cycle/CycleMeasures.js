@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { getCycleMeasures, linkOutcomeToCycle } from '../../actions/assessmentCycleAction';
-import { getOutcomes} from '../../actions/outcomesAction'
+import { getOutcomes } from '../../actions/outcomesAction'
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-//import Measures from '../contents/Measures';
 
 
 class CycleMeasures extends Component {
@@ -14,33 +13,31 @@ class CycleMeasures extends Component {
 
     componentDidMount() {
 
-        let id = localStorage.getItem("outcomeID")
-        this.props.getCycleMeasures(id) //measures means outcomes
-        //console.log(this.props)
+        let id = this.props.match.params.id;
+        this.props.getCycleMeasures(id)
 
     }
 
+   
     clickHandler = (e) => {
         e.preventDefault()
-        this.setState({ addOutcomes: !this.state.addOutcomes })
-        //console.log("turn on select mesasures")
+
         if (!this.state.addOutcomes) {
-            console.log("Outcomes fetched")
             this.props.getOutcomes()
         }
-        
+        this.setState({ addOutcomes: !this.state.addOutcomes })
+
     }
 
     measureAddHandler = (e) => {
         e.preventDefault();
-        console.log(e.target.outcomes.value)
         this.props.linkOutcomeToCycle(localStorage.getItem("cycleID"), e.target.outcomes.value)
         window.location.reload()
-        
+
     }
 
     render() {
-        console.log(this.props)
+         console.log(this.props)
 
         let list = <p>Loading!!</p>
 
@@ -59,17 +56,14 @@ class CycleMeasures extends Component {
         let selections = null
         if (this.state.addOutcomes) {
             if (Object.keys(this.props.outcomes.outcomes) !== 0) {
-                console.log("entered here")
                 if (this.props.outcomes.outcomes.length > 0) {
                     selections = this.props.outcomes.outcomes.map(item => {
-                        console.log("list manipulated")
-                        return (<option  key={item.outcomeID} value={item.outcomeID}>{item.outcomeDescription}</option>)
+                        return (<option key={item.outcomeID} value={item.outcomeID}>{item.outcomeDescription}</option>)
                     })
                 }
             }
         }
-        else{
-            console.log("Got fucked")
+        else {
         }
         return (
             <Fragment>
@@ -84,12 +78,12 @@ class CycleMeasures extends Component {
                         <div>
                             <br></br>
                             <h4>Please Select Measure(s):</h4>
-                                <form onSubmit={this.measureAddHandler.bind(this)}>
-                                 <select name="outcomes">{selections}</select>
-                                 <br></br>
-                                 <br></br>
+                            <form onSubmit={this.measureAddHandler.bind(this)}>
+                                <select name="outcomes">{selections}</select>
+                                <br></br>
+                                <br></br>
                                 <button type="submit" className="btn btn-outline-primary btn-sm" value="submit">Submit</button>
-                                </form>                
+                            </form>
                         </div>
                         : null}
 
@@ -102,20 +96,19 @@ class CycleMeasures extends Component {
 
 }
 
+
 CycleMeasures.propTypes = {
     getCycleMeasures: PropTypes.func.isRequired,
     getOutcomes: PropTypes.func.isRequired,
     linkOutcomeToCycle: PropTypes.func.isRequired,
-    auth: PropTypes.object.isRequired
-
-    //getAssessmentCycles: PropTypes.func.isRequired
+    cycles: PropTypes.object.isRequired,
 }
 
 const mapStateToProps = state => ({
-    auth: state.auth,
     cycleMeasures: state.cycleMeasures,
     cycles: state.cycles,
     outcomes: state.outcomes
 })
 
-export default connect(mapStateToProps, { getCycleMeasures, getOutcomes, linkOutcomeToCycle })(CycleMeasures);
+
+export default connect(mapStateToProps, { getOutcomes, linkOutcomeToCycle, getCycleMeasures })(CycleMeasures);

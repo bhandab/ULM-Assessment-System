@@ -1,10 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { getAssessmentCycles, getCycleMeasures,createCycle } from '../../actions/assessmentCycleAction'
+import { getAssessmentCycles, createCycle } from '../../actions/assessmentCycleAction'
 import PropTypes from "prop-types"
 import { Link, Route} from 'react-router-dom'
-
-//import CycleMeasures from './CycleMeasures'; 
 
 
 class AssessmentCycle extends Component {
@@ -15,14 +13,7 @@ class AssessmentCycle extends Component {
         
     }
 
-    clickHandler = (e) => {
-        this.props.getCycleMeasures(e.target.name)
-        //console.log(e.target.name)
-        localStorage.setItem("cycleID",e.target.name)
-        //console.log(localStorage.getItem("outcomeID"))
-    }
-
-    submitHandler= (e) => {
+     submitHandler= (e) => {
         e.preventDefault()
         let value = e.target.cycleName.value
         this.props.createCycle({cycleTitle:value},this.props.history)
@@ -32,7 +23,6 @@ class AssessmentCycle extends Component {
     }
 
     renderMeasures = () => {
-        //console.log("render Measures")
         console.log(this.props)
     }
 
@@ -41,14 +31,14 @@ class AssessmentCycle extends Component {
     render() {
         
 
-        //console.log(this.props)
         let cyclesList = null
         if (this.props.cycles.cycles === null) {
             cyclesList = <p>Loading Assessment Cycles </p>
         }
         else {
+
             cyclesList = this.props.cycles.cycles.cycles.map(cycle =>
-                <li key={cycle.cycleID}><Link params={cycle.cycleName} name={cycle.cycleID} onClick={this.clickHandler.bind(this)}
+                <li key={cycle.cycleID}><Link params={cycle.cycleName} name={cycle.cycleID}
                     to={{
                         pathname: "/admin/cycles/"+cycle.cycleID,
                         state: {name: cycle.cycleName}
@@ -59,10 +49,7 @@ class AssessmentCycle extends Component {
             )
         }
 
-        //let cycleMeasures = null
-        // if(cycle)
-
-        //console.log(cyclesList)
+        
         return (
             <Fragment>
                 <section className="panel important">
@@ -92,7 +79,6 @@ class AssessmentCycle extends Component {
 
 AssessmentCycle.propTypes = {
     getAssessmentCycles: PropTypes.func.isRequired,
-    getCycleMeasures: PropTypes.func.isRequired,
     createCycle: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired
 }
@@ -100,7 +86,6 @@ AssessmentCycle.propTypes = {
 const mapStateToProps = state => ({
     auth: state.auth,
     cycles: state.cycles,
-    cycleMeasures: state.cycleMeasures
 })
 
-export default connect(mapStateToProps, { getAssessmentCycles, getCycleMeasures, createCycle }) (AssessmentCycle);
+export default connect(mapStateToProps, { getAssessmentCycles, createCycle }) (AssessmentCycle);

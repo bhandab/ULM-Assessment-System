@@ -1,10 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { Route} from 'react-router-dom';
-
-//import './Style.css'
+import { Route, Switch} from 'react-router-dom';
 
 import AdminLayout from '../layouts/AdminLayout'
-//import CreateRubric from '../../rubrics/CreateRubric'
 import Outcomes from '../contents/Outcomes'
 import Measures from '../contents/Measures'
 import AssessmentCycle from "../assess-cycle/AssessmentCycle";
@@ -23,11 +20,13 @@ class Admin extends Component {
                 <AdminLayout></AdminLayout>
 
                 <main>
+                    <Switch>
                     <Route exact path ='/admin/outcomes' component={Outcomes} />
-                    <Route path = '/admin/measures' component={Measures} />
-                    <Route exact path = '/admin/cycles' component = {AssessmentCycle}/>
-                   
-                    <Route path = {'/admin/cycles/' + localStorage.getItem("cycleID")} component = {CycleMeasures} />
+                    <Route exact path = '/admin/measures' component={Measures} />
+                    <Route exact path='/admin/cycles/:id(\d+)' component={CycleMeasures} />
+                    <Route path = '/admin/cycles' component = {AssessmentCycle}/>
+                    </Switch>
+                    
                 </main>
             </Fragment>
 
