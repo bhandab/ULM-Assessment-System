@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {GET_CYCLES, GET_MEASURES} from './types';
+import {GET_ERRORS, GET_CYCLES, GET_MEASURES} from './types';
 
 export const getAssessmentCycles = () => dispatch => {
     axios
@@ -15,6 +15,18 @@ export const getAssessmentCycles = () => dispatch => {
             type: GET_CYCLES,
             payload: []
         }))
+}
+
+export const createCycle = (cycleName, history) => dispatch => {
+    console.log(history)
+    axios
+        .post("/api/cycles/createCycle", cycleName)
+        .then(() => history.push("/admin/cycles"))
+        .catch(err =>
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+            }))
 }
 
 export const getCycleMeasures = (location) => dispatch => {

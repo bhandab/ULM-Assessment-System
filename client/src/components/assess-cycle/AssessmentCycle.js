@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { getAssessmentCycles, getCycleMeasures } from '../../actions/assessmentCycleAction'
+import { getAssessmentCycles, getCycleMeasures, createCycle } from '../../actions/assessmentCycleAction'
 import PropTypes from "prop-types"
 import { Link, Route, withRouter } from 'react-router-dom'
 
@@ -20,6 +20,15 @@ class AssessmentCycle extends Component {
         
         this.props.getCycleMeasures(e.target.name)
         console.log(e.target.name)
+    }
+
+    submitHandler= (e) => {
+        e.preventDefault()
+        let value = e.target.cycleName.value
+        this.props.createCycle({cycleTitle:value},this.props.history)
+        window.location.reload()
+        
+
     }
 
     renderMeasures = () => {
@@ -48,7 +57,7 @@ class AssessmentCycle extends Component {
             )
         }
 
-        let cycleMeasures = null
+        //let cycleMeasures = null
         // if(cycle)
 
         //console.log(cyclesList)
@@ -59,6 +68,14 @@ class AssessmentCycle extends Component {
                     <ol>{cyclesList}</ol>
                 </section>
 
+                <section className="panel important">
+                    <h2>Create New Cycle</h2>
+                    <form onSubmit = {this.submitHandler.bind(this)}>
+                    <input type="text" name="cycleName" placeholder = "Cycle Name"/> 
+                    <button className = "btn btn-primary btn-sm" type="submit" value="Create">Create</button> 
+                    </form>
+
+                </section>
                 <section className="panel important">
                                             
                     <Route 
@@ -74,6 +91,7 @@ class AssessmentCycle extends Component {
 AssessmentCycle.propTypes = {
     getAssessmentCycles: PropTypes.func.isRequired,
     getCycleMeasures: PropTypes.func.isRequired,
+    createCycle: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired
 }
 
@@ -85,5 +103,5 @@ const mapStateToProps = state => ({
 
 export default connect(
     mapStateToProps,
-    { getAssessmentCycles, getCycleMeasures })
+    { getAssessmentCycles, getCycleMeasures, createCycle })
     (AssessmentCycle);
