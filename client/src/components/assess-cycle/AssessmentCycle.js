@@ -60,8 +60,7 @@ class AssessmentCycle extends Component {
                 </section>
 
                 <section className="panel important">
-                    <h3>Assessment Cycle</h3>
-                        
+                                            
                     <Route 
                     path="/admin/cycles/1" 
                     render={(props) => <CycleMeasures {...this.props}/>}
