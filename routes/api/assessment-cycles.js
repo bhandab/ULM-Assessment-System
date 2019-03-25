@@ -85,16 +85,25 @@ router.get('/:cycleIdentifier',passport.authenticate('jwt',{session:false}),(req
             " WHERE cycleID="+cycleIdentifier+" AND corId="+adminID
     db.query(sql,(err,result)=>{
         if(err) {return res.status(500).json(err)}
-
+        //let name = angel
         result.forEach(row=>{
             outcome = {
                 outcomeName:row.learnDesc,
-                outcomeID: row.learnID
+                outcomeID: row.learnID,
+                
             }
             outcomes.push(outcome)
         })
-        res.status(200).json({outcomes,cycleIdentifier})
+        let sql1 = "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID = " + cycleIdentifier +" AND corId = "+adminID
+        db.query(sql1, (err, result) => {
+            if (err) { return res.status(500).json(err) }  
+            console.log(result)
+            let cycleName = result[0].cycleTitle
+          
+            res.status(200).json({ outcomes, cycleIdentifier, cycleName })
 
+        })
+        
     })
 
 })

@@ -29,9 +29,6 @@ class Admin extends Component {
                     
                 </main>
             </Fragment>
-
-
-
         )
 
     }

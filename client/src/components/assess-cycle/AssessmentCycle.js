@@ -41,8 +41,7 @@ class AssessmentCycle extends Component {
                 <li key={cycle.cycleID}><Link params={cycle.cycleName} name={cycle.cycleID}
                     to={{
                         pathname: "/admin/cycles/"+cycle.cycleID,
-                        state: {name: cycle.cycleName}
-                         
+                                              
                     }}>
                     {cycle.cycleName}</Link>
                 </li>

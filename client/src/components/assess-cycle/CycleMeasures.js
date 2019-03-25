@@ -37,8 +37,8 @@ class CycleMeasures extends Component {
     }
 
     render() {
-         console.log(this.props)
-
+        
+        let title = null
         let list = <p>Loading!!</p>
 
         if (this.props.cycles.cycleMeasures !== null) {
@@ -46,6 +46,7 @@ class CycleMeasures extends Component {
                 list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
                     return (<li key={outcome.outcomeID}>{outcome.outcomeName}</li>)
                 })
+                title = this.props.cycles.cycleMeasures.cycleName
             }
 
             else {
@@ -58,7 +59,9 @@ class CycleMeasures extends Component {
             if (Object.keys(this.props.outcomes.outcomes) !== 0) {
                 if (this.props.outcomes.outcomes.length > 0) {
                     selections = this.props.outcomes.outcomes.map(item => {
-                        return (<option key={item.outcomeID} value={item.outcomeID}>{item.outcomeDescription}</option>)
+                        return (<option key={item.outcomeID} value={item.outcomeID}>
+                            {item.outcomeDescription}
+                            </option>)
                     })
                 }
             }
@@ -68,7 +71,7 @@ class CycleMeasures extends Component {
         return (
             <Fragment>
                 <section className="panel important">
-                    <h2>{this.props.location.state.name}</h2>
+                    <h2>{title}</h2>
                     <ol>{list}</ol>
                 </section>
 
