@@ -1,5 +1,5 @@
 const Validator = require('validator');
-const isEmpty = require('is-empty')
+const isEmpty = require('./isEmpty')
 
 
 module.exports = function validateLoginInput(data){
@@ -8,8 +8,8 @@ module.exports = function validateLoginInput(data){
 
     //Convert empty fields to an empty string so we can use validator functions as validator can validate null values
 
-    data.email = !isEmpty(data.email) ? data.email : ""
-    data.password = !isEmpty(data.password) ? data.password : ""
+    data.email = !isEmpty(data.email) ? data.email.trim() : ""
+    data.password = !isEmpty(data.password) ? data.password.trim() : ""
 
     //Email Validations
     if(Validator.isEmpty(data.email)){
