@@ -7,36 +7,31 @@ class Outcomes extends Component {
 
     state = {
         outcomeDescription: ""
-        
+
     }
 
 
-    componentDidMount(){
+    componentDidMount() {
         this.props.getOutcomes();
-       
+
 
     }
 
-   /* componentWillReceiveProps = () => {
-        window.location.reload()
-    }
-*/
-    onChangeHandler(e){
+    onChangeHandler(e) {
         e.preventDefault();
-        this.setState({outcomeDescription:e.target.value})
+        this.setState({ outcomeDescription: e.target.value })
 
     }
 
-    onSubmitHandler(e){
+    onSubmitHandler(e) {
         e.preventDefault()
         this.props.addOutcome(this.state, this.props.history)
         window.location.reload()
-        
-        
+
+
     }
 
     render() {
-        console.log(this.props)
         let outcomesList = null
         if (this.props.outcomes.outcomes[0] === undefined) {
             outcomesList = <h3> Loading Outcomes LIst</h3>
@@ -60,8 +55,8 @@ class Outcomes extends Component {
                 <section className="panel important">
                     <h2>Add Outcomes</h2>
                     <form>
-                        <input type="text" name="outcomeDescription" onChange = {this.onChangeHandler.bind(this)} placeholder="Enter the outcome" value={this.state.outcome}/>
-                        <input type="submit" value="Add"onClick={this.onSubmitHandler.bind(this)}/>
+                        <input type="text" name="outcomeDescription" onChange={this.onChangeHandler.bind(this)} placeholder="Enter the outcome" value={this.state.outcome} />
+                        <input type="submit" value="Add" onClick={this.onSubmitHandler.bind(this)} />
                     </form>
                 </section>
 
@@ -83,5 +78,5 @@ const mapStateToProps = state => ({
 
 export default connect(
     mapStateToProps,
-    { getOutcomes , addOutcome}
+    { getOutcomes, addOutcome }
 )(Outcomes);

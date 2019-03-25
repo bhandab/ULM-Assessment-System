@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import jwt_decode from 'jwt-decode';
 import setAuthToken from './utils/setAuthToken';
 
@@ -41,14 +41,14 @@ class App extends Component {
     return (
 
       <Provider store={store}>
-        <BrowserRouter>
+        <Router>
           <div className="App">
             <Route path='/admin' component={Admin}></Route>
             <Route path='/evaluator' component={Evaluator}></Route>
             <Route path='/login' exact component={Login}></Route>
             <Route path='/' exact component={Login} />
           </div>
-        </BrowserRouter>
+        </Router>
       </Provider>
 
     );

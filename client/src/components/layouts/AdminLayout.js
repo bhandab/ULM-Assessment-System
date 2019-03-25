@@ -40,7 +40,7 @@ class AdminLayout extends Component {
                         <li className="outcomes"><Link to="/admin/outcomes">Outcomes</Link></li>
                         <li className="perf-measures"><Link to="/admin/measures">Performance Measures</Link></li>
                         <li className="rubrics"><Link to="/admin/rubrics" >Rubrics</Link></li>
-                        <li className="assess-cycle"><Link to="/admin/asses-cycle" >Assessment Cycle</Link></li>
+                        <li className="assess-cycle"><Link to="/admin/cycles" >Assessment Cycle</Link></li>
                     </ul>
                 </nav>
 

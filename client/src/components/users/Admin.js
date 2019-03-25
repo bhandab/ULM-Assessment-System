@@ -7,6 +7,7 @@ import AdminLayout from '../layouts/AdminLayout'
 //import CreateRubric from '../../rubrics/CreateRubric'
 import Outcomes from '../contents/Outcomes'
 import Measures from '../contents/Measures'
+import AssessmentCycle from "../assess-cycle/AssessmentCycle";
 
 
 class Admin extends Component {
@@ -21,9 +22,9 @@ class Admin extends Component {
                 <AdminLayout></AdminLayout>
 
                 <main>
-                    
-                    <Route exact path='/admin/outcomes' component={Outcomes} />
-                    <Route path= '/admin/measures' component={Measures} />
+                    <Route exact path ='/admin/outcomes' component={Outcomes} />
+                    <Route path = '/admin/measures' component={Measures} />
+                    <Route path = '/admin/cycles' component = {AssessmentCycle} />
                 </main>
             </Fragment>
 

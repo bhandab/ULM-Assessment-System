@@ -32,6 +32,7 @@ class Measures extends Component {
         if (this.props.measures.measures === null ) {
             measuresList = <h3> Loading Measures List</h3>
         }
+
         else {
             measuresList = this.props.measures.measures.map(measure =>
                 <li key={measure.measureID}>{measure.measureDescription}</li>

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './Login.css';
 import { connect } from 'react-redux';
 import { loginUser } from '../../actions/authActions';
-//import classnames from "classnames"
+import {isEmpty} from '../../utils/isEmpty'
 import PropTypes from 'prop-types'
 
 class Login extends Component {
@@ -59,7 +59,16 @@ class Login extends Component {
     }
 
     render() {
-        const { errors } = this.state
+        
+    
+        let errorMessage = null
+        //console.log(this.state.errors)
+        
+        if (!isEmpty(this.state.errors.errors || this.state.errors.errors === undefined ) ){
+            console.log(this.state.errors.errors)
+            window.alert("The unsername or password is incorrect")
+            errorMessage = <span><p> The unsername or password is incorrect </p></span>
+        }
 
         return (
             <div className="wrapper">
@@ -67,6 +76,7 @@ class Login extends Component {
                     <h2 className="form-signin-heading">Please Login</h2>
                     <input type="text" className="form-control" name="email" placeholder="Username" required="" autoFocus="" value={this.state.email} onChange={this.onChangeHandler.bind(this)} />
                     <input type="password" className="form-control" name="password" placeholder="Password" required="" value={this.state.password} onChange={this.onChangeHandler} />
+                    {errorMessage}
                     <label className="checkbox">
                         <input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe" /> Remember Me
                         </label>
