@@ -29,6 +29,18 @@ export const createCycle = (cycleName, history) => dispatch => {
             }))
 }
 
+export const linkOutcomeToCycle = (cycleID, outcomeID, history) => dispatch => {
+    // console.log(history)
+    axios
+        .post("/api/cycles/"+cycleID+"/"+outcomeID)
+        //.then(() => history.push("/admin/cycles"))
+        .catch(err =>
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+            }))
+}
+
 export const getCycleMeasures = (location) => dispatch => {
     //console.log("cycle measures")
     axios

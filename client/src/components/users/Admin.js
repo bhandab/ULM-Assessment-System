@@ -27,7 +27,7 @@ class Admin extends Component {
                     <Route path = '/admin/measures' component={Measures} />
                     <Route exact path = '/admin/cycles' component = {AssessmentCycle}/>
                    
-                    <Route path = {'/admin/cycles/' + localStorage.getItem("outcomeID")} component = {CycleMeasures} />
+                    <Route path = {'/admin/cycles/' + localStorage.getItem("cycleID")} component = {CycleMeasures} />
                 </main>
             </Fragment>
 
