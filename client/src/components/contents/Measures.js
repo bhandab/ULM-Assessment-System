@@ -27,7 +27,7 @@ class Measures extends Component {
 
     render() {
         let measuresList = null
-        console.log(this.props)
+       // console.log(this.props)
 
         if (this.props.measures.measures === null ) {
             measuresList = <h3> Loading Measures List</h3>

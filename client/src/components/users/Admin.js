@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Route, withRouter } from 'react-router-dom';
+import { Route} from 'react-router-dom';
 
 //import './Style.css'
 
@@ -8,6 +8,7 @@ import AdminLayout from '../layouts/AdminLayout'
 import Outcomes from '../contents/Outcomes'
 import Measures from '../contents/Measures'
 import AssessmentCycle from "../assess-cycle/AssessmentCycle";
+import CycleMeasures from "../assess-cycle/CycleMeasures"
 
 
 class Admin extends Component {
@@ -24,7 +25,9 @@ class Admin extends Component {
                 <main>
                     <Route exact path ='/admin/outcomes' component={Outcomes} />
                     <Route path = '/admin/measures' component={Measures} />
-                    <Route path = '/admin/cycles' component = {AssessmentCycle} />
+                    <Route exact path = '/admin/cycles' component = {AssessmentCycle}/>
+                   
+                    <Route path = {'/admin/cycles/' + localStorage.getItem("outcomeID")} component = {CycleMeasures} />
                 </main>
             </Fragment>
 
@@ -35,4 +38,4 @@ class Admin extends Component {
     }
 }
 
-export default withRouter(Admin)
+export default Admin

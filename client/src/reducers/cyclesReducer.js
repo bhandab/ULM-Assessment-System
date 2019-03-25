@@ -1,4 +1,4 @@
-import { GET_CYCLES, GET_MEASURES } from "../actions/types";
+import { GET_CYCLES, GET_CYCLES_MEASURES } from "../actions/types";
 
 const initialState = {
     cycles: null,
@@ -12,7 +12,7 @@ export default function (state = initialState, action) {
                 ...state,
                 cycles: action.payload
             }
-        case GET_MEASURES:
+        case GET_CYCLES_MEASURES:
             return{
                 ...state,
                 cycleMeasures: action.payload

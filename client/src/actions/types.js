@@ -3,4 +3,5 @@ export const GET_ERRORS = "GET_ERRORS";
 export const USER_LOADING = "USER_LOADING";
 export const GET_OUTCOMES = "GET_OUTCOMES";
 export const GET_MEASURES = "GET_MEASURES";
-export const GET_CYCLES = "GET_CYCLES"
+export const GET_CYCLES = "GET_CYCLES";
+export const GET_CYCLES_MEASURES = "GET_CYCLES_MEASURES";

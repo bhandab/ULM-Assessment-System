@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { getAssessmentCycles, getCycleMeasures, createCycle } from '../../actions/assessmentCycleAction'
+import { getAssessmentCycles, getCycleMeasures,createCycle } from '../../actions/assessmentCycleAction'
 import PropTypes from "prop-types"
-import { Link, Route, withRouter } from 'react-router-dom'
+import { Link, Route} from 'react-router-dom'
 
-import CycleMeasures from './CycleMeasures'; 
+//import CycleMeasures from './CycleMeasures'; 
 
 
 class AssessmentCycle extends Component {
@@ -16,10 +16,10 @@ class AssessmentCycle extends Component {
     }
 
     clickHandler = (e) => {
-
-        
         this.props.getCycleMeasures(e.target.name)
-        console.log(e.target.name)
+        //console.log(e.target.name)
+        localStorage.setItem("outcomeID",e.target.name)
+        //console.log(localStorage.getItem("outcomeID"))
     }
 
     submitHandler= (e) => {
@@ -39,6 +39,7 @@ class AssessmentCycle extends Component {
 
 
     render() {
+        
 
         //console.log(this.props)
         let cyclesList = null
@@ -47,10 +48,11 @@ class AssessmentCycle extends Component {
         }
         else {
             cyclesList = this.props.cycles.cycles.cycles.map(cycle =>
-                <li key={cycle.cycleID}><Link name={cycle.cycleID} onClick={this.clickHandler.bind(this)}
+                <li key={cycle.cycleID}><Link params={cycle.cycleName} name={cycle.cycleID} onClick={this.clickHandler.bind(this)}
                     to={{
                         pathname: "/admin/cycles/"+cycle.cycleID,
-                        
+                        state: {name: cycle.cycleName}
+                         
                     }}>
                     {cycle.cycleName}</Link>
                 </li>
@@ -80,7 +82,7 @@ class AssessmentCycle extends Component {
                                             
                     <Route 
                     path="/admin/cycles/1" 
-                    render={(props) => <CycleMeasures {...this.props}/>}
+                    render={() =><p>cycle outcomes</p>}
                     />
                 </section>
             </Fragment>
@@ -101,7 +103,4 @@ const mapStateToProps = state => ({
     cycleMeasures: state.cycleMeasures
 })
 
-export default connect(
-    mapStateToProps,
-    { getAssessmentCycles, getCycleMeasures, createCycle })
-    (AssessmentCycle);
+export default connect(mapStateToProps, { getAssessmentCycles, getCycleMeasures, createCycle }) (AssessmentCycle);
