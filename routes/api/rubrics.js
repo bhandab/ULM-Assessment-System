@@ -102,34 +102,40 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
 
                         let table = []
                         
-                        async.forEachOf(criterias,  function(value,key,callback){
+                        async.forEachOf(scales, function(value,key,callback){
                             
                             let cellDescription = "";
-                            let associatedCriteraID = value.criteriaID
-                            console.log(associatedCriteraID)
+                            //let associatedCriteraID = value.criteriaID
+                            let associatedScaleID = value.scaleID
+                            console.log(associatedScaleID)
                             let rows = []
-                            async.forEachOf(scales, function(value,key,inner_callback){
-                                let associatedScaleID = value.scaleID
-                                console.log(associatedScaleID)
+
+                            let index1 = key
+                            let index2 = 0
+
+                            async.forEachOf(criterias, function(value,key,inner_callback){
+                                let associatedCriteriaID = value.criteriaID
+                                index2 = key
+                                console.log(associatedCriteriaID)
                                 let sql5 = "INSERT INTO LEVEL_DESCRIPTION (criteriaID, scaleID) "+
-                                            "VALUES ("+associatedCriteraID+", "+associatedScaleID+")"
+                                            "VALUES ("+associatedCriteriaID+", "+associatedScaleID+")"
                                             console.log(sql5)
 
-                                   db.query(sql5,function (err,result){
+                                    db.query(sql5,function (err,result){
                                     if(!err){
                                         console.log(result)
                                         let levelID = result.insertId
                                         rows.push({
                                             levelID,
-                                            associatedCriteraID,
+                                            associatedCriteriaID,
                                             associatedScaleID,
-                                             cellDescription
+                                            cellDescription
                                          })
                                          inner_callback()
                                     }
                                     else{
                                         console.log("Reaches here")
-                                        inner_callback(err)
+                                        return inner_callback(err)
                                     }
                                     //console.log(result)
                                     //let levelID = result.insertId
@@ -143,22 +149,28 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
                                     console.log(rows)
                                     table.push(rows)
                                     console.log(table)
-                                    
+                                    rubricDetails.cellInfo = table
+                                    if(index1 === scales.length-1 && index2===criterias.length-1){
+                                        res.status(200).json(rubricDetails)
+                                    }
                                 }
                                 
                                 
                                 
                             })
                             
-                            callback()
-                        },function(err){
+                             callback()
+                        },  function(err){
                             if(err){
                                  throw err
                             }
-                            else{
-                                rubricDetails.cellInfo = table
-                                res.status(200).json({rubricDetails})
-                            }
+                            // else{
+                               
+                                 
+                            //     //console.log("Is here")
+                            //      //console.log(table)
+                            //      //res.status(200).json({rubricDetails})
+                            // }
                         })
                         
 
