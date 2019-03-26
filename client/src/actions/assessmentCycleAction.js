@@ -41,19 +41,23 @@ export const linkOutcomeToCycle = (cycleID, outcomeID, history) => dispatch => {
             }))
 }
 
-export const getCycleMeasures = (location) => dispatch => {
-    //console.log("cycle measures")
+export const getCycleMeasures = (location) => dispatch => { //outcomes of a cycle
+    console.log(location)
     axios
     .get("/api/cycles/"+location)
     .then(res => {
+        console.log(res.data)
         dispatch({
             type: GET_CYCLES_MEASURES,
             payload: res.data
         })
     })
+    .catch (err =>  {
+        console.log(err)
+        dispatch({
+            type: GET_CYCLES_MEASURES,
+            payload: []
 
-    .catch (err => dispatch({
-        type: GET_CYCLES_MEASURES,
-        payload: []
-    }))
+    }
+    )})
 }
