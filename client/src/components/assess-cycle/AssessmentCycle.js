@@ -22,9 +22,9 @@ class AssessmentCycle extends Component {
 
     }
 
-    renderMeasures = () => {
+   /* renderMeasures = () => {
         console.log(this.props)
-    }
+    }*/
 
 
 
@@ -65,11 +65,7 @@ class AssessmentCycle extends Component {
 
                 </section>
                 <section className="panel important">
-                                            
-                    <Route 
-                    path="/admin/cycles/1" 
-                    render={() =><p>cycle outcomes</p>}
-                    />
+                
                 </section>
             </Fragment>
         )

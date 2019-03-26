@@ -41,12 +41,16 @@ class CycleMeasures extends Component {
 
         let title = null
         let list = <p>Loading!!</p>
-
+        
+        console.log(this.props)
         if (this.props.cycles.cycleMeasures !== null) {
+            let cycleID = this.props.cycles.cycleMeasures.cycleIdentifier
+           cycleID = cycleID.substr(1,1)
+            cycleID = parseInt(cycleID, 10)
             if (this.props.cycles.cycleMeasures.outcomes.length > 0) {
                 list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
                     return (<li key={outcome.outcomeID}>
-                        <Link to ="/admin/cycles">
+                        <Link to={"/admin/cycles/"+cycleID+"/"+outcome.outcomeID}>
                         {outcome.outcomeName}
                         </Link>
                         </li>)
