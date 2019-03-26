@@ -164,44 +164,9 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
                             if(err){
                                  throw err
                             }
-                            // else{
-                               
-                                 
-                            //     //console.log("Is here")
-                            //      //console.log(table)
-                            //      //res.status(200).json({rubricDetails})
-                            // }
-                        })
-                        
-
-                        
-                        /*for(var i = 1; i<noOfRows;i++){
-                            let associatedCriteraID = criterias[i-1].criteriaID
-                            let rows = []
-                            for(var j=1; j<noOfColumns;j++){
-                                 
-                                let associatedScaleID = scales[j-1].scaleID
-                                let sql5 = "INSERT INTO LEVEL_DESCRIPTION (criteriaID,scaleID, levelDesc) VALUES ("+associatedCriteraID+", "+associatedScaleID+", "+cellDescription+")"
-                                db.query(sql5,(err,result)=>{
-                                    if(err){
-                                        throw err
-                                    }
-                                    let levelID = result.insertId
-                                    rows.push({
-                                       levelID,
-                                       associatedCriteraID,
-                                       associatedScaleID,
-                                        cellDescription
-                                    })
-                                })
-                            }
-                            table.push(rows)
-                        }
-                        rubricDetails.cellInfo = table
-                        res.status(200).json({rubricDetails})*/
-
+                            
+                        }) 
                     })
-
                 })
             })
         })
