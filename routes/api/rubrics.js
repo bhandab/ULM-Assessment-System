@@ -56,7 +56,7 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
                 let values = []
                 let sql3 = "INSERT INTO RATING_SCALE (toolID, scaleDesc) VALUES ?"
                 let scaleDescription = ""
-                for (var i = 1; i<noOfRows; i++){
+                for (var i = 1; i<noOfColumns; i++){
                     values.push([rubricID, scaleDescription])
                     
                 }
@@ -67,7 +67,7 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
                     }
                     
                     let scaleID = result.insertId
-                    for (var i = 1; i<noOfRows; i++){
+                    for (var i = 1; i<noOfColumns; i++){
                         scales.push({scaleID,scaleDescription})
                         scaleID++
                     }
@@ -79,7 +79,7 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
                     let crValues=[]
                     let sql4 = "INSERT INTO CRITERIA (toolID,criteriaDesc) VALUES ?"
                     let criteriaDescription = ""
-                    for (var i = 1; i<noOfColumns;i++){
+                    for (var i = 1; i<noOfRows;i++){
                         crValues.push([rubricID,criteriaDescription])
                     }
 
@@ -89,7 +89,7 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
                             return res.status(500).json(err)
                         }
                         let criteriaID = result.insertId
-                        for (var i = 1; i<noOfColumns;i++){
+                        for (var i = 1; i<noOfRows;i++){
                             criterias.push({criteriaID,criteriaDescription})
                             criteriaID++
                         }
@@ -99,20 +99,20 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
 
 
                         let table = []
-                        async.forEachOf(scales, function(value,key,callback){
+                        async.forEachOf(criterias, function(value,key,callback){
                             
                             let cellDescription = "";
-                            let associatedScaleID = value.scaleID
-                            console.log(associatedScaleID)
+                            let associatedCriteriaID = value.criteriaID
+                            console.log(associatedCriteriaID)
                             let rows = []
 
                             let index1 = key
                             let index2 = 0
 
-                            async.forEachOf(criterias, function(value,key,inner_callback){
-                                let associatedCriteriaID = value.criteriaID
+                            async.forEachOf(scales, function(value,key,inner_callback){
+                                let associatedScaleID = value.scaleID
                                 index2 = key
-                                console.log(associatedCriteriaID)
+                                console.log(associatedScaleID)
                                 let sql5 = "INSERT INTO LEVEL_DESCRIPTION (criteriaID, scaleID) "+
                                             "VALUES ("+associatedCriteriaID+", "+associatedScaleID+")"
                                             console.log(sql5)
@@ -144,7 +144,7 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
                                     table.push(rows)
                                     console.log(table)
                                     rubricDetails.cellInfo = table
-                                    if(index1 === scales.length-1 && index2===criterias.length-1){
+                                    if(index1 === criterias.length-1 && index2===scales.length-1){
                                         res.status(200).json(rubricDetails)
                                     }
                                 }
