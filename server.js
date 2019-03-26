@@ -25,6 +25,8 @@ app.use(passport.initialize());
 // Passport config
 require("./config/passport")(passport);
 
+const port = process.env.PORT || 5000
+
 app.use('/api/users',userRouter)
 app.use('/api/outcomes',outcomeRouter)
 app.use('/api/measures',measureRouter)
@@ -39,7 +41,7 @@ if(process.env.NODE_ENV === 'production'){
     })
 }
 
-const port = process.env.PORT || 5000
+
 
 app.listen(port,()=>{
     console.log('Server listening to port ', port);
