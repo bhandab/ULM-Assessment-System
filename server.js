@@ -7,6 +7,7 @@ const userRouter = require('./routes/api/users')
 const outcomeRouter = require('./routes/api/outcomes')
 const measureRouter = require('./routes/api/measures')
 const cycleRouter = require('./routes/api/assessment-cycles')
+const rubricRouter = require('./routes/api/rubrics')
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use('/api/users',userRouter)
 app.use('/api/outcomes',outcomeRouter)
 app.use('/api/measures',measureRouter)
 app.use('/api/cycles',cycleRouter)
+app.use('/api/rubrics',rubricRouter)
 
 
 const port = process.env.PORT || 5000
