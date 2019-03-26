@@ -41,6 +41,18 @@ export const linkOutcomeToCycle = (cycleID, outcomeID, history) => dispatch => {
             }))
 }
 
+export const linkMeasureToOutcome = (cycleID, outcomeID, measureID, history) => dispatch => {
+    // console.log(history)
+    axios
+        .post("/api/cycles/" + cycleID + "/" + outcomeID +"/"+measureID)
+        //.then(() => history.push("/admin/cycles"))
+        .catch(err =>
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+            }))
+}
+
 export const getCycleMeasures = (location) => dispatch => { //outcomes of a cycle
     //console.log(location)
     axios

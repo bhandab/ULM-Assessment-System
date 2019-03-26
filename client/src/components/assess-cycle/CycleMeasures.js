@@ -30,7 +30,7 @@ class CycleMeasures extends Component {
 
     }
 
-    measureAddHandler = (e) => {
+    outcomeAddHandler = (e) => {
         e.preventDefault();
         this.props.linkOutcomeToCycle(localStorage.getItem("cycleID"), e.target.outcomes.value)
         window.location.reload()
@@ -92,7 +92,7 @@ class CycleMeasures extends Component {
                         <div>
                             <br></br>
                             <h4>Please Select Measure(s):</h4>
-                            <form onSubmit={this.measureAddHandler.bind(this)}>
+                            <form onSubmit={this.outcomeAddHandler.bind(this)}>
                                 <select name="outcomes">{selections}</select>
                                 <br></br>
                                 <br></br>
