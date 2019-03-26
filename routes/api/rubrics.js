@@ -52,25 +52,20 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
                     return res.status(500).json(err)
                 }
                 rubricDetails.strutureInfo = {noOfRows,noOfColumns,rubricTitle,rubricID,adminID}
-                //console.log(rubricDetails)
                 let scales = []
                 let values = []
                 let sql3 = "INSERT INTO RATING_SCALE (toolID, scaleDesc) VALUES ?"
                 let scaleDescription = ""
                 for (var i = 1; i<noOfRows; i++){
-                   //console.log(parseInt(noOfRows))
                     values.push([rubricID, scaleDescription])
-                    //console.log(values[i])
                     
                 }
-               //console.log(values,values.length)
                 
                 db.query(sql3,[values],(err,result)=>{
                     if(err){
                         return res.status(500).json(err)
                     }
                     
-                    //res.status(200).json(result)
                     let scaleID = result.insertId
                     for (var i = 1; i<noOfRows; i++){
                         scales.push({scaleID,scaleDescription})
@@ -88,6 +83,7 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
                         crValues.push([rubricID,criteriaDescription])
                     }
 
+                    
                     db.query(sql4,[crValues],(err,result)=>{
                         if(err){
                             return res.status(500).json(err)
@@ -100,12 +96,12 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
                         rubricDetails.criteriaInfo = criterias
 
 
+
+
                         let table = []
-                        
                         async.forEachOf(scales, function(value,key,callback){
                             
                             let cellDescription = "";
-                            //let associatedCriteraID = value.criteriaID
                             let associatedScaleID = value.scaleID
                             console.log(associatedScaleID)
                             let rows = []
@@ -137,8 +133,6 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
                                         console.log("Reaches here")
                                         return inner_callback(err)
                                     }
-                                    //console.log(result)
-                                    //let levelID = result.insertId
                                     
                                 })
                             },function(err){
@@ -164,44 +158,9 @@ router.post('/createRubric',passport.authenticate('jwt',{session:false}),(req,re
                             if(err){
                                  throw err
                             }
-                            // else{
-                               
-                                 
-                            //     //console.log("Is here")
-                            //      //console.log(table)
-                            //      //res.status(200).json({rubricDetails})
-                            // }
-                        })
-                        
-
-                        
-                        /*for(var i = 1; i<noOfRows;i++){
-                            let associatedCriteraID = criterias[i-1].criteriaID
-                            let rows = []
-                            for(var j=1; j<noOfColumns;j++){
-                                 
-                                let associatedScaleID = scales[j-1].scaleID
-                                let sql5 = "INSERT INTO LEVEL_DESCRIPTION (criteriaID,scaleID, levelDesc) VALUES ("+associatedCriteraID+", "+associatedScaleID+", "+cellDescription+")"
-                                db.query(sql5,(err,result)=>{
-                                    if(err){
-                                        throw err
-                                    }
-                                    let levelID = result.insertId
-                                    rows.push({
-                                       levelID,
-                                       associatedCriteraID,
-                                       associatedScaleID,
-                                        cellDescription
-                                    })
-                                })
-                            }
-                            table.push(rows)
-                        }
-                        rubricDetails.cellInfo = table
-                        res.status(200).json({rubricDetails})*/
-
+                            
+                        }) 
                     })
-
                 })
             })
         })
