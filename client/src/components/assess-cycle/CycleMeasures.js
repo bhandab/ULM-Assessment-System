@@ -118,11 +118,11 @@ CycleMeasures.propTypes = {
     cycles: PropTypes.object.isRequired,
 }
 
-const mapStateToProps = state => ({
+const MapStateToProps = state => ({
     cycleMeasures: state.cycleMeasures,
     cycles: state.cycles,
     outcomes: state.outcomes
 })
 
 
-export default connect(mapStateToProps, { getOutcomes, linkOutcomeToCycle, getCycleMeasures })(CycleMeasures);
+export default connect(MapStateToProps, { getOutcomes, linkOutcomeToCycle, getCycleMeasures })(CycleMeasures);

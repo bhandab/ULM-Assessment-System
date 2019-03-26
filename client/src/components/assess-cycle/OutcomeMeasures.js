@@ -18,6 +18,19 @@ class OutcomeMeasures extends Component {
 
     render(){
         console.log(this.props)
+        let measures = <p>Loading!!!</p>
+        let measureTitle = null
+        if(this.props.cycles.outcomeMeasures !== null){
+            if (this.props.cycles.outcomeMeasures.measures.length > 0){
+                measures = this.props.cycles.outcomeMeasures.measures.map(measure => {
+                    return (<li key={measure.measureID}>{measure.measureName}</li>)
+                })
+            }
+            else{
+                measures = <p>No measures present for this outcome</p>
+            }
+        }
+
         return(
             <section>
                 <p>Outcome Measures</p>
