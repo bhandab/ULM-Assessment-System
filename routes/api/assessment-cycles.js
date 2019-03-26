@@ -159,17 +159,19 @@ router.get('/:cycleIdentifier/:outcomeIdentifier',passport.authenticate('jwt',{s
     let cycleID = db.escape(req.params.cycleIdentifier)
     let outcomeID = db.escape(req.params.outcomeIdentifier)
     let adminID = db.escape(req.user.id)
-
+    let outcomeName = ""
+   
     let measures = []
 
-    let sql = "SELECT * FROM OUTCOME_MEASURE_ASSOCIATION NATURAL JOIN CYCLE_OUTCOME_ASSOCIATION "+
+    let sql = "SELECT * FROM OUTCOME_MEASURE_ASSOCIATION NATURAL JOIN CYCLE_OUTCOME_ASSOCIATION NATURAL JOIN LEARNING_OUTCOME "+
                 "NATURAL JOIN PERFORMANCE_MEASURE WHERE cycleID="+cycleID+" AND learnID="+outcomeID+
                 " AND corId="+adminID
-
+    
     db.query(sql,(err,result)=>{
         if(err){
             return res.status(500).json(err)
         }
+        outcomeName = result[0].learnDesc
         result.forEach(row=>{
             measure = {
                 measureName:row.measureDesc,
@@ -177,7 +179,7 @@ router.get('/:cycleIdentifier/:outcomeIdentifier',passport.authenticate('jwt',{s
             }
             measures.push(measure)
         })
-        res.status(200).json({measures, cycleID,outcomeID})
+        res.status(200).json({measures, cycleID,outcomeID,outcomeName})
     })
 })
 

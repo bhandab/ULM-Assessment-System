@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import {getOutcomesMeasures} from "../../actions/assessmentCycleAction";
+import {getMeasures} from "../../actions/measuresAction";
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -25,15 +26,19 @@ class OutcomeMeasures extends Component {
                 measures = this.props.cycles.outcomeMeasures.measures.map(measure => {
                     return (<li key={measure.measureID}>{measure.measureName}</li>)
                 })
+                measureTitle = this.props.cycles.outcomeMeasures.outcomeName
             }
+            
             else{
                 measures = <p>No measures present for this outcome</p>
             }
+            //console.log(measures)
         }
 
         return(
-            <section>
-                <p>Outcome Measures</p>
+            <section className = "panel important">
+                <h2>{measureTitle}</h2>
+                <ol>{measures}</ol>
             </section>
            
         )
@@ -47,7 +52,8 @@ OutcomeMeasures.propTypes = {
 
 const MapStateToProps = state => ({
     outcomeMeasures: state.outcomeMeasures,
-    cycles: state.cycles
+    cycles: state.cycles,
+    measures: state.measures
 
 })
 
