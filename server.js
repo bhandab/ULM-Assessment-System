@@ -1,13 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 const passport = require('passport');
-path = require("path")
+const path = require('path')
 const db = require('./config/dbconnection')
 const userRouter = require('./routes/api/users')
 const outcomeRouter = require('./routes/api/outcomes')
 const measureRouter = require('./routes/api/measures')
 const cycleRouter = require('./routes/api/assessment-cycles')
 const rubricRouter = require('./routes/api/rubrics')
+
 
 const app = express()
 
@@ -30,6 +31,13 @@ app.use('/api/measures',measureRouter)
 app.use('/api/cycles',cycleRouter)
 app.use('/api/rubrics',rubricRouter)
 
+if(process.env.NODE_ENV === 'production'){
+    app.use(express.static('client/build'))
+
+    app.get('*',(req,res)=>{
+        res.sendFile(path.resolve(__dirname,'client','build','index.html'))
+    })
+}
 
 const port = process.env.PORT || 5000
 
