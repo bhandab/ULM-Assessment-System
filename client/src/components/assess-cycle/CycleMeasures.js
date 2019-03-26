@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { getCycleMeasures, linkOutcomeToCycle } from '../../actions/assessmentCycleAction';
-import { getOutcomes } from '../../actions/outcomesAction'
+import { getOutcomes } from '../../actions/outcomesAction';
+import { Link } from 'react-router-dom'
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -18,13 +19,13 @@ class CycleMeasures extends Component {
 
     }
 
-   
+
     clickHandler = (e) => {
         e.preventDefault()
-
+        
         if (!this.state.addOutcomes) {
             this.props.getOutcomes()
-        }
+       }
         this.setState({ addOutcomes: !this.state.addOutcomes })
 
     }
@@ -37,7 +38,7 @@ class CycleMeasures extends Component {
     }
 
     render() {
-        
+
         let title = null
         let list = <p>Loading!!</p>
 
@@ -46,22 +47,24 @@ class CycleMeasures extends Component {
                 list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
                     return (<li key={outcome.outcomeID}>{outcome.outcomeName}</li>)
                 })
-                title = this.props.cycles.cycleMeasures.cycleName
+                
             }
 
             else {
                 list = <p>No Outcomes Present.</p>
             }
+            title = this.props.cycles.cycleMeasures.cycleName
         }
 
         let selections = null
         if (this.state.addOutcomes) {
             if (Object.keys(this.props.outcomes.outcomes) !== 0) {
+                console.log(this.props)
                 if (this.props.outcomes.outcomes.length > 0) {
                     selections = this.props.outcomes.outcomes.map(item => {
                         return (<option key={item.outcomeID} value={item.outcomeID}>
                             {item.outcomeDescription}
-                            </option>)
+                        </option>)
                     })
                 }
             }
@@ -76,7 +79,7 @@ class CycleMeasures extends Component {
                 </section>
 
                 <section className="panel important">
-                    <button onClick={this.clickHandler.bind(this)} className="btn btn-primary">Add Measures</button>
+                    <button onClick={this.clickHandler.bind(this)} className="btn btn-primary btn-sm">Add Outcomes</button>
                     {(this.state.addOutcomes) ?
                         <div>
                             <br></br>
