@@ -45,7 +45,11 @@ class CycleMeasures extends Component {
         if (this.props.cycles.cycleMeasures !== null) {
             if (this.props.cycles.cycleMeasures.outcomes.length > 0) {
                 list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
-                    return (<li key={outcome.outcomeID}>{outcome.outcomeName}</li>)
+                    return (<li key={outcome.outcomeID}>
+                        <Link to ="/admin/cycles">
+                        {outcome.outcomeName}
+                        </Link>
+                        </li>)
                 })
                 
             }
