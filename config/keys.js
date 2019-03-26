@@ -1,4 +1,12 @@
 require('dotenv').config()
-module.exports = {
-    secretOrkey:process.env.SECRET
+
+if(process.env.NODE_ENV === 'production'){
+    module.exports = {
+        secretOrkey:process.env.SECRET
+    }
+}
+else{
+    module.exports = {
+        secretOrkey:"secret"
+    }
 }
