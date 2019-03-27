@@ -8,6 +8,7 @@ if (process.env.NODE_ENV === "production") {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
   });
+  console.log(connection);
 } else {
   require("dotenv").config();
   connection = mysql.createConnection({
@@ -16,6 +17,7 @@ if (process.env.NODE_ENV === "production") {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
   });
+  console.log(connection);
 }
 
 connection.connect(error => {
