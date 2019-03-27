@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 
 let connection = null;
+console.log("I am Here");
 if (process.env.NODE_ENV === "production") {
   connection = mysql.createConnection({
     host: process.env.DB_HOST,
