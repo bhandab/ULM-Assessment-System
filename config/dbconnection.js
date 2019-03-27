@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === "production") {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
   });
-  console.log(connection);
+  console.log("WASSSSSSSSSSUPPPPPPPP", connection);
 }
 
 connection.connect(error => {
