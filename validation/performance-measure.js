@@ -1,16 +1,47 @@
-const Validator = require('validator');
-const isEmpty = require('./isEmpty')
+const Validator = require("validator");
+const isEmpty = require("./isEmpty");
 
-module.exports = function validateMeasureInput(data){
-    let errors = {};
+module.exports = function validateMeasureInput(data) {
+  let errors = {};
 
-    data.measureDescription = !isEmpty(data.measureDescription) ? data.measureDescription.trim() : ""
+  data.measureDescription = !isEmpty(data.measureDescription)
+    ? data.measureDescription.trim()
+    : "";
+  data.projectedValue = !isEmpty(data.projectedValue)
+    ? data.projectedValue.trim()
+    : "";
+  data.projectedStudentNumber = !isEmpty(data.projectedStudentNumber)
+    ? data.projectedStudentNumber.trim()
+    : "";
+  data.course = !isEmpty(data.course) ? data.course.trim() : "";
 
-    if(Validator.isEmpty(data.measureDescription)){
-        errors.measureDescription = "Performance Measure Description Field is required"
-    }
-    return{
-        errors,
-         isValid:isEmpty(errors)
-    }
-}
+  if (Validator.isEmpty(data.measureDescription)) {
+    errors.measureDescription =
+      "Performance Measure Description Field is required";
+  }
+
+  if (Validator.isEmpty(data.projectedValue)) {
+    errors.projectedValue = "Projected Value cannot be empty";
+  } else if (!Validator.isInt(data.projectedValue, { min: 0, max: 100 })) {
+    errors.projectedValue =
+      "Projected Value should be a number between 0 and 100";
+  } else {
+    data.projectedValue = parseFloat(data.projectedValue);
+  }
+
+  if (Validator.isEmpty(data.projectedStudentNumber)) {
+    errors.projectedStudentNumber =
+      "Projected Student Number field cannot be empty";
+  } else if (
+    !Validator.isInt(data.projectedStudentNumber, { min: 0, max: 100 })
+  ) {
+    errors.projectedStudentNumber =
+      "Projected Student Number should be a number between 0 and 100";
+  } else {
+    data.projectedStudentNumber = parseFloat(data.projectedStudentNumber);
+  }
+  return {
+    errors,
+    isValid: isEmpty(errors)
+  };
+};
