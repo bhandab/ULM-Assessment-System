@@ -36,7 +36,7 @@ class AdminLayout extends Component {
 
                 <nav>
                     <ul className="main">
-                        <li className="dashboard"><Link to="/admin" >Dashboard</Link></li>
+                        <li className="dashboard"><Link to="/admin/cycles" >Dashboard</Link></li>
                         <li className="outcomes"><Link to="/admin/outcomes">Outcomes</Link></li>
                         <li className="perf-measures"><Link to="/admin/measures">Performance Measures</Link></li>
                         <li className="rubrics"><Link to="/admin/rubrics" >Rubrics</Link></li>

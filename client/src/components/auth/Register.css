@@ -1,0 +1,17 @@
+.styling  {
+    width: 30%;
+    margin-top: 10%;
+    border: 2px solid blue;
+    padding: 20px;
+    border-radius: 3%;
+}
+
+.labelStyle{
+    color:black;
+    font-weight: 800;
+    font-family: cursive
+}
+
+#center {
+    margin-left: 35%;
+}
