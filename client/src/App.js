@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import jwt_decode from 'jwt-decode';
 import setAuthToken from './utils/setAuthToken';
 
@@ -11,6 +11,8 @@ import Login from './components/auth/Login'
 import Admin from './components/users/Admin'
 import Evaluator from './components/layouts/Evaluator'
 import Register from './components/auth/Register'
+
+import Test from './test'; //remove this later
 
 import './App.css';
 
@@ -38,42 +40,25 @@ if (localStorage.jwtToken) {
 
 class App extends Component {
   render() {
-<<<<<<< HEAD
 
     return (
 
       <Provider store={store}>
         <Router>
           <div className="App">
+          <Switch>
             <Route path='/admin' component={Admin}></Route>
             <Route path='/evaluator' component={Evaluator}></Route>
             <Route path='/login' exact component={Login}></Route>
             <Route path="/register" component = {Register}></Route>
             <Route path='/' exact component={Login} />
+            </Switch>
           </div>
         </Router>
       </Provider>
 
     );
   }
-=======
-             return (
-               <Provider store={store}>
-                 <Router>
-                   <div className="App">
-                     <Route path="/admin" component={Admin} />
-                     <Route
-                       path="/evaluator"
-                       component={Evaluator}
-                     />
-                     <Route path="/login" exact component={Login} />
-                     <Route path="/" exact component={Login} />
-                   </div>
-                 </Router>
-               </Provider>
-             );
-           }
->>>>>>> ffe29ff5bc2cef73646a40c264064542aeb8eaa3
 }
 
 export default App;
