@@ -8,7 +8,7 @@ const validateRubricStructureInput = require("../../validation/rubric");
 const router = express.Router();
 
 router.post(
-  "/createRubric",
+  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/createRubric",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let { errors, isValid } = validateRubricStructureInput(req.body);
