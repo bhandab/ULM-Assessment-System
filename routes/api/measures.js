@@ -36,7 +36,6 @@ router.get(
           }
         });
       }
-      console.log(measures);
       res.status(200).json(measures);
     });
   }
