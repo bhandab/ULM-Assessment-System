@@ -234,11 +234,9 @@ router.get(
         return res.status(500).json(err);
       } else if (result.length <= 0) {
         return res.status(400).json({
-          errors: `Cycle with ID ${cycleID} Does not Exist!`
-          //"Cycle with ID " + cycleID + " Does not Exist!"
+          errors: "Cycle with ID " + cycleID + " Does not Exist!"
         });
       }
-      //outcomeName = result[0].learnDesc;
 
       let sql2 =
         "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
