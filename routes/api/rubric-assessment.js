@@ -198,8 +198,69 @@ router.post(
   }
 );
 
-router.get('/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/:rubricIdentifier',passport.authenticate('jwt',{session:false}),(req,res)=>{
-  let 
-})
+router.get(
+  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/:rubricIdentifier",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let cycleID = req.params.cycleIdentifier;
+    let outcomeID = rq.params.outcomeIdentifier;
+    let measureID = req.params.measureID;
+    let rubricID = req.params.rubricIdentifier;
+    let adminID = req.user.id;
+
+    let sql1 =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND corId=" +
+      db.escape(adminID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json();
+      } else if (result.length <= 0) {
+        return res
+          .status(400)
+          .json({
+            errors: "The cycle with the current cycle ID does not exist"
+          });
+      }
+
+      let sql2 =
+        "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
+        db.escape(outcomeID) +
+        " AND cycleID=" +
+        cycleID;
+
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        } else if (result.length <= 0) {
+          return res
+            .status(400)
+            .json({
+              errors: "The Outcome with the current outcome ID does not exist"
+            });
+        }
+
+        let sql3 =
+          "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+          measureID +
+          " AND learnID=" +
+          outcomeID;
+
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          } else if (result.length <= 0) {
+            return res
+              .status(400)
+              .json({
+                errors: "The measure with the current measure ID does not exist"
+              });
+          }
+        });
+      });
+    });
+  }
+);
 
 module.exports = router;

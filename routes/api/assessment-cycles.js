@@ -210,7 +210,7 @@ router.post(
 );
 
 // @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier
-// @desc Retrieves measure details associated with the given cycle and outcome
+// @desc Retrieves all measures associated with the given cycle and outcome
 // @access Private
 
 router.get(
