@@ -8,6 +8,7 @@ import {Link} from 'react-router-dom';
 
 
 
+
 class Login extends Component {
 
     state = {
@@ -63,15 +64,6 @@ class Login extends Component {
 
     render() {
         
-    
-        let errorMessage = null
-        console.log(this.props)
-        
-        if (!isEmpty(this.state.errors.errors || this.state.errors.errors === undefined ) ){
-            console.log(this.state.errors.errors)
-            window.alert("The unsername or password is incorrect")
-            errorMessage = <span><p> The unsername or password is incorrect </p></span>
-        }
 
         return (
             <div className="wrapper">
@@ -79,7 +71,7 @@ class Login extends Component {
                     <h2 className="form-signin-heading">Please Login</h2>
                     <input type="text" className="form-control" name="email" placeholder="Username" required="" autoFocus="" value={this.state.email} onChange={this.onChangeHandler.bind(this)} />
                     <input type="password" className="form-control" name="password" placeholder="Password" required="" value={this.state.password} onChange={this.onChangeHandler} />
-                    {errorMessage}
+                    {!(isEmpty(this.state.errors)) ? <p className="text-danger">Incorrect email or password</p> :null }
                     <label className="checkbox">
                         <input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe" /> Remember Me
                         </label>

@@ -86,7 +86,6 @@ class CycleMeasures extends Component {
             }
             title = this.props.cycles.cycleMeasures.cycleName
         }
-        console.log(outcomeArray)
         let selections = null
         if (this.state.addOutcomes) {
             if (Object.keys(this.props.outcomes.outcomes) !== 0) {
@@ -100,6 +99,9 @@ class CycleMeasures extends Component {
                             return (<option key={index} value={item}>
                                 {item}
                             </option>)
+                        }
+                        else{
+                            return null
                         }
                     })
                 }
@@ -157,7 +159,8 @@ CycleMeasures.propTypes = {
 const MapStateToProps = state => ({
     cycleMeasures: state.cycleMeasures,
     cycles: state.cycles,
-    outcomes: state.outcomes
+    outcomes: state.outcomes,
+    errors: state.errors
 })
 
 

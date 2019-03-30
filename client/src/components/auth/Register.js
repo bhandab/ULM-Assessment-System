@@ -12,7 +12,7 @@ class Register extends Component {
 
             <div id ="center">
                 <div className='d-flex align-items-center'>
-                    <div className='container' className="styling">
+                    <div className='container styling'>
                         <form>
                             <h2>Evaluator Registration</h2>
                             <div className="form-group">

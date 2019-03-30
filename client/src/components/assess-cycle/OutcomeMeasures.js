@@ -46,7 +46,7 @@ class OutcomeMeasures extends Component {
     measureAddHandler = (e) => {
         e.preventDefault();
         console.log(e.target.measures.value)
-        this.props.linkMeasureToOutcome(this.state.cycleID, this.state.outcomeID, e.target.measures.value)
+        this.props.linkMeasureToOutcome(this.props.cycles.outcomeMeasures.cycleID, this.props.cycles.outcomeMeasures.outcomeID, e.target.measures.value)
         window.location.reload()
 
     }
@@ -97,9 +97,9 @@ class OutcomeMeasures extends Component {
             if (Object.keys(this.props.measures).length > 0) {
                 console.log(this.props)
                 if (this.props.measures.measures !== null) {
-                    selections = this.props.measures.measures.map(item => {
-                        return (<option key={item.measureID} value={item.measureID}>
-                            {item.measureDescription}
+                    selections = this.props.measures.measures.map((item,index) => {
+                        return (<option key={index} value={item.measureName}>
+                            {item.measureName}
                         </option>)
                     })
                 }
@@ -196,6 +196,4 @@ const MapStateToProps = state => ({
 })
 
 
-export default connect(MapStateToProps,
-    { getOutcomesMeasures, getMeasures, linkMeasureToOutcome })
-    (OutcomeMeasures);
+export default connect(MapStateToProps, { getOutcomesMeasures, getMeasures, linkMeasureToOutcome })(OutcomeMeasures);

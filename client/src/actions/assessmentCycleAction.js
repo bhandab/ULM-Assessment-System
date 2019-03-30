@@ -44,7 +44,7 @@ export const linkOutcomeToCycle = (cycleID,outcome,history) => dispatch => {
 
 export const linkMeasureToOutcome = (cycleID, outcomeID, details) => dispatch => {
     axios
-        .post("/api/cycles/" + cycleID + "/" + outcomeID +"/"+"addNewMeasure",details)
+        .post("/api/cycles/" + cycleID + "/" + outcomeID +"/addNewMeasure",details)
         .then(()=>{
             dispatch(getOutcomesMeasures(cycleID, outcomeID));
         })
@@ -57,7 +57,7 @@ export const linkMeasureToOutcome = (cycleID, outcomeID, details) => dispatch =>
 
 export const getCycleMeasures = (cycleID) => dispatch => { //outcomes of a cycle
     axios
-    .get("/api/cycles/"+cycleID)
+    .get("/api/cycles/"+cycleID+"/outcomes")
     .then(res => {
         dispatch({
             type: GET_CYCLES_OUTCOMES,
@@ -75,9 +75,9 @@ export const getCycleMeasures = (cycleID) => dispatch => { //outcomes of a cycle
 }
 
 export const getOutcomesMeasures = (cycleID, outcomeID) => dispatch => { //measures of outcomes
-    console.log(cycleID,outcomeID)
+    console.log(cycleID+outcomeID)
     axios
-        .get("/api/cycles/" + cycleID+"/"+outcomeID)
+        .get("/api/cycles/" + cycleID+"/"+outcomeID+"/measures")
         .then(res => {
             dispatch({
                 type: GET_CYCLES_MEASURES,
