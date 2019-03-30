@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
-import { getMeasures, addMeasure } from "../../actions/measuresAction";
+import { getMeasures } from "../../actions/measuresAction";
 import PropTypes from "prop-types";
 
 class Measures extends Component {

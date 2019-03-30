@@ -220,7 +220,6 @@ router.get(
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
     let adminID = req.user.id;
-    let outcomeName = "";
 
     let measures = [];
 

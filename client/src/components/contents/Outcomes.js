@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
-import { getOutcomes, addOutcome } from "../../actions/outcomesAction";
+import { getOutcomes } from "../../actions/outcomesAction";
 import PropTypes from "prop-types";
 
 class Outcomes extends Component {
