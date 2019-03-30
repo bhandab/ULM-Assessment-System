@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import './Login.css';
 import { connect } from 'react-redux';
 import { loginUser } from '../../actions/authActions';
-import {isEmpty} from '../../utils/isEmpty'
-import PropTypes from 'prop-types'
+import {isEmpty} from '../../utils/isEmpty';
+import PropTypes from 'prop-types';
+import {Link} from 'react-router-dom';
+
+
 
 class Login extends Component {
 
@@ -81,6 +84,7 @@ class Login extends Component {
                         <input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe" /> Remember Me
                         </label>
                     <button className="btn btn-lg btn-primary btn-block" type="submit" onClick={this.loginUser} >Log In</button>
+                    <Link id = "register" to="/register">Register</Link>
                 </form>
             </div>
         );
