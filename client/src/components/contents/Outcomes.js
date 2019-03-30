@@ -5,40 +5,23 @@ import PropTypes from "prop-types";
 
 class Outcomes extends Component {
 
-    state = {
-        outcomeDescription: ""
-
-    }
-
 
     componentDidMount() {
-        this.props.getOutcomes();
+        this.props.getOutcomes(this.props.auth.user.id);
 
 
     }
 
-    onChangeHandler(e) {
-        e.preventDefault();
-        this.setState({ outcomeDescription: e.target.value })
-
-    }
-
-    onSubmitHandler(e) {
-        e.preventDefault()
-        this.props.addOutcome(this.state, this.props.history)
-        window.location.reload()
-
-
-    }
-
+ 
     render() {
+        //console.log(this.props)
         let outcomesList = null
         if (this.props.outcomes.outcomes[0] === undefined) {
-            outcomesList = <h3> Loading Outcomes LIst</h3>
+            outcomesList = <p> Loading Outcomes List</p>
         }
         else {
-            outcomesList = this.props.outcomes.outcomes.map(outcome =>
-                <li key={outcome.outcomeID}>{outcome.outcomeDescription}</li>
+            outcomesList = this.props.outcomes.outcomes.map( (outcome, index) =>
+                <li key={index}>{outcome}</li>
             )
         }
 
@@ -51,15 +34,6 @@ class Outcomes extends Component {
                         {outcomesList}
                     </ol>
                 </section>
-
-                <section className="panel important">
-                    <h2>Add Outcomes</h2>
-                    <form>
-                        <input type="text" name="outcomeDescription" onChange={this.onChangeHandler.bind(this)} placeholder="Enter the outcome" value={this.state.outcome} />
-                        <input type="submit" value="Add" onClick={this.onSubmitHandler.bind(this)} />
-                    </form>
-                </section>
-
             </Fragment>
 
         )
@@ -67,7 +41,6 @@ class Outcomes extends Component {
 }
 
 Outcomes.propTypes = {
-    getOutcomes: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired
 };
 
@@ -78,5 +51,5 @@ const mapStateToProps = state => ({
 
 export default connect(
     mapStateToProps,
-    { getOutcomes, addOutcome }
+    { getOutcomes}
 )(Outcomes);
