@@ -65,7 +65,7 @@ class Login extends Component {
         
     
         let errorMessage = null
-        //console.log(this.state.errors)
+        console.log(this.props)
         
         if (!isEmpty(this.state.errors.errors || this.state.errors.errors === undefined ) ){
             console.log(this.state.errors.errors)

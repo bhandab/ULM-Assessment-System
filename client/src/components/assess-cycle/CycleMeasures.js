@@ -22,10 +22,10 @@ class CycleMeasures extends Component {
 
     clickHandler = (e) => {
         e.preventDefault()
-        
+
         if (!this.state.addOutcomes) {
             this.props.getOutcomes()
-       }
+        }
         this.setState({ addOutcomes: !this.state.addOutcomes })
 
     }
@@ -33,10 +33,10 @@ class CycleMeasures extends Component {
     outcomeAddHandler = (e) => {
         e.preventDefault();
         console.log(e.target.outcomes.value)
-        this.setState({ addOutcomes: !this.state.addOutcomes})
-        this.props.linkOutcomeToCycle(this.props.match.params.id, 
+        this.setState({ addOutcomes: !this.state.addOutcomes })
+        this.props.linkOutcomeToCycle(this.props.match.params.id,
             { outcomeDescription: e.target.outcomes.value })
-        
+
 
     }
 
@@ -49,8 +49,8 @@ class CycleMeasures extends Component {
         e.preventDefault();
         console.log(e.target.newOutcome.value);
         this.setState({ createOutcome: !this.state.createOutcome })
-        this.props.linkOutcomeToCycle(this.props.match.params.id, 
-            { outcomeDescription: e.target.newOutcome.value},
+        this.props.linkOutcomeToCycle(this.props.match.params.id,
+            { outcomeDescription: e.target.newOutcome.value },
             this.props.history)
 
     }
@@ -60,26 +60,29 @@ class CycleMeasures extends Component {
         let title = null
         let list = <p>Loading!!</p>
         let outcomeArray = null;
-        
+
         console.log(this.props)
         if (this.props.cycles.cycleMeasures !== null) {
-            //let cycleID = this.props.cycles.cycleMeasures.cycleIdentifier
-          let cycleID = this.match.params.id
+            let cycleID = this.props.cycles.cycleMeasures.cycleIdentifier
+            //let cycleID = this.match.params.id
             //cycleID = parseInt(cycleID, 10)
-            if (this.props.cycles.cycleMeasures.outcomes.length > 0) {
-                outcomeArray = this.props.cycles.cycleMeasures.outcomes
-                list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
-                    return (<li key={outcome.outcomeID}>
-                        <Link to={"/admin/cycles/"+cycleID+"/"+outcome.outcomeID}>
-                        {outcome.outcomeName}
-                        </Link>
+            if (this.props.cycles.cycleMeasures.outcomes !== undefined) {
+                if (this.props.cycles.cycleMeasures.outcomes.length > 0) {
+                    outcomeArray = this.props.cycles.cycleMeasures.outcomes
+                    list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
+                        return (<li key={outcome.outcomeID}>
+                            <Link to={"/admin/cycles/" + cycleID + "/" + outcome.outcomeID}>
+                                {outcome.outcomeName}
+                            </Link>
                         </li>)
-                })
-                
-            }
+                    })
 
-            else {
-                list = <p>No Outcomes Present.</p>
+                }
+
+
+                else {
+                    list = <p>No Outcomes Present.</p>
+                }
             }
             title = this.props.cycles.cycleMeasures.cycleName
         }
@@ -87,16 +90,16 @@ class CycleMeasures extends Component {
         let selections = null
         if (this.state.addOutcomes) {
             if (Object.keys(this.props.outcomes.outcomes) !== 0) {
-               // console.log(this.props)
+                // console.log(this.props)
                 if (this.props.outcomes.outcomes.length > 0) {
-                    selections = this.props.outcomes.outcomes.map((item,index) => {
-                            const temp = outcomeArray.find(outcome => {
-                                return outcome.outcomeName === item
-                            })
-                                if(temp === undefined){
-                        return (<option key={index} value={item}>
-                            {item}
-                        </option>)
+                    selections = this.props.outcomes.outcomes.map((item, index) => {
+                        const temp = outcomeArray.find(outcome => {
+                            return outcome.outcomeName === item
+                        })
+                        if (temp === undefined) {
+                            return (<option key={index} value={item}>
+                                {item}
+                            </option>)
                         }
                     })
                 }
@@ -112,10 +115,10 @@ class CycleMeasures extends Component {
                 </section>
 
                 <section className="panel important">
-                    {(!this.state.createOutcome) ?<button onClick={this.clickHandler.bind(this)} className="btn btn-primary btn-sm">Select from Existing</button>:null}
-                    {(!this.state.addOutcomes) ? <button className="btn btn-primary btn-sm" onClick={this.createNewButtonHandler.bind(this)}>Create New</button>:null}
+                    {(!this.state.createOutcome) ? <button onClick={this.clickHandler.bind(this)} className="btn btn-primary btn-sm">Select from Existing</button> : null}
+                    {(!this.state.addOutcomes) ? <button className="btn btn-primary btn-sm" onClick={this.createNewButtonHandler.bind(this)}>Create New</button> : null}
                     {(this.state.addOutcomes) ?
-                        <div id ="select-from-exixting">
+                        <div id="select-from-exixting">
                             <br></br>
                             <h4>Please Select Outcome:</h4>
                             <form onSubmit={this.outcomeAddHandler.bind(this)}>
@@ -126,16 +129,16 @@ class CycleMeasures extends Component {
                             </form>
                         </div>
                         : null}
-                    {(this.state.createOutcome) ? 
+                    {(this.state.createOutcome) ?
                         <div id="create-new">
-                        <br></br>
-                        <h4> Create a new outcome:</h4>
-                        <form onSubmit={this.outcomeCreateHandler.bind(this)}>
-                        <input type = "textarea" name = "newOutcome"></input>
+                            <br></br>
+                            <h4> Create a new outcome:</h4>
+                            <form onSubmit={this.outcomeCreateHandler.bind(this)}>
+                                <input type="textarea" name="newOutcome"></input>
                                 <button type="submit" className="btn btn-outline-primary btn-sm">Create</button>
-                        </form>
+                            </form>
                         </div>
-                        :null}
+                        : null}
 
                 </section>
             </Fragment>

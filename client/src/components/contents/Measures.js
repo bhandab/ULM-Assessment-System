@@ -12,7 +12,7 @@ class Measures extends Component {
 
     render() {
         let measuresList = null
-        //console.log(this.props)
+       console.log(this.props)
 
         if (this.props.measures.measures === null ) {
             measuresList = <h3> Loading Measures List</h3>
@@ -23,8 +23,8 @@ class Measures extends Component {
                 measuresList = <p>No Measures Present</p>
             }
             else {
-            measuresList = this.props.measures.measures.map(measure =>
-                <li key={measure.measureID}>{measure.measureDescription}</li>
+            measuresList = this.props.measures.measures.map((measure, index) =>
+                <li key={index}>{measure.measureName}</li>
             )
             }
         }
@@ -52,7 +52,8 @@ Measures.propTypes = {
 
 const mapStateToProps = state => ({
     auth: state.auth,
-    measures: state.measures
+    measures: state.measures,
+    errors: state.errors
 });
 
 export default connect(
