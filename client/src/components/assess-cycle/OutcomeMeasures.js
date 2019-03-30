@@ -68,6 +68,7 @@ class OutcomeMeasures extends Component {
         // console.log(projectedValue)
         // console.log(courseAssctd)
         this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
+        this.setState({createMeasures: false })
 
     }
 
