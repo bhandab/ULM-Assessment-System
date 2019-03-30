@@ -233,9 +233,10 @@ router.get(
       if (err) {
         return res.status(500).json(err);
       } else if (result.length <= 0) {
-        return res
-          .status(400)
-          .json({ errors: "Cycle with ID " + cycleID + " Does not Exist!" });
+        return res.status(400).json({
+          errors: `Cycle with ID ${cycleID} Does not Exist!`
+          //"Cycle with ID " + cycleID + " Does not Exist!"
+        });
       }
       //outcomeName = result[0].learnDesc;
 
