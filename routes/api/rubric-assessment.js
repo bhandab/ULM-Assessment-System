@@ -137,11 +137,13 @@ router.post(
                       index2 = key;
                       console.log(associatedScaleID);
                       let sql5 =
-                        "INSERT INTO LEVEL_DESCRIPTION (criteriaID, scaleID) " +
+                        "INSERT INTO LEVEL_DESCRIPTION (criteriaID, scaleID, toolID) " +
                         "VALUES (" +
-                        associatedCriteriaID +
+                        db.escape(associatedCriteriaID) +
                         ", " +
-                        associatedScaleID +
+                        db.escape(associatedScaleID) +
+                        ", " +
+                        db.escape(rubricID) +
                         ")";
                       console.log(sql5);
 
@@ -195,5 +197,9 @@ router.post(
     });
   }
 );
+
+router.get('/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/:rubricIdentifier',passport.authenticate('jwt',{session:false}),(req,res)=>{
+  let 
+})
 
 module.exports = router;
