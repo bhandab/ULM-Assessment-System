@@ -7,8 +7,11 @@ const validateRubricStructureInput = require("../../validation/rubric");
 
 const router = express.Router();
 
+// @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/addNewRubric
+// @desc Adds a Rubric as a tool to a measure
+// @access Private
 router.post(
-  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/createRubric",
+  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/addNewRubric",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let { errors, isValid } = validateRubricStructureInput(req.body);
@@ -21,6 +24,9 @@ router.post(
     let noOfColumns = req.body.columns;
     let rubricTitle = req.body.rubricName;
     let adminID = req.user.id;
+    let cycleID = req.params.cycleIdentifier;
+    let outcomeID = req.params.outcomeIdentifier;
+    let measureID = req.params.measureIdentifier;
 
     let rubricDetails = {};
 
@@ -36,9 +42,11 @@ router.post(
         return res.status(400).json(errors);
       }
       let sql1 =
-        "INSERT INTO TOOL (toolType, corId) VALUES (" +
+        "INSERT INTO TOOL (toolType, corId, measureID) VALUES (" +
         "'Rubric', " +
         db.escape(adminID) +
+        ", " +
+        db.escape(measureID) +
         ")";
       db.query(sql1, (err, result) => {
         if (err) {
@@ -66,7 +74,10 @@ router.post(
             noOfColumns,
             rubricTitle,
             rubricID,
-            adminID
+            adminID,
+            cycleID,
+            outcomeID,
+            measureID
           };
           let scales = [];
           let values = [];

@@ -94,7 +94,7 @@ router.get(
 // @access Private
 
 router.get(
-  "/:cycleIdentifier",
+  "/:cycleIdentifier/outcomes",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let adminID = req.user.id;
@@ -102,35 +102,35 @@ router.get(
     let outcomes = [];
 
     let sql =
-      "SELECT * FROM LEARNING_OUTCOME" +
-      " WHERE cycleID=" +
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID = " +
       db.escape(cycleIdentifier) +
-      " AND corId=" +
+      " AND corId = " +
       db.escape(adminID);
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res.status(400).json({ errors: "Cycle Does not Exist" });
       }
+      let cycleName = result[0].cycleTitle;
 
-      result.forEach(row => {
-        outcome = {
-          outcomeName: row.learnDesc,
-          outcomeID: row.learnID
-        };
-        outcomes.push(outcome);
-      });
       let sql1 =
-        "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID = " +
+        "SELECT * FROM LEARNING_OUTCOME" +
+        " WHERE cycleID=" +
         db.escape(cycleIdentifier) +
-        " AND corId = " +
+        " AND corId=" +
         db.escape(adminID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
-        console.log(result);
-        let cycleName = result[0].cycleTitle;
-        console.log(cycleName);
+        result.forEach(row => {
+          outcome = {
+            outcomeName: row.learnDesc,
+            outcomeID: row.learnID
+          };
+          outcomes.push(outcome);
+        });
         res.status(200).json({ outcomes, cycleIdentifier, cycleName });
       });
     });
@@ -197,7 +197,7 @@ router.post(
 // @access Private
 
 router.get(
-  "/:cycleIdentifier/:outcomeIdentifier",
+  "/:cycleIdentifier/:outcomeIdentifier/measures",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let cycleID = req.params.cycleIdentifier;
