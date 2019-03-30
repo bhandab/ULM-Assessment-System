@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { getAssessmentCycles, createCycle } from '../../actions/assessmentCycleAction'
 import PropTypes from "prop-types"
-import { Link, Route} from 'react-router-dom'
+import { Link} from 'react-router-dom'
 
 
 class AssessmentCycle extends Component {
@@ -17,15 +17,8 @@ class AssessmentCycle extends Component {
         e.preventDefault()
         let value = e.target.cycleName.value
         this.props.createCycle({cycleTitle:value},this.props.history)
-        window.location.reload()
-        
 
     }
-
-   /* renderMeasures = () => {
-        console.log(this.props)
-    }*/
-
 
 
     render() {

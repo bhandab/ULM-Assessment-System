@@ -5,38 +5,28 @@ import PropTypes from "prop-types";
 
 class Measures extends Component {
 
-    state = {
-        measureDescription: ""
-    } 
-
     componentDidMount = () => {
         this.props.getMeasures();
     }
 
-    onChangeHandler = (e) => {
-        e.preventDefault();
-        this.setState({measureDescription:e.target.value})
-    }
-
-    onSubmitHandler = (e) => {
-        e.preventDefault();
-        this.props.addMeasure(this.state, this.props.history)
-        window.location.reload()
-
-    }
 
     render() {
         let measuresList = null
-       // console.log(this.props)
+        //console.log(this.props)
 
         if (this.props.measures.measures === null ) {
             measuresList = <h3> Loading Measures List</h3>
         }
 
         else {
+            if(this.props.measures.measures.length === 0){
+                measuresList = <p>No Measures Present</p>
+            }
+            else {
             measuresList = this.props.measures.measures.map(measure =>
                 <li key={measure.measureID}>{measure.measureDescription}</li>
             )
+            }
         }
 
         return (
@@ -47,14 +37,6 @@ class Measures extends Component {
                     <ol>
                         {measuresList}
                     </ol>
-                </section>
-
-                <section className="panel important">
-                    <h2>Add Performance Measures</h2>
-                    <form>
-                        <input type="text" name="outcome" onChange={this.onChangeHandler.bind(this)} placeholder="Enter the measure" value = {this.state.measureDescription}/>
-                        <button type="submit" onClick={(e) => this.onSubmitHandler(e)}>Add</button>
-                    </form>
                 </section>
 
             </Fragment>
@@ -75,5 +57,5 @@ const mapStateToProps = state => ({
 
 export default connect(
     mapStateToProps,
-    { getMeasures, addMeasure }
+    { getMeasures}
 )(Measures);
