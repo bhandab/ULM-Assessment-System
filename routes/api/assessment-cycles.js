@@ -66,8 +66,9 @@ router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    let adminID = db.escape(req.user.id);
-    let sql = "SELECT * FROM ASSESSMENT_CYCLE WHERE corId=" + adminID;
+    let adminID = req.user.id;
+    let sql =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE corId=" + db.escape(adminID);
 
     let cycles = [];
 
@@ -96,16 +97,16 @@ router.get(
   "/:cycleIdentifier",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    let adminID = db.escape(req.user.id);
-    let cycleIdentifier = db.escape(req.params.cycleIdentifier);
+    let adminID = req.user.id;
+    let cycleIdentifier = req.params.cycleIdentifier;
     let outcomes = [];
 
     let sql =
       "SELECT * FROM LEARNING_OUTCOME" +
       " WHERE cycleID=" +
-      cycleIdentifier +
+      db.escape(cycleIdentifier) +
       " AND corId=" +
-      adminID;
+      db.escape(adminID);
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -120,9 +121,9 @@ router.get(
       });
       let sql1 =
         "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID = " +
-        cycleIdentifier +
+        db.escape(cycleIdentifier) +
         " AND corId = " +
-        adminID;
+        db.escape(adminID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);

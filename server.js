@@ -7,7 +7,7 @@ const userRouter = require("./routes/api/users");
 const outcomeRouter = require("./routes/api/outcomes");
 const measureRouter = require("./routes/api/measures");
 const cycleRouter = require("./routes/api/assessment-cycles");
-const rubricRouter = require("./routes/api/rubrics");
+const rubricRouter = require("./routes/api/rubric-assessment");
 
 const app = express();
 
