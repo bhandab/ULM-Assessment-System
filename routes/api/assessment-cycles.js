@@ -89,7 +89,7 @@ router.get(
 );
 
 // @route GET api/cycles/:cycleIdentifier
-// @desc Provides outcomes associated with the current cycle
+// @desc Retrieves outcomes associated with the current cycle
 // @access Private
 
 router.get(
@@ -136,8 +136,8 @@ router.get(
   }
 );
 
-// @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier
-// @desc Relates an outcome with a cycle
+// @route POST api/cycles/:cycleIdentifier/addNewOutcome
+// @desc Adds a new outcome within a cycle
 // @access Private
 
 router.post(
@@ -150,7 +150,6 @@ router.post(
     }
 
     let cycleID = req.params.cycleIdentifier;
-    //let outcomeID = db.escape(req.params.outcomeIdentifier);
     let adminID = req.user.id;
     let outcomeName = req.body.outcomeDescription;
 
@@ -193,7 +192,7 @@ router.post(
 );
 
 // @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier
-// @desc Retrieves measures associated with the given cycle and outcome
+// @desc Retrieves measure details associated with the given cycle and outcome
 // @access Private
 
 router.get(
@@ -244,8 +243,8 @@ router.get(
   }
 );
 
-// @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier
-// @desc Relates a measure with a outcome which in turn to cycle
+// @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/addNewMeasure
+// @desc Adds a new measure within an outcome which in turn to cycle
 // @access Private
 
 router.post(
