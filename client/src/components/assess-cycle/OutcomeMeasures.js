@@ -185,13 +185,15 @@ class OutcomeMeasures extends Component {
 OutcomeMeasures.propTypes = {
     getOutcomesMeasures: PropTypes.func.isRequired,
     getMeasures: PropTypes.func.isRequired,
-    linkMeasureToOutcome: PropTypes.func.isRequired
+    linkMeasureToOutcome: PropTypes.func.isRequired,
+    errors: PropTypes.object.isRequired
 }
 
 const MapStateToProps = state => ({
     outcomeMeasures: state.outcomeMeasures,
     cycles: state.cycles,
-    measures: state.measures
+    measures: state.measures,
+    errors: state.errors
 
 })
 

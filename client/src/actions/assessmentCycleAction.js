@@ -87,8 +87,8 @@ export const getOutcomesMeasures = (cycleID, outcomeID) => dispatch => { //measu
         .catch(err => {
             console.log(err)
             dispatch({
-                type: GET_CYCLES_MEASURES,
-                payload: []
+                type: GET_ERRORS,
+                payload: err.response.data
 
             }
             )
