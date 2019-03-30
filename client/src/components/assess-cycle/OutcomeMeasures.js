@@ -3,7 +3,7 @@ import { getOutcomesMeasures, linkMeasureToOutcome } from "../../actions/assessm
 import { getMeasures } from "../../actions/measuresAction";
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-
+import {Link} from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 
 
@@ -80,7 +80,10 @@ class OutcomeMeasures extends Component {
             if (Object.keys(this.props.cycles.outcomeMeasures).length > 1) {
                 if (this.props.cycles.outcomeMeasures.measures.length > 0) {
                     measures = this.props.cycles.outcomeMeasures.measures.map(measure => {
-                        return (<li key={measure.measureID}>{measure.measureName}</li>)
+                        return (<li key={measure.measureID}>
+                            
+                            {measure.measureName}
+                            </li>)
                     })
                     measureTitle = this.props.cycles.outcomeMeasures.outcomeName
                 }
