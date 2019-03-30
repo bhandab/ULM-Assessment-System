@@ -347,8 +347,10 @@ router.post(
             return res.status(400).json(errors);
           } else {
             sql =
-              "INSERT INTO PERFORMANCE_MEASURE(learnID,measureDesc,projectedResult,projectedStudentsValue,courseAssociated,corId) VALUES (" +
+              "INSERT INTO PERFORMANCE_MEASURE(learnID,cycleID, measureDesc,projectedResult,projectedStudentsValue,courseAssociated,corId) VALUES (" +
               db.escape(outcomeID) +
+              ", " +
+              db.escape(cycleID) +
               ", " +
               db.escape(measureName) +
               ", " +
