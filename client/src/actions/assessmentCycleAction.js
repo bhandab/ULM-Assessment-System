@@ -43,8 +43,9 @@ export const linkOutcomeToCycle = (cycleID,outcome,history) => dispatch => {
 }
 
 export const linkMeasureToOutcome = (cycleID, outcomeID, details) => dispatch => {
+    console.log(details)
     axios
-        .post("/api/cycles/" + cycleID + "/" + outcomeID +"/addNewMeasure",details)
+        .post("/api/cycles/" + cycleID + "/"+outcomeID+"/addNewMeasure",details)
         .then(()=>{
             dispatch(getOutcomesMeasures(cycleID, outcomeID));
         })
