@@ -13,7 +13,7 @@ export const getAssessmentCycles = () => dispatch => {
 
         .catch(err => dispatch({
             type: GET_CYCLES,
-            payload: []
+            payload: err.response.data
         }))
 }
 
@@ -67,8 +67,8 @@ export const getCycleMeasures = (cycleID) => dispatch => { //outcomes of a cycle
     .catch (err =>  {
         console.log(err)
         dispatch({
-            type: GET_CYCLES_OUTCOMES,
-            payload: []
+            type: GET_ERRORS,
+            payload: err.response.data
 
     }
     )})

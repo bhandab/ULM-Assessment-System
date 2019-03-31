@@ -1,11 +1,12 @@
 import axios from 'axios';
 import {CREATE_RUBRIC, GET_ERRORS} from './types';
 
-export const createRubric = (rubricDetails) => dispatch => {
+export const createRubric = (cycleID,outcomeID,measureID,rubricDetails) => dispatch => {
 
     axios
-        .post("/api/rubric/createRubric", rubricDetails)
+        .post("/api/cycles/" + cycleID+"/"+outcomeID+"/"+measureID+"/addNewRubric", rubricDetails)
         .then(res => {
+            console.log(res)
             dispatch({
                 type: CREATE_RUBRIC,
                 payload: res.data

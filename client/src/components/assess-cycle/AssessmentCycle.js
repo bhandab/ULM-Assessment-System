@@ -33,7 +33,7 @@ class AssessmentCycle extends Component {
             cyclesList = this.props.cycles.cycles.cycles.map(cycle =>
                 <li key={cycle.cycleID}><Link params={cycle.cycleName} name={cycle.cycleID}
                     to={{
-                        pathname: "/admin/cycles/"+cycle.cycleID,
+                        pathname: "/admin/cycles/cycle/"+cycle.cycleID,
                                               
                     }}>
                     {cycle.cycleName}</Link>

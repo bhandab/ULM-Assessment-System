@@ -3,7 +3,7 @@ import { getOutcomesMeasures, linkMeasureToOutcome } from "../../actions/assessm
 import { getMeasures } from "../../actions/measuresAction";
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 
 
@@ -13,19 +13,13 @@ class OutcomeMeasures extends Component {
 
     state = {
         addMeasures: false,
-        createMeasures: false,
-        cycleID: "",
-        outcomeID: ""
+        createMeasures: false
     }
 
     componentDidMount() {
-        const path = this.props.match.url
-        const cycleID = parseInt(path.substr(path.length - 3), 10)
-        const outcomeID = parseInt(this.props.match.params.id, 10)
+        const cycleID = this.props.match.params.cycleID
+        const outcomeID = this.props.match.params.outcomeID
         this.props.getOutcomesMeasures(cycleID, outcomeID)
-        this.setState({ cycleID: cycleID, outcomeID: outcomeID })
-
-
     }
 
     clickHandler = (e) => {
@@ -51,24 +45,20 @@ class OutcomeMeasures extends Component {
 
     }
 
-    measureCreateHandler =(e) => {
+    measureCreateHandler = (e) => {
         e.preventDefault();
         const cycleID = this.props.cycles.outcomeMeasures.cycleID
         const outcomeID = this.props.cycles.outcomeMeasures.outcomeID
 
         const measureDetails = {
-            measureDescription  : e.target.measureDesc.value,
-            projectedStudentNumber : e.target.projectedResult.value,
-            projectedValue : e.target.projectedScore.value,
-            course : e.target.courseAssctd.value
+            measureDescription: e.target.measureDesc.value,
+            projectedStudentNumber: e.target.projectedResult.value,
+            projectedValue: e.target.projectedScore.value,
+            course: e.target.courseAssctd.value
         }
 
-        // console.log(measureDesc)
-        // console.log(projectedResult)
-        // console.log(projectedValue)
-        // console.log(courseAssctd)
         this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
-        this.setState({createMeasures: false })
+        this.setState({ createMeasures: false })
 
     }
 
@@ -81,9 +71,14 @@ class OutcomeMeasures extends Component {
                 if (this.props.cycles.outcomeMeasures.measures.length > 0) {
                     measures = this.props.cycles.outcomeMeasures.measures.map(measure => {
                         return (<li key={measure.measureID}>
-                            
-                            {measure.measureName}
-                            </li>)
+                            <Link to={"/admin/cycles/cycle/" +
+                                this.props.cycles.outcomeMeasures.cycleID + "/outcomes/" +
+                                this.props.cycles.outcomeMeasures.outcomeID + "/measures/" +
+                                measure.measureID}>
+                                {measure.measureName}
+                            </Link>
+
+                        </li>)
                     })
                     measureTitle = this.props.cycles.outcomeMeasures.outcomeName
                 }
@@ -93,7 +88,6 @@ class OutcomeMeasures extends Component {
                 }
                 measureTitle = this.props.cycles.outcomeMeasures.outcomeName
             }
-            //console.log(measures)
         }
 
         let selections = null
@@ -101,7 +95,7 @@ class OutcomeMeasures extends Component {
             if (Object.keys(this.props.measures).length > 0) {
                 console.log(this.props)
                 if (this.props.measures.measures !== null) {
-                    selections = this.props.measures.measures.map((item,index) => {
+                    selections = this.props.measures.measures.map((item, index) => {
                         return (<option key={index} value={item.measureName}>
                             {item.measureName}
                         </option>)
@@ -137,10 +131,10 @@ class OutcomeMeasures extends Component {
                     {(this.state.createMeasures) ?
                         <div>
                             <br></br>
-                            <Form onSubmit = {this.measureCreateHandler.bind(this)} >
+                            <Form onSubmit={this.measureCreateHandler.bind(this)} >
                                 <Form.Group>
                                     <Form.Label>Measure Description</Form.Label>
-                                    <Form.Control type="text" placeholder="Enter the measure description" name = "measureDesc"/>
+                                    <Form.Control type="text" placeholder="Enter the measure description" name="measureDesc" />
                                     <Form.Text className="text-muted">
                                         Example: At least 75% of students will receive an average rubric score of 3 of greater when
                                         evaluated using the oral communication rubric.
@@ -148,7 +142,7 @@ class OutcomeMeasures extends Component {
                                 </Form.Group>
                                 <Form.Group>
                                     <Form.Label>Projected Result</Form.Label>
-                                    <Form.Control type="number" placeholder="Projected Result" step ="0.01" max="100" min="0" name="projectedResult"/>
+                                    <Form.Control type="number" placeholder="Projected Result" step="0.01" max="100" min="0" name="projectedResult" />
                                     <Form.Text className="text-muted">
                                         The projected amount of students. Example: 75%
                                     </Form.Text>
@@ -156,7 +150,7 @@ class OutcomeMeasures extends Component {
                                 </Form.Group>
                                 <Form.Group>
                                     <Form.Label>Projected Score</Form.Label>
-                                    <Form.Control type="number" placeholder="Projected Score" step="0.01" min="0" name="projectedScore"/>
+                                    <Form.Control type="number" placeholder="Projected Score" step="0.01" min="0" name="projectedScore" />
                                     <Form.Text className="text-muted">
                                         The desired score. Example: 3
                                     </Form.Text>
