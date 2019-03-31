@@ -385,4 +385,46 @@ router.post(
   }
 );
 
+// @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/measureDetails
+// @desc Provides details of a  measure within an outcome which in turn to cycle
+// @access Private
+
+router.get(
+  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/measureDetails",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let cycleID = req.params.cycleIdentifier;
+    let outcomeID = req.params.outcomeIdentifier;
+    let measureID = req.params.measureIdentifier;
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID) +
+      " AND learnID=" +
+      db.escape(outcomeID) +
+      " AND cycleID=" +
+      db.escape(cycleID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res
+          .status(404)
+          .json({ errors: "Measure Details could not be retrieved" });
+      }
+      res
+        .status(200)
+        .json({
+          cycleID,
+          outcomeID,
+          measureID,
+          measureDescription: result[0].measureDesc,
+          projectedResult: result[0].projectedResult,
+          projectedStudentNumber: result[0].projectedStudentsValue,
+          course: result[0].courseAssociated
+        });
+    });
+  }
+);
+
 module.exports = router;
