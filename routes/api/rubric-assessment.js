@@ -356,7 +356,7 @@ router.get(
               let criteriaWeight = 1;
 
               if (row.criteriaWeight) {
-                let criteriaWeight = row.criteriaWeight / 100;
+                criteriaWeight = row.criteriaWeight / 100;
               }
 
               criteria = {
