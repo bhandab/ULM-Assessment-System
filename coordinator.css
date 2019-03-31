@@ -1,0 +1,27 @@
+.el {
+    border-bottom: 1px solid rgba( 0, 0, 0, 0.3);
+    padding-bottom: 1px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.box {
+    border: 3px solid rgba( 0, 0, 0, 0.3);
+    max-width: 240px;
+    height: 100px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+label{
+    text-decoration: underline;
+    padding-right: 3px;
+    font-weight: bold;
+    
+}
+.reset {
+    position: relative;
+    top: 5px;
+    left: 25%;
+    background-color: rgba( 0, 0, 0, 0.3);
+}
