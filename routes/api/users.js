@@ -21,7 +21,7 @@ const validateAddEvaluatorInput = require("../../validation/addEvaluator");
 router.post("/register", (req, res) => {
   const { errors, isValid } = validateRegisterInput(req.body);
   if (!isValid) {
-    return res.status(400).json(errors);
+    return res.status(404).json(errors);
   }
   //Check if user already exists in the database
   let email = req.body.email;
@@ -37,7 +37,7 @@ router.post("/register", (req, res) => {
     }
     if (result.length > 0) {
       errors.email = "Email already exists";
-      return res.status(400).json(errors);
+      return res.status(404).json(errors);
     }
 
     let adminName = req.body.name;
@@ -71,7 +71,7 @@ router.post("/register", (req, res) => {
 router.post("/registerEvaluator", (req, res) => {
   let { errors, isValid } = validateRegisterInput(req.body);
   if (!isValid) {
-    return res.status(400).json(errors);
+    return res.status(404).json(errors);
   }
 
   let evalName = db.escape(req.body.name);
@@ -85,7 +85,7 @@ router.post("/registerEvaluator", (req, res) => {
     } else if (result.length <= 0) {
       errors.email =
         "You have not been added by coordinator yet; please contact the coordinator!";
-      return res.status(400).json(errors);
+      return res.status(404).json(errors);
     }
 
     sql =
@@ -115,7 +115,7 @@ router.post(
   (req, res) => {
     let { errors, isValid } = validateAddEvaluatorInput(req.body);
     if (!isValid) {
-      return res.status(400).json(errors);
+      return res.status(404).json(errors);
     }
     let evaluatorEmail = db.escape(req.body.evaluatorEmail);
     let adminID = db.escape(req.user.id);
@@ -130,7 +130,7 @@ router.post(
       } else if (result.length > 0) {
         errors.evaluatorEmail =
           "You have already added evaluator with this email";
-        return res.status(400).json(errors);
+        return res.status(404).json(errors);
       }
       sql =
         "INSERT INTO EVALUATOR (evalEmail,corId) VALUES (" +
@@ -182,7 +182,7 @@ router.post("/login", (req, res) => {
   //req body input validation
   const { errors, isValid } = validateLoginInput(req.body);
   if (!isValid) {
-    return res.status(400).json(errors);
+    return res.status(404).json(errors);
   }
   let email = req.body.email;
   let password = req.body.password;
@@ -256,7 +256,7 @@ router.post("/login", (req, res) => {
           );
         } else {
           errors.password = "Password Incorrect";
-          res.status(400).json(errors);
+          res.status(404).json(errors);
         }
       });
     }
