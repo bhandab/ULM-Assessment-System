@@ -19,7 +19,7 @@ router.post(
   (req, res) => {
     let { errors, isValid } = validateCycleInput(req.body);
     if (!isValid) {
-      return res.status(400).json(errors);
+      return res.status(404).json(errors);
     }
 
     let adminID = db.escape(req.user.id);
@@ -37,7 +37,7 @@ router.post(
         return res.status(500).json(err);
       } else if (result.length > 0) {
         errors.cycleTitle = "Cycle with the given name already exists";
-        return res.status(400).json(errors);
+        return res.status(404).json(errors);
       }
 
       sql =
@@ -110,7 +110,7 @@ router.get(
       if (err) {
         return res.status(500).json(err);
       } else if (result.length <= 0) {
-        return res.status(400).json({
+        return res.status(404).json({
           errors: "Cycle with cycle ID " + cycleIdentifier + " Does not Exist!"
         });
       }
@@ -149,7 +149,7 @@ router.post(
   (req, res) => {
     let { errors, isValid } = validateOutcomeInput(req.body);
     if (!isValid) {
-      return res.status(400).json(errors);
+      return res.status(404).json(errors);
     }
 
     let cycleID = req.params.cycleIdentifier;
@@ -168,7 +168,7 @@ router.post(
       if (result.length <= 0) {
         errors.outcomeDescription =
           "Cycle with cycle ID " + cycleID + " Does not Exist!";
-        return res.status(400).json(errors);
+        return res.status(404).json(errors);
       }
       let sql =
         "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
@@ -185,7 +185,7 @@ router.post(
         if (result.length > 0) {
           errors.outcomeDescription =
             "The Selected Outcome is already in current Assessment Cycle";
-          return res.status(400).json(errors);
+          return res.status(404).json(errors);
         }
 
         sql =
@@ -232,7 +232,7 @@ router.get(
       if (err) {
         return res.status(500).json(err);
       } else if (result.length <= 0) {
-        return res.status(400).json({
+        return res.status(404).json({
           errors: "Cycle with ID " + cycleID + " Does not Exist!"
         });
       }
@@ -246,7 +246,7 @@ router.get(
         if (err) {
           return res.status(500).json(err);
         } else if (result.length <= 0) {
-          return res.status(400).json({
+          return res.status(404).json({
             errors:
               "Learning Outcome with the ID " + outcomeID + " Does not Exist!"
           });
@@ -292,7 +292,7 @@ router.post(
   (req, res) => {
     let { errors, isValid } = validateMeasureInput(req.body);
     if (!isValid) {
-      return res.status(400).json(errors);
+      return res.status(404).json(errors);
     }
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
@@ -312,7 +312,7 @@ router.post(
         return res.status(500).json(err);
       } else if (result.length <= 0) {
         return res
-          .status(400)
+          .status(404)
           .json({ errors: "Cycle with ID " + cycleID + " Does not Exist!" });
       }
       //outcomeName = result[0].learnDesc;
@@ -326,7 +326,7 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         } else if (result.length <= 0) {
-          return res.status(400).json({
+          return res.status(404).json({
             errors:
               "Learning Outcome with the ID " + outcomeID + " Does not Exist!"
           });
@@ -344,11 +344,13 @@ router.post(
           } else if (result.length > 0) {
             errors.measureDescription =
               "The selected performance measure is already associated with this learning outcome";
-            return res.status(400).json(errors);
+            return res.status(404).json(errors);
           } else {
             sql =
-              "INSERT INTO PERFORMANCE_MEASURE(learnID,measureDesc,projectedResult,projectedStudentsValue,courseAssociated,corId) VALUES (" +
+              "INSERT INTO PERFORMANCE_MEASURE(learnID,cycleID, measureDesc,projectedResult,projectedStudentsValue,courseAssociated,corId) VALUES (" +
               db.escape(outcomeID) +
+              ", " +
+              db.escape(cycleID) +
               ", " +
               db.escape(measureName) +
               ", " +
