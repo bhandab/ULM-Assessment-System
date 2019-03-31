@@ -71,7 +71,7 @@ class CycleMeasures extends Component {
                     outcomeArray = this.props.cycles.cycleMeasures.outcomes
                     list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
                         return (<li key={outcome.outcomeID}>
-                            <Link to={"/admin/cycles/" + cycleID + "/" + outcome.outcomeID}>
+                            <Link to={"/admin/cycles/cycle/" + cycleID + "/outcomes/" + outcome.outcomeID}>
                                 {outcome.outcomeName}
                             </Link>
                         </li>)

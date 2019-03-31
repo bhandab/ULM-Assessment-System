@@ -23,22 +23,22 @@ class CreateRubric extends Component {
     saveChangesHandler = (e) => {
         e.preventDefault()
         console.log(e.target.rubricTitle.value)
+        const cycleID = this.props.match.params.cycleID
+        const outcomeID = this.props.match.params.outcomeID
+        const measureID = this.props.match.params.measureID
+
         const rubricDetails = {
             rubricName : e.target.rubricTitle.value,
             rows: e.target.rows.value,
             columns: e.target.cols.value
         }
-        this.props.createRubric(rubricDetails)
+        this.props.createRubric(cycleID,outcomeID,measureID,rubricDetails)
     }
 
     render() {
         console.log(this.props)
         return (
             <Fragment>
-                <section className="panel important">
-                    <h2>Existing Rubrics</h2>
-                    <hr />
-                </section>
                 <section className="panel important">
                     <Button variant="primary" onClick={this.handleShow}>
                         Create New Rubric
@@ -86,6 +86,9 @@ CreateRubric.propTypes = {
 
 const MapStateToProps = state => ({
     rubric: state.rubric,
-    errors: state.errors
+    errors: state.errors,
+    cycles: state.cycles,
+    cycleMeasures: state.cycleMeasures,
+    outcomeMeasures: state.outcomeMeasures
 })
 export default connect(MapStateToProps, {createRubric})(CreateRubric);
