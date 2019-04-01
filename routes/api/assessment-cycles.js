@@ -299,11 +299,6 @@ router.post(
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
 
-<<<<<<< HEAD
-    //let measureName = req.body.measureDescription;
-=======
-    let measureName = req.body.measureDescription;
->>>>>>> da72b9197a801e07e064dae646910f384e089e9c
     let projectedValue = req.body.projectedValue;
     let projectedStudentNumber = req.body.projectedStudentNumber;
     let course = req.body.course;
