@@ -5,15 +5,9 @@ const db = require("../../config/dbconnection");
 
 var router = express.Router();
 
-<<<<<<< HEAD
-
-// @route GET api/rubrics
-
-=======
 // @route api/rubrics
 // @desc Lists list of rubrics globally
 // @access Private
->>>>>>> ae0c28906a9608b028a2ef1112f7bc01b1b3cd92
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),

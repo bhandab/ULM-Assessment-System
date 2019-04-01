@@ -61,7 +61,7 @@ class CycleMeasures extends Component {
         let list = <p>Loading!!</p>
         let outcomeArray = null;
 
-        console.log(this.props)
+        //console.log(this.props)
         if (this.props.cycles.cycleMeasures !== null) {
             let cycleID = this.props.cycles.cycleMeasures.cycleIdentifier
             //let cycleID = this.match.params.id

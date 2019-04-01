@@ -300,8 +300,7 @@ router.get(
         if (err) {
           return res.status(500).json(err);
         }
-
-        rubricDetails.strutureInfo = {
+        rubricDetails.structureInfo = {
           noOfRows: result[0].rubricRows,
           noOfColumns: result[0].rubricColumns,
           rubricTitle: result[0].rubricTitle,

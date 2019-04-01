@@ -43,7 +43,7 @@ class OutcomeMeasures extends Component {
 
         console.log(measureDetails)
 
-        this.props.linkMeasureToOutcome(this.props.match.params.cycleID, this.props.match.params.outcomeID, measureDetails)
+        //this.props.linkMeasureToOutcome(this.props.match.params.cycleID, this.props.match.params.outcomeID, measureDetails)
 
     }
 
@@ -52,15 +52,23 @@ class OutcomeMeasures extends Component {
         const cycleID = this.props.cycles.outcomeMeasures.cycleID
         const outcomeID = this.props.cycles.outcomeMeasures.outcomeID
 
-        const measureDetails = {
-            measureDescription: e.target.measureDesc.value,
-            projectedStudentNumber: e.target.projectedResult.value,
-            projectedValue: e.target.projectedScore.value,
-            course: e.target.courseAssctd.value
-        }
+        let pjsn = e.target.projectedStudentNumber.value
+        let pv = e.target.projectedValue.value
+        let crs = e.target.course.value
+        let tt = e.target.tool.value
+        let tid =  e.target.tool.value
+        const measureDescr = "At least " + pjsn + " of students completing " +crs+" will score "+pv+" or greater in " + tt+ " "+tid
 
-        this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
-        this.setState({ createMeasures: false })
+        const measureDetails = {
+            measureDescription: measureDescr,
+            projectedStudentNumber: e.target.projectedStudentNumber.value,
+            projectedValue: e.target.projectedValue.value,
+            course: e.target.course.value,
+            toolTitle: e.target.tool.value,
+            toolID:e.target.tool.value
+        }
+        console.log(measureDetails)
+        //this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
 
     }
 
@@ -101,6 +109,7 @@ class OutcomeMeasures extends Component {
             columns: e.target.cols.value
         }
         this.props.createRubric(cycleID, outcomeID, rubricDetails)
+        //console.log(rubricDetails)
     }
 
     render() {
@@ -163,7 +172,7 @@ class OutcomeMeasures extends Component {
                     </li>)
             })
         }
-        console.log(selections)
+       // console.log(selections)
         return (
 
             <Fragment>
@@ -259,12 +268,12 @@ class OutcomeMeasures extends Component {
                                         </select>
 
                                         {(this.state.toolTypeVal === "rubric") ? 
-                                            <select name="rubric" className="custom-select col-sm-2">
+                                            <select name="tool" className="custom-select col-sm-2">
                                                 <option value="rubric1">rubric1</option>
                                                 <option value="rubric2">rubric2</option>
                                             </select>
                                         : 
-                                            <select name="test" className="custom-select col-sm-2">
+                                            <select name="tool" className="custom-select col-sm-2">
                                                 <option value="test1">test1</option>
                                                 <option value="test2">test2</option>
                                             </select>
