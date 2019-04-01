@@ -56,11 +56,11 @@ class CreateRubric extends Component {
 
 
 
-            table = (<table><tbody>{table}</tbody></table>)
+            table = (<table className="table table-bordered align-middle"><tbody>{table}</tbody></table>)
         }
         return (
-            <section className="panel important h-100 w-100">
-                <p>{rubricTitle}</p>
+            <section className="panel important">
+                <h2 className="align-middle">{rubricTitle}</h2>
                 {table}
             </section>
         )

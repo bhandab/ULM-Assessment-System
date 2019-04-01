@@ -55,20 +55,23 @@ class OutcomeMeasures extends Component {
         let pjsn = e.target.projectedStudentNumber.value
         let pv = e.target.projectedValue.value
         let crs = e.target.course.value
-        let tt = e.target.tool.value
-        let tid =  e.target.tool.value
-        const measureDescr = "At least " + pjsn + " of students completing " +crs+" will score "+pv+" or greater in " + tt+ " "+tid
-
+        let tt = e.target.tool.value.replace(/[0-9]/g, '')
+        let tid = e.target.tool.value.replace(/\D/g,'')
+        let ty = e.target.toolType.value
+        let pt = e.target.projType.value
+        tid = parseInt(tid,10)
+        const measureDescr = "At least "+pjsn+pt+" of students completing "+crs+" will score "+pv+" or greater in "+ty+" "+ tt+ " "+tid
+        console.log(tt)
         const measureDetails = {
             measureDescription: measureDescr,
-            projectedStudentNumber: e.target.projectedStudentNumber.value,
-            projectedValue: e.target.projectedValue.value,
-            course: e.target.course.value,
-            toolTitle: e.target.tool.value,
-            toolID:e.target.tool.value
+            projectedStudentNumber: pjsn,
+            projectedValue: pv,
+            course: crs,
+            toolTitle: tt,
+            toolID: tid
         }
         console.log(measureDetails)
-        //this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
+        this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
 
     }
 
@@ -113,7 +116,7 @@ class OutcomeMeasures extends Component {
     }
 
     render() {
-        console.log(this.props)
+        //console.log(this.props)
         let measures = <p>Loading!!!</p>
         let measureTitle = null
         if (this.props.cycles.outcomeMeasures !== null) {
@@ -170,6 +173,15 @@ class OutcomeMeasures extends Component {
                         {rubric.rubricTitle}
                     </Link>    
                     </li>)
+            })
+        }
+
+        let rubricOptions = null
+        if (isEmpty(this.props.rubric.rubrics) === false) {
+            rubricOptions = this.props.rubric.rubrics.rubrics.map(rubric => {
+                return (<option key={rubric.rubricID} value={rubric.rubricTitle+rubric.rubricID}>
+                        {rubric.rubricTitle}
+                </option>)
             })
         }
        // console.log(selections)
@@ -269,8 +281,7 @@ class OutcomeMeasures extends Component {
 
                                         {(this.state.toolTypeVal === "rubric") ? 
                                             <select name="tool" className="custom-select col-sm-2">
-                                                <option value="rubric1">rubric1</option>
-                                                <option value="rubric2">rubric2</option>
+                                            {rubricOptions}
                                             </select>
                                         : 
                                             <select name="tool" className="custom-select col-sm-2">
@@ -280,7 +291,7 @@ class OutcomeMeasures extends Component {
                                         }
 
                                 </InputGroup>
-                                <Button className="float-right" variant="primary" type="submit">
+                                <Button className="float-right" variant="primary" type="submit" onClick={this.createMeasureHide}>
                                     Create
                                  </Button>
                             </Form>

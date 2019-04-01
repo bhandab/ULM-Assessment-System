@@ -298,12 +298,12 @@ router.post(
     }
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
+
     let measureName = req.body.measureDescription;
     let projectedValue = req.body.projectedValue;
     let projectedStudentNumber = req.body.projectedStudentNumber;
     let course = req.body.course;
     let toolName = req.body.toolTitle;
-    console.log(toolName);
     let toolID = req.body.toolID;
 
     let adminID = req.user.id;
