@@ -14,6 +14,7 @@ module.exports = function validateMeasureInput(data) {
     ? data.projectedStudentNumber.trim()
     : "";
   data.course = !isEmpty(data.course) ? data.course.trim() : "";
+  data.toolTitle = !isEmpty(data.toolTitle) ? data.toolTitle.trim() : "";
 
   if (Validator.isEmpty(data.measureDescription)) {
     errors.measureDescription =
@@ -39,6 +40,10 @@ module.exports = function validateMeasureInput(data) {
       "Projected Student Number should be a number between 0 and 100";
   } else {
     data.projectedStudentNumber = parseFloat(data.projectedStudentNumber);
+  }
+
+  if (Validator.isEmpty(data.toolTitle)) {
+    errors.toolTitle = "Tool Name Cannot be Empty";
   }
   return {
     errors,

@@ -11,7 +11,7 @@ const router = express.Router();
 // @desc Adds a Rubric as a tool to a measure
 // @access Private
 router.post(
-  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/addNewRubric",
+  "/:cycleIdentifier/:outcomeIdentifier/addNewRubric",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let { errors, isValid } = validateRubricStructureInput(req.body);
@@ -26,13 +26,10 @@ router.post(
     let adminID = req.user.id;
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
-    let measureID = req.params.measureIdentifier;
 
     let rubricDetails = {};
     let sql2 =
-      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
-      db.escape(measureID) +
-      " AND learnID=" +
+      "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
       db.escape(outcomeID) +
       " AND cycleID=" +
       db.escape(cycleID);
@@ -44,9 +41,7 @@ router.post(
         return res.status(404).json(errors);
       }
       let sql3 =
-        "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE measureID=" +
-        db.escape(measureID) +
-        " AND learnID=" +
+        "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE learnID=" +
         db.escape(outcomeID) +
         " AND cycleID=" +
         db.escape(cycleID) +
@@ -61,11 +56,8 @@ router.post(
           return res.status(404).json(errors);
         }
         let sql5 =
-          "INSERT INTO TOOL (toolType, corId, measureID,learnID,cycleID) VALUES (" +
-          "'Rubric', " +
+          "INSERT INTO TOOL (corId, learnID,cycleID) VALUES (" +
           db.escape(adminID) +
-          ", " +
-          db.escape(measureID) +
           ", " +
           outcomeID +
           ", " +
@@ -99,8 +91,7 @@ router.post(
               rubricID,
               adminID,
               cycleID,
-              outcomeID,
-              measureID
+              outcomeID
             };
             let scales = [];
             let values = [];
@@ -227,22 +218,19 @@ router.post(
 // @access Private
 
 router.get(
-  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/rubrics",
+  "/:cycleIdentifier/:outcomeIdentifier/rubrics",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
-    let measureID = req.params.measureIdentifier;
 
     let rubrics = [];
 
     let sql1 =
-      "SELECT * FROM PERFORMANCE_MEASURE WHERE cycleID=" +
+      "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
       db.escape(cycleID) +
       " AND learnID=" +
-      db.escape(outcomeID) +
-      " AND measureID=" +
-      db.escape(measureID);
+      db.escape(outcomeID);
     db.query(sql1, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -253,8 +241,9 @@ router.get(
       }
 
       let sql2 =
-        "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE measureID=" +
-        db.escape(measureID);
+        "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE learnID=" +
+        db.escape(outcomeID);
+
       db.query(sql2, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -268,7 +257,7 @@ router.get(
           };
           rubrics.push(rubric);
         });
-        res.status(200).json({ cycleID, outcomeID, measureID, rubrics });
+        res.status(200).json({ cycleID, outcomeID, rubrics });
       });
     });
   }
@@ -279,12 +268,11 @@ router.get(
 // @access Private
 
 router.get(
-  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/:rubricIdentifier/rubricDetails",
+  "/:cycleIdentifier/:outcomeIdentifier/:rubricIdentifier/rubricDetails",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
-    let measureID = req.params.measureIdentifier;
     let rubricID = req.params.rubricIdentifier;
     let adminID = req.user.id;
 
@@ -295,8 +283,6 @@ router.get(
       db.escape(cycleID) +
       " AND learnID=" +
       db.escape(outcomeID) +
-      " AND measureID=" +
-      db.escape(measureID) +
       " AND toolID=" +
       db.escape(rubricID);
 
@@ -322,8 +308,7 @@ router.get(
           rubricID,
           adminID,
           cycleID,
-          outcomeID,
-          measureID
+          outcomeID
         };
         let scales = [];
         let sql3 =
