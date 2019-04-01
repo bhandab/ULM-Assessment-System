@@ -10,15 +10,14 @@ class MeasureDetails extends Component {
 
     state = {
         show: false,
-        tableCreated: false
     }
 
-    componentDidMount(){
+    /*componentDidMount(){
         const cycleID = this.props.match.params.cycleID
         const outcomeID = this.props.match.params.outcomeID
         const measureID = this.props.match.params.measureID
         this.props.getAllRubrics(cycleID,outcomeID,measureID)
-    }
+    }*/
 
     handleClose = () => {
         this.setState({ show: false });

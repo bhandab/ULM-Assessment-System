@@ -76,7 +76,7 @@ export const getCycleMeasures = (cycleID) => dispatch => { //outcomes of a cycle
 }
 
 export const getOutcomesMeasures = (cycleID, outcomeID) => dispatch => { //measures of outcomes
-    console.log(cycleID+outcomeID)
+    //console.log(cycleID+outcomeID)
     axios
         .get("/api/cycles/" + cycleID+"/"+outcomeID+"/measures")
         .then(res => {

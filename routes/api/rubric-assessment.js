@@ -213,8 +213,8 @@ router.post(
   }
 );
 
-// @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/rubrics
-// @desc Retrieves all the rubrics asscoiated with a given measure
+// @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier/rubrics
+// @desc Retrieves all the rubrics asscoiated with a given outcome
 // @access Private
 
 router.get(
@@ -263,8 +263,8 @@ router.get(
   }
 );
 
-// @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/:rubricIdentifier/rubricDetails
-// @desc Retrieves details of the given rubric within a measure
+// @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier/:rubricIdentifier/rubricDetails
+// @desc Retrieves details of the given rubric within a outcome
 // @access Private
 
 router.get(
