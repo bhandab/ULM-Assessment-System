@@ -89,7 +89,7 @@ router.get(
   }
 );
 
-// @route GET api/cycles/:cycleIdentifier
+// @route GET api/cycles/:cycleIdentifier/outcomes
 // @desc Retrieves outcomes associated with the current cycle
 // @access Private
 
@@ -271,7 +271,9 @@ router.get(
               measureID: row.measureID,
               projectedResult: row.projectedResult,
               projectedStudentNumber: row.projectedStudentsValue,
-              courseAssociated: row.courseAssociated
+              courseAssociated: row.courseAssociated,
+              toolName: row.toolName,
+              toolID: row.toolID
             };
             measures.push(measure);
           });
@@ -300,6 +302,10 @@ router.post(
     let projectedValue = req.body.projectedValue;
     let projectedStudentNumber = req.body.projectedStudentNumber;
     let course = req.body.course;
+    let toolName = req.body.toolTitle;
+    console.log(toolName);
+    let toolID = req.body.toolID;
+
     let adminID = req.user.id;
 
     let sql1 =
@@ -337,7 +343,14 @@ router.post(
           " AND measureDesc=" +
           db.escape(measureName) +
           " AND corId=" +
-          adminID;
+          db.escape(adminID) +
+          " AND toolID=" +
+          db.escape(toolID) +
+          " AND toolName=" +
+          db.escape(toolName) +
+          " AND courseAssociated=" +
+          db.escape(course);
+
         db.query(sql3, (err, result) => {
           if (err) {
             return res.status(500).json(err);
@@ -346,8 +359,8 @@ router.post(
               "The selected performance measure is already associated with this learning outcome";
             return res.status(404).json(errors);
           } else {
-            sql =
-              "INSERT INTO PERFORMANCE_MEASURE(learnID,cycleID, measureDesc,projectedResult,projectedStudentsValue,courseAssociated,corId) VALUES (" +
+            let sql4 =
+              "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolName, toolID) VALUES (" +
               db.escape(outcomeID) +
               ", " +
               db.escape(cycleID) +
@@ -361,8 +374,13 @@ router.post(
               db.escape(course) +
               ", " +
               db.escape(adminID) +
+              ", " +
+              db.escape(toolName) +
+              ", " +
+              db.escape(toolID) +
               ")";
-            db.query(sql, (err, result) => {
+
+            db.query(sql4, (err, result) => {
               if (err) {
                 return res.status(500).json(err);
               }
@@ -412,17 +430,17 @@ router.get(
           .status(404)
           .json({ errors: "Measure Details could not be retrieved" });
       }
-      res
-        .status(200)
-        .json({
-          cycleID,
-          outcomeID,
-          measureID,
-          measureDescription: result[0].measureDesc,
-          projectedResult: result[0].projectedResult,
-          projectedStudentNumber: result[0].projectedStudentsValue,
-          course: result[0].courseAssociated
-        });
+      res.status(200).json({
+        cycleID,
+        outcomeID,
+        measureID,
+        measureDescription: result[0].measureDesc,
+        projectedResult: result[0].projectedResult,
+        projectedStudentNumber: result[0].projectedStudentsValue,
+        course: result[0].courseAssociated,
+        toolName: result[0].toolName,
+        toolID: result[0].toolID
+      });
     });
   }
 );
