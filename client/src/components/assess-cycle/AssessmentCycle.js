@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { getAssessmentCycles, createCycle } from '../../actions/assessmentCycleAction'
-import PropTypes from "prop-types"
-import { Link} from 'react-router-dom'
+import { getAssessmentCycles, createCycle } from '../../actions/assessmentCycleAction';
+import PropTypes from "prop-types";
+import { Link} from 'react-router-dom';
+import {Spinner} from 'react-bootstrap';
 
 
 class AssessmentCycle extends Component {
@@ -26,7 +27,7 @@ class AssessmentCycle extends Component {
 
         let cyclesList = null
         if (this.props.cycles.cycles === null) {
-            cyclesList = <p>Loading Assessment Cycles </p>
+            cyclesList = <Spinner animation='border' variant="primary"></Spinner>
         }
         else {
 
