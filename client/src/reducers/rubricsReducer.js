@@ -1,6 +1,7 @@
-import {CREATE_RUBRIC} from '../actions/types'
+import {CREATE_RUBRIC, GET_RUBRICS} from '../actions/types'
 const initialState = {
-    rubric: {}
+    rubric: {},
+    rubrics: {}
 }
 
 export default function (state = initialState, action) {
@@ -13,7 +14,11 @@ export default function (state = initialState, action) {
             ...state,
             rubric: action.payload
             }
-            
+        case GET_RUBRICS:
+            return {
+                ...state,
+                rubrics: action.payload
+            }
     
         default:
             return state;

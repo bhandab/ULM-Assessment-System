@@ -39,9 +39,20 @@ class OutcomeMeasures extends Component {
 
     measureAddHandler = (e) => {
         e.preventDefault();
-        console.log(e.target.measures.value)
-        this.props.linkMeasureToOutcome(this.props.cycles.outcomeMeasures.cycleID, this.props.cycles.outcomeMeasures.outcomeID, e.target.measures.value)
-        window.location.reload()
+        let index = e.target.measures.value
+        const measure = this.props.measures.measures[index]
+
+        const measureDetails = {
+            measureDescription: measure.measureName,
+            projectedStudentNumber: measure.projectedStudentNumber+"",
+            projectedValue: measure.projectedValue+"",
+            course: measure.course
+        }
+
+        console.log(measureDetails)
+
+        this.props.linkMeasureToOutcome(this.props.match.params.cycleID, this.props.match.params.outcomeID, measureDetails)
+        //window.location.reload()
 
     }
 
@@ -96,7 +107,7 @@ class OutcomeMeasures extends Component {
                 console.log(this.props)
                 if (this.props.measures.measures !== null) {
                     selections = this.props.measures.measures.map((item, index) => {
-                        return (<option key={index} value={item.measureName}>
+                        return (<option key={index} value={index}>
                             {item.measureName}
                         </option>)
                     })
@@ -183,8 +194,8 @@ class OutcomeMeasures extends Component {
 OutcomeMeasures.propTypes = {
     getOutcomesMeasures: PropTypes.func.isRequired,
     getMeasures: PropTypes.func.isRequired,
-    linkMeasureToOutcome: PropTypes.func.isRequired,
-    errors: PropTypes.object.isRequired
+    linkMeasureToOutcome: PropTypes.func.isRequired
+    //errors: PropTypes.object.isRequired
 }
 
 const MapStateToProps = state => ({
