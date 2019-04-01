@@ -4,7 +4,7 @@ import { getMeasures } from "../../actions/measuresAction";
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, InputGroup, Modal } from 'react-bootstrap';
 
 
 
@@ -13,7 +13,9 @@ class OutcomeMeasures extends Component {
 
     state = {
         addMeasures: false,
-        createMeasures: false
+        createMeasures: true,
+        modalShow: false,
+        toolTypeVal : "rubric"
     }
 
     componentDidMount() {
@@ -44,15 +46,14 @@ class OutcomeMeasures extends Component {
 
         const measureDetails = {
             measureDescription: measure.measureName,
-            projectedStudentNumber: measure.projectedStudentNumber+"",
-            projectedValue: measure.projectedValue+"",
+            projectedStudentNumber: measure.projectedStudentNumber + "",
+            projectedValue: measure.projectedValue + "",
             course: measure.course
         }
 
         console.log(measureDetails)
 
         this.props.linkMeasureToOutcome(this.props.match.params.cycleID, this.props.match.params.outcomeID, measureDetails)
-        //window.location.reload()
 
     }
 
@@ -71,6 +72,14 @@ class OutcomeMeasures extends Component {
         this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
         this.setState({ createMeasures: false })
 
+    }
+
+    modalShow = () => {
+        this.setState({modalShow:true})
+    }
+
+    modalHide = () => {
+        this.setState({ modalShow: false })
     }
 
     render() {
@@ -115,6 +124,11 @@ class OutcomeMeasures extends Component {
             }
         }
 
+        let toolType = (e) =>{
+            this.setState({toolTypeVal : e.target.value})
+        }
+        
+
         return (
 
             <Fragment>
@@ -124,8 +138,8 @@ class OutcomeMeasures extends Component {
                 </section>
 
                 <section className="panel important">
-                    <button onClick={this.clickHandler.bind(this)} className="btn btn-primary btn-sm">Add Measure</button>
-                    <button onClick={this.measureCreateButtonHandler.bind(this)} className="btn btn-primary btn-sm">Create Measure</button>
+                    <button onClick={this.clickHandler.bind(this)} className="btn btn-primary btn-sm mr-3">Add Measure</button>
+                    <button onClick={this.modalShow} className="btn btn-primary btn-sm">Create Measure</button>
                     {(this.state.addMeasures) ?
                         <div>
                             <br></br>
@@ -140,47 +154,77 @@ class OutcomeMeasures extends Component {
                         : null}
 
                     {(this.state.createMeasures) ?
-                        <div>
-                            <br></br>
+                        <Modal size="lg" centered show={this.state.modalShow} onHide={this.modalHide}>
+                            <Modal.Header closeButton>
+                                <Modal.Title id="contained-modal-title-vcenter">
+                                Create New Measure
+                                </Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
                             <Form onSubmit={this.measureCreateHandler.bind(this)} >
-                                <Form.Group>
-                                    <Form.Label>Measure Description</Form.Label>
-                                    <Form.Control type="text" placeholder="Enter the measure description" name="measureDesc" />
-                                    <Form.Text className="text-muted">
-                                        Example: At least 75% of students will receive an average rubric score of 3 of greater when
-                                        evaluated using the oral communication rubric.
-                                    </Form.Text>
-                                </Form.Group>
-                                <Form.Group>
-                                    <Form.Label>Projected Result</Form.Label>
-                                    <Form.Control type="number" placeholder="Projected Result" step="0.01" max="100" min="0" name="projectedResult" />
-                                    <Form.Text className="text-muted">
-                                        The projected amount of students. Example: 75%
-                                    </Form.Text>
+                                <InputGroup className="mb-3 ml-0 row">
+                                    <InputGroup.Prepend>
+                                        <InputGroup.Text id="basic-addon1">At least</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control type="number" className="col-md-4"
+                                        placeholder="Projected Student Number"
+                                        aria-label="Projected Student Number"
+                                        aria-describedby="basic-addon1"
+                                        name="projectedStudentNumber"
+                                    />
+                                    <select name="projType" className="custom-select col-sm-2" id="basic-addon1">
+                                        <option value="%">%</option>
+                                        <option value="p">percentile</option>
+                                    </select>
+                                    <InputGroup.Append>
+                                        <InputGroup.Text id="basic-addon2"> of students completing </InputGroup.Text>
+                                    </InputGroup.Append>
+                                </InputGroup>
 
-                                </Form.Group>
-                                <Form.Group>
-                                    <Form.Label>Projected Score</Form.Label>
-                                    <Form.Control type="number" placeholder="Projected Score" step="0.01" min="0" name="projectedScore" />
-                                    <Form.Text className="text-muted">
-                                        The desired score. Example: 3
-                                    </Form.Text>
-                                </Form.Group>
-                                <Form.Group>
-                                    <Form.Label>Associated Course</Form.Label>
-                                    <Form.Control type="text" placeholder="Associated Course" step="0.01" min="0" name="courseAssctd" />
-                                    <Form.Text className="text-muted">
-                                        The associated course. Example: CSCI 4065
-                                    </Form.Text>
-                                </Form.Group>
+                                <InputGroup className="mb-3 ml-0 row">
+                                    <Form.Control className="col-md-2"
+                                        placeholder="Course Name"
+                                        name="course"
+                                    />
+                                    <InputGroup.Append>
+                                        <InputGroup.Text id="basic-addon3"> will score </InputGroup.Text>
+                                    </InputGroup.Append>
+                                    <Form.Control className="col-md-2"
+                                        placeholder="Score"
+                                        name="projectedValue"
+                                    />
+                                    <InputGroup.Append>
+                                        <InputGroup.Text id="basic-addon4"> or greater in </InputGroup.Text>
+                                    </InputGroup.Append>
 
-                                <Button variant="primary" type="submit">
+                                        <select onChange={(e) => toolType(e)}name="toolType" className="custom-select col-sm-2" id = "toolType">
+                                            <option value="rubric">rubric</option>
+                                            <option value="test">test</option>
+                                        </select>
+
+                                        {(this.state.toolTypeVal === "rubric") ? 
+                                            <select name="rubric" className="custom-select col-sm-2">
+                                                <option value="rubric1">rubric1</option>
+                                                <option value="rubric2">rubric2</option>
+                                            </select>
+                                        : 
+                                            <select name="test" className="custom-select col-sm-2">
+                                                <option value="test1">test1</option>
+                                                <option value="test2">test2</option>
+                                            </select>
+                                        }
+
+                                </InputGroup>
+
+
+
+                                
+                                <Button className="float-right" variant="primary" type="submit">
                                     Create
                                  </Button>
-
-
                             </Form>
-                        </div>
+                            </Modal.Body>
+                        </Modal>
                         : null}
 
                 </section>
