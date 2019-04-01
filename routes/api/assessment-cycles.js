@@ -298,16 +298,38 @@ router.post(
     }
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
-    let measureName = req.body.measureDescription;
+
+    //let measureName = req.body.measureDescription;
     let projectedValue = req.body.projectedValue;
     let projectedStudentNumber = req.body.projectedStudentNumber;
     let course = req.body.course;
+    let toolType = req.body.toolType;
     let toolName = req.body.toolTitle;
-    console.log(toolName);
     let toolID = req.body.toolID;
-
+    let studentNumberOperator = req.body.studentNumberOperator;
+    let valueOperator = req.body.valueOperator;
     let adminID = req.user.id;
-
+    let measureName =
+      "At Least " +
+      projectedStudentNumber +
+      " " +
+      studentNumberOperator +
+      " in Class " +
+      course +
+      " Will Score " +
+      projectedValue +
+      " " +
+      valueOperator +
+      " or Greater In " +
+      toolName +
+      " " +
+      toolType;
+    if (studentNumberOperator == "%") {
+      projectedStudentNumber = projectedStudentNumber / 100;
+    }
+    if (valueOperator === "%") {
+      projectedValue = projectedValue / 100;
+    }
     let sql1 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
@@ -345,11 +367,12 @@ router.post(
           " AND corId=" +
           db.escape(adminID) +
           " AND toolID=" +
-          db.escape(toolID) +
-          " AND toolName=" +
-          db.escape(toolName) +
-          " AND courseAssociated=" +
-          db.escape(course);
+          db.escape(toolID);
+        // +
+        // " AND toolName=" +
+        // db.escape(toolName) +
+        // " AND courseAssociated=" +
+        // db.escape(course);
 
         db.query(sql3, (err, result) => {
           if (err) {
