@@ -2,6 +2,7 @@ import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { getOutcomes } from "../../actions/outcomesAction";
 import PropTypes from "prop-types";
+import {Spinner} from 'react-bootstrap';
 
 class Outcomes extends Component {
 
@@ -17,7 +18,7 @@ class Outcomes extends Component {
         //console.log(this.props)
         let outcomesList = null
         if (this.props.outcomes.outcomes[0] === undefined) {
-            outcomesList = <p> Loading Outcomes List</p>
+            outcomesList = <Spinner animation='border' variant="primary"></Spinner>
         }
         else {
             outcomesList = this.props.outcomes.outcomes.map( (outcome, index) =>

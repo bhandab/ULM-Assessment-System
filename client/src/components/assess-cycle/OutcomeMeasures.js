@@ -5,7 +5,7 @@ import { getAllRubrics, createRubric } from "../../actions/rubricsAction"
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Form, Button, InputGroup, Modal, Col, FormControl} from 'react-bootstrap';
+import { Form, Button, InputGroup, Modal, Col, Spinner} from 'react-bootstrap';
 import  { isEmpty } from '../../utils/isEmpty'
 
 
@@ -117,7 +117,7 @@ class OutcomeMeasures extends Component {
 
     render() {
         //console.log(this.props)
-        let measures = <p>Loading!!!</p>
+        let measures = <Spinner animation='border' variant="primary"></Spinner>
         let measureTitle = null
         if (this.props.cycles.outcomeMeasures !== null) {
             if (Object.keys(this.props.cycles.outcomeMeasures).length > 1) {
@@ -160,7 +160,7 @@ class OutcomeMeasures extends Component {
             this.setState({toolTypeVal : e.target.value})
         }
         
-        let rubricList = <p>Loading...</p>
+        let rubricList = <Spinner animation='border' variant="primary"></Spinner>
 
         if(isEmpty(this.props.rubric.rubrics) === false ){
             rubricList = this.props.rubric.rubrics.rubrics.map(rubric => {

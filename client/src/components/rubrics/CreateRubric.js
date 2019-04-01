@@ -3,7 +3,7 @@ import { getSingleRubric } from '../../actions/rubricsAction';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { isEmpty } from '../../utils/isEmpty';
-import { Form, FormControl } from 'react-bootstrap';
+import { FormControl } from 'react-bootstrap';
 
 
 class CreateRubric extends Component {
@@ -39,9 +39,7 @@ class CreateRubric extends Component {
             }
             tableHeader = (<tr>{tableHeader}</tr>)
             table.push(tableHeader)
-            //for (i = 0; i < rubricDetails.table.length; i++) {
-
-            //}
+            
             for (i = 0; i < rubricDetails.criteriaInfo.length; i++) {
                 let cells = []
                 cells.push(<td key={rubricDetails.criteriaInfo[i].criteriaID}><FormControl as="textarea" defaultValue={rubricDetails.criteriaInfo[i].criteriaDescription} /></td>)

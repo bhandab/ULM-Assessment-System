@@ -4,6 +4,7 @@ import { getOutcomes } from '../../actions/outcomesAction';
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import {Spinner} from 'react-bootstrap'
 
 
 class CycleMeasures extends Component {
@@ -58,7 +59,7 @@ class CycleMeasures extends Component {
     render() {
 
         let title = null
-        let list = <p>Loading!!</p>
+        let list = <Spinner animation='border' variant="primary"></Spinner>
         let outcomeArray = null;
 
         //console.log(this.props)

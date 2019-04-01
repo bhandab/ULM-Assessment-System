@@ -2,6 +2,7 @@ import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { getMeasures } from "../../actions/measuresAction";
 import PropTypes from "prop-types";
+import {Spinner} from 'react-bootstrap';
 
 class Measures extends Component {
 
@@ -11,11 +12,11 @@ class Measures extends Component {
 
 
     render() {
-        let measuresList = null
+        let measuresList = <Spinner animation='border' variant="primary"></Spinner>
        console.log(this.props)
 
         if (this.props.measures.measures === null ) {
-            measuresList = <h3> Loading Measures List</h3>
+            measuresList = <Spinner animation='border' variant="primary"></Spinner>
         }
 
         else {
