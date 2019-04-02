@@ -385,7 +385,7 @@ router.post(
       " AND corId=" +
       db.escape(adminID);
       
-      console.log(outcomeName);
+     
       
      
       db.query(sql1, (err, result) => {
