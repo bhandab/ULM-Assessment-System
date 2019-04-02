@@ -20,6 +20,10 @@ class OutcomeMeasures extends Component {
   };
 
   componentDidMount() {
+    if (!this.props.auth.isAuthenticated) {
+      this.props.history.push('/login')
+    }
+
     const cycleID = this.props.match.params.cycleID;
     const outcomeID = this.props.match.params.outcomeID;
     this.props.getOutcomesMeasures(cycleID, outcomeID);
@@ -78,7 +82,8 @@ class OutcomeMeasures extends Component {
       projectedValue: pv,
       course: crs,
       toolTitle: tt,
-      toolID: tid
+      toolID: tid,
+      toolType : ty
     };
     console.log(measureDetails);
     //this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
@@ -466,7 +471,8 @@ OutcomeMeasures.propTypes = {
   getMeasures: PropTypes.func.isRequired,
   linkMeasureToOutcome: PropTypes.func.isRequired,
   getAllRubrics: PropTypes.func.isRequired,
-  createRubric: PropTypes.func.isRequired
+  createRubric: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired
 };
 
 const MapStateToProps = state => ({
@@ -474,7 +480,7 @@ const MapStateToProps = state => ({
   cycles: state.cycles,
   measures: state.measures,
   errors: state.errors,
-  //rubrics: state.rubrics,
+  auth: state.auth,
   rubric: state.rubric
 });
 

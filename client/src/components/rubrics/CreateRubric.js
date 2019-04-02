@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { getSingleRubric } from "../../actions/rubricsAction";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
@@ -7,6 +7,10 @@ import { FormControl, Jumbotron } from "react-bootstrap";
 
 class CreateRubric extends Component {
   componentDidMount() {
+    if (!this.props.auth.isAuthenticated) {
+      this.props.history.push('/login')
+    }
+
     const cycleID = this.props.match.params.cycleID;
     const outcomeID = this.props.match.params.outcomeID;
     const rubricID = this.props.match.params.rubricID;
@@ -28,8 +32,8 @@ class CreateRubric extends Component {
       const rubricDetails = this.props.rubric.singleRubric.rubricDetails;
       rubricTitle = this.props.rubric.singleRubric.rubricDetails.structureInfo
         .rubricTitle;
-      cols = rubricDetails.criteriaInfo.length + 1;
-      rows = rubricDetails.scaleInfo.length + 1;
+      rows = rubricDetails.criteriaInfo.length + 1;
+      cols = rubricDetails.scaleInfo.length + 1;
 
       tableHeader.push(
         <td key="cross">
@@ -64,7 +68,7 @@ class CreateRubric extends Component {
         );
         let j;
         for (j = 0; j < rubricDetails.scaleInfo.length; j++) {
-          let idx = 4 * i + j;
+          let idx = (cols -1) * i + j;
           cells.push(
             <td key={rubricDetails.table[idx].cellID}>
               <FormControl
@@ -95,11 +99,13 @@ class CreateRubric extends Component {
 }
 
 CreateRubric.propTypes = {
-  getSingleRubric: PropTypes.func.isRequired
+  getSingleRubric: PropTypes.func.isRequired,
+  auth: PropTypes.func.isRequired
 };
 
 const MapStateToProps = state => ({
-  rubric: state.rubric
+  rubric: state.rubric,
+  auth: state.auth
 });
 
 export default connect(

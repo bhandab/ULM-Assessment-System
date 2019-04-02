@@ -10,6 +10,9 @@ class AssessmentCycle extends Component {
 
 
     componentDidMount() {
+        if(!this.props.auth.isAuthenticated){
+            this.props.history.push('/login')
+        }
         this.props.getAssessmentCycles()
         
     }

@@ -7,11 +7,18 @@ import {Spinner} from 'react-bootstrap';
 class Measures extends Component {
 
     componentDidMount = () => {
+        if(this.props.auth.isAuthenticated){
         this.props.getMeasures();
+        }
+        else{
+            this.props.history.push('/login')
+        }
     }
 
 
     render() {
+
+        console.log()
         let measuresList = <Spinner animation='border' variant="primary"></Spinner>
        console.log(this.props)
 

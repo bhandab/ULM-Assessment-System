@@ -8,8 +8,12 @@ class Outcomes extends Component {
 
 
     componentDidMount() {
+        if(this.props.auth.isAuthenticated){
         this.props.getOutcomes(this.props.auth.user.id);
-
+        }
+        else{
+            this.props.history.push('/login')
+        }
 
     }
 
@@ -42,7 +46,8 @@ class Outcomes extends Component {
 }
 
 Outcomes.propTypes = {
-    auth: PropTypes.object.isRequired
+    auth: PropTypes.object.isRequired,
+    getOutcomes: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({

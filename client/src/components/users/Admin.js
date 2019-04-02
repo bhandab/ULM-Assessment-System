@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Route, Switch } from 'react-router-dom';
-
+import { connect } from "react-redux";
+import PropTypes from 'prop-types';
 import AdminLayout from '../layouts/AdminLayout';
 import Outcomes from '../contents/Outcomes';
 import Measures from '../contents/Measures';
@@ -11,8 +12,14 @@ import CreateRubric from '../rubrics/CreateRubric';
 
 class Admin extends Component {
 
+    componentDidMount(){
+        if(!this.props.auth.isAuthenticated){
+            this.props.history.push('/login')
+        }
+    }
     render() {
-
+        console.log("admin")
+        console.log(this.props)
         return (
 
             <Fragment>
@@ -35,4 +42,12 @@ class Admin extends Component {
     }
 }
 
-export default Admin
+Admin.propTypes = {
+    auth: PropTypes.object.isRequired
+}
+
+const MapStateToProps = state => ({
+    auth: state.auth
+})
+
+export default connect(MapStateToProps)(Admin)

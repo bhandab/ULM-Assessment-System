@@ -12,6 +12,8 @@ import Admin from './components/users/Admin'
 import Evaluator from './components/layouts/Evaluator'
 import Register from './components/auth/Register'
 
+import Test from '../src/utils/testing'
+
 
 import './App.css';
 

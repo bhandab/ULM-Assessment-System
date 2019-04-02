@@ -12,12 +12,11 @@ class MeasureDetails extends Component {
         show: false,
     }
 
-    /*componentDidMount(){
-        const cycleID = this.props.match.params.cycleID
-        const outcomeID = this.props.match.params.outcomeID
-        const measureID = this.props.match.params.measureID
-        this.props.getAllRubrics(cycleID,outcomeID,measureID)
-    }*/
+    componentDidMount(){
+        if (!this.props.auth.isAuthenticated) {
+            this.props.history.push('/login')
+        }
+    }
 
     handleClose = () => {
         this.setState({ show: false });
@@ -97,7 +96,8 @@ class MeasureDetails extends Component {
 
 MeasureDetails.propTypes = {
     createRubric: PropTypes.func.isRequired,
-    getAllRubrics: PropTypes.func.isRequired
+    getAllRubrics: PropTypes.func.isRequired,
+    auth: PropTypes.func.isRequired
 }
 
 const MapStateToProps = state => ({
@@ -106,6 +106,7 @@ const MapStateToProps = state => ({
     cycles: state.cycles,
     cycleMeasures: state.cycleMeasures,
     outcomeMeasures: state.outcomeMeasures,
-    rubrics: state.rubrics
+    rubrics: state.rubrics,
+    auth: state.suth
 })
 export default connect(MapStateToProps, { createRubric, getAllRubrics})(MeasureDetails);

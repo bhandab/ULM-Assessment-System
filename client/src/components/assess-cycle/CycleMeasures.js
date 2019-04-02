@@ -16,6 +16,10 @@ class CycleMeasures extends Component {
   };
 
   componentDidMount() {
+    if (!this.props.auth.isAuthenticated) {
+      this.props.history.push('/login')
+    }
+
     let id = this.props.match.params.id;
     this.props.getCycleMeasures(id);
   }
@@ -59,7 +63,7 @@ class CycleMeasures extends Component {
     let list = <Spinner animation="border" variant="primary" />;
     let outcomeArray = null;
 
-    //console.log(this.props)
+    console.log(this.props)
     if (this.props.cycles.cycleMeasures !== null) {
       let cycleID = this.props.cycles.cycleMeasures.cycleIdentifier;
       //let cycleID = this.match.params.id
@@ -94,6 +98,7 @@ class CycleMeasures extends Component {
       if (Object.keys(this.props.outcomes.outcomes) !== 0) {
         // console.log(this.props)
         if (this.props.outcomes.outcomes.length > 0) {
+          outcomeArray = this.props.cycles.cycleMeasures.outcomes;
           selections = this.props.outcomes.outcomes.map((item, index) => {
             const temp = outcomeArray.find(outcome => {
               return outcome.outcomeName === item;
@@ -179,14 +184,16 @@ CycleMeasures.propTypes = {
   getCycleMeasures: PropTypes.func.isRequired,
   getOutcomes: PropTypes.func.isRequired,
   linkOutcomeToCycle: PropTypes.func.isRequired,
-  cycles: PropTypes.object.isRequired
+  cycles: PropTypes.object.isRequired,
+  auth: PropTypes.object.isRequired
 };
 
 const MapStateToProps = state => ({
   cycleMeasures: state.cycleMeasures,
   cycles: state.cycles,
   outcomes: state.outcomes,
-  errors: state.errors
+  errors: state.errors,
+  auth: state.auth
 });
 
 export default connect(
