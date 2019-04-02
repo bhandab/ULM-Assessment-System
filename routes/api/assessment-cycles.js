@@ -283,6 +283,119 @@ router.get(
     });
   }
 );
+// @route POST api/cycles/:cycleIdentifier/update
+// @desc Updates an  existingAssessment Cycle
+// @access Private BIKASH
+
+router.post(
+  "/:cycleIdentifier/Update",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let { errors, isValid } = validateCycleInput(req.body);
+    if (!isValid) {
+      return res.status(404).json(errors);
+    }
+
+    let cycleID = req.params.cycleIdentifier;
+    let adminID = db.escape(req.user.id);
+    let cycleName = db.escape(req.body.cycleTitle);
+    created = db.escape(new Date());
+
+    let sql0 =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" + cycleID +" AND corId=" + adminID;
+
+    db.query(sql0, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.cycleTitle =
+        "The given cycle doesn't with cycleID "+cycleID +" exists";
+        return res.status(404).json(errors);
+      }
+      let sql1 =
+      "UPDATE ASSESSMENT_CYCLE SET cycleTitle="+ cycleName+ " WHERE cycleID=" + db.escape(cycleID);
+      
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+
+        return res.status(200).json({ cycleName, created,cycleID});
+        
+
+      });
+    });
+  });
+
+// @route POST api/cycles/:cycleIdentifier/outcomes/:outcomeID
+// @desc Updates an  outcome of existing assessment Cycle
+// @access Private BIKASH
+router.post(
+  "/:cycleIdentifier/:learnID/Update",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let { errors, isValid } = validateOutcomeInput(req.body);
+    if (!isValid) {
+      return res.status(404).json(errors);
+    }
+
+    let cycleID = req.params.cycleIdentifier;
+    let learnID=req.params.learnID;
+    let adminID = req.user.id;
+    let outcomeName = req.body.outcomeDescription;
+
+    let sql0 =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND corId=" +
+      db.escape(adminID);
+
+    db.query(sql0, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.outcomeDescription =
+          "Cycle with cycle ID " + cycleID + " Does not Exist!";
+        return res.status(404).json(errors);
+      }
+      let sql =
+      "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND learnID=" +
+      db.escape(learnID) +
+      " AND corId=" +
+      db.escape(adminID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+
+      if (result.length <= 0) {
+        errors.outcomeDescription =
+          "The Selected Outcome is not in the current Assessment Cycle";
+        return res.status(404).json(errors);
+      }
+      let sql1 =
+      "UPDATE LEARNING_OUTCOME SET learnDesc= "+ outcomeName + " WHERE cycleID=" + 
+      db.escape(cycleID)+
+      " AND learnID=" +
+      db.escape(learnID);
+      
+     
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+       
+        res.status(200).json({ cycleID, learnID, adminID, outcomeName });
+      });
+    });
+  });
+ });
+
+
 
 // @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/addNewMeasure
 // @desc Adds a new measure within an outcome which in turn to cycle
