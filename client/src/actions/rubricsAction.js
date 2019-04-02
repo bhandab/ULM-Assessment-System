@@ -64,8 +64,11 @@ export const getSingleRubric = (cycleID, outcomeID, rubricID) => dispatch => {
 
 export const getRubricsGlobal = () => dispatch => {
     axios
+    
     .get("/api/rubrics")
+    
     .then(res => {
+        console.log(res)
         dispatch({
             type: GET_RUBRICS_GLOBAL,
             payload: res.data

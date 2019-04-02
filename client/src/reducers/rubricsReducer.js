@@ -30,6 +30,7 @@ export default function (state = initialState, action) {
                 singleRubric: action.payload
             }
         case GET_RUBRICS_GLOBAL:
+            console.log("rubrics reducer")
             return {
                 ...state,
                 globalRubrics: action.payload

@@ -3,11 +3,14 @@ import { connect } from 'react-redux';
 import { getAssessmentCycles, createCycle } from '../../actions/assessmentCycleAction';
 import PropTypes from "prop-types";
 import { Link} from 'react-router-dom';
-import {Spinner} from 'react-bootstrap';
+import {Spinner, Button, Modal, Form} from 'react-bootstrap';
 
 
 class AssessmentCycle extends Component {
 
+    state = {
+        show : false
+    }
 
     componentDidMount() {
         if(!this.props.auth.isAuthenticated){
@@ -22,6 +25,14 @@ class AssessmentCycle extends Component {
         let value = e.target.cycleName.value
         this.props.createCycle({cycleTitle:value},this.props.history)
 
+    }
+
+    modalShow=()=> {
+        this.setState({show:true})
+    }
+
+    modalHide = () => {
+        this.setState({show:false})
     }
 
 
@@ -48,22 +59,28 @@ class AssessmentCycle extends Component {
         
         return (
             <Fragment>
-                <section className="panel important">
+                <section className="panel important" >
                     <h2>Assessment Cycles</h2>
                     <ol>{cyclesList}</ol>
+                    <br></br>
+                    <Button onClick={this.modalShow}>Create New Cycle</Button>
                 </section>
 
-                <section className="panel important">
-                    <h2>Create New Cycle</h2>
-                    <form onSubmit = {this.submitHandler.bind(this)}>
-                    <input type="text" name="cycleName" placeholder = "Cycle Name"/> 
-                    <button className = "btn btn-primary btn-sm" type="submit" value="Create">Create</button> 
-                    </form>
-
-                </section>
-                <section className="panel important">
-                
-                </section>
+                <Modal size="lg" show = {this.state.show} onHide = {this.modalHide}
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">
+                            Create New Assessment Cycle
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={this.submitHandler.bind(this)}>
+                            <Form.Control name="cycleName" placeholder="Cycle Name"></Form.Control>
+                            <Button className="mt-3 float-right" type="submit" onClick={this.modalHide}>Create</Button>
+                        </Form>
+                    </Modal.Body>
+                    </Modal>
             </Fragment>
         )
     }
