@@ -378,10 +378,14 @@ router.post(
         return res.status(404).json(errors);
       }
       let sql1 =
-      "UPDATE LEARNING_OUTCOME SET learnDesc= "+ outcomeName + " WHERE cycleID=" + 
-      db.escape(cycleID)+
+      "UPDATE LEARNING_OUTCOME SET learnDesc="+  db.escape(outcomeName)+ "WHERE cycleID=" + 
+      db.escape(cycleID) +
       " AND learnID=" +
-      db.escape(learnID);
+      db.escape(learnID) +
+      " AND corId=" +
+      db.escape(adminID);
+      
+      console.log(outcomeName);
       
      
       db.query(sql1, (err, result) => {
