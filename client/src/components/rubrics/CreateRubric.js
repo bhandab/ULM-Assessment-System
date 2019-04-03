@@ -1,54 +1,52 @@
 import React, { Component, Fragment } from "react";
-import { getSingleRubric, updateRubricCriteria, updateCellDescription } from "../../actions/rubricsAction";
+import {
+  getSingleRubric,
+  updateRubricCriteria,
+  updateCellDescription
+} from "../../actions/rubricsAction";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { isEmpty } from "../../utils/isEmpty";
 import { FormControl, Jumbotron } from "react-bootstrap";
 
 class CreateRubric extends Component {
-  
   componentDidMount() {
     if (!this.props.auth.isAuthenticated) {
-      this.props.history.push('/login')
+      this.props.history.push("/login");
     }
 
     const rubricID = this.props.match.params.rubricID;
     this.props.getSingleRubric(rubricID);
   }
 
-  onClickHandler = (e) => {
-    console.log("clicked")
-    console.log(e.target.name)
-  }
+  onClickHandler = e => {
+    console.log("clicked");
+    console.log(e.target.name);
+  };
 
-  onChangehandler = (e) => {
-    console.log("onChange")
-    console.log(e.target.value)
-    console.log(e.target.name)
-  }
+  onChangehandler = e => {
+    console.log("onChange");
+    console.log(e.target.value);
+    console.log(e.target.name);
+  };
 
-  updateCriteria = (e) => {
-
+  updateCriteria = e => {
     const body = {
-    criteriaDesc : e.target.value,
-    criteriaID : e.target.name
-    }
+      criteriaDesc: e.target.value,
+      criteriaID: e.target.name
+    };
 
-    this.props.updateRubricCriteria(this.props.match.params.rubricID, body)
-    
-  }
+    this.props.updateRubricCriteria(this.props.match.params.rubricID, body);
+  };
 
-  updateCellDesc = (e) => {
-
+  updateCellDesc = e => {
     const body = {
       levelDesc: e.target.value,
       cellID: e.target.name
-    }
+    };
 
-    this.props.updateCellDescription(this.props.match.params.rubricID, body)
-
-  }
-
+    this.props.updateCellDescription(this.props.match.params.rubricID, body);
+  };
 
   render() {
     console.log(this.props);
@@ -73,7 +71,7 @@ class CreateRubric extends Component {
           <h3>Criteria</h3>
         </td>
       );
-      
+
       for (let i = 0; i < rubricDetails.scaleInfo.length; i++) {
         tableHeader.push(
           <th key={rubricDetails.scaleInfo[i].scaleID}>
@@ -88,13 +86,13 @@ class CreateRubric extends Component {
       tableHeader = <tr>{tableHeader}</tr>;
       table.push(tableHeader);
 
-      const tableRows = this.props.rubric.singleRubric.rubricDetails.table
-      
-      for(let j = 0; j < tableRows.length; j++){
-        let cells = []
+      const tableRows = this.props.rubric.singleRubric.rubricDetails.table;
+      for (let j = 0; j < tableRows.length; j++) {
+        let cells = [];
         cells.push(
           <td key={rubricDetails.criteriaInfo[j].criteriaID}>
-            <FormControl className="p-0 m-0"
+            <FormControl
+              className="p-0 m-0"
               as="textarea"
               style={{ border: "none" }}
               defaultValue={rubricDetails.criteriaInfo[j].criteriaDescription}
@@ -103,14 +101,14 @@ class CreateRubric extends Component {
             />
           </td>
         );
-        
-        const tableCols =  tableRows[j]
-        for(let k = 0; k < tableCols.length; k++){
+
+        const tableCols = tableRows[j];
+        for (let k = 0; k < tableCols.length; k++) {
           cells.push(
             <td key={tableCols[k].cellID}>
               <FormControl
                 as="textarea"
-                style={{ border: "none" }}
+                style={{ border: "none", size: "2px" }}
                 defaultValue={tableCols[k].cellDescription}
                 name={tableCols[k].cellID}
                 onChange={this.updateCellDesc.bind(this)}
@@ -120,8 +118,6 @@ class CreateRubric extends Component {
         }
         cells = <tr>{cells}</tr>;
         table.push(cells);
-
-
       }
       table = (
         <table className="table table-bordered m-0 p-0">
@@ -131,10 +127,10 @@ class CreateRubric extends Component {
     }
     return (
       <Fragment>
-      <section className="panel important">
-        <h2 className="align-middle">{rubricTitle}</h2>
-        {table}
-      </section>
+        <section className="panel important">
+          <h2 className="align-middle">{rubricTitle}</h2>
+          {table}
+        </section>
       </Fragment>
     );
   }
@@ -150,7 +146,7 @@ CreateRubric.propTypes = {
 const MapStateToProps = state => ({
   rubric: state.rubric,
   auth: state.auth,
-  errors:state.errors
+  errors: state.errors
 });
 
 export default connect(
