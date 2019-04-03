@@ -55,22 +55,32 @@ export const getSingleRubric = (rubricID) => dispatch => {
         })
 }
 
-/*export const getRubricsGlobal = () => dispatch => {
+export const updateRubricCriteria = (rubricID,body) => dispatch => {
     axios
-    
-    .get("/api/rubrics")
-    
-    .then(res => {
-       // console.log(res)
-        dispatch({
-            type: GET_RUBRICS_GLOBAL,
-            payload: res.data
+        .post("/api/rubrics/"+rubricID+"/updateCriteria",body)
+        .then(()=> {
+            dispatch(getSingleRubric(rubricID))
         })
-    })
         .catch(err => {
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
             })
         })
-}*/
+        
+}
+
+export const updateCellDescription = (rubricID, body) => dispatch => {
+    axios
+        .post("/api/rubrics/" + rubricID + "/updateLevelDescription", body)
+        .then(() => {
+            dispatch(getSingleRubric(rubricID))
+        })
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+            })
+        })
+
+}

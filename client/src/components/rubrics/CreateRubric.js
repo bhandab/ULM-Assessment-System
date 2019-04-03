@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from "react";
-import { getSingleRubric } from "../../actions/rubricsAction";
+import { getSingleRubric, updateRubricCriteria, updateCellDescription } from "../../actions/rubricsAction";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { isEmpty } from "../../utils/isEmpty";
 import { FormControl, Jumbotron } from "react-bootstrap";
 
 class CreateRubric extends Component {
+  
   componentDidMount() {
     if (!this.props.auth.isAuthenticated) {
       this.props.history.push('/login')
@@ -14,6 +15,40 @@ class CreateRubric extends Component {
     const rubricID = this.props.match.params.rubricID;
     this.props.getSingleRubric(rubricID);
   }
+
+  onClickHandler = (e) => {
+    console.log("clicked")
+    console.log(e.target.name)
+  }
+
+  onChangehandler = (e) => {
+    console.log("onChange")
+    console.log(e.target.value)
+    console.log(e.target.name)
+  }
+
+  updateCriteria = (e) => {
+
+    const body = {
+    criteriaDesc : e.target.value,
+    criteriaID : e.target.name
+    }
+
+    this.props.updateRubricCriteria(this.props.match.params.rubricID, body)
+    
+  }
+
+  updateCellDesc = (e) => {
+
+    const body = {
+      levelDesc: e.target.value,
+      cellID: e.target.name
+    }
+
+    this.props.updateCellDescription(this.props.match.params.rubricID, body)
+
+  }
+
 
   render() {
     console.log(this.props);
@@ -63,6 +98,8 @@ class CreateRubric extends Component {
               as="textarea"
               style={{ border: "none" }}
               defaultValue={rubricDetails.criteriaInfo[j].criteriaDescription}
+              name={rubricDetails.criteriaInfo[j].criteriaID}
+              onChange={this.updateCriteria.bind(this)}
             />
           </td>
         );
@@ -75,6 +112,8 @@ class CreateRubric extends Component {
                 as="textarea"
                 style={{ border: "none" }}
                 defaultValue={tableCols[k].cellDescription}
+                name={tableCols[k].cellID}
+                onChange={this.updateCellDesc.bind(this)}
               />
             </td>
           );
@@ -84,35 +123,6 @@ class CreateRubric extends Component {
 
 
       }
-      /*
-      for (i = 0; i < rubricDetails.criteriaInfo.length; i++) {
-        let cells = [];
-        cells.push(
-          <td key={rubricDetails.criteriaInfo[i].criteriaID}>
-            <FormControl
-              as="textarea"
-              style={{ border: "none" }}
-              defaultValue={rubricDetails.criteriaInfo[i].criteriaDescription}
-            />
-          </td>
-        );
-        let j;
-        for (j = 0; j < rubricDetails.scaleInfo.length; j++) {
-          let idx = (cols -1) * i + j;
-          cells.push(
-            <td key={rubricDetails.table[idx].cellID}>
-              <FormControl
-                as="textarea"
-                style={{ border: "none" }}
-                defaultValue={rubricDetails.table[idx].criteriaDescription}
-              />
-            </td>
-          );
-        }
-        cells = <tr>{cells}</tr>;
-        table.push(cells);
-      }*/
-
       table = (
         <table className="table table-bordered m-0 p-0">
           <tbody>{table}</tbody>
@@ -132,7 +142,9 @@ class CreateRubric extends Component {
 
 CreateRubric.propTypes = {
   getSingleRubric: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired
+  auth: PropTypes.object.isRequired,
+  updateRubricCriteria: PropTypes.func.isRequired,
+  updateCellDescription: PropTypes.func.isRequired
 };
 
 const MapStateToProps = state => ({
@@ -143,5 +155,5 @@ const MapStateToProps = state => ({
 
 export default connect(
   MapStateToProps,
-  { getSingleRubric }
+  { getSingleRubric, updateRubricCriteria, updateCellDescription }
 )(CreateRubric);
