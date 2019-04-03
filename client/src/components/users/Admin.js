@@ -19,8 +19,8 @@ class Admin extends Component {
         }
     }
     render() {
-        console.log("admin")
-        console.log(this.props)
+        //console.log("admin")
+       // console.log(this.props)
         return (
 
             <Fragment>

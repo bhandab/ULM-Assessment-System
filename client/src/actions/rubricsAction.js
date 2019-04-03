@@ -68,7 +68,7 @@ export const getRubricsGlobal = () => dispatch => {
     .get("/api/rubrics")
     
     .then(res => {
-        console.log(res)
+       // console.log(res)
         dispatch({
             type: GET_RUBRICS_GLOBAL,
             payload: res.data

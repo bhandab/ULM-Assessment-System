@@ -76,6 +76,7 @@ class OutcomeMeasures extends Component {
       " " +
       tid;
     console.log(tt);
+    
     const measureDetails = {
       measureDescription: measureDescr,
       projectedStudentNumber: pjsn,
