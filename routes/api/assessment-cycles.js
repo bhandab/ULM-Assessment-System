@@ -284,7 +284,7 @@ router.get(
   }
 );
 // @route POST api/cycles/:cycleIdentifier/update
-// @desc Updates an  existingAssessment Cycle
+// @desc Updates an  existing Assessment Cycle
 // @access Private BIKASH
 
 router.post(
@@ -302,7 +302,10 @@ router.post(
     created = db.escape(new Date());
 
     let sql0 =
-      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" + cycleID +" AND corId=" + adminID;
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      cycleID +
+      " AND corId=" +
+      adminID;
 
     db.query(sql0, (err, result) => {
       if (err) {
@@ -310,23 +313,25 @@ router.post(
       }
       if (result.length <= 0) {
         errors.cycleTitle =
-        "The given cycle doesn't with cycleID "+cycleID +" exists";
+          "The given cycle doesn't with cycleID " + cycleID + " exists";
         return res.status(404).json(errors);
       }
       let sql1 =
-      "UPDATE ASSESSMENT_CYCLE SET cycleTitle="+ cycleName+ " WHERE cycleID=" + db.escape(cycleID);
-      
+        "UPDATE ASSESSMENT_CYCLE SET cycleTitle=" +
+        cycleName +
+        " WHERE cycleID=" +
+        db.escape(cycleID);
+
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
 
-        return res.status(200).json({ cycleName, created,cycleID});
-        
-
+        return res.status(200).json({ cycleName, created, cycleID });
       });
     });
-  });
+  }
+);
 
 // @route POST api/cycles/:cycleIdentifier/outcomes/:outcomeID
 // @desc Updates an  outcome of existing assessment Cycle
@@ -341,7 +346,7 @@ router.post(
     }
 
     let cycleID = req.params.cycleIdentifier;
-    let learnID=req.params.learnID;
+    let learnID = req.params.learnID;
     let adminID = req.user.id;
     let outcomeName = req.body.outcomeDescription;
 
@@ -361,45 +366,43 @@ router.post(
         return res.status(404).json(errors);
       }
       let sql =
-      "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
-      db.escape(cycleID) +
-      " AND learnID=" +
-      db.escape(learnID) +
-      " AND corId=" +
-      db.escape(adminID);
-    db.query(sql, (err, result) => {
-      if (err) {
-        return res.status(500).json(err);
-      }
-
-      if (result.length <= 0) {
-        errors.outcomeDescription =
-          "The Selected Outcome is not in the current Assessment Cycle";
-        return res.status(404).json(errors);
-      }
-      let sql1 =
-      "UPDATE LEARNING_OUTCOME SET learnDesc="+  db.escape(outcomeName)+ "WHERE cycleID=" + 
-      db.escape(cycleID) +
-      " AND learnID=" +
-      db.escape(learnID) +
-      " AND corId=" +
-      db.escape(adminID);
-      
-     
-      
-     
-      db.query(sql1, (err, result) => {
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
+        db.escape(cycleID) +
+        " AND learnID=" +
+        db.escape(learnID) +
+        " AND corId=" +
+        db.escape(adminID);
+      db.query(sql, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
-       
-        res.status(200).json({ cycleID, learnID, adminID, outcomeName });
+
+        if (result.length <= 0) {
+          errors.outcomeDescription =
+            "The Selected Outcome is not in the current Assessment Cycle";
+          return res.status(404).json(errors);
+        }
+        let sql1 =
+          "UPDATE LEARNING_OUTCOME SET learnDesc=" +
+          db.escape(outcomeName) +
+          "WHERE cycleID=" +
+          db.escape(cycleID) +
+          " AND learnID=" +
+          db.escape(learnID) +
+          " AND corId=" +
+          db.escape(adminID);
+
+        db.query(sql1, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          res.status(200).json({ cycleID, learnID, adminID, outcomeName });
+        });
       });
     });
-  });
- });
-
-
+  }
+);
 
 // @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/addNewMeasure
 // @desc Adds a new measure within an outcome which in turn to cycle
@@ -421,10 +424,28 @@ router.post(
     let course = req.body.course;
     let toolType = req.body.toolType;
     let toolName = req.body.toolTitle;
-    let toolID = req.body.toolID;
+
     let studentNumberOperator = req.body.studentNumberOperator;
     let valueOperator = req.body.valueOperator;
     let adminID = req.user.id;
+
+    let toolID = 0;
+    if (toolType === "test") {
+      let sql0 =
+        "INSERT INTO TOOL (toolType,corId) VALUES (" +
+        db.escape(toolType) +
+        ", " +
+        db.escape(adminID) +
+        ")";
+      db.query(sql0, (err, result) => {
+        if (err) {
+          res.status(500).json("Measure Could not be created \n", err);
+        }
+        toolID = result.insertId;
+      });
+    } else {
+      toolID = req.body.toolID;
+    }
     let measureName =
       "At Least " +
       projectedStudentNumber +
@@ -459,7 +480,6 @@ router.post(
           .status(404)
           .json({ errors: "Cycle with ID " + cycleID + " Does not Exist!" });
       }
-      //outcomeName = result[0].learnDesc;
 
       let sql2 =
         "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
@@ -484,11 +504,6 @@ router.post(
           db.escape(adminID) +
           " AND toolID=" +
           db.escape(toolID);
-        // +
-        // " AND toolName=" +
-        // db.escape(toolName) +
-        // " AND courseAssociated=" +
-        // db.escape(course);
 
         db.query(sql3, (err, result) => {
           if (err) {
@@ -499,7 +514,7 @@ router.post(
             return res.status(404).json(errors);
           } else {
             let sql4 =
-              "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolName, toolID) VALUES (" +
+              "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolID) VALUES (" +
               db.escape(outcomeID) +
               ", " +
               db.escape(cycleID) +
@@ -513,8 +528,6 @@ router.post(
               db.escape(course) +
               ", " +
               db.escape(adminID) +
-              ", " +
-              db.escape(toolName) +
               ", " +
               db.escape(toolID) +
               ")";
