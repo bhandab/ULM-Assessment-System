@@ -302,7 +302,10 @@ router.post(
     created = db.escape(new Date());
 
     let sql0 =
-      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" + cycleID +" AND corId=" + adminID;
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      cycleID +
+      " AND corId=" +
+      adminID;
 
     db.query(sql0, (err, result) => {
       if (err) {
@@ -310,23 +313,25 @@ router.post(
       }
       if (result.length <= 0) {
         errors.cycleTitle =
-        "The given cycle doesn't with cycleID "+cycleID +" exists";
+          "The given cycle doesn't with cycleID " + cycleID + " exists";
         return res.status(404).json(errors);
       }
       let sql1 =
-      "UPDATE ASSESSMENT_CYCLE SET cycleTitle="+ cycleName+ " WHERE cycleID=" + db.escape(cycleID);
-      
+        "UPDATE ASSESSMENT_CYCLE SET cycleTitle=" +
+        cycleName +
+        " WHERE cycleID=" +
+        db.escape(cycleID);
+
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
 
-        return res.status(200).json({ cycleName, created,cycleID});
-        
-
+        return res.status(200).json({ cycleName, created, cycleID });
       });
     });
-  });
+  }
+);
 
 // @route POST api/cycles/:cycleIdentifier/outcomes/:outcomeID
 // @desc Updates an  outcome of existing assessment Cycle
@@ -341,7 +346,7 @@ router.post(
     }
 
     let cycleID = req.params.cycleIdentifier;
-    let learnID=req.params.learnID;
+    let learnID = req.params.learnID;
     let adminID = req.user.id;
     let outcomeName = req.body.outcomeDescription;
 
@@ -361,45 +366,43 @@ router.post(
         return res.status(404).json(errors);
       }
       let sql =
-      "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
-      db.escape(cycleID) +
-      " AND learnID=" +
-      db.escape(learnID) +
-      " AND corId=" +
-      db.escape(adminID);
-    db.query(sql, (err, result) => {
-      if (err) {
-        return res.status(500).json(err);
-      }
-
-      if (result.length <= 0) {
-        errors.outcomeDescription =
-          "The Selected Outcome is not in the current Assessment Cycle";
-        return res.status(404).json(errors);
-      }
-      let sql1 =
-      "UPDATE LEARNING_OUTCOME SET learnDesc="+  db.escape(outcomeName)+ "WHERE cycleID=" + 
-      db.escape(cycleID) +
-      " AND learnID=" +
-      db.escape(learnID) +
-      " AND corId=" +
-      db.escape(adminID);
-      
-     
-      
-     
-      db.query(sql1, (err, result) => {
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
+        db.escape(cycleID) +
+        " AND learnID=" +
+        db.escape(learnID) +
+        " AND corId=" +
+        db.escape(adminID);
+      db.query(sql, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
-       
-        res.status(200).json({ cycleID, learnID, adminID, outcomeName });
+
+        if (result.length <= 0) {
+          errors.outcomeDescription =
+            "The Selected Outcome is not in the current Assessment Cycle";
+          return res.status(404).json(errors);
+        }
+        let sql1 =
+          "UPDATE LEARNING_OUTCOME SET learnDesc=" +
+          db.escape(outcomeName) +
+          "WHERE cycleID=" +
+          db.escape(cycleID) +
+          " AND learnID=" +
+          db.escape(learnID) +
+          " AND corId=" +
+          db.escape(adminID);
+
+        db.query(sql1, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          res.status(200).json({ cycleID, learnID, adminID, outcomeName });
+        });
       });
     });
-  });
- });
-
-
+  }
+);
 
 // @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/addNewMeasure
 // @desc Adds a new measure within an outcome which in turn to cycle

@@ -7,8 +7,7 @@ const userRouter = require("./routes/api/users");
 const outcomeRouter = require("./routes/api/outcomes");
 const measureRouter = require("./routes/api/measures");
 const cycleRouter = require("./routes/api/assessment-cycles");
-const rubricRouter = require("./routes/api/rubric-assessment");
-const globalRubricRouter = require('./routes/api/rubrics')
+const rubricRouter = require("./routes/api/rubrics");
 
 const app = express();
 
@@ -32,8 +31,7 @@ app.use("/api/users", userRouter);
 app.use("/api/outcomes", outcomeRouter);
 app.use("/api/measures", measureRouter);
 app.use("/api/cycles", cycleRouter);
-app.use("/api/cycles", rubricRouter);
-app.use('/api/rubrics',globalRubricRouter)
+app.use("/api/rubrics", rubricRouter);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
