@@ -284,7 +284,7 @@ router.get(
   }
 );
 // @route POST api/cycles/:cycleIdentifier/update
-// @desc Updates an  existingAssessment Cycle
+// @desc Updates an  existing Assessment Cycle
 // @access Private BIKASH
 
 router.post(
@@ -424,10 +424,28 @@ router.post(
     let course = req.body.course;
     let toolType = req.body.toolType;
     let toolName = req.body.toolTitle;
-    let toolID = req.body.toolID;
+
     let studentNumberOperator = req.body.studentNumberOperator;
     let valueOperator = req.body.valueOperator;
     let adminID = req.user.id;
+
+    let toolID = 0;
+    if (toolType === "test") {
+      let sql0 =
+        "INSERT INTO TOOL (toolType,corId) VALUES (" +
+        db.escape(toolType) +
+        ", " +
+        db.escape(adminID) +
+        ")";
+      db.query(sql0, (err, result) => {
+        if (err) {
+          res.status(500).json("Measure Could not be created \n", err);
+        }
+        toolID = result.insertId;
+      });
+    } else {
+      toolID = req.body.toolID;
+    }
     let measureName =
       "At Least " +
       projectedStudentNumber +
@@ -462,7 +480,6 @@ router.post(
           .status(404)
           .json({ errors: "Cycle with ID " + cycleID + " Does not Exist!" });
       }
-      //outcomeName = result[0].learnDesc;
 
       let sql2 =
         "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
@@ -487,11 +504,6 @@ router.post(
           db.escape(adminID) +
           " AND toolID=" +
           db.escape(toolID);
-        // +
-        // " AND toolName=" +
-        // db.escape(toolName) +
-        // " AND courseAssociated=" +
-        // db.escape(course);
 
         db.query(sql3, (err, result) => {
           if (err) {
@@ -502,7 +514,7 @@ router.post(
             return res.status(404).json(errors);
           } else {
             let sql4 =
-              "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolName, toolID) VALUES (" +
+              "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolID) VALUES (" +
               db.escape(outcomeID) +
               ", " +
               db.escape(cycleID) +
@@ -516,8 +528,6 @@ router.post(
               db.escape(course) +
               ", " +
               db.escape(adminID) +
-              ", " +
-              db.escape(toolName) +
               ", " +
               db.escape(toolID) +
               ")";

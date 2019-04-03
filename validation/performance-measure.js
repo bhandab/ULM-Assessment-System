@@ -4,10 +4,6 @@ const isEmpty = require("./isEmpty");
 module.exports = function validateMeasureInput(data) {
   let errors = {};
 
-  // data.measureDescription = !isEmpty(data.measureDescription)
-  //   ? data.measureDescription.trim()
-  //   : "";
-
   data.projectedStudentNumber = !isEmpty(data.projectedStudentNumber)
     ? data.projectedStudentNumber.trim()
     : "";
@@ -26,11 +22,6 @@ module.exports = function validateMeasureInput(data) {
 
   data.toolType = !isEmpty(data.toolType) ? data.toolType.trim() : "";
   data.toolTitle = !isEmpty(data.toolTitle) ? data.toolTitle.trim() : "";
-
-  // if (Validator.isEmpty(data.measureDescription)) {
-  //   errors.measureDescription =
-  //     "Performance Measure Description Field is required";
-  // }
 
   if (Validator.isEmpty(data.studentNumberOperator)) {
     errors.studentNumberOperator =
@@ -61,9 +52,6 @@ module.exports = function validateMeasureInput(data) {
       "Projected Value should be a number between 0 and 100";
   } else {
     data.projectedValue = parseFloat(data.projectedValue);
-    //if (data.valueOperator === "%") {
-    //data.projectedValue = data.projectedValue / 100;
-    //}
   }
 
   if (Validator.isEmpty(data.toolType)) {
