@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Spinner, Button, Modal, Form, Col } from 'react-bootstrap';
-import { getRubricsGlobal, createRubric} from '../../actions/rubricsAction';
+import { getAllRubrics, createRubric} from '../../actions/rubricsAction';
 import PropTypes from 'prop-types';
 import { isEmpty } from '../../utils/isEmpty';
 import { Link } from 'react-router-dom';
@@ -19,29 +19,24 @@ class AllRubrics extends Component {
             this.props.history.push('/login')
         }
 
-        this.props.getRubricsGlobal()
+        this.props.getAllRubrics()
     }
 
     saveChangesHandler = e => {
         e.preventDefault();
-        console.log(e.target.rubricTitle.value);
 
         let scaleInfo = []
 
         for(let i = 0; i < this.state.scaleInfo.length; i++){
-            console.log(e.target)
             const scaleDescName = `scaleDesc${i+1}`
             const scaleValName = `scaleValue${(i+1)}`
             const scaleDesc = document.getElementById(scaleDescName).value
-            console.log(scaleDesc)
             const value = document.getElementById(scaleValName).value
-            console.log(value)
             const scale = {
                 scaleDesc: scaleDesc,
                 scaleValue : value
             }
             scaleInfo.push(scale)
-            console.log(scale)
         }
         
         const rubricDetails = {
@@ -50,9 +45,9 @@ class AllRubrics extends Component {
             columns: e.target.cols.value,
             scales: scaleInfo
         };
-        //this.props.createRubric(cycleID, outcomeID, rubricDetails);
+        this.props.createRubric(rubricDetails);
         console.log(rubricDetails)
-        this.setState({createRubric:false})
+        this.setState({createRubric:false, scaleInfo:[]})
     };
 
     handleRubricCreateHide = () => {
@@ -73,13 +68,13 @@ class AllRubrics extends Component {
     }
 
     render() {
-        //console.log("all rubrics")
-       // console.log(this.props)
+
+        console.log(this.props)
         let allRubrics = <Spinner animation="border" variant="primary" />;
 
-        if (isEmpty(this.props.rubric.globalRubrics) === false) {
-            if (this.props.rubric.globalRubrics.length > 0) {
-                allRubrics = this.props.rubric.globalRubrics.map(rubric => {
+        if (isEmpty(this.props.rubric.rubrics) === false) {
+            if (this.props.rubric.rubrics.rubrics.length > 0) {
+                allRubrics = this.props.rubric.rubrics.rubrics.map(rubric => {
                     return (<li key={rubric.rubricID}>
                         <Link to={"/admin/rubrics/" + rubric.rubricID}> {rubric.rubricTitle}
                         </Link>
@@ -217,8 +212,9 @@ class AllRubrics extends Component {
 }
 
 AllRubrics.propTypes = {
-    getRubricsGlobal: PropTypes.func.isRequired,
-    auth: PropTypes.object.isRequired
+    getAllRubrics: PropTypes.func.isRequired,
+    auth: PropTypes.object.isRequired,
+    createRubric: PropTypes.func.isRequired
 }
 
 const MapStateToProps = state => ({
@@ -226,4 +222,4 @@ const MapStateToProps = state => ({
     auth: state.auth,
     rubric: state.rubric
 })
-export default connect(MapStateToProps, { getRubricsGlobal })(AllRubrics)
+export default connect(MapStateToProps, { getAllRubrics, createRubric })(AllRubrics)

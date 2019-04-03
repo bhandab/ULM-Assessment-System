@@ -29,12 +29,12 @@ export default function (state = initialState, action) {
                 ...state,
                 singleRubric: action.payload
             }
-        case GET_RUBRICS_GLOBAL:
+      /*  case GET_RUBRICS_GLOBAL:
             //console.log("rubrics reducer")
             return {
                 ...state,
                 globalRubrics: action.payload
-            }
+            }*/
 
         default:
             return state;

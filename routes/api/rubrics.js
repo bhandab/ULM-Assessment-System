@@ -253,9 +253,8 @@ router.get(
 
     let sql1 =
       "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE toolID=" +
-      db.escape(rubricID) +
-      "AND rubricTitle=" +
-      db.escape(req.body.rubricName);
+      db.escape(rubricID)
+     
 
     db.query(sql1, (err, result) => {
       if (err) {

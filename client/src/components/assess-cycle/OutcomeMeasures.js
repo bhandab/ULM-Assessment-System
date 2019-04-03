@@ -50,8 +50,6 @@ class OutcomeMeasures extends Component {
 
   measureCreateHandler = e => {
     e.preventDefault();
-    const cycleID = this.props.cycles.outcomeMeasures.cycleID;
-    const outcomeID = this.props.cycles.outcomeMeasures.outcomeID;
 
     let pjsn = e.target.projectedStudentNumber.value;
     let pv = e.target.projectedValue.value;
@@ -75,8 +73,7 @@ class OutcomeMeasures extends Component {
       tt +
       " " +
       tid;
-    console.log(tt);
-    
+
     const measureDetails = {
       measureDescription: measureDescr,
       projectedStudentNumber: pjsn,
