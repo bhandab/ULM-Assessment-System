@@ -49,10 +49,42 @@ class CreateRubric extends Component {
             />
           </th>
         );
-      }/*
+      }
       tableHeader = <tr>{tableHeader}</tr>;
       table.push(tableHeader);
 
+      const tableRows = this.props.rubric.singleRubric.rubricDetails.table
+      
+      for(let j = 0; j < tableRows.length; j++){
+        let cells = []
+        cells.push(
+          <td key={rubricDetails.criteriaInfo[j].criteriaID}>
+            <FormControl className="p-0 m-0"
+              as="textarea"
+              style={{ border: "none" }}
+              defaultValue={rubricDetails.criteriaInfo[j].criteriaDescription}
+            />
+          </td>
+        );
+        
+        const tableCols =  tableRows[j]
+        for(let k = 0; k < tableCols.length; k++){
+          cells.push(
+            <td key={tableCols[k].cellID}>
+              <FormControl
+                as="textarea"
+                style={{ border: "none" }}
+                defaultValue={tableCols[k].cellDescription}
+              />
+            </td>
+          );
+        }
+        cells = <tr>{cells}</tr>;
+        table.push(cells);
+
+
+      }
+      /*
       for (i = 0; i < rubricDetails.criteriaInfo.length; i++) {
         let cells = [];
         cells.push(
@@ -79,17 +111,16 @@ class CreateRubric extends Component {
         }
         cells = <tr>{cells}</tr>;
         table.push(cells);
-      }
+      }*/
 
       table = (
-        <table className="table table-bordered align-middle">
+        <table className="table table-bordered m-0 p-0">
           <tbody>{table}</tbody>
         </table>
-      );*/
+      );
     }
     return (
       <Fragment>
-      <p>Create Rubric</p>
       <section className="panel important">
         <h2 className="align-middle">{rubricTitle}</h2>
         {table}
