@@ -4,7 +4,7 @@ import {
   linkMeasureToOutcome
 } from "../../actions/assessmentCycleAction";
 import { getMeasures } from "../../actions/measuresAction";
-import { getAllRubrics, createRubric } from "../../actions/rubricsAction";
+import { getAllRubrics } from "../../actions/rubricsAction";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
@@ -15,8 +15,7 @@ class OutcomeMeasures extends Component {
   state = {
     addMeasuresShow: false,
     createMeasuresShow: false,
-    toolTypeVal: "rubric",
-    createRubric: false
+    toolTypeVal: "rubric"
   };
 
   componentDidMount() {
@@ -103,28 +102,7 @@ class OutcomeMeasures extends Component {
     this.setState({ createMeasuresShow: false });
   };
 
-  handleRubricCreateHide = () => {
-    this.setState({ createRubric: false });
-  };
 
-  handleRubricCreateShow = () => {
-    this.setState({ createRubric: true });
-  };
-
-  saveChangesHandler = e => {
-    e.preventDefault();
-    console.log(e.target.rubricTitle.value);
-    const cycleID = this.props.match.params.cycleID;
-    const outcomeID = this.props.match.params.outcomeID;
-
-    const rubricDetails = {
-      rubricName: e.target.rubricTitle.value,
-      rows: e.target.rows.value,
-      columns: e.target.cols.value
-    };
-    this.props.createRubric(cycleID, outcomeID, rubricDetails);
-    //console.log(rubricDetails)
-  };
 
   render() {
     //console.log(this.props)
@@ -177,28 +155,6 @@ class OutcomeMeasures extends Component {
       this.setState({ toolTypeVal: e.target.value });
     };
 
-    let rubricList = <Spinner animation="border" variant="primary" />;
-
-    if (isEmpty(this.props.rubric.rubrics) === false) {
-      rubricList = this.props.rubric.rubrics.rubrics.map(rubric => {
-        return (
-          <li key={rubric.rubricID}>
-            <Link
-              to={
-                "/admin/cycles/cycle/" +
-                this.props.match.params.cycleID +
-                "/outcomes/" +
-                this.props.match.params.outcomeID +
-                "/rubric/" +
-                rubric.rubricID
-              }
-            >
-              {rubric.rubricTitle}
-            </Link>
-          </li>
-        );
-      });
-    }
 
     let rubricOptions = null;
     if (isEmpty(this.props.rubric.rubrics) === false) {
@@ -238,6 +194,7 @@ class OutcomeMeasures extends Component {
           centered
           show={this.state.addMeasuresShow}
           onHide={this.addMeasuresHide}
+          size="lg"
         >
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
@@ -264,24 +221,6 @@ class OutcomeMeasures extends Component {
         </Modal>
 
         <section className="panel important">
-          {this.state.addMeasures ? (
-            <div>
-              <br />
-              <h4>Please Select Measure(s):</h4>
-              <form onSubmit={this.measureAddHandler.bind(this)}>
-                <select name="measures">{selections}</select>
-                <br />
-                <br />
-                <button
-                  type="submit"
-                  className="btn btn-outline-primary btn-sm"
-                  value="submit"
-                >
-                  Submit
-                </button>
-              </form>
-            </div>
-          ) : null}
 
           <Modal
             size="lg"
@@ -384,81 +323,7 @@ class OutcomeMeasures extends Component {
           </Modal>
         </section>
 
-        <section className="panel important border border-primary rounded p-3">
-          <h2 className="text-primary">Associated Rubrics</h2>
-          <ol>{rubricList}</ol>
-          <Button
-            variant="primary"
-            onClick={this.handleRubricCreateShow}
-            className="float-right"
-          >
-            Create New Rubric
-          </Button>
-
-          <Modal
-            show={this.state.createRubric}
-            onHide={this.handleRubricCreateHide}
-          >
-            <Modal.Header closeButton>
-              <Modal.Title className="font-weight-bold">
-                Rubric Details
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Form onSubmit={this.saveChangesHandler.bind(this)}>
-                <Form.Group>
-                  <Form.Label className="font-weight-bold">
-                    Rubric Title
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter Rubric Title"
-                    name="rubricTitle"
-                  />
-                </Form.Group>
-                <Form.Row className="mb-4">
-                  <Col>
-                    <Form.Label className="font-weight-bold">Rows</Form.Label>
-                    <Form.Control
-                      type="number"
-                      placeholder="No. of Rows"
-                      min="0"
-                      max="15"
-                      name="rows"
-                    />
-                  </Col>
-                  <Col>
-                    <Form.Label className="font-weight-bold">
-                      Columns
-                    </Form.Label>
-                    <Form.Control
-                      type="number"
-                      placeholder="No. of Cols"
-                      min="0"
-                      max="15"
-                      name="cols"
-                    />
-                  </Col>
-                </Form.Row>
-                <Button
-                  variant="secondary"
-                  className="float-right ml-2"
-                  onClick={this.handleClose}
-                >
-                  Close
-                </Button>
-                <Button
-                  variant="primary"
-                  type="submit"
-                  className="float-right"
-                  onClick={this.handleClose}
-                >
-                  Save Changes
-                </Button>
-              </Form>
-            </Modal.Body>
-          </Modal>
-        </section>
+        
       </Fragment>
     );
   }
@@ -469,7 +334,6 @@ OutcomeMeasures.propTypes = {
   getMeasures: PropTypes.func.isRequired,
   linkMeasureToOutcome: PropTypes.func.isRequired,
   getAllRubrics: PropTypes.func.isRequired,
-  createRubric: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired
 };
 
@@ -489,6 +353,5 @@ export default connect(
     getMeasures,
     linkMeasureToOutcome,
     getAllRubrics,
-    createRubric
   }
 )(OutcomeMeasures);
