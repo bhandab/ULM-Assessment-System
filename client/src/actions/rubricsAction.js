@@ -1,19 +1,12 @@
 import axios from 'axios';
-import {GET_ERRORS, GET_RUBRICS, GET_SINGLE_RUBRIC, GET_RUBRICS_GLOBAL} from './types';
+import {GET_ERRORS, GET_RUBRICS, GET_SINGLE_RUBRIC} from './types';
 
-export const createRubric = (cycleID,outcomeID,rubricDetails) => dispatch => {
+export const createRubric = (rubricDetails) => dispatch => {
 
     axios
-        .post("/api/cycles/" + cycleID+"/"+outcomeID+ "/addNewRubric", rubricDetails)
-        /*.then(res => {
-           // console.log(res)
-            dispatch({
-                type: CREATE_RUBRIC,
-                payload: res.data
-            })
-        })*/
+        .post("/api/rubrics/createRubric", rubricDetails)
         .then(()=> {
-            dispatch(getAllRubrics(cycleID, outcomeID))
+            dispatch(getAllRubrics())
         })
 
         .catch(err=> {
@@ -24,9 +17,9 @@ export const createRubric = (cycleID,outcomeID,rubricDetails) => dispatch => {
         })
 }
 
-export const getAllRubrics = (cycleID, outcomeID) => dispatch => {
+export const getAllRubrics = () => dispatch => {
     axios
-        .get("/api/cycles/" + cycleID + "/" + outcomeID + "/rubrics")
+        .get("/api/rubrics")
         .then(res => {
             dispatch({
                 type: GET_RUBRICS,
@@ -42,10 +35,10 @@ export const getAllRubrics = (cycleID, outcomeID) => dispatch => {
         })
 }
 
-export const getSingleRubric = (cycleID, outcomeID, rubricID) => dispatch => {
+export const getSingleRubric = (rubricID) => dispatch => {
 
     axios
-        .get("/api/cycles/"+cycleID+"/"+outcomeID+"/"+rubricID+"/rubricDetails")
+        .get("/api/rubrics/"+rubricID+"/rubricDetails")
         .then(res => {
             console.log(res.data)
             dispatch({
@@ -62,13 +55,13 @@ export const getSingleRubric = (cycleID, outcomeID, rubricID) => dispatch => {
         })
 }
 
-export const getRubricsGlobal = () => dispatch => {
+/*export const getRubricsGlobal = () => dispatch => {
     axios
     
     .get("/api/rubrics")
     
     .then(res => {
-        console.log(res)
+       // console.log(res)
         dispatch({
             type: GET_RUBRICS_GLOBAL,
             payload: res.data
@@ -80,4 +73,4 @@ export const getRubricsGlobal = () => dispatch => {
                 payload: err.response.data
             })
         })
-}
+}*/

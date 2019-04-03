@@ -19,8 +19,8 @@ class Admin extends Component {
         }
     }
     render() {
-        console.log("admin")
-        console.log(this.props)
+        //console.log("admin")
+       // console.log(this.props)
         return (
 
             <Fragment>
@@ -28,10 +28,10 @@ class Admin extends Component {
 
                 <main>
                     <Switch>
-                        <Route path='/admin/rubrics' component={AllRubrics} />
+                        <Route exact path='/admin/rubrics' component={AllRubrics} />
                         <Route exact path='/admin/outcomes' component={Outcomes} />
                         <Route exact path='/admin/measures' component={Measures} />
-                        
+                        <Route path='/admin/rubrics/:rubricID(\d+)' component={CreateRubric} />
                         <Route path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)/rubric/:rubricID(\d+)' component={CreateRubric} />
                         <Route path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)' component={OutcomeMeasures} />
                         <Route path='/admin/cycles/cycle/:id(\d+)' component={CycleMeasures} />

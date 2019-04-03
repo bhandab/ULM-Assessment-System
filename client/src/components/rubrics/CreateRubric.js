@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { getSingleRubric } from "../../actions/rubricsAction";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
@@ -11,10 +11,8 @@ class CreateRubric extends Component {
       this.props.history.push('/login')
     }
 
-    const cycleID = this.props.match.params.cycleID;
-    const outcomeID = this.props.match.params.outcomeID;
     const rubricID = this.props.match.params.rubricID;
-    this.props.getSingleRubric(cycleID, outcomeID, rubricID);
+    this.props.getSingleRubric(rubricID);
   }
 
   render() {
@@ -32,16 +30,16 @@ class CreateRubric extends Component {
       const rubricDetails = this.props.rubric.singleRubric.rubricDetails;
       rubricTitle = this.props.rubric.singleRubric.rubricDetails.structureInfo
         .rubricTitle;
-      rows = rubricDetails.criteriaInfo.length + 1;
-      cols = rubricDetails.scaleInfo.length + 1;
+      rows = rubricDetails.criteriaInfo.length;
+      cols = rubricDetails.scaleInfo.length;
 
       tableHeader.push(
         <td key="cross">
           <h3>Criteria</h3>
         </td>
       );
-      let i;
-      for (i = 0; i < rubricDetails.scaleInfo.length; i++) {
+      
+      for (let i = 0; i < rubricDetails.scaleInfo.length; i++) {
         tableHeader.push(
           <th key={rubricDetails.scaleInfo[i].scaleID}>
             <FormControl
@@ -51,7 +49,7 @@ class CreateRubric extends Component {
             />
           </th>
         );
-      }
+      }/*
       tableHeader = <tr>{tableHeader}</tr>;
       table.push(tableHeader);
 
@@ -87,25 +85,29 @@ class CreateRubric extends Component {
         <table className="table table-bordered align-middle">
           <tbody>{table}</tbody>
         </table>
-      );
+      );*/
     }
     return (
+      <Fragment>
+      <p>Create Rubric</p>
       <section className="panel important">
         <h2 className="align-middle">{rubricTitle}</h2>
         {table}
       </section>
+      </Fragment>
     );
   }
 }
 
 CreateRubric.propTypes = {
   getSingleRubric: PropTypes.func.isRequired,
-  auth: PropTypes.func.isRequired
+  auth: PropTypes.object.isRequired
 };
 
 const MapStateToProps = state => ({
   rubric: state.rubric,
-  auth: state.auth
+  auth: state.auth,
+  errors:state.errors
 });
 
 export default connect(

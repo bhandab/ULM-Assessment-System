@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === "production") {
 } else {
   require("dotenv").config();
   connection = mysql.createConnection({
-    // //host: "localhost",
+    // host: "localhost",
     // user: "root",
     // password: "",
     // database: "ASSESSMENT_ASSIST"
