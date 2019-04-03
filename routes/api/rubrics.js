@@ -390,4 +390,43 @@ router.post(
   }
 );
 
+// @route POST api/cycles/:rubricIdentifier/:cellIdentifier/updateLevelDescription
+// @desc Updates scale description of a rubric
+// @access Private
+router.post(
+  "/:rubricIdentifier/updateLevelDescription",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let rubricID = req.params.rubricIdentifier;
+    let cellID = req.body.cellID;
+    let adminID = req.user.id;
+    let levelDesc = req.body.levelDesc;
+    let sql1 =
+      "SELECT * FROM LEVEL_DESCRIPTION WHERE toolID=" +
+      db.escape(rubricID) +
+      " AND levelID=" +
+      db.escape(cellID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res
+          .status(404)
+          .json({ errors: "Rubric Cell with the given details not found" });
+      }
+      let sql2 =
+        "UPDATE LEVEL_DESCRIPTION SET levelDesc=" +
+        db.escape(levelDesc) +
+        " WHERE levelID=" +
+        db.escape(cellID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        res.status(200).json({ levelDesc, adminID, cellID, rubricID });
+      });
+    });
+  }
+);
+
 module.exports = router;
