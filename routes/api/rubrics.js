@@ -201,7 +201,6 @@ router.post(
         });
       });
     });
-    // });
   }
 );
 
@@ -234,11 +233,10 @@ router.get(
       });
       res.status(200).json({ rubrics });
     });
-    //});
   }
 );
 
-// @route GET api/cycles/:rubricIdentifier/rubricDetails
+// @route GET api/rubrics/:rubricIdentifier/rubricDetails
 // @desc Retrieves details of the given rubric within a outcome
 // @access Private
 
@@ -253,8 +251,7 @@ router.get(
 
     let sql1 =
       "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE toolID=" +
-      db.escape(rubricID)
-     
+      db.escape(rubricID);
 
     db.query(sql1, (err, result) => {
       if (err) {
@@ -318,7 +315,7 @@ router.get(
 
           let cells = [];
           let rows = [];
-          let count = 1;
+          let count = 0;
           let sql5 =
             "SELECT * FROM LEVEL_DESCRIPTION WHERE toolID=" +
             db.escape(rubricID) +
@@ -327,7 +324,7 @@ router.get(
             if (err) {
               return res.status(500).json(err);
             }
-            console.log(result.length);
+
             result.forEach(row => {
               cellDetail = {
                 cellID: row.levelID,
@@ -337,6 +334,7 @@ router.get(
               };
 
               rows.push(cellDetail);
+
               count++;
               if (count === rubricDetails.scaleInfo.length) {
                 cells.push(rows);
@@ -349,7 +347,45 @@ router.get(
           });
         });
       });
-      //});
+    });
+  }
+);
+
+// @route POST api/cycles/:rubricIdentifier/:cellIdentifier/updateCriteria
+// @desc Updates criteria of a rubric
+// @access Private
+router.post(
+  "/:rubricIdentifier/updateCriteria",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let rubricID = req.params.rubricIdentifier;
+    let criteriaID = req.body.criteriaID;
+    let adminID = req.user.id;
+    let criteriaDesc = req.body.criteriaDesc;
+    let sql1 =
+      "SELECT * FROM CRITERIA WHERE toolID=" +
+      db.escape(rubricID) +
+      " AND criteriaID=" +
+      db.escape(criteriaID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res
+          .status(404)
+          .json({ errors: "Rubric Cell with the given details not found" });
+      }
+      let sql2 =
+        "UPDATE CRITERIA SET criteriaDesc=" +
+        db.escape(criteriaDesc) +
+        " WHERE criteriaID=" +
+        db.escape(criteriaID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        res.status(200).json({ criteriaDesc, adminID, criteriaID, rubricID });
+      });
     });
   }
 );
