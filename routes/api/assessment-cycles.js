@@ -6,6 +6,7 @@ const db = require("../../config/dbconnection");
 const validateCycleInput = require("../../validation/assessment-cycle");
 const validateOutcomeInput = require("../../validation/learning-outcome");
 const validateMeasureInput = require("../../validation/performance-measure");
+const validateAddEvaluatorInput = require("../../validation/addEvaluator");
 
 const router = express.Router();
 
@@ -593,6 +594,121 @@ router.get(
         toolName: result[0].toolName,
         toolID: result[0].toolID
       });
+    });
+  }
+);
+
+// @route POST api/cycles/:measureIdentifier/addEvaluator
+// @desc Add new Evaluator [Coordinator first adds and then evaluator can register]
+// @access Private
+
+router.post(
+  "/:measureIdentifier/addEvaluator",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let { errors, isValid } = validateAddEvaluatorInput(req.body);
+    if (!isValid) {
+      return res.status(404).json(errors);
+    }
+    let evaluatorEmail = req.body.evaluatorEmail;
+    let adminID = req.user.id;
+    let measureID = req.params.measureIdentifier;
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res.status(404).json("Measure with the given ID not found");
+      } else {
+      }
+      let sql2 =
+        "SELECT * FROM EVALUATOR WHERE evalEmail=" +
+        db.escape(evaluatorEmail) +
+        " AND corId=" +
+        db.escape(adminID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        } else if (result.length > 0) {
+          let sql3 =
+            "SELECT * FROM MEASURE_EVALUATOR WHERE evalEmail=" +
+            db.escape(evaluatorEmail) +
+            " AND measureID=" +
+            db.escape(measureID);
+          db.query(sql3, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            if (result.length > 0) {
+              errors.evaluatorEmail =
+                "You have already added " +
+                evaluatorEmail +
+                " to the current performance measure";
+              return res.status(404).json(errors);
+            }
+          });
+        } else {
+          let sql4 =
+            "INSERT INTO EVALUATOR (evalEmail,corId) VALUES (" +
+            db.escape(evaluatorEmail) +
+            ", " +
+            db.escape(adminID) +
+            ")";
+          db.query(sql4, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            } else {
+              let sql5 =
+                "INSERT INTO MEASURE_EVALUATOR (evalEmail,measureID) VALUES (" +
+                db.escape(evaluatorEmail) +
+                ", " +
+                db.escape(measureID) +
+                ")";
+              db.query(sql5, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
+                res.status(200).json({ evaluatorEmail, measureID, adminID });
+              });
+            }
+          });
+        }
+      });
+    });
+  }
+);
+
+// @route POST api/:measureIdentifier/measureEvaluators
+// @desc Displays Evaluators [Coordinator first adds and then evaluator can register]
+// @access Private
+router.get(
+  "/:measureIdentifier/measureEvaluators",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
+    let evaluators = [];
+
+    let sql =
+      "SELECT * FROM MEASURE_EVALUATOR WHERE measureID=" +
+      db.escape(measureID);
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      result.forEach(row => {
+        if (row.evalName != "") {
+          evalInfo = {
+            //name: row.evalName,
+            email: row.evalEmail
+          };
+          evaluators.push(evalInfo);
+        }
+      });
+      res.status(200).json({ evaluators });
     });
   }
 );
