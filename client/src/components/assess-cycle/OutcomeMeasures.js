@@ -8,7 +8,7 @@ import { getAllRubrics } from "../../actions/rubricsAction";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { Form, Button, InputGroup, Modal, Col, Spinner } from "react-bootstrap";
+import { Form, Button, InputGroup, Modal, Spinner } from "react-bootstrap";
 import { isEmpty } from "../../utils/isEmpty";
 
 class OutcomeMeasures extends Component {
@@ -205,8 +205,7 @@ class OutcomeMeasures extends Component {
             <InputGroup className="mt-2 mb-2">
               <InputGroup.Prepend>
                 <InputGroup.Text id="basic-addon7" className="text-bold">
-                  {" "}
-                  Select A Measure:{" "}
+                  Select A Measure:
                 </InputGroup.Text>
               </InputGroup.Prepend>
               <select name="measures" className="custom-select">
@@ -259,8 +258,7 @@ class OutcomeMeasures extends Component {
                   </select>
                   <InputGroup.Append>
                     <InputGroup.Text id="basic-addon2">
-                      {" "}
-                      of students completing{" "}
+                      of students completing
                     </InputGroup.Text>
                   </InputGroup.Append>
                 </InputGroup>
@@ -273,8 +271,7 @@ class OutcomeMeasures extends Component {
                   />
                   <InputGroup.Append>
                     <InputGroup.Text id="basic-addon3">
-                      {" "}
-                      will score{" "}
+                      will score
                     </InputGroup.Text>
                   </InputGroup.Append>
                   <Form.Control
@@ -284,8 +281,7 @@ class OutcomeMeasures extends Component {
                   />
                   <InputGroup.Append>
                     <InputGroup.Text id="basic-addon4">
-                      {" "}
-                      or greater in{" "}
+                      or greater in
                     </InputGroup.Text>
                   </InputGroup.Append>
 

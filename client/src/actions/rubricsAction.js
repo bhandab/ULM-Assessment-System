@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {GET_ERRORS, GET_RUBRICS, GET_SINGLE_RUBRIC} from './types';
+import {GET_ERRORS, GET_RUBRICS, GET_SINGLE_RUBRIC, LOADING} from './types';
 
 export const createRubric = (rubricDetails) => dispatch => {
 
@@ -35,12 +35,11 @@ export const getAllRubrics = () => dispatch => {
         })
 }
 
-export const getSingleRubric = (rubricID) => dispatch => {
-
+export const getSingleRubric = (rubricID,val) => dispatch => {
+    if(val){dispatch(setRubricsLoading())}
     axios
         .get("/api/rubrics/"+rubricID+"/rubricDetails")
         .then(res => {
-            console.log(res.data)
             dispatch({
                 type: GET_SINGLE_RUBRIC,
                 payload: res.data
@@ -59,7 +58,7 @@ export const updateRubricCriteria = (rubricID,body) => dispatch => {
     axios
         .post("/api/rubrics/"+rubricID+"/updateCriteria",body)
         .then(()=> {
-            dispatch(getSingleRubric(rubricID))
+            dispatch(getSingleRubric(rubricID, false))
         })
         .catch(err => {
             dispatch({
@@ -74,7 +73,7 @@ export const updateCellDescription = (rubricID, body) => dispatch => {
     axios
         .post("/api/rubrics/" + rubricID + "/updateLevelDescription", body)
         .then(() => {
-            dispatch(getSingleRubric(rubricID))
+            dispatch(getSingleRubric(rubricID,false))
         })
         .catch(err => {
             dispatch({
@@ -83,4 +82,10 @@ export const updateCellDescription = (rubricID, body) => dispatch => {
             })
         })
 
+}
+
+export const setRubricsLoading = () => {
+    return {
+        type: LOADING
+    }
 }
