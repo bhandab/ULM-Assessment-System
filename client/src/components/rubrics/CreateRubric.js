@@ -7,22 +7,42 @@ import {
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { isEmpty } from "../../utils/isEmpty";
-import { FormControl, Jumbotron } from "react-bootstrap";
+import { FormControl, Spinner} from "react-bootstrap";
+import './Rubric.css'
 
 class CreateRubric extends Component {
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 57aad0807060373f6dab5447863a849e18a93618
   componentDidMount() {
     if (!this.props.auth.isAuthenticated) {
       this.props.history.push("/login");
     }
 
     const rubricID = this.props.match.params.rubricID;
-    this.props.getSingleRubric(rubricID);
+    this.props.getSingleRubric(rubricID,true);
   }
 
+<<<<<<< HEAD
   onClickHandler = e => {
     console.log("clicked");
     console.log(e.target.name);
   };
+=======
+
+  onClickHandler = (e) => {
+    console.log("clicked")
+    console.log(e.target.name)
+  }
+
+  onChangehandler = (e) => {
+    console.log("onChange")
+    console.log(e.target.value)
+    console.log(e.target.name)
+  }
+>>>>>>> 57aad0807060373f6dab5447863a849e18a93618
 
   onChangehandler = e => {
     console.log("onChange");
@@ -34,10 +54,20 @@ class CreateRubric extends Component {
     const body = {
       criteriaDesc: e.target.value,
       criteriaID: e.target.name
+<<<<<<< HEAD
     };
 
     this.props.updateRubricCriteria(this.props.match.params.rubricID, body);
   };
+=======
+    }
+
+    this.props.updateRubricCriteria(this.props.match.params.rubricID, body)
+
+  }
+
+  updateCellDesc = (e) => {
+>>>>>>> 57aad0807060373f6dab5447863a849e18a93618
 
   updateCellDesc = e => {
     const body = {
@@ -49,43 +79,38 @@ class CreateRubric extends Component {
   };
 
   render() {
-    console.log(this.props);
 
     let tableHeader = [];
     let table = [];
     let rubricTitle = null;
-    let cols = 0;
-    let rows = 0;
 
     if (isEmpty(this.props.rubric.singleRubric) === false) {
-      console.log(this.props);
 
       const rubricDetails = this.props.rubric.singleRubric.rubricDetails;
-      rubricTitle = this.props.rubric.singleRubric.rubricDetails.structureInfo
-        .rubricTitle;
-      rows = rubricDetails.criteriaInfo.length;
-      cols = rubricDetails.scaleInfo.length;
+      rubricTitle = rubricDetails.structureInfo.rubricTitle;
+      //rows = rubricDetails.criteriaInfo.length;
+      //cols = rubricDetails.scaleInfo.length;
 
       tableHeader.push(
-        <td key="cross">
+        <th key="cross">
           <h3>Criteria</h3>
-        </td>
+        </th>
       );
 
       for (let i = 0; i < rubricDetails.scaleInfo.length; i++) {
         tableHeader.push(
-          <th key={rubricDetails.scaleInfo[i].scaleID}>
-            <FormControl
-              as="textarea"
+          <th key={i+""+rubricDetails.scaleInfo[i].scaleID}>
+            <h3
               style={{ border: "none" }}
-              defaultValue={rubricDetails.scaleInfo[i].scaleDescription}
-            />
+            >{rubricDetails.scaleInfo[i].scaleDescription}</h3>
           </th>
         );
       }
-      tableHeader = <tr>{tableHeader}</tr>;
+      tableHeader = <tr key={"row"+1}>{tableHeader}</tr>;
       table.push(tableHeader);
+      tableHeader = []
 
+<<<<<<< HEAD
       const tableRows = this.props.rubric.singleRubric.rubricDetails.table;
       for (let j = 0; j < tableRows.length; j++) {
         let cells = [];
@@ -94,6 +119,16 @@ class CreateRubric extends Component {
             <FormControl
               className="p-0 m-0"
               as="textarea"
+=======
+      const tableRows = this.props.rubric.singleRubric.rubricDetails.table
+
+      for (let j = 0; j < tableRows.length; j++) {
+        let cells = []
+        cells.push(
+          <td key={rubricDetails.criteriaInfo[j].criteriaID}>
+            <FormControl className="p-0 m-0"
+              as='textarea'
+>>>>>>> 57aad0807060373f6dab5447863a849e18a93618
               style={{ border: "none" }}
               defaultValue={rubricDetails.criteriaInfo[j].criteriaDescription}
               name={rubricDetails.criteriaInfo[j].criteriaID}
@@ -101,11 +136,16 @@ class CreateRubric extends Component {
             />
           </td>
         );
+<<<<<<< HEAD
 
         const tableCols = tableRows[j];
+=======
+        // console.log(cells);
+        const tableCols = tableRows[j]
+>>>>>>> 57aad0807060373f6dab5447863a849e18a93618
         for (let k = 0; k < tableCols.length; k++) {
           cells.push(
-            <td key={tableCols[k].cellID}>
+            <td key={tableCols[k].cellID+""+j}>
               <FormControl
                 as="textarea"
                 style={{ border: "none", size: "2px" }}
@@ -116,7 +156,7 @@ class CreateRubric extends Component {
             </td>
           );
         }
-        cells = <tr>{cells}</tr>;
+        cells = <tr key={"row"+j+2}>{cells}</tr>;
         table.push(cells);
       }
       table = (
@@ -124,14 +164,27 @@ class CreateRubric extends Component {
           <tbody>{table}</tbody>
         </table>
       );
+
     }
     return (
+
+
       <Fragment>
+<<<<<<< HEAD
         <section className="panel important">
           <h2 className="align-middle">{rubricTitle}</h2>
           {table}
         </section>
+=======
+        {this.props.rubric.loading ? <Spinner className="mt-5 ml-5" animation='border' variant="primary"></Spinner> : 
+          <section className="panel important">
+          <h2 className="align-middle">{rubricTitle}</h2>
+          {table}
+        </section>}
+>>>>>>> 57aad0807060373f6dab5447863a849e18a93618
       </Fragment>
+
+
     );
   }
 }

@@ -1,9 +1,9 @@
-import { CREATE_RUBRIC, GET_RUBRICS, GET_SINGLE_RUBRIC, GET_RUBRICS_GLOBAL } from '../actions/types'
+import { CREATE_RUBRIC, GET_RUBRICS, GET_SINGLE_RUBRIC, LOADING} from '../actions/types'
 const initialState = {
     rubric: {},
     rubrics: {},
     singleRubric: {},
-    globalRubrics: {}
+    loading: false
 }
 
 export default function (state = initialState, action) {
@@ -20,22 +20,22 @@ export default function (state = initialState, action) {
             //console.log(action.payload)
             return {
                 ...state,
-                rubrics: action.payload
+                rubrics: action.payload,
+                loading: false
             }
 
         case GET_SINGLE_RUBRIC:
             //console.log(action.payload)
             return {
                 ...state,
-                singleRubric: action.payload
+                singleRubric: action.payload,
+                loading: false
             }
-      /*  case GET_RUBRICS_GLOBAL:
-            //console.log("rubrics reducer")
+        case LOADING:
             return {
                 ...state,
-                globalRubrics: action.payload
-            }*/
-
+                loading: true
+            }
         default:
             return state;
     }

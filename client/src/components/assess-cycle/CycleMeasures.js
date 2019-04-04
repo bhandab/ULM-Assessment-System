@@ -7,7 +7,7 @@ import { getOutcomes } from "../../actions/outcomesAction";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { Spinner } from "react-bootstrap";
+import { Spinner, Modal } from "react-bootstrap";
 
 class CycleMeasures extends Component {
   state = {
@@ -63,11 +63,9 @@ class CycleMeasures extends Component {
     let list = <Spinner animation="border" variant="primary" />;
     let outcomeArray = null;
 
-    console.log(this.props)
     if (this.props.cycles.cycleMeasures !== null) {
       let cycleID = this.props.cycles.cycleMeasures.cycleIdentifier;
-      //let cycleID = this.match.params.id
-      //cycleID = parseInt(cycleID, 10)
+
       if (this.props.cycles.cycleMeasures.outcomes !== undefined) {
         if (this.props.cycles.cycleMeasures.outcomes.length > 0) {
           outcomeArray = this.props.cycles.cycleMeasures.outcomes;
@@ -96,7 +94,7 @@ class CycleMeasures extends Component {
     let selections = null;
     if (this.state.addOutcomes) {
       if (Object.keys(this.props.outcomes.outcomes) !== 0) {
-        // console.log(this.props)
+
         if (this.props.outcomes.outcomes.length > 0) {
           outcomeArray = this.props.cycles.cycleMeasures.outcomes;
           selections = this.props.outcomes.outcomes.map((item, index) => {
@@ -124,6 +122,7 @@ class CycleMeasures extends Component {
           <ol>{list}</ol>
         </section>
 
+        
         <section className="panel important">
           {!this.state.createOutcome ? (
             <button
