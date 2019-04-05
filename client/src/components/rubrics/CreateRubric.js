@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component, Fragment, Spinner } from "react";
 import {
   getSingleRubric,
   updateRubricCriteria,
@@ -17,7 +17,7 @@ class CreateRubric extends Component {
     }
 
     const rubricID = this.props.match.params.rubricID;
-    this.props.getSingleRubric(rubricID);
+    this.props.getSingleRubric(rubricID, true);
   }
 
   onClickHandler = e => {
@@ -126,15 +126,19 @@ class CreateRubric extends Component {
     }
     return (
       <Fragment>
-        <section className="panel important">
-          <h2 className="align-middle">{rubricTitle}</h2>
-          {table}
-          <Link to={"/admin/rubrics"}>
-            <Button className="btn brn-primary mt-2 folat-right">
-              Save Changes
-            </Button>
-          </Link>
-        </section>
+        {this.props.rubric.loading ? (
+          <Spinner className="mt-5 ml-5" animation="border" variant="primary" />
+        ) : (
+          <section className="panel important">
+            <h2 className="align-middle">{rubricTitle}</h2>
+            {table}
+          </section>
+        )}
+        <Link to={"/admin/rubrics"}>
+          <Button className="btn brn-primary mt-2 folat-right">
+            Save Changes
+          </Button>
+        </Link>
       </Fragment>
     );
   }
