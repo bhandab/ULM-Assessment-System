@@ -1,4 +1,4 @@
-import React, { Component, Fragment, Spinner } from "react";
+import React, { Component, Fragment } from "react";
 import {
   getSingleRubric,
   updateRubricCriteria,
@@ -7,7 +7,7 @@ import {
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { isEmpty } from "../../utils/isEmpty";
-import { FormControl, Button } from "react-bootstrap";
+import { FormControl, Button, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
 class CreateRubric extends Component {
@@ -132,13 +132,13 @@ class CreateRubric extends Component {
           <section className="panel important">
             <h2 className="align-middle">{rubricTitle}</h2>
             {table}
+            <Link to={"/admin/rubrics"}>
+              <Button className="btn btn-primary mt-2 float-right">
+                Save Changes
+              </Button>
+            </Link>
           </section>
         )}
-        <Link to={"/admin/rubrics"}>
-          <Button className="btn brn-primary mt-2 folat-right">
-            Save Changes
-          </Button>
-        </Link>
       </Fragment>
     );
   }
