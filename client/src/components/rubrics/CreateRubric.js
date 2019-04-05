@@ -7,7 +7,7 @@ import {
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { isEmpty } from "../../utils/isEmpty";
-import { FormControl, Button } from "react-bootstrap";
+import { FormControl, Button, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
 class CreateRubric extends Component {
@@ -17,7 +17,7 @@ class CreateRubric extends Component {
     }
 
     const rubricID = this.props.match.params.rubricID;
-    this.props.getSingleRubric(rubricID);
+    this.props.getSingleRubric(rubricID,true);
   }
 
   onClickHandler = e => {
@@ -126,15 +126,17 @@ class CreateRubric extends Component {
     }
     return (
       <Fragment>
+        {(this.props.rubric.loading) ? <Spinner className="mt-5 ml-5" animation="border" variant="primary" /> :      
         <section className="panel important">
           <h2 className="align-middle">{rubricTitle}</h2>
           {table}
           <Link to={"/admin/rubrics"}>
-            <Button className="btn brn-primary mt-2 folat-right">
+            <Button className="btn btn-primary mt-2 float-right">
               Save Changes
             </Button>
           </Link>
         </section>
+        }
       </Fragment>
     );
   }
