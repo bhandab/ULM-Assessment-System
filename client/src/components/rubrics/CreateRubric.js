@@ -55,8 +55,6 @@ class CreateRubric extends Component {
     let tableHeader = [];
     let table = [];
     let rubricTitle = null;
-    let cols = 0;
-    let rows = 0;
 
     if (isEmpty(this.props.rubric.singleRubric) === false) {
       console.log(this.props);
@@ -64,8 +62,6 @@ class CreateRubric extends Component {
       const rubricDetails = this.props.rubric.singleRubric.rubricDetails;
       rubricTitle = this.props.rubric.singleRubric.rubricDetails.structureInfo
         .rubricTitle;
-      rows = rubricDetails.criteriaInfo.length;
-      cols = rubricDetails.scaleInfo.length;
 
       tableHeader.push(
         <td key="cross">
