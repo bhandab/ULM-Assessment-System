@@ -17,7 +17,7 @@ class CreateRubric extends Component {
     }
 
     const rubricID = this.props.match.params.rubricID;
-    this.props.getSingleRubric(rubricID,true);
+    this.props.getSingleRubric(rubricID, true);
   }
 
   onClickHandler = e => {
@@ -55,8 +55,6 @@ class CreateRubric extends Component {
     let tableHeader = [];
     let table = [];
     let rubricTitle = null;
-    let cols = 0;
-    let rows = 0;
 
     if (isEmpty(this.props.rubric.singleRubric) === false) {
       console.log(this.props);
@@ -64,8 +62,6 @@ class CreateRubric extends Component {
       const rubricDetails = this.props.rubric.singleRubric.rubricDetails;
       rubricTitle = this.props.rubric.singleRubric.rubricDetails.structureInfo
         .rubricTitle;
-      rows = rubricDetails.criteriaInfo.length;
-      cols = rubricDetails.scaleInfo.length;
 
       tableHeader.push(
         <td key="cross">
@@ -126,17 +122,19 @@ class CreateRubric extends Component {
     }
     return (
       <Fragment>
-        {(this.props.rubric.loading) ? <Spinner className="mt-5 ml-5" animation="border" variant="primary" /> :      
-        <section className="panel important">
-          <h2 className="align-middle">{rubricTitle}</h2>
-          {table}
-          <Link to={"/admin/rubrics"}>
-            <Button className="btn btn-primary mt-2 float-right">
-              Save Changes
-            </Button>
-          </Link>
-        </section>
-        }
+        {this.props.rubric.loading ? (
+          <Spinner className="mt-5 ml-5" animation="border" variant="primary" />
+        ) : (
+          <section className="panel important">
+            <h2 className="align-middle">{rubricTitle}</h2>
+            {table}
+            <Link to={"/admin/rubrics"}>
+              <Button className="btn btn-primary mt-2 float-right">
+                Save Changes
+              </Button>
+            </Link>
+          </section>
+        )}
       </Fragment>
     );
   }
