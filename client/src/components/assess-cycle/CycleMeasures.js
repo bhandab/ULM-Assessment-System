@@ -1,18 +1,22 @@
 import React, { Component, Fragment } from "react";
 import {
   getCycleMeasures,
-  linkOutcomeToCycle
+  linkOutcomeToCycle,
+  updateOutcomeName
 } from "../../actions/assessmentCycleAction";
 import { getOutcomes } from "../../actions/outcomesAction";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { Spinner, Modal } from "react-bootstrap";
+import { Spinner, Modal, Form, Button, InputGroup } from "react-bootstrap";
 
 class CycleMeasures extends Component {
   state = {
-    addOutcomes: false,
-    createOutcome: false
+    addOutcome: false,
+    createOutcome: false,
+    editShow:false,
+    outcomeName:"",
+    outcomeID:null
   };
 
   componentDidMount() {
@@ -20,7 +24,7 @@ class CycleMeasures extends Component {
       this.props.history.push('/login')
     }
 
-    let id = this.props.match.params.id;
+    let id = this.props.match.params.cycleID;
     this.props.getCycleMeasures(id);
   }
 
@@ -49,14 +53,45 @@ class CycleMeasures extends Component {
 
   outcomeCreateHandler = e => {
     e.preventDefault();
-    console.log(e.target.newOutcome.value);
-    this.setState({ createOutcome: !this.state.createOutcome });
     this.props.linkOutcomeToCycle(
-      this.props.match.params.id,
-      { outcomeDescription: e.target.newOutcome.value },
-      this.props.history
-    );
+      this.props.match.params.cycleID,{ outcomeDescription: e.target.newOutcome.value });
+    this.setState({createOutcome:false});
   };
+
+  createOutcomeShow = () => {
+    this.setState({createOutcome:true})
+  }
+
+  createOutcomeHide = () => {
+    this.setState({ createOutcome: false })
+  }
+
+  addOutcomeShow = () => {
+    this.props.getOutcomes();
+    this.setState({ addOutcome: true })
+  }
+
+  addOutcomeHide = () => {
+    this.setState({ addOutcome: false})
+  }
+  
+  editShow = (e) => {
+    console.log(e.target.value)
+    this.setState({ outcomeName: e.target.value, outcomeID: e.target.name, editShow: true })
+  }
+
+  editHide = () => {
+    this.setState({ editShow: false })
+  }
+
+  saveChangesHandler = e => {
+    e.preventDefault()
+    const value = e.target.outcomeName.value
+    this.props.updateOutcomeName(this.props.match.params.cycleID,this.state.outcomeID, { outcomeDescription: value })
+    this.setState({outcomeName: "", outcomeID: null, editShow: false })
+  }
+
+
 
   render() {
     let title = null;
@@ -82,6 +117,11 @@ class CycleMeasures extends Component {
                 >
                   {outcome.outcomeName}
                 </Link>
+                <button style={{ border: "none", background: "none" }}
+                  name={outcome.outcomeID} value={outcome.outcomeName}
+                  onClick={this.editShow.bind(this)}
+                  className="outcome-edit ml-2"></button>
+
               </li>
             );
           });
@@ -92,7 +132,6 @@ class CycleMeasures extends Component {
       title = this.props.cycles.cycleMeasures.cycleName;
     }
     let selections = null;
-    if (this.state.addOutcomes) {
       if (Object.keys(this.props.outcomes.outcomes) !== 0) {
 
         if (this.props.outcomes.outcomes.length > 0) {
@@ -113,67 +152,76 @@ class CycleMeasures extends Component {
           });
         }
       }
-    } else {
-    }
+
     return (
       <Fragment>
         <section className="panel important">
           <h2>{title}</h2>
+          <hr/>
           <ol>{list}</ol>
+          <Button className="btn mt-3 float-right ml-3" onClick={this.addOutcomeShow}>Add Outcome</Button>
+
+          <Button className="btn mt-3 float-right" onClick={this.createOutcomeShow}>Create Outcome</Button>
         </section>
 
+        <Modal 
+          show={this.state.createOutcome} onHide={this.createOutcomeHide}
+          aria-labelledby="contained-modal-title-vcenter"
+          centered>
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">
+              Create New Outcome
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={this.outcomeCreateHandler.bind(this)}>
+              <Form.Control name="newOutcome" defaultValue={this.state.outcomeName} />
+              <Button className="mt-3 float-right" type="submit">Save Changes</Button>
+            </Form>
+          </Modal.Body>
+        </Modal>
+
+        <Modal show={this.state.addOutcome} onHide={this.addOutcomeHide}
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+          size="lg">
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">
+              Add an Outcome
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={this.outcomeAddHandler.bind(this)}>
+            <InputGroup>
+              <InputGroup.Prepend>
+                <InputGroup.Text id="basic-addon7" className="text-bold">
+                  Select an Outcome:
+                </InputGroup.Text>
+              </InputGroup.Prepend>
+              <select name="outcomes" className="custom-select">{selections}</select>
+              </InputGroup>
+              <Button className="mt-3 float-right" type="submit">Save Changes</Button>
+            </Form>
+          </Modal.Body>
+        </Modal>
         
-        <section className="panel important">
-          {!this.state.createOutcome ? (
-            <button
-              onClick={this.clickHandler.bind(this)}
-              className="btn btn-primary btn-sm"
-            >
-              Select from Existing
-            </button>
-          ) : null}
-          {!this.state.addOutcomes ? (
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={this.createNewButtonHandler.bind(this)}
-            >
-              Create New
-            </button>
-          ) : null}
-          {this.state.addOutcomes ? (
-            <div id="select-from-exixting">
-              <br />
-              <h4>Please Select Outcome:</h4>
-              <form onSubmit={this.outcomeAddHandler.bind(this)}>
-                <select name="outcomes">{selections}</select>
-                <br />
-                <br />
-                <button
-                  type="submit"
-                  className="btn btn-outline-primary btn-sm"
-                  value="submit"
-                >
-                  Submit
-                </button>
-              </form>
-            </div>
-          ) : null}
-          {this.state.createOutcome ? (
-            <div id="create-new">
-              <br />
-              <h4> Create a new outcome:</h4>
-              <form onSubmit={this.outcomeCreateHandler.bind(this)}>
-                <input type="textarea" name="newOutcome" />
-                <button
-                  type="submit"
-                  className="btn btn-outline-primary btn-sm"
-                >
-                  Create
-                </button>
-              </form>
-            </div>
-          ) : null}
-        </section>
+
+        <Modal show={this.state.editShow} onHide={this.editHide}
+          aria-labelledby="contained-modal-title-vcenter"
+          centered>
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">
+              Edit Outcome Name
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={this.saveChangesHandler.bind(this)}>
+              <Form.Control name="outcomeName" defaultValue={this.state.outcomeName} />
+              <Button className="mt-3 float-right" type="submit">Save Changes</Button>
+            </Form>
+          </Modal.Body>
+        </Modal>
+        
       </Fragment>
     );
   }
@@ -184,6 +232,7 @@ CycleMeasures.propTypes = {
   getOutcomes: PropTypes.func.isRequired,
   linkOutcomeToCycle: PropTypes.func.isRequired,
   cycles: PropTypes.object.isRequired,
+  updateOutcomeName: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired
 };
 
@@ -197,5 +246,5 @@ const MapStateToProps = state => ({
 
 export default connect(
   MapStateToProps,
-  { getOutcomes, linkOutcomeToCycle, getCycleMeasures }
+  { getOutcomes, linkOutcomeToCycle, getCycleMeasures, updateOutcomeName }
 )(CycleMeasures);

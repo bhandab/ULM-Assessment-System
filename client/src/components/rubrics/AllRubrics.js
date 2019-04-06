@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Spinner, Button, Modal, Form, Col } from 'react-bootstrap';
+import { Spinner, Button, Modal, Form, Col,FormCheck } from 'react-bootstrap';
 import { getAllRubrics, createRubric} from '../../actions/rubricsAction';
 import PropTypes from 'prop-types';
 import { isEmpty } from '../../utils/isEmpty';
@@ -43,10 +43,12 @@ class AllRubrics extends Component {
             rubricName: e.target.rubricTitle.value,
             rows: e.target.rows.value,
             columns: e.target.cols.value,
-            scales: scaleInfo
+            scales: scaleInfo,
+            weighted: e.target.weighted.checked+""
         };
         this.props.createRubric(rubricDetails);
         console.log(rubricDetails)
+        //localStorage.setItem('rubric',JSON.stringify(rubricDetails))
         this.setState({createRubric:false, scaleInfo:[]})
     };
 
@@ -69,7 +71,7 @@ class AllRubrics extends Component {
 
     render() {
 
-        console.log(this.props)
+       // console.log(this.props)
         let allRubrics = <Spinner animation="border" variant="primary" />;
 
         if (isEmpty(this.props.rubric.rubrics) === false) {
@@ -155,7 +157,7 @@ class AllRubrics extends Component {
                             <Form.Group>
                                 <Form.Label className="font-weight-bold">
                                     Rubric Title
-                  </Form.Label>
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Enter Rubric Title"
@@ -176,7 +178,7 @@ class AllRubrics extends Component {
                                 <Col>
                                     <Form.Label className="font-weight-bold">
                                         Columns
-                    </Form.Label>
+                                    </Form.Label>
                                     <Form.Control onChange={columnChangeHandler.bind(this)}
                                         type="number"
                                         placeholder="No. of Cols"
@@ -186,6 +188,9 @@ class AllRubrics extends Component {
                                     />
                                 </Col>
                             </Form.Row>
+                        <FormCheck type="checkbox" label="Weighted Rubric" name="weighted"/>
+                           
+
                             {this.state.scaleInfo}
                             <Button
                                 variant="secondary"
@@ -193,7 +198,7 @@ class AllRubrics extends Component {
                                 onClick={this.handleRubricCreateHide}
                             >
                                 Close
-                </Button>
+                            </Button>
                             <Button
                                 variant="primary"
                                 type="submit"
@@ -201,7 +206,7 @@ class AllRubrics extends Component {
                                 
                             >
                                 Save Changes
-                </Button>
+                            </Button>
                         </Form>
                     </Modal.Body>
                 </Modal>
@@ -214,12 +219,14 @@ class AllRubrics extends Component {
 AllRubrics.propTypes = {
     getAllRubrics: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired,
-    createRubric: PropTypes.func.isRequired
+    createRubric: PropTypes.func.isRequired,
+    errors: PropTypes.object.isRequired
 }
 
 const MapStateToProps = state => ({
     globalRubrics: state.globalRubrics,
     auth: state.auth,
-    rubric: state.rubric
+    rubric: state.rubric,
+    errors: state.errors
 })
 export default connect(MapStateToProps, { getAllRubrics, createRubric })(AllRubrics)

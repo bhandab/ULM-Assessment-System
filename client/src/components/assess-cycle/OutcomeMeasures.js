@@ -4,11 +4,11 @@ import {
   linkMeasureToOutcome
 } from "../../actions/assessmentCycleAction";
 import { getMeasures } from "../../actions/measuresAction";
-import { getAllRubrics } from "../../actions/rubricsAction";
+import { getAllRubrics, getSingleRubric } from "../../actions/rubricsAction";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { Form, Button, InputGroup, Modal, Spinner } from "react-bootstrap";
+import { Form, Button, InputGroup, Modal, Spinner} from "react-bootstrap";
 import { isEmpty } from "../../utils/isEmpty";
 
 class OutcomeMeasures extends Component {
@@ -50,6 +50,10 @@ class OutcomeMeasures extends Component {
   measureCreateHandler = e => {
     e.preventDefault();
 
+    const cycleID = this.props.match.params.cycleID;
+    const outcomeID = this.props.match.params.outcomeID;
+
+
     let pjsn = e.target.projectedStudentNumber.value;
     let pv = e.target.projectedValue.value;
     let crs = e.target.course.value;
@@ -57,7 +61,10 @@ class OutcomeMeasures extends Component {
     let tid = e.target.tool.value.replace(/\D/g, "");
     let ty = e.target.toolType.value;
     let pt = e.target.projType.value;
-    tid = parseInt(tid, 10);
+    let vo = ""
+    if(ty === 'test'){
+      vo = e.target.valueOperator.value
+    }
     const measureDescr =
       "At least " +
       pjsn +
@@ -65,13 +72,12 @@ class OutcomeMeasures extends Component {
       " of students completing " +
       crs +
       " will score " +
-      pv +
+      pv +""+ vo +
       " or greater in " +
       ty +
       " " +
-      tt +
-      " " +
-      tid;
+      tt + 
+      "."
 
     const measureDetails = {
       measureDescription: measureDescr,
@@ -80,12 +86,16 @@ class OutcomeMeasures extends Component {
       course: crs,
       toolTitle: tt,
       toolID: tid,
-      toolType : ty
+      toolType : ty,
+      valueOperator: vo,
+      studentNumberOperator: pt
+
     };
     console.log(measureDetails);
-    //this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
+    this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
   };
 
+  
   addMeasuresShow = () => {
     this.setState({ addMeasuresShow: true });
   };
@@ -105,7 +115,7 @@ class OutcomeMeasures extends Component {
 
 
   render() {
-    //console.log(this.props)
+   // console.log(this.props)
     let measures = <Spinner animation="border" variant="primary" />;
     let measureTitle = null;
     if (this.props.cycles.outcomeMeasures !== null) {
@@ -169,6 +179,23 @@ class OutcomeMeasures extends Component {
         );
       });
     }
+
+    let rubricScoreOptions = null
+    const rubricChangeHandler = (e) => {
+    let rubricID = e.target.value.replace(/\D/g, "");
+        console.log(rubricID)
+        this.props.getSingleRubric(rubricID, true)
+        console.log(rubricScoreOptions)
+    }
+
+    if(isEmpty(this.props.rubric.singleRubric) === false){
+      rubricScoreOptions = this.props.rubric.singleRubric.rubricDetails.scaleInfo.map(scale => {
+        return (
+          <option key = {"scale"+scale.scaleID} value = {scale.scaleValue}>{scale.scaleDescription} ({scale.scaleValue})</option>
+        )
+      })
+    }
+
     // console.log(selections)
     return (
       <Fragment>
@@ -252,7 +279,9 @@ class OutcomeMeasures extends Component {
                     name="projType"
                     className="custom-select col-sm-2"
                     id="basic-addon1"
+                    defaultValue = {'null'}
                   >
+                    <option value='null' disabled>Select</option>
                     <option value="%">%</option>
                     <option value="p">percentile</option>
                   </select>
@@ -265,26 +294,15 @@ class OutcomeMeasures extends Component {
 
                 <InputGroup className="mb-3 ml-0 row">
                   <Form.Control
-                    className="col-md-2"
+                    className="col-md-3"
                     placeholder="Course Name"
                     name="course"
                   />
                   <InputGroup.Append>
                     <InputGroup.Text id="basic-addon3">
-                      will score
+                      graded in
                     </InputGroup.Text>
                   </InputGroup.Append>
-                  <Form.Control
-                    className="col-md-2"
-                    placeholder="Score"
-                    name="projectedValue"
-                  />
-                  <InputGroup.Append>
-                    <InputGroup.Text id="basic-addon4">
-                      or greater in
-                    </InputGroup.Text>
-                  </InputGroup.Append>
-
                   <select
                     onChange={e => toolType(e)}
                     name="toolType"
@@ -296,18 +314,56 @@ class OutcomeMeasures extends Component {
                   </select>
 
                   {this.state.toolTypeVal === "rubric" ? (
-                    <select name="tool" className="custom-select col-sm-2">
+                    <select name="tool" className="custom-select col-sm-4"
+                    defaultValue={'null'}
+                    onChange={(e)=>rubricChangeHandler(e)}
+                    >
+                      <option disabled value="null">Select A Rubric</option>
                       {rubricOptions}
                     </select>
                   ) : (
-                    <select name="tool" className="custom-select col-sm-2">
-                      <option value="test1">test1</option>
-                      <option value="test2">test2</option>
-                    </select>
-                  )}
+                      <select name="tool" defaultValue={'null'} className="custom-select col-sm-4">
+                      <option disabled value="null">Select A Test</option>
+                        <option value="test1">test1</option>
+                        <option value="test2">test2</option>
+                      </select>
+                    )}
                 </InputGroup>
+                    <InputGroup className = "row mb-3 ml-0">
+                  <InputGroup.Append>
+                    <InputGroup.Text id="basic-addon4">
+                      will score
+                    </InputGroup.Text>
+                  </InputGroup.Append>
+                    {this.state.toolTypeVal === "rubric" ?
+
+                    <select
+                      className="col-md-2"
+                      placeholder="Rubric Score"
+                      name="projectedValue"
+                    >
+                    {rubricScoreOptions}
+                    </select>
+                    : <Form.Control
+                      className="col-md-2"
+                      placeholder="Score"
+                      name="projectedValue"
+                    />}
+                  {(this.state.toolTypeVal==="rubric") ? null :
+                <select name="valueOperator">
+                    <option value="%">%</option>
+                    <option value="percentile">percentile</option>
+                </select>
+                }
+                  <InputGroup.Append>
+                    <InputGroup.Text id="basic-addon4">
+                      or greater.
+                    </InputGroup.Text>
+                  </InputGroup.Append>
+                </InputGroup>
+               
                 <Button
-                  className="float-right"
+                  className="float-right btn btn-primary"
                   variant="primary"
                   type="submit"
                   onClick={this.createMeasureHide}
@@ -330,7 +386,8 @@ OutcomeMeasures.propTypes = {
   getMeasures: PropTypes.func.isRequired,
   linkMeasureToOutcome: PropTypes.func.isRequired,
   getAllRubrics: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired
+  auth: PropTypes.object.isRequired,
+  getSingleRubric: PropTypes.func.isRequired
 };
 
 const MapStateToProps = state => ({
@@ -349,5 +406,6 @@ export default connect(
     getMeasures,
     linkMeasureToOutcome,
     getAllRubrics,
+    getSingleRubric
   }
 )(OutcomeMeasures);

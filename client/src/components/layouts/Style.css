@@ -1,10 +1,5 @@
 @charset "UTF-8";
-@import url(
-  https://fonts.googleapis.com/css?family=Open+Sans:300,
-  400,
-  700,
-  400italic
-);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,400italic);
 @import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css);
 
 /* general utility classes */
@@ -61,7 +56,9 @@ header .utilities li a {
 
 .logout a:before {
   content: "\f011";
+  
 }
+
 
 nav {
   background: #2a3542;
@@ -206,6 +203,21 @@ th {
 table {
   border: 2px solid black !important;
 }
+
+.weight {
+  width: 20px !important;
+}
+
+/* Edit Icons**/
+.outcome-edit:before{
+  content: "\f044";
+  font-family: FontAwesome;
+}
+
+.outcome-edit:hover {
+  color: orange;
+}
+
 
 @media screen and (min-width: 600px) {
   html,

@@ -39,12 +39,13 @@ module.exports = function validateMeasureInput(data) {
   } else {
     data.projectedStudentNumber = parseFloat(data.projectedStudentNumber);
   }
-  if (toolType !== "rubric") {
-    if (Validator.isEmpty(data.valueOperator)) {
-      errors.valueOperator =
-        "Value Scale cannot be empty, Please choose a value scale from drop  down after number of students";
-    }
+
+  if (data.toolType !== 'rubric'){
+  if (Validator.isEmpty(data.valueOperator)) {
+    errors.valueOperator =
+      "Value Scale cannot be empty, Please choose a value scale from drop  down after number of students";
   }
+}
 
   if (Validator.isEmpty(data.projectedValue)) {
     errors.projectedValue = "Projected Value cannot be empty";
