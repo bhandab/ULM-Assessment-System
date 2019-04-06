@@ -752,7 +752,7 @@ router.get(
 );
 
 // @route POST api/cycles/:measureIdentifier/addEvaluator
-// @desc Add new Evaluator [Coordinator first adds and then evaluator can register]
+// @desc Add existing Evaluator in the system to performance measure
 // @access Private
 
 router.post(
@@ -764,7 +764,6 @@ router.post(
       return res.status(404).json(errors);
     }
     let evaluatorEmail = req.body.evaluatorEmail;
-    let evaluatorName = req.body.evaluatorName;
     let adminID = req.user.id;
     let measureID = req.params.measureIdentifier;
 
@@ -778,10 +777,7 @@ router.post(
         return res.status(404).json("Measure with the given ID not found");
       }
       let sql2 =
-        "SELECT * FROM EVALUATOR WHERE evalName=" +
-        db.escape(evaluatorName) +
-        " AND evalEmail=" +
-        db.escape(evaluatorEmail);
+        "SELECT * FROM EVALUATOR WHERE evalEmail=" + db.escape(evaluatorEmail);
       db.query(sql2, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -790,6 +786,7 @@ router.post(
             "Evaluator Account Does not Exist. Please check the invitee lists or invite the evaluator to create an account";
           return res.status(404).json(errors);
         } else {
+          let evaluatorName = result[0].evalName;
           let sql3 =
             "SELECT * FROM MEASURE_EVALUATOR WHERE evalEmail=" +
             db.escape(evaluatorEmail) +
@@ -830,8 +827,8 @@ router.post(
   }
 );
 
-// @route POST api/:measureIdentifier/measureEvaluators
-// @desc Displays Evaluators [Coordinator first adds and then evaluator can register]
+// @route GET api/:measureIdentifier/measureEvaluators
+// @desc Displays Evaluators related to a measure [Coordinator first adds and then evaluator can register]
 // @access Private
 router.get(
   "/:measureIdentifier/measureEvaluators",

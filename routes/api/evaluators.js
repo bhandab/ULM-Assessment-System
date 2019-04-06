@@ -8,12 +8,14 @@ const db = require("../../config/dbconnection");
 
 const router = express.Router();
 
+// @route GET api/evaluators
+// @desc Displays Evaluators added by the related to a measure [Coordinator first adds and then evaluator can register]
+// @access Private
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let evaluators = [];
-    let invitedEvaluators = [];
 
     let sql = "SELECT * FROM EVALUATOR WHERE corId=" + db.escape(req.user.id);
 
@@ -22,17 +24,32 @@ router.get(
         return res.status(500).json(err);
       }
       result.forEach(row => {
-        if (row.evalName !== "") {
-          evalInfo = {
-            name: row.evalName,
-            email: row.evalEmail
-          };
-          evaluators.push(evalInfo);
-        } else {
-          invitedEvaluators.push(row.evalEmail);
-        }
+        evalInfo = {
+          name: row.evalName,
+          email: row.evalEmail
+        };
+        evaluators.push(evalInfo);
       });
-      res.status(200).json({ evaluators, invitedEvaluators });
+      res.status(200).json({ evaluators });
+    });
+  }
+);
+
+router.get(
+  "/invitedEvaluators",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let invitedEvaluators = [];
+    let sql =
+      "SELECT * FROM INVITED_EVALUATOR WHERE corId=" + db.escape(req.user.id);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      result.forEach(row => {
+        invitedEvaluators.push(row.invitedEvalEmail);
+      });
+      return res.status(200).json({ invitedEvaluators });
     });
   }
 );
@@ -47,38 +64,45 @@ router.post(
     }
     let evaluatorEmail = req.body.evaluatorEmail;
     let adminID = req.user.id;
-    let sql1 =
-      "SELECT * FROM EVALUATOR WHERE evalEmail=" +
-      db.escape(evaluatorEmail) +
-      " AND corId=" +
-      db.escape(adminID);
-    db.query(sql1, (err, result) => {
+    let sql0 =
+      "SELECT * FROM EVALUATOR WHERE evalEmail=" + db.escape(evaluatorEmail);
+    db.query(sql0, (err, result) => {
       if (err) {
-        return res.status(500).json(err);
+        return res.status(500).json();
       } else if (result.length > 0) {
-        if (result[0].evalName === "") {
-          errors.evaluatorEmail =
-            "Invitation has been sent, but Evaluator has not created the account yet; Please contact the evaluator";
-        } else {
-          errors.evaluatorEmail =
-            "Evaluator already exists. Please  check your My Evaluators List";
-        }
+        errors.evaluatorEmail =
+          "The Evaluator with this email already exists in the system";
         return res.status(404).json(errors);
       }
-      let sql2 =
-        "INSERT INTO EVALUATOR (evalEmail,corId) VALUES(" +
+      let sql1 =
+        "SELECT * FROM INVITED_EVALUATOR WHERE invitedEvalEmail=" +
         db.escape(evaluatorEmail) +
-        ", " +
-        db.escape(adminID) +
-        ")";
-      db.query(sql2, (err, result) => {
+        " AND corId=" +
+        db.escape(adminID);
+      db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
+        } else if (result.length > 0) {
+          errors.evaluatorEmail =
+            "Invitation has been sent, but Evaluator has not created the account yet; Please contact the evaluator";
+
+          return res.status(404).json(errors);
         }
-        inviteEvaluator(req.user.email, req.user.name, evaluatorEmail);
-        return res
-          .status(200)
-          .json(`An invitation email has been sent to ${evaluatorEmail}`);
+        let sql2 =
+          "INSERT INTO INVITED_EVALUATOR (invitedEvalEmail,corId) VALUES(" +
+          db.escape(evaluatorEmail) +
+          ", " +
+          db.escape(adminID) +
+          ")";
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          inviteEvaluator(req.user.email, req.user.name, evaluatorEmail);
+          return res
+            .status(200)
+            .json(`An invitation email has been sent to ${evaluatorEmail}`);
+        });
       });
     });
   }
