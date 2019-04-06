@@ -432,22 +432,7 @@ router.post(
     let adminID = req.user.id;
 
     let toolID = 0;
-    if (toolType === "test") {
-      let sql0 =
-        "INSERT INTO TOOL (toolType,corId) VALUES (" +
-        db.escape(toolType) +
-        ", " +
-        db.escape(adminID) +
-        ")";
-      db.query(sql0, (err, result) => {
-        if (err) {
-          res.status(500).json("Measure Could not be created \n", err);
-        }
-        toolID = result.insertId;
-      });
-    } else {
-      toolID = req.body.toolID;
-    }
+
     let measureName =
       "At Least " +
       projectedStudentNumber +
@@ -463,12 +448,12 @@ router.post(
       toolName +
       " " +
       toolType;
-    if (studentNumberOperator == "%") {
-      projectedStudentNumber = projectedStudentNumber / 100;
-    }
-    if (valueOperator === "%") {
-      projectedValue = projectedValue / 100;
-    }
+    // if (studentNumberOperator == "%") {
+    //   projectedStudentNumber = projectedStudentNumber / 100;
+    // }
+    // if (valueOperator === "%") {
+    //   projectedValue = projectedValue / 100;
+    // }
     let sql1 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
@@ -503,9 +488,7 @@ router.post(
           " AND measureDesc=" +
           db.escape(measureName) +
           " AND corId=" +
-          db.escape(adminID) +
-          " AND toolID=" +
-          db.escape(toolID);
+          db.escape(adminID);
 
         db.query(sql3, (err, result) => {
           if (err) {
@@ -515,8 +498,27 @@ router.post(
               "The selected performance measure is already associated with this learning outcome";
             return res.status(404).json(errors);
           } else {
+            if (toolType === "test") {
+              let sql0 =
+                "INSERT INTO TOOL (toolType,corId) VALUES (" +
+                db.escape(toolType) +
+                ", " +
+                db.escape(adminID) +
+                ")";
+              db.query(sql0, (err, result) => {
+                if (err) {
+                  return res
+                    .status(500)
+                    .json("Measure Could not be created \n", err);
+                }
+                toolID = result.insertId;
+              });
+            } else {
+              toolID = req.body.toolID;
+            }
+
             let sql4 =
-              "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolID) VALUES (" +
+              "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolID,toolName, toolType, studentNumberScale,projectedValueScale) VALUES (" +
               db.escape(outcomeID) +
               ", " +
               db.escape(cycleID) +
@@ -532,6 +534,14 @@ router.post(
               db.escape(adminID) +
               ", " +
               db.escape(toolID) +
+              ", " +
+              db.escape(toolName) +
+              ", " +
+              db.escape(toolType) +
+              ", " +
+              db.escape(studentNumberOperator) +
+              ", " +
+              db.escape(valueOperator) +
               ")";
 
             db.query(sql4, (err, result) => {
@@ -547,7 +557,11 @@ router.post(
                 measureName,
                 projectedValue,
                 projectedStudentNumber,
-                course
+                course,
+                toolType,
+                toolName,
+                studentNumberOperator,
+                valueOperator
               });
             });
           }
@@ -556,6 +570,41 @@ router.post(
     });
   }
 );
+/*
+// @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/addExistingMeasure
+router.post(':/cycleIdentifier/:outcomeIdentifier/addExistingMeasure',passport.authenticate('jwt',{session:false}),(req,res)=>{
+
+    let cycleID = req.params.cycleIdentifier;
+    let outcomeID = req.params.outcomeIdentifier;
+    let measureID = req.body.measureID
+
+    let sql1 = "SELECT * FROM PERFORMANCE_MEASURE WHERE cycleID="+db.escape(cycleID)+" AND learnID="+db.escape(outcomeID)+" AND measureID="+db.escape(measureID)
+
+    db.query(sql1,(err,result)=>{
+      if(err){
+        return res.status(500).json(err)
+      }
+      else if(result.length<=0){
+        return res.status(404).json({errors:"Params invalid"})
+      }
+      let measureName=result[0].measureDesc
+      let projectedValue = result[0].projectedResult
+      let projectedStudentNumber = result[0].projectedStudentsValue
+      let toolID = result[0].toolID
+      let adminID = req.user.id
+      let course = result[0].courseAssociated
+
+      let sql2 = "INSERT INTO PERFORMANCE_MEASURE(measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, learnID, cycleID, toolID) VALUES ("+db.escape(measureName)+", "+db.escape(projectedValue)+", "+db.escape(projectedStudentNumber)+", "+db.escape(course)+", "+db.escape(adminID)+", "+db.escape(outcomeID)+", "+db.escape(cycleID)+", "+db.escape(toolID)+")"
+      db.query(sql2,(err,result)=>{
+        if(err){
+          return res.status(500).json(err)
+        }
+        return res.status(200).json({outcomeID,cycleID,measureName,projectedValue,})
+      })
+    })
+
+})
+*/
 
 // @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/measureDetails
 // @desc Provides details of a  measure within an outcome which in turn to cycle
@@ -584,15 +633,19 @@ router.get(
           .status(404)
           .json({ errors: "Measure Details could not be retrieved" });
       }
+
       res.status(200).json({
         cycleID,
         outcomeID,
         measureID,
         measureDescription: result[0].measureDesc,
         projectedResult: result[0].projectedResult,
+        resultScale: result[0].projectedValueScale,
         projectedStudentNumber: result[0].projectedStudentsValue,
+        studentNumberScale: result[0].studentNumberScale,
         course: result[0].courseAssociated,
         toolName: result[0].toolName,
+        toolType: result[0].toolType,
         toolID: result[0].toolID
       });
     });

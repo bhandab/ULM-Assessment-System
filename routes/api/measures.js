@@ -27,10 +27,15 @@ router.get(
           if (!measureDescs.has(row.measureDesc)) {
             measureDescs.add(row.measureDesc);
             measure = {
-              measureName: row.measureDesc,
-              projectedValue: row.projectedResult,
+              measureDescription: row.measureDesc,
+              projectedResult: row.projectedResult,
+              resultScale: row.projectedValueScale,
               projectedStudentNumber: row.projectedStudentsValue,
-              course: row.courseAssociated
+              studentNumberScale: row.studentNumberScale,
+              course: row.courseAssociated,
+              toolName: row.toolName,
+              toolType: row.toolType,
+              toolID: row.toolID
             };
             measures.push(measure);
           }
