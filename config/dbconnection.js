@@ -11,7 +11,7 @@ connection.connect(error => {
   if (error) {
     return console.log("Error connecting to database! ", error);
   }
-  console.log("MySQL connection Successful!", connection);
+  console.log("MySQL connection Successful!");
 });
 
 module.exports = connection;
