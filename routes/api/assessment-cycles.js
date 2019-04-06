@@ -539,32 +539,10 @@ router.post(
     let valueOperator = req.body.valueOperator;
     let adminID = req.user.id;
 
-<<<<<<< HEAD
-    let toolID = 0;
-    if (toolType === "test") {
-      let sql0 =
-        "INSERT INTO TOOL (toolType,corId) VALUES (" +
-        db.escape(toolType) +
-        ", " +
-        db.escape(adminID) +
-        ")";
-      db.query(sql0, (err, result) => {
-        if (err) {
-          res.status(500).json("Measure Could not be created \n", err);
-        }
-        toolID = result.insertId;
-      });
-    } else {
-      toolID = req.body.toolID;
-    }
-    let measureName = req.body.measureDescription
-     /* "At Least " +
-=======
     let toolID = req.body.toolID;
 
     let measureName =
       "At Least " +
->>>>>>> a1eea21bf017ba633bbfa9813571b78bcd02a373
       projectedStudentNumber +
       " " +
       studentNumberOperator +
@@ -577,18 +555,8 @@ router.post(
       " or Greater In " +
       toolName +
       " " +
-<<<<<<< HEAD
-      toolType;*/
-    if (studentNumberOperator == "%") {
-      projectedStudentNumber = projectedStudentNumber / 100;
-    }
-    if (valueOperator === "%") {
-      projectedValue = projectedValue / 100;
-    }
-=======
       toolType;
 
->>>>>>> a1eea21bf017ba633bbfa9813571b78bcd02a373
     let sql1 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
