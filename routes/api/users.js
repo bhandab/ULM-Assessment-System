@@ -74,105 +74,46 @@ router.post("/registerEvaluator", (req, res) => {
     return res.status(404).json(errors);
   }
 
-  let evalName = db.escape(req.body.name);
-  let email = db.escape(req.body.email);
-  let password = db.escape(req.body.password);
+  let evalName = req.body.name;
+  let email = req.body.email;
+  let password = req.body.password;
 
-  let sql = "SELECT * FROM EVALUATOR WHERE evalEmail=" + email;
+  let sql =
+    "SELECT * FROM INVITED_EVALUATOR WHERE invitedEvalEmail=" +
+    db.escape(email);
   db.query(sql, (err, result) => {
     if (err) {
       return res.status(500).json(err);
     } else if (result.length <= 0) {
       errors.email =
-        "You have not been added by coordinator yet; please contact the coordinator!";
+        "You have not been added in the system yet. Please check with your coordinator";
       return res.status(404).json(errors);
     }
 
     sql =
-      "UPDATE EVALUATOR SET evalName=" +
-      evalName +
-      ", evalPWHash=password(" +
-      password +
-      ") WHERE evalEmail=" +
-      email;
+      "INSERT INTO EVALUATOR (evalName, evalEmail, evalPWHash) VALUES(" +
+      db.escape(evalName) +
+      ", " +
+      db.escape(email) +
+      ", password(" +
+      db.escape(password) +
+      "))";
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
       }
-      res.status(200).json(result);
-    });
-  });
-});
-
-// @route POST api/users/addEvaluator
-// @desc Add Evaluator [Coordinator first adds and then evaluator can register]
-// @access Private
-
-/*
-router.post(
-  "/addEvaluator",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    let { errors, isValid } = validateAddEvaluatorInput(req.body);
-    if (!isValid) {
-      return res.status(404).json(errors);
-    }
-    let evaluatorEmail = db.escape(req.body.evaluatorEmail);
-    let adminID = db.escape(req.user.id);
-    let sql =
-      "SELECT * FROM EVALUATOR WHERE evalEmail=" +
-      evaluatorEmail +
-      " AND corId=" +
-      adminID;
-    db.query(sql, (err, result) => {
-      if (err) {
-        return res.status(500).json(err);
-      } else if (result.length > 0) {
-        errors.evaluatorEmail =
-          "You have already added evaluator with this email";
-        return res.status(404).json(errors);
-      }
-      sql =
-        "INSERT INTO EVALUATOR (evalEmail,corId) VALUES (" +
-        evaluatorEmail +
-        ", " +
-        adminID +
-        ")";
-      db.query(sql, (err, result) => {
+      let sql1 =
+        "DELETE FROM INVITED_EVALUATOR WHERE invitedEvalEmail=" +
+        db.escape(email);
+      db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
-        return res.status(200).json({ evaluatorEmail, adminID });
+        res.status(200).json(result);
       });
     });
-  }
-);*/
-
-/*
-// @route POST api/users/myEvaluators
-// @desc Displays Evaluators [Coordinator first adds and then evaluator can register]
-// @access Private
-router.get(
-  "/myEvaluators",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    let evaluators = [];
-
-    let sql = "SELECT * FROM EVALUATORS WHERE corId=" + db.escape(req.user.id);
-
-    db.query(sql, (err, result) => {
-      if (err) {
-        return res.status(500).json(err);
-      }
-      result.forEach(row => {
-        if (row.evalName != "") {
-          evaluators.push(row.evalName);
-        }
-      });
-      res.status(200).json({ evaluators });
-    });
-  }
-);*/
+  });
+});
 
 // @route POST api/users/login
 // @desc Login User

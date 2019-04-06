@@ -63,8 +63,8 @@ router.post(
           ", " +
           db.escape(noOfColumns) +
           ", " +
-          db.escape(weighted)+
-        ")";
+          db.escape(weighted) +
+          ")";
 
         db.query(sql6, (err, result) => {
           if (err) {
@@ -231,7 +231,8 @@ router.get(
           rubricID: row.toolID,
           rubricTitle: row.rubricTitle,
           noOfRows: row.rubricRows,
-          noOfColumns: row.rubricColumns
+          noOfColumns: row.rubricColumns,
+          weighted: row.weighted
         };
         rubrics.push(rubric);
       });
@@ -303,11 +304,11 @@ router.get(
             return res.status(500).json(err);
           }
           result.forEach(row => {
-            let criteriaWeight = 1;
+            //let criteriaWeight = 1;
 
-            if (row.criteriaWeight) {
-              criteriaWeight = row.criteriaWeight / 100;
-            }
+            //if (row.criteriaWeight) {
+            criteriaWeight = row.criteriaWeight * 100;
+            //}
 
             criteria = {
               criteriaID: row.criteriaID,
@@ -434,4 +435,44 @@ router.post(
   }
 );
 
+// @route POST api/cycles/:rubricIdentifier/:criteriaIdentifier/updateWeight
+// @desc Updates scale weight of a rubric
+// @access Private
+router.post(
+  "/:rubricIdentifier/:criteriaIdentifier/updateWeight",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let rubricID = req.params.rubricIdentifier;
+    let criteriaID = req.params.criteriaIdentifier;
+    let adminID = req.user.id;
+
+    let weight = parseFloat(req.body.weight);
+    let sql =
+      "SELECT * FROM CRITERIA WHERE toolID=" +
+      db.escape(rubricID) +
+      " AND criteriaID=" +
+      db.escape(criteriaID);
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res.status(404).json({ errors: "Param values invalid" });
+      }
+      let sql1 =
+        "UPDATE CRITERIA SET criteriaWeight=" +
+        db.escape(weight / 100) +
+        " WHERE toolID=" +
+        db.escape(toolID) +
+        " AND criteriaID=" +
+        db.escape(criteriaID);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        res.status(200).json(weight, criteriaID, rubricID);
+      });
+    });
+  }
+);
 module.exports = router;
