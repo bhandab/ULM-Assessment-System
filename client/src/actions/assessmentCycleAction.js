@@ -113,9 +113,41 @@ export const updateCycleName = (cycleID,body) => dispatch => {
         })
 }
 
+export const deleteCycle = (cycleID) => dispatch => {
+    axios
+    .post("/api/cycles/"+cycleID+"/delete")
+        .then(() => dispatch(getAssessmentCycles()))
+        .catch(err => {
+            console.log(err)
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            }
+            )
+        })
+
+
+}
+
 export const updateOutcomeName = (cycleID,outcomeID,body) => dispatch => {
     axios
         .post("/api/cycles/" + cycleID + "/"+ outcomeID + "/update", body)
+        .then(() => dispatch(getCycleMeasures(cycleID)))
+        .catch(err => {
+            console.log(err)
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            }
+            )
+        })
+}
+
+export const deleteOutcome = (cycleID, outcomeID) => dispatch => {
+    axios
+        .post("/api/cycles/" + cycleID + "/" + outcomeID + "/delete")
         .then(() => dispatch(getCycleMeasures(cycleID)))
         .catch(err => {
             console.log(err)
