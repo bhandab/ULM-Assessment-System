@@ -7,6 +7,13 @@ module.exports = function validateRubricStructureInput(data) {
   data.rows = !isEmpty(data.rows) ? data.rows.trim() : "";
   data.columns = !isEmpty(data.columns) ? data.columns.trim() : "";
   data.rubricName = !isEmpty(data.rubricName) ? data.rubricName.trim() : "";
+  data.weighted = !isEmpty(data.weighted) ? data.weighted : "";
+
+  if (Validator.isEmpty(weighted)) {
+    errors.weighted = "Weighted Field Cannot be empty";
+  } else if (!Validator.isBoolean) {
+    errors.weighted = "Weighted Field Should be a boolean";
+  }
 
   if (Validator.isEmpty(data.rows)) {
     errors.rows = "No. of rows field cannot be empty";
