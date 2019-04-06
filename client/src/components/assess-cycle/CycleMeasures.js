@@ -2,19 +2,22 @@ import React, { Component, Fragment } from "react";
 import {
   getCycleMeasures,
   linkOutcomeToCycle,
-  updateOutcomeName
+  updateOutcomeName,
+  deleteOutcome
 } from "../../actions/assessmentCycleAction";
 import { getOutcomes } from "../../actions/outcomesAction";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Spinner, Modal, Form, Button, InputGroup } from "react-bootstrap";
+import Delete from '../../utils/Delete'
 
 class CycleMeasures extends Component {
   state = {
     addOutcome: false,
     createOutcome: false,
     editShow:false,
+    deleteShow:false,
     outcomeName:"",
     outcomeID:null
   };
@@ -58,6 +61,7 @@ class CycleMeasures extends Component {
     this.setState({createOutcome:false});
   };
 
+  
   createOutcomeShow = () => {
     this.setState({createOutcome:true})
   }
@@ -76,12 +80,21 @@ class CycleMeasures extends Component {
   }
   
   editShow = (e) => {
-    console.log(e.target.value)
     this.setState({ outcomeName: e.target.value, outcomeID: e.target.name, editShow: true })
   }
 
+
   editHide = () => {
     this.setState({ editShow: false })
+  }
+
+
+  deleteShow = (e) => {
+    this.setState({ outcomeName: e.target.value, outcomeID: e.target.name, deleteShow: true })
+  }
+
+  deleteHide = () => {
+    this.setState({deleteShow: false })
   }
 
   saveChangesHandler = e => {
@@ -89,6 +102,12 @@ class CycleMeasures extends Component {
     const value = e.target.outcomeName.value
     this.props.updateOutcomeName(this.props.match.params.cycleID,this.state.outcomeID, { outcomeDescription: value })
     this.setState({outcomeName: "", outcomeID: null, editShow: false })
+  }
+
+  outcomeDeleteHandler = () => {
+    this.props.deleteOutcome(this.props.match.params.cycleID, this.state.outcomeID)
+    this.setState({ outcomeName: "", outcomeID: null, deleteShow: false })
+
   }
 
 
@@ -121,7 +140,10 @@ class CycleMeasures extends Component {
                   name={outcome.outcomeID} value={outcome.outcomeName}
                   onClick={this.editShow.bind(this)}
                   className="outcome-edit ml-2"></button>
-
+                <button style={{ border: "none", background: "none" }}
+                  name={outcome.outcomeID} value={outcome.outcomeName}
+                  onClick={this.deleteShow.bind(this)}
+                  className="delete"></button>
               </li>
             );
           });
@@ -221,7 +243,12 @@ class CycleMeasures extends Component {
             </Form>
           </Modal.Body>
         </Modal>
-        
+        <Delete hide={this.deleteHide}
+          show={this.state.deleteShow}
+          value="Learning Outcome"
+          name={this.state.outcomeName}
+          delete={this.outcomeDeleteHandler}
+        />
       </Fragment>
     );
   }
@@ -233,7 +260,8 @@ CycleMeasures.propTypes = {
   linkOutcomeToCycle: PropTypes.func.isRequired,
   cycles: PropTypes.object.isRequired,
   updateOutcomeName: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired
+  auth: PropTypes.object.isRequired,
+  deleteOutcome: PropTypes.func.isRequired
 };
 
 const MapStateToProps = state => ({
@@ -246,5 +274,9 @@ const MapStateToProps = state => ({
 
 export default connect(
   MapStateToProps,
-  { getOutcomes, linkOutcomeToCycle, getCycleMeasures, updateOutcomeName }
+  { getOutcomes, 
+    linkOutcomeToCycle, 
+    getCycleMeasures, 
+    updateOutcomeName, 
+    deleteOutcome }
 )(CycleMeasures);

@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { getAssessmentCycles, createCycle, updateCycleName } from '../../actions/assessmentCycleAction';
+import { getAssessmentCycles, createCycle, updateCycleName, deleteCycle } from '../../actions/assessmentCycleAction';
 import PropTypes from "prop-types";
 import { Link} from 'react-router-dom';
 import {Spinner, Button, Modal, Form} from 'react-bootstrap';
+import Delete from '../../utils/Delete';
 
 
 class AssessmentCycle extends Component {
@@ -12,7 +13,8 @@ class AssessmentCycle extends Component {
         show : false,
         editShow: false,
         cycleName:"",
-        cycleID:null
+        cycleID:null,
+        deleteShow:false
     }
 
     componentDidMount() {
@@ -27,7 +29,7 @@ class AssessmentCycle extends Component {
         console.log(e.target)
     }
 
-     submitHandler= (e) => {
+     submitHandler = (e) => {
         e.preventDefault()
         let value = e.target.cycleName.value
         this.props.createCycle({cycleTitle:value},this.props.history)
@@ -41,6 +43,11 @@ class AssessmentCycle extends Component {
         this.setState({ cycleName: "", cycleID: null, editShow: false })
     }
 
+    deleteCycleHandler = () => {
+        this.props.deleteCycle(this.state.cycleID)
+        this.setState({ cycleName: "", cycleID: null, deleteShow: false })
+    }
+
   
     modalShow = () => {
         this.setState({ show: true })
@@ -51,7 +58,6 @@ class AssessmentCycle extends Component {
     }
 
     editShow = (e) => {
-        console.log(e.target.value)
         this.setState({ cycleName: e.target.value, cycleID: e.target.name, editShow: true  })
     }
     
@@ -59,11 +65,18 @@ class AssessmentCycle extends Component {
         this.setState({ editShow: false })
     }
 
+    deleteShow = (e) => {
+        this.setState({ cycleName: e.target.value, cycleID: e.target.name, deleteShow:true})
+    }
+
+    deleteHide = () => {
+        this.setState({deleteShow:false})
+    }
+
 
 
     render() {
 
-      
         let cyclesList = null
         if (this.props.cycles.cycles === null) {
             cyclesList = <Spinner animation='border' variant="primary"></Spinner>
@@ -80,6 +93,10 @@ class AssessmentCycle extends Component {
                     name={cycle.cycleID} value={cycle.cycleName} 
                     onClick={this.editShow.bind(this)} 
                     className="outcome-edit ml-2"></button>
+                    <button style={{ border: "none", background: "none" }}
+                        name={cycle.cycleID} value={cycle.cycleName}
+                        onClick={this.deleteShow.bind(this)}
+                    className="delete"></button>
                 </li>
             )
         }
@@ -126,7 +143,12 @@ class AssessmentCycle extends Component {
                         </Form>
                     </Modal.Body>
                 </Modal>
-                
+                <Delete hide={this.deleteHide}
+                show={this.state.deleteShow}
+                value ="Assessment Cycle"
+                name = {this.state.cycleName}
+                delete = {this.deleteCycleHandler}
+                />
             </Fragment>
         )
     }
@@ -136,7 +158,8 @@ AssessmentCycle.propTypes = {
     getAssessmentCycles: PropTypes.func.isRequired,
     createCycle: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired,
-    updateCycleName: PropTypes.func.isRequired
+    updateCycleName: PropTypes.func.isRequired,
+    deleteCycle: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
@@ -144,4 +167,4 @@ const mapStateToProps = state => ({
     cycles: state.cycles,
 })
 
-export default connect(mapStateToProps, { getAssessmentCycles, createCycle, updateCycleName }) (AssessmentCycle);
+export default connect(mapStateToProps, { getAssessmentCycles, createCycle, updateCycleName, deleteCycle }) (AssessmentCycle);
