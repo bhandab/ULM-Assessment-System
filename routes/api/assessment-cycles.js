@@ -299,15 +299,15 @@ router.post(
     }
 
     let cycleID = req.params.cycleIdentifier;
-    let adminID = db.escape(req.user.id);
-    let cycleName = db.escape(req.body.cycleTitle);
+    let adminID = req.user.id;
+    let cycleName = req.body.cycleTitle;
     created = db.escape(new Date());
 
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
-      cycleID +
+      db.escape(cycleID) +
       " AND corId=" +
-      adminID;
+      db.escape(adminID);
 
     db.query(sql0, (err, result) => {
       if (err) {
@@ -320,7 +320,7 @@ router.post(
       }
       let sql1 =
         "UPDATE ASSESSMENT_CYCLE SET cycleTitle=" +
-        cycleName +
+        db.escape(cycleName) +
         " WHERE cycleID=" +
         db.escape(cycleID);
 
@@ -335,11 +335,59 @@ router.post(
   }
 );
 
+
+// @route POST api/cycles/:cycleIdentifier/Delete
+// @desc DELETE an  existing Assessment Cycle
+// @access Private BIKASH
+
+router.post(
+  "/:cycleIdentifier/Delete",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    
+    let cycleID = req.params.cycleIdentifier;
+    let adminID = req.user.id;
+    
+   
+    
+    let sql0 =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND corId=" +
+      db.escape(adminID);
+
+    db.query(sql0, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors=
+          "The given cycle doesn't with cycleID " + cycleID + " exists";
+        return res.status(404).json({errors});
+      }
+      
+      let sql1 =
+        "DELETE FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+        db.escape(cycleID)  +" AND corId=" + db.escape(adminID);
+
+        cycleName=result[0].cycleTitle;
+        
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+
+        return res.status(200).json({cycleID,cycleName });
+      });
+    });
+  }
+);
+
 // @route POST api/cycles/:cycleIdentifier/outcomes/:outcomeID
 // @desc Updates an  outcome of existing assessment Cycle
 // @access Private BIKASH
 router.post(
-  "/:cycleIdentifier/:learnID/Update",
+  "/:cycleIdentifier/:outcomeIdentifier/Update",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let { errors, isValid } = validateOutcomeInput(req.body);
@@ -348,7 +396,7 @@ router.post(
     }
 
     let cycleID = req.params.cycleIdentifier;
-    let learnID = req.params.learnID;
+    let learnID = req.params.outcomeIdentifier;
     let adminID = req.user.id;
     let outcomeName = req.body.outcomeDescription;
 
@@ -365,7 +413,7 @@ router.post(
       if (result.length <= 0) {
         errors.outcomeDescription =
           "Cycle with cycle ID " + cycleID + " Does not Exist!";
-        return res.status(404).json(errors);
+        return res.status(404).json({errors});
       }
       let sql =
         "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
@@ -382,7 +430,7 @@ router.post(
         if (result.length <= 0) {
           errors.outcomeDescription =
             "The Selected Outcome is not in the current Assessment Cycle";
-          return res.status(404).json(errors);
+          return res.status(404).json({errors});
         }
         let sql1 =
           "UPDATE LEARNING_OUTCOME SET learnDesc=" +
@@ -395,6 +443,71 @@ router.post(
           db.escape(adminID);
 
         db.query(sql1, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          res.status(200).json({ cycleID, learnID, adminID, outcomeName });
+        });
+      });
+    });
+  }
+);
+
+// @route POST api/cycles/:cycleIdentifier/outcomes/:outcomeID
+// @desc DELETE an  outcome of existing assessment Cycle
+// @access Private BIKASH
+router.post(
+  "/:cycleIdentifier/:outcomeIdentifier/Delete",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let cycleID = req.params.cycleIdentifier;
+    let learnID = req.params.outcomeIdentifier;
+    let adminID = req.user.id;
+   
+    let sql0 =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND corId=" +
+      db.escape(adminID);
+
+    db.query(sql0, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors=
+          "Cycle with cycle ID " + cycleID + " Does not Exist!";
+        return res.status(404).json({errors});
+      }
+
+      let sql =
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
+        db.escape(cycleID) +
+        " AND learnID=" +
+        db.escape(learnID) +
+        " AND corId=" +
+        db.escape(adminID);
+      db.query(sql, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+
+        if (result.length <= 0) {
+          errors =
+            "The Selected Outcome is not in the current Assessment Cycle";
+          return res.status(404).json({errors});
+        }
+        let sql1 =
+          "DELETE FROM LEARNING_OUTCOME WHERE cycleID=" +
+          db.escape(cycleID) +
+          " AND learnID=" +
+          db.escape(learnID) +
+          " AND corId=" +
+          db.escape(adminID);
+        
+          let outcomeName = result[0].learnDesc;
+         db.query(sql1, (err, result) => {
           if (err) {
             return res.status(500).json(err);
           }
