@@ -1,9 +1,18 @@
-import { GET_CYCLES, GET_CYCLES_MEASURES, GET_CYCLES_OUTCOMES } from "../actions/types";
+import { GET_CYCLES,
+    GET_CYCLES_MEASURES,
+    GET_CYCLES_OUTCOMES,
+    GET_MEASURE_DETAILS,
+    LOADING,
+    GET_MEASURE_EVALUATORS}
+    from "../actions/types";
 
 const initialState = {
     cycles: null,
     cycleMeasures: null,
-    outcomeMeasures: null
+    outcomeMeasures: null,
+    measureDetails: null,
+    loading: true,
+    measureEvaluators: null
 }
 
 export default function (state = initialState, action) {
@@ -23,6 +32,23 @@ export default function (state = initialState, action) {
                 ...state,
                 outcomeMeasures: action.payload
             }
+        case GET_MEASURE_DETAILS:
+        return {
+            ...state,
+            measureDetails: action.payload,
+            loading: false
+        }
+        case GET_MEASURE_EVALUATORS: {
+            return{
+                ...state,
+                measureEvaluators: action.payload,
+                loading: false
+            }
+        }
+        case LOADING:
+        return{
+            loading:true
+        }
         default:
             return state;
     }

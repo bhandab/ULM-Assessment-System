@@ -1,5 +1,12 @@
 import axios from 'axios';
-import {GET_ERRORS, GET_CYCLES, GET_CYCLES_MEASURES, GET_CYCLES_OUTCOMES} from './types';
+import { GET_ERRORS,
+    GET_CYCLES,
+    GET_CYCLES_MEASURES,
+    GET_MEASURE_EVALUATORS,
+    GET_CYCLES_OUTCOMES,
+    GET_MEASURE_DETAILS,
+    LOADING} 
+    from './types';
 
 export const getAssessmentCycles = () => dispatch => {
     axios
@@ -158,5 +165,52 @@ export const deleteOutcome = (cycleID, outcomeID) => dispatch => {
             }
             )
         })
+}
+
+export const getMeasureDetails = (cycleID, outcomeID, measureID) => dispatch =>{
+    dispatch(setLoading())
+    axios
+    .get("/api/cycles/"+cycleID+"/"+outcomeID+"/"+measureID+"/measureDetails")
+        .then(res => {
+            dispatch({
+                type: GET_MEASURE_DETAILS,
+                payload: res.data
+            })
+        })
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            }
+            )
+        })
+}
+
+export const getMeasureEvaluators = (measureID) => dispatch => {
+    dispatch(setLoading())
+    axios
+    .get("/api/cycles/"+measureID+"/measureEvaluators")
+        .then(res => {
+            dispatch({
+                type: GET_MEASURE_EVALUATORS,
+                payload: res.data
+            })
+        })
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            }
+            )
+        })
+
+}
+
+export const setLoading = () => {
+    return {
+        type: LOADING
+    }
 }
     

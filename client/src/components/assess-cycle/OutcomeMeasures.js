@@ -76,7 +76,7 @@ class OutcomeMeasures extends Component {
       " or greater in " +
       ty +
       " " +
-      tt + 
+      "'"+tt+"'"+ + 
       "."
 
     const measureDetails = {
@@ -91,7 +91,6 @@ class OutcomeMeasures extends Component {
       studentNumberOperator: pt
 
     };
-    console.log(measureDetails);
     this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
   };
 
@@ -183,7 +182,6 @@ class OutcomeMeasures extends Component {
     let rubricScoreOptions = null
     const rubricChangeHandler = (e) => {
     let rubricID = e.target.value.replace(/\D/g, "");
-        console.log(rubricID)
         this.props.getSingleRubric(rubricID, true)
         console.log(rubricScoreOptions)
     }

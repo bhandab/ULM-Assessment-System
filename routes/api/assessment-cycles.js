@@ -561,8 +561,8 @@ router.post(
     } else {
       toolID = req.body.toolID;
     }
-    let measureName =
-      "At Least " +
+    let measureName = req.body.measureDescription
+     /* "At Least " +
       projectedStudentNumber +
       " " +
       studentNumberOperator +
@@ -575,7 +575,7 @@ router.post(
       " or Greater In " +
       toolName +
       " " +
-      toolType;
+      toolType;*/
     if (studentNumberOperator == "%") {
       projectedStudentNumber = projectedStudentNumber / 100;
     }
