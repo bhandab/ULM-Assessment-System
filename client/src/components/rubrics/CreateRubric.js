@@ -64,9 +64,9 @@ class CreateRubric extends Component {
         .rubricTitle;
 
       tableHeader.push(
-        <td key="cross">
+        <th key="cross">
           <div>Criteria</div>
-        </td>
+        </th>
       );
 
       for (let i = 0; i < rubricDetails.scaleInfo.length; i++) {
