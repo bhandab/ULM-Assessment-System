@@ -9,10 +9,13 @@ module.exports = function validateRubricStructureInput(data) {
   data.rubricName = !isEmpty(data.rubricName) ? data.rubricName.trim() : "";
   data.weighted = !isEmpty(data.weighted) ? data.weighted : "";
 
-  if (Validator.isEmpty(weighted)) {
+  if (Validator.isEmpty(data.weighted)) {
     errors.weighted = "Weighted Field Cannot be empty";
   } else if (!Validator.isBoolean) {
     errors.weighted = "Weighted Field Should be a boolean";
+  }
+  else{
+    data.weighted = Validator.toBoolean(data.weighted)
   }
 
   if (Validator.isEmpty(data.rows)) {

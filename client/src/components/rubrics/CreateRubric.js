@@ -57,7 +57,8 @@ class CreateRubric extends Component {
     let rubricTitle = null;
 
     if (isEmpty(this.props.rubric.singleRubric) === false) {
-      console.log(this.props);
+      
+      const weighted = this.props.rubric.singleRubric.rubricDetails.structureInfo.weighted
 
       const rubricDetails = this.props.rubric.singleRubric.rubricDetails;
       rubricTitle = this.props.rubric.singleRubric.rubricDetails.structureInfo
@@ -77,6 +78,9 @@ class CreateRubric extends Component {
             </div>
           </th>
         );
+      }
+      if(weighted === 1){
+        tableHeader.push(<th className="weight" key="wei"><div>Weight</div></th>)
       }
       tableHeader = <tr key={"row"+1}>{tableHeader}</tr>;
       table.push(tableHeader);
@@ -103,7 +107,6 @@ class CreateRubric extends Component {
             <td key={tableCols[k].cellID}>
               <FormControl
                 as="textarea"
-                style={{ border: "none" }}
                 defaultValue={tableCols[k].cellDescription}
                 name={tableCols[k].cellID}
                 onChange={this.updateCellDesc.bind(this)}
@@ -111,6 +114,15 @@ class CreateRubric extends Component {
             </td>
           );
         }
+        cells.push(
+          <td key={"wei" + rubricDetails.criteriaInfo[j].criteriaID}>
+            <FormControl type="number"
+              style={{ height: "100px" }}
+              defaultValue={rubricDetails.criteriaInfo[j].criteriaWeight} 
+              name={rubricDetails.criteriaInfo[j].criteriaID}
+              />
+          </td>
+        )
         cells = <tr>{cells}</tr>;
         table.push(cells);
       }
@@ -119,7 +131,9 @@ class CreateRubric extends Component {
           <tbody>{table}</tbody>
         </table>
       );
+      console.log(typeof this.props.rubric.singleRubric.rubricDetails.structureInfo.weighted)
     }
+    console.log(this.props)
     return (
       <Fragment>
         {this.props.rubric.loading ? (

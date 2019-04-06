@@ -95,3 +95,36 @@ export const getOutcomesMeasures = (cycleID, outcomeID) => dispatch => { //measu
             )
         })
 }
+
+//export const getMeasureDetails = ()
+
+export const updateCycleName = (cycleID,body) => dispatch => {
+    axios
+    .post("/api/cycles/"+cycleID+"/update",body)
+    .then(() => dispatch(getAssessmentCycles()))
+        .catch(err => {
+            console.log(err)
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            }
+            )
+        })
+}
+
+export const updateOutcomeName = (cycleID,outcomeID,body) => dispatch => {
+    axios
+        .post("/api/cycles/" + cycleID + "/"+ outcomeID + "/update", body)
+        .then(() => dispatch(getCycleMeasures(cycleID)))
+        .catch(err => {
+            console.log(err)
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            }
+            )
+        })
+}
+    

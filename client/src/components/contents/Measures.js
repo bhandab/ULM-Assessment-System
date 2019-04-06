@@ -20,7 +20,6 @@ class Measures extends Component {
 
         console.log()
         let measuresList = <Spinner animation='border' variant="primary"></Spinner>
-       console.log(this.props)
 
         if (this.props.measures.measures === null ) {
             measuresList = <Spinner animation='border' variant="primary"></Spinner>

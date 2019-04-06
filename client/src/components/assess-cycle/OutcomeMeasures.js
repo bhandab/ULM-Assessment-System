@@ -8,7 +8,7 @@ import { getAllRubrics, getSingleRubric } from "../../actions/rubricsAction";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { Form, Button, InputGroup, Modal, Spinner, FormControl } from "react-bootstrap";
+import { Form, Button, InputGroup, Modal, Spinner} from "react-bootstrap";
 import { isEmpty } from "../../utils/isEmpty";
 
 class OutcomeMeasures extends Component {
@@ -115,7 +115,7 @@ class OutcomeMeasures extends Component {
 
 
   render() {
-    console.log(this.props)
+   // console.log(this.props)
     let measures = <Spinner animation="border" variant="primary" />;
     let measureTitle = null;
     if (this.props.cycles.outcomeMeasures !== null) {

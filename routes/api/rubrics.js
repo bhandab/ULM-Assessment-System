@@ -63,8 +63,8 @@ router.post(
           ", " +
           db.escape(noOfColumns) +
           ", " +
-          db.escape(weighted);
-        (")");
+          db.escape(weighted)+
+        ")";
 
         db.query(sql6, (err, result) => {
           if (err) {
@@ -270,6 +270,7 @@ router.get(
         noOfRows: result[0].rubricRows,
         noOfColumns: result[0].rubricColumns,
         rubricTitle: result[0].rubricTitle,
+        weighted: result[0].weighted,
         rubricID,
         adminID
       };
