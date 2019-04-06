@@ -23,6 +23,7 @@ router.post(
     let noOfRows = req.body.rows;
     let noOfColumns = req.body.columns;
     let rubricTitle = req.body.rubricName;
+    let weighted = req.body.weighted;
     let adminID = req.user.id;
 
     let rubricDetails = {};
@@ -52,7 +53,7 @@ router.post(
         }
         let rubricID = result.insertId;
         let sql6 =
-          "INSERT INTO RUBRIC (toolID,rubricTitle,rubricRows,rubricColumns) " +
+          "INSERT INTO RUBRIC (toolID,rubricTitle,rubricRows,rubricColumns,weighted) " +
           "VALUES (" +
           db.escape(rubricID) +
           ", " +
@@ -61,7 +62,9 @@ router.post(
           db.escape(noOfRows) +
           ", " +
           db.escape(noOfColumns) +
-          ")";
+          ", " +
+          db.escape(weighted);
+        (")");
 
         db.query(sql6, (err, result) => {
           if (err) {
@@ -71,6 +74,7 @@ router.post(
             noOfRows,
             noOfColumns,
             rubricTitle,
+            weighted,
             rubricID,
             adminID
           };
