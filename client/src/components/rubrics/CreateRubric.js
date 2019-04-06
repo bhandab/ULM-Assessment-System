@@ -64,9 +64,9 @@ class CreateRubric extends Component {
         .rubricTitle;
 
       tableHeader.push(
-        <td key="cross">
+        <th key="cross">
           <div>Criteria</div>
-        </td>
+        </th>
       );
 
       for (let i = 0; i < rubricDetails.scaleInfo.length; i++) {
@@ -78,7 +78,7 @@ class CreateRubric extends Component {
           </th>
         );
       }
-      tableHeader = <tr>{tableHeader}</tr>;
+      tableHeader = <tr key={"row"+1}>{tableHeader}</tr>;
       table.push(tableHeader);
 
       const tableRows = this.props.rubric.singleRubric.rubricDetails.table;

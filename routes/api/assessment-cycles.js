@@ -2,6 +2,7 @@ const express = require("express");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 
+const { inviteEvaluator } = require("../../email/invite");
 const db = require("../../config/dbconnection");
 const validateCycleInput = require("../../validation/assessment-cycle");
 const validateOutcomeInput = require("../../validation/learning-outcome");
@@ -774,6 +775,7 @@ router.post(
             if (err) {
               return res.status(500).json(err);
             } else {
+              inviteEvaluator(req.user.email, req.user.name, evaluatorEmail);
               let sql5 =
                 "INSERT INTO MEASURE_EVALUATOR (evalEmail,measureID) VALUES (" +
                 db.escape(evaluatorEmail) +
@@ -805,8 +807,7 @@ router.get(
     let evaluators = [];
 
     let sql =
-      "SELECT * FROM MEASURE_EVALUATOR WHERE measureID=" +
-      db.escape(measureID);
+      "SELECT * FROM MEASURE_EVALUATOR WHERE measureID=" + db.escape(measureID);
 
     db.query(sql, (err, result) => {
       if (err) {
