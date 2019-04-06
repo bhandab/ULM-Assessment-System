@@ -2,7 +2,6 @@ const express = require("express");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 
-const { inviteEvaluator } = require("../../email/invite");
 const db = require("../../config/dbconnection");
 const validateCycleInput = require("../../validation/assessment-cycle");
 const validateOutcomeInput = require("../../validation/learning-outcome");
@@ -335,7 +334,6 @@ router.post(
   }
 );
 
-
 // @route POST api/cycles/:cycleIdentifier/Delete
 // @desc DELETE an  existing Assessment Cycle
 // @access Private BIKASH
@@ -344,12 +342,9 @@ router.post(
   "/:cycleIdentifier/Delete",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    
     let cycleID = req.params.cycleIdentifier;
     let adminID = req.user.id;
-    
-   
-    
+
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
@@ -361,23 +356,24 @@ router.post(
         return res.status(500).json(err);
       }
       if (result.length <= 0) {
-        errors=
-          "The given cycle doesn't with cycleID " + cycleID + " exists";
-        return res.status(404).json({errors});
+        errors = "The given cycle doesn't with cycleID " + cycleID + " exists";
+        return res.status(404).json({ errors });
       }
-      
+
       let sql1 =
         "DELETE FROM ASSESSMENT_CYCLE WHERE cycleID=" +
-        db.escape(cycleID)  +" AND corId=" + db.escape(adminID);
+        db.escape(cycleID) +
+        " AND corId=" +
+        db.escape(adminID);
 
-        cycleName=result[0].cycleTitle;
-        
+      cycleName = result[0].cycleTitle;
+
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
 
-        return res.status(200).json({cycleID,cycleName });
+        return res.status(200).json({ cycleID, cycleName });
       });
     });
   }
@@ -413,7 +409,7 @@ router.post(
       if (result.length <= 0) {
         errors.outcomeDescription =
           "Cycle with cycle ID " + cycleID + " Does not Exist!";
-        return res.status(404).json({errors});
+        return res.status(404).json({ errors });
       }
       let sql =
         "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
@@ -430,7 +426,7 @@ router.post(
         if (result.length <= 0) {
           errors.outcomeDescription =
             "The Selected Outcome is not in the current Assessment Cycle";
-          return res.status(404).json({errors});
+          return res.status(404).json({ errors });
         }
         let sql1 =
           "UPDATE LEARNING_OUTCOME SET learnDesc=" +
@@ -464,7 +460,7 @@ router.post(
     let cycleID = req.params.cycleIdentifier;
     let learnID = req.params.outcomeIdentifier;
     let adminID = req.user.id;
-   
+
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
@@ -476,9 +472,8 @@ router.post(
         return res.status(500).json(err);
       }
       if (result.length <= 0) {
-        errors=
-          "Cycle with cycle ID " + cycleID + " Does not Exist!";
-        return res.status(404).json({errors});
+        errors = "Cycle with cycle ID " + cycleID + " Does not Exist!";
+        return res.status(404).json({ errors });
       }
 
       let sql =
@@ -496,7 +491,7 @@ router.post(
         if (result.length <= 0) {
           errors =
             "The Selected Outcome is not in the current Assessment Cycle";
-          return res.status(404).json({errors});
+          return res.status(404).json({ errors });
         }
         let sql1 =
           "DELETE FROM LEARNING_OUTCOME WHERE cycleID=" +
@@ -505,9 +500,9 @@ router.post(
           db.escape(learnID) +
           " AND corId=" +
           db.escape(adminID);
-        
-          let outcomeName = result[0].learnDesc;
-         db.query(sql1, (err, result) => {
+
+        let outcomeName = result[0].learnDesc;
+        db.query(sql1, (err, result) => {
           if (err) {
             return res.status(500).json(err);
           }
@@ -544,7 +539,7 @@ router.post(
     let valueOperator = req.body.valueOperator;
     let adminID = req.user.id;
 
-    let toolID = 0;
+    let toolID = req.body.toolID;
 
     let measureName =
       "At Least " +
@@ -561,12 +556,7 @@ router.post(
       toolName +
       " " +
       toolType;
-    // if (studentNumberOperator == "%") {
-    //   projectedStudentNumber = projectedStudentNumber / 100;
-    // }
-    // if (valueOperator === "%") {
-    //   projectedValue = projectedValue / 100;
-    // }
+
     let sql1 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
@@ -611,70 +601,66 @@ router.post(
               "The selected performance measure is already associated with this learning outcome";
             return res.status(404).json(errors);
           } else {
-            if (toolType === "test") {
-              let sql0 =
-                "INSERT INTO TOOL (toolType,corId) VALUES (" +
-                db.escape(toolType) +
-                ", " +
-                db.escape(adminID) +
-                ")";
-              db.query(sql0, (err, result) => {
-                if (err) {
-                  return res
-                    .status(500)
-                    .json("Measure Could not be created \n", err);
-                }
-                toolID = result.insertId;
-              });
-            } else {
-              toolID = req.body.toolID;
-            }
-
-            let sql4 =
-              "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolID,toolName, toolType, studentNumberScale,projectedValueScale) VALUES (" +
-              db.escape(outcomeID) +
-              ", " +
-              db.escape(cycleID) +
-              ", " +
-              db.escape(measureName) +
-              ", " +
-              db.escape(projectedValue) +
-              ", " +
-              db.escape(projectedStudentNumber) +
-              ", " +
-              db.escape(course) +
-              ", " +
-              db.escape(adminID) +
-              ", " +
-              db.escape(toolID) +
-              ", " +
-              db.escape(toolName) +
-              ", " +
+            let sql0 =
+              "INSERT INTO TOOL (toolType,corId) VALUES (" +
               db.escape(toolType) +
               ", " +
-              db.escape(studentNumberOperator) +
-              ", " +
-              db.escape(valueOperator) +
+              db.escape(adminID) +
               ")";
-
-            db.query(sql4, (err, result) => {
+            db.query(sql0, (err, result) => {
               if (err) {
-                return res.status(500).json(err);
+                return res
+                  .status(500)
+                  .json("Measure Could not be created \n", err);
               }
-              let measureID = result.insertId;
-              res.status(200).json({
-                cycleID,
-                outcomeID,
-                measureID,
-                adminID,
-                measureName,
-                projectedValue,
-                projectedStudentNumber,
-                course,
-                toolType,
-                toolName,
-                studentNumberOperator,
-                valueOperator
+              toolID = result.insertId;
+              let sql4 =
+                "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolID,toolName, toolType, studentNumberScale,projectedValueScale) VALUES (" +
+                db.escape(outcomeID) +
+                ", " +
+                db.escape(cycleID) +
+                ", " +
+                db.escape(measureName) +
+                ", " +
+                db.escape(projectedValue) +
+                ", " +
+                db.escape(projectedStudentNumber) +
+                ", " +
+                db.escape(course) +
+                ", " +
+                db.escape(adminID) +
+                ", " +
+                db.escape(toolID) +
+                ", " +
+                db.escape(toolName) +
+                ", " +
+                db.escape(toolType) +
+                ", " +
+                db.escape(studentNumberOperator) +
+                ", " +
+                db.escape(valueOperator) +
+                ")";
+
+              db.query(sql4, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
+                let measureID = result.insertId;
+                res.status(200).json({
+                  cycleID,
+                  outcomeID,
+                  measureID,
+                  adminID,
+                  measureName,
+                  projectedValue,
+                  projectedStudentNumber,
+                  course,
+                  toolType,
+                  toolName,
+                  studentNumberOperator,
+                  valueOperator,
+                  toolID
+                });
               });
             });
           }
@@ -778,6 +764,7 @@ router.post(
       return res.status(404).json(errors);
     }
     let evaluatorEmail = req.body.evaluatorEmail;
+    let evaluatorName = req.body.evaluatorName;
     let adminID = req.user.id;
     let measureID = req.params.measureIdentifier;
 
@@ -789,17 +776,20 @@ router.post(
         return res.status(500).json(err);
       } else if (result.length <= 0) {
         return res.status(404).json("Measure with the given ID not found");
-      } else {
       }
       let sql2 =
-        "SELECT * FROM EVALUATOR WHERE evalEmail=" +
-        db.escape(evaluatorEmail) +
-        " AND corId=" +
-        db.escape(adminID);
+        "SELECT * FROM EVALUATOR WHERE evalName=" +
+        db.escape(evaluatorName) +
+        " AND evalEmail=" +
+        db.escape(evaluatorEmail);
       db.query(sql2, (err, result) => {
         if (err) {
           return res.status(500).json(err);
-        } else if (result.length > 0) {
+        } else if (result.length <= 0) {
+          errors.evaluatorEmail =
+            "Evaluator Account Does not Exist. Please check the invitee lists or invite the evaluator to create an account";
+          return res.status(404).json(errors);
+        } else {
           let sql3 =
             "SELECT * FROM MEASURE_EVALUATOR WHERE evalEmail=" +
             db.escape(evaluatorEmail) +
@@ -808,40 +798,31 @@ router.post(
           db.query(sql3, (err, result) => {
             if (err) {
               return res.status(500).json(err);
-            }
-            if (result.length > 0) {
+            } else if (result.length > 0) {
               errors.evaluatorEmail =
                 "You have already added " +
                 evaluatorEmail +
                 " to the current performance measure";
               return res.status(404).json(errors);
             }
-          });
-        } else {
-          let sql4 =
-            "INSERT INTO EVALUATOR (evalEmail,corId) VALUES (" +
-            db.escape(evaluatorEmail) +
-            ", " +
-            db.escape(adminID) +
-            ")";
-          db.query(sql4, (err, result) => {
-            if (err) {
-              return res.status(500).json(err);
-            } else {
-              inviteEvaluator(req.user.email, req.user.name, evaluatorEmail);
-              let sql5 =
-                "INSERT INTO MEASURE_EVALUATOR (evalEmail,measureID) VALUES (" +
-                db.escape(evaluatorEmail) +
-                ", " +
-                db.escape(measureID) +
-                ")";
-              db.query(sql5, (err, result) => {
-                if (err) {
-                  return res.status(500).json(err);
-                }
-                res.status(200).json({ evaluatorEmail, measureID, adminID });
+            let sql5 =
+              "INSERT INTO MEASURE_EVALUATOR (evalEmail,measureID) VALUES (" +
+              db.escape(evaluatorEmail) +
+              ", " +
+              db.escape(measureID) +
+              ")";
+            db.query(sql5, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              res.status(200).json({
+                evaluatorEmail,
+                measureID,
+                adminID,
+                evaluatorName,
+                measureEvalID: result.insertId
               });
-            }
+            });
           });
         }
       });
@@ -860,7 +841,8 @@ router.get(
     let evaluators = [];
 
     let sql =
-      "SELECT * FROM MEASURE_EVALUATOR WHERE measureID=" + db.escape(measureID);
+      "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR WHERE measureID=" +
+      db.escape(measureID);
 
     db.query(sql, (err, result) => {
       if (err) {
@@ -869,7 +851,8 @@ router.get(
       result.forEach(row => {
         if (row.evalName != "") {
           evalInfo = {
-            //name: row.evalName,
+            measureEvalID: row.measureEvalID,
+            name: row.evalName,
             email: row.evalEmail
           };
           evaluators.push(evalInfo);

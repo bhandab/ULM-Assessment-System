@@ -63,8 +63,8 @@ router.post(
           ", " +
           db.escape(noOfColumns) +
           ", " +
-          db.escape(weighted)+
-        ")";
+          db.escape(weighted) +
+          ")";
 
         db.query(sql6, (err, result) => {
           if (err) {
@@ -231,7 +231,8 @@ router.get(
           rubricID: row.toolID,
           rubricTitle: row.rubricTitle,
           noOfRows: row.rubricRows,
-          noOfColumns: row.rubricColumns
+          noOfColumns: row.rubricColumns,
+          weighted: row.weighted
         };
         rubrics.push(rubric);
       });
@@ -303,11 +304,11 @@ router.get(
             return res.status(500).json(err);
           }
           result.forEach(row => {
-            let criteriaWeight = 1;
+            //let criteriaWeight = 1;
 
-            if (row.criteriaWeight) {
-              criteriaWeight = row.criteriaWeight / 100;
-            }
+            //if (row.criteriaWeight) {
+            criteriaWeight = row.criteriaWeight * 100;
+            //}
 
             criteria = {
               criteriaID: row.criteriaID,

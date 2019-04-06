@@ -8,6 +8,7 @@ const outcomeRouter = require("./routes/api/outcomes");
 const measureRouter = require("./routes/api/measures");
 const cycleRouter = require("./routes/api/assessment-cycles");
 const rubricRouter = require("./routes/api/rubrics");
+const evaluatorRouter = require("./routes/api/evaluators");
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use("/api/outcomes", outcomeRouter);
 app.use("/api/measures", measureRouter);
 app.use("/api/cycles", cycleRouter);
 app.use("/api/rubrics", rubricRouter);
+app.use("/api/evaluators", evaluatorRouter);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
