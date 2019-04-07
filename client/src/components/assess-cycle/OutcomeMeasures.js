@@ -19,7 +19,7 @@ class OutcomeMeasures extends Component {
   };
 
   componentDidMount() {
-    if (!this.props.auth.isAuthenticated) {
+    if (!this.props.auth.isAuthenticated && this.props.auth.user.role !== "coordinator") {
       this.props.history.push('/login')
     }
 
@@ -58,8 +58,10 @@ class OutcomeMeasures extends Component {
     let pv = e.target.projectedValue.value;
     let crs = e.target.course.value;
     let tt = e.target.tool.value.replace(/[0-9]/g, "");
-    let tid = e.target.tool.value.replace(/\D/g, "");
+    
     let ty = e.target.toolType.value;
+    let tid = ""
+    if (ty === 'rubric'){tid = e.target.tool.value.replace(/\D/g, "");}
     let pt = e.target.projType.value;
     let vo = ""
     if(ty === 'test'){
@@ -91,6 +93,7 @@ class OutcomeMeasures extends Component {
       studentNumberOperator: pt
 
     };
+    // console.log(measureDetails)
     this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
   };
 
@@ -114,11 +117,11 @@ class OutcomeMeasures extends Component {
 
 
   render() {
-   // console.log(this.props)
+    console.log(this.props)
     let measures = <Spinner animation="border" variant="primary" />;
     let measureTitle = null;
-    if (this.props.cycles.outcomeMeasures !== null) {
-      if (Object.keys(this.props.cycles.outcomeMeasures).length > 1) {
+    if (this.props.cycles.cycleLoading === false) {
+      if (this.props.cycles.outcomeMeasures !== null && this.props.cycles.outcomeMeasures !== undefined) {
         if (this.props.cycles.outcomeMeasures.measures.length > 0) {
           measures = this.props.cycles.outcomeMeasures.measures.map(measure => {
             return (
@@ -147,16 +150,28 @@ class OutcomeMeasures extends Component {
     }
 
     let selections = null;
-    if (Object.keys(this.props.measures).length > 0) {
+    if (this.props.cycles.cycleLoading !==true) {
       //console.log(this.props)
-      if (this.props.measures.measures !== null) {
+      if (this.props.measures.measures !== null && this.props.measures.measures !== undefined && this.props.cycles.outcomeMeasures !==null ) {
+        let outcomeMeasures = this.props.cycles.outcomeMeasures.measures
         selections = this.props.measures.measures.map((item, index) => {
+          const measure = outcomeMeasures.find(measure=> {
+            return measure.measureName === item.measureDescription
+          })
+          console.log(measure)
+          if(measure === undefined){
           return (
             <option key={index} value={index}>
-              {item.measureName}
+              {item.measureDescription}
             </option>
-          );
+          );}
+          else{
+            return null
+          }
         });
+        if (selections.length === 0) {
+          selections = <option disabled>No Measures Present</option>
+        }
       }
     }
 
@@ -320,11 +335,7 @@ class OutcomeMeasures extends Component {
                       {rubricOptions}
                     </select>
                   ) : (
-                      <select name="tool" defaultValue={'null'} className="custom-select col-sm-4">
-                      <option disabled value="null">Select A Test</option>
-                        <option value="test1">test1</option>
-                        <option value="test2">test2</option>
-                      </select>
+                      <input name="tool" defaultValue={''} className="custom-select col-sm-4" />
                     )}
                 </InputGroup>
                     <InputGroup className = "row mb-3 ml-0">

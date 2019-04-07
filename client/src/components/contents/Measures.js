@@ -6,8 +6,13 @@ import {Spinner} from 'react-bootstrap';
 
 class Measures extends Component {
 
+    state = {
+        addEval: false,
+        addStud: false
+    }
+
     componentDidMount = () => {
-        if(this.props.auth.isAuthenticated){
+        if (this.props.auth.isAuthenticated && this.props.auth.user.role !== "coordinator"){
         this.props.getMeasures();
         }
         else{
@@ -18,7 +23,7 @@ class Measures extends Component {
 
     render() {
 
-        console.log()
+        console.log(this.props)
         let measuresList = <Spinner animation='border' variant="primary"></Spinner>
 
         if (this.props.measures.measures === null ) {
@@ -31,7 +36,7 @@ class Measures extends Component {
             }
             else {
             measuresList = this.props.measures.measures.map((measure, index) =>
-                <li key={index}>{measure.measureName}</li>
+                <li key={index}>{measure.measureDescription}</li>
             )
             }
         }

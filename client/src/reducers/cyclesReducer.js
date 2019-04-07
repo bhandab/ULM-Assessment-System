@@ -2,7 +2,7 @@ import { GET_CYCLES,
     GET_CYCLES_MEASURES,
     GET_CYCLES_OUTCOMES,
     GET_MEASURE_DETAILS,
-    LOADING,
+    CYCLE_LOADING,
     GET_MEASURE_EVALUATORS}
     from "../actions/types";
 
@@ -11,7 +11,7 @@ const initialState = {
     cycleMeasures: null,
     outcomeMeasures: null,
     measureDetails: null,
-    loading: true,
+    cycleLoading: true,
     measureEvaluators: null
 }
 
@@ -20,34 +20,37 @@ export default function (state = initialState, action) {
         case GET_CYCLES:
             return{
                 ...state,
-                cycles: action.payload
+                cycles: action.payload,
+                cycleLoading: false
             }
         case GET_CYCLES_OUTCOMES:
             return{
                 ...state,
-                cycleMeasures: action.payload
+                cycleMeasures: action.payload,
+                cycleLoading: false
             }
         case GET_CYCLES_MEASURES:
             return {
                 ...state,
-                outcomeMeasures: action.payload
+                outcomeMeasures: action.payload,
+                cycleLoading: false
             }
         case GET_MEASURE_DETAILS:
         return {
             ...state,
             measureDetails: action.payload,
-            loading: false
+            cycleLoading: false
         }
         case GET_MEASURE_EVALUATORS: {
             return{
                 ...state,
                 measureEvaluators: action.payload,
-                loading: false
+                cycleLoading: false
             }
         }
-        case LOADING:
+        case CYCLE_LOADING:
         return{
-            loading:true
+            cycleLoading:true
         }
         default:
             return state;

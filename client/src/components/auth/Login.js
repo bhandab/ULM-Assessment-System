@@ -34,9 +34,17 @@ class Login extends Component {
 
     componentDidMount() {
         // If logged in and user navigates to Login page, should redirect them to dashboard
-        if (this.props.auth.isAuthenticated) {
+        if (this.props.auth.isAuthenticated && this.props.auth.user==="coordinator") {
 
             this.props.history.push("/admin/cycles");
+        }
+
+        else if (this.props.auth.isAuthenticated && this.props.auth.user === "evaluator") {
+            this.props.history.push("/evaluator")
+        }
+
+        else{
+            this.props.history.push("/login")
         }
     }
     componentWillReceiveProps(nextProps) {
@@ -70,7 +78,7 @@ class Login extends Component {
                 <form className="form-signin">
                     <h2 className="form-signin-heading">Please Login</h2>
                     <input type="text" className="form-control" name="email" placeholder="Username" required="" autoFocus="" value={this.state.email} onChange={this.onChangeHandler.bind(this)} />
-                    <input type="password" className="form-control" name="password" placeholder="Password" required="" value={this.state.password} onChange={this.onChangeHandler} />
+                    <input type="password" className="form-control mb-4" name="password" placeholder="Password" required="" value={this.state.password} onChange={this.onChangeHandler} />
                     {!(isEmpty(this.state.errors)) ? <p className="text-danger">Incorrect email or password</p> :null }
                     <label className="checkbox">
                         <input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe" /> Remember Me

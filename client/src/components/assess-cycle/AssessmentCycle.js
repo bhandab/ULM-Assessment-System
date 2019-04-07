@@ -18,7 +18,7 @@ class AssessmentCycle extends Component {
     }
 
     componentDidMount() {
-        if(!this.props.auth.isAuthenticated){
+        if(!this.props.auth.isAuthenticated || this.props.auth.user.role !=="coordinator"){
             this.props.history.push('/login')
         }
         this.props.getAssessmentCycles()
@@ -77,28 +77,32 @@ class AssessmentCycle extends Component {
 
     render() {
 
+        //console.log(this.props)
+
         let cyclesList = null
-        if (this.props.cycles.cycles === null) {
-            cyclesList = <Spinner animation='border' variant="primary"></Spinner>
-        }
-        else {
+        if (this.props.cycles.cycles !== null && this.props.cycles.cycles !== undefined) {
 
             cyclesList = this.props.cycles.cycles.cycles.map(cycle =>
                 <li key={cycle.cycleID}><Link params={cycle.cycleName} name={cycle.cycleID}
                     to={{
-                        pathname: "/admin/cycles/cycle/"+cycle.cycleID,
+                        pathname: "/admin/cycles/cycle/" + cycle.cycleID,
                     }}>
-                    {cycle.cycleName}</Link> 
-                    <button style = {{border:"none", background:"none"}}
-                    name={cycle.cycleID} value={cycle.cycleName} 
-                    onClick={this.editShow.bind(this)} 
-                    className="outcome-edit ml-2"></button>
+                    {cycle.cycleName}</Link>
+                    <button style={{ border: "none", background: "none" }}
+                        name={cycle.cycleID} value={cycle.cycleName}
+                        onClick={this.editShow.bind(this)}
+                        className="outcome-edit ml-2"></button>
                     <button style={{ border: "none", background: "none" }}
                         name={cycle.cycleID} value={cycle.cycleName}
                         onClick={this.deleteShow.bind(this)}
-                    className="delete"></button>
+                        className="delete"></button>
                 </li>
             )
+           
+        }
+        else {
+            cyclesList = <Spinner animation='border' variant="primary"></Spinner>
+           
         }
 
        

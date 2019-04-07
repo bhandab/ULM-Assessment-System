@@ -10,7 +10,8 @@ import CycleMeasures from "../assess-cycle/CycleMeasures";
 import OutcomeMeasures from '../assess-cycle/OutcomeMeasures';
 import CreateRubric from '../rubrics/CreateRubric';
 import AllRubrics from '../rubrics/AllRubrics';
-import MeasureDetails from '../assess-cycle/MeasureDetails'
+import MeasureDetails from '../assess-cycle/MeasureDetails';
+import Evaluators from '../contents/Evaluators';
 
 class Admin extends Component {
 
@@ -32,6 +33,7 @@ class Admin extends Component {
                         <Route exact path='/admin/rubrics' component={AllRubrics} />
                         <Route exact path='/admin/outcomes' component={Outcomes} />
                         <Route exact path='/admin/measures' component={Measures} />
+                        <Route exact path="/admin/evaluators" component ={Evaluators} />
                         <Route path='/admin/rubrics/:rubricID(\d+)' component={CreateRubric} />
                         <Route path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)/measures/:measureID(\d+)' component={MeasureDetails}/>
                         <Route path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)/rubric/:rubricID(\d+)' component={CreateRubric} />

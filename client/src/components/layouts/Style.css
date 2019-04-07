@@ -169,7 +169,6 @@ main li {
 }
 
 main li:before {
-  content: "";
   position: absolute;
   width: 0;
   height: 0;
@@ -229,7 +228,9 @@ table {
 
 /** Measure Details Jumbotron*/
 div .jumbotron{
-  padding: 5px !important
+  padding-top:1em; 
+  padding-bottom: 10em !important;
+  height: auto !important;
 }
 
 #measure-title-label{

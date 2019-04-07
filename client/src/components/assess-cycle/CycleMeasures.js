@@ -23,7 +23,7 @@ class CycleMeasures extends Component {
   };
 
   componentDidMount() {
-    if (!this.props.auth.isAuthenticated) {
+    if (!this.props.auth.isAuthenticated && this.props.auth.user.role !== "coordinator") {
       this.props.history.push('/login')
     }
 
@@ -113,14 +113,16 @@ class CycleMeasures extends Component {
 
 
   render() {
+
+    console.log(this.props)
     let title = null;
     let list = <Spinner animation="border" variant="primary" />;
     let outcomeArray = null;
 
-    if (this.props.cycles.cycleMeasures !== null) {
-      let cycleID = this.props.cycles.cycleMeasures.cycleIdentifier;
+    if (this.props.cycles.cycleLoading !== true) {
+      let cycleID = this.props.match.params.cycleID;
 
-      if (this.props.cycles.cycleMeasures.outcomes !== undefined) {
+      if (this.props.cycles.cycleMeasures !== null && this.props.cycles.cycleMeasures !== undefined) {
         if (this.props.cycles.cycleMeasures.outcomes.length > 0) {
           outcomeArray = this.props.cycles.cycleMeasures.outcomes;
           list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
@@ -150,13 +152,14 @@ class CycleMeasures extends Component {
         } else {
           list = <p>No Outcomes Present.</p>;
         }
+        title = this.props.cycles.cycleMeasures.cycleName;
       }
-      title = this.props.cycles.cycleMeasures.cycleName;
+      
     }
     let selections = null;
-      if (Object.keys(this.props.outcomes.outcomes) !== 0) {
+    if (Object.keys(this.props.outcomes.outcomes) !== 0 && this.props.cycles.cycleMeasures !== undefined ) {
 
-        if (this.props.outcomes.outcomes.length > 0) {
+        if (this.props.outcomes.outcomes.length > 0 && this.props.cycles.cycleMeasures !== null ) {
           outcomeArray = this.props.cycles.cycleMeasures.outcomes;
           selections = this.props.outcomes.outcomes.map((item, index) => {
             const temp = outcomeArray.find(outcome => {

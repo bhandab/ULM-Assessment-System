@@ -15,7 +15,7 @@ class AdminLayout extends Component {
 
   componentWillReceiveProps(nextProps) {
     console.log(nextProps.auth);
-    if (!nextProps.auth.isAuthenticated) {
+    if (!nextProps.auth.isAuthenticated || nextProps.auth.user.role !== "coordinator") {
       window.location.href = "/login";
     }
   }
@@ -52,6 +52,9 @@ class AdminLayout extends Component {
             </li>
             <li className="assess-cycle">
               <Link to="/admin/cycles">Assessment Cycle</Link>
+            </li>
+            <li className="evaluators">
+            <Link to="/admin/evaluators">Evaluators</Link>
             </li>
           </ul>
         </nav>
