@@ -12,12 +12,12 @@ class Measures extends Component {
     }
 
     componentDidMount = () => {
-        if (this.props.auth.isAuthenticated && this.props.auth.user.role !== "coordinator"){
-        this.props.getMeasures();
-        }
-        else{
+        if (!this.props.auth.isAuthenticated || this.props.auth.user.role !== "coordinator"){
             this.props.history.push('/login')
         }
+
+        this.props.getMeasures();
+
     }
 
 
