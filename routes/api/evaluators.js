@@ -1,7 +1,7 @@
 const express = require("express");
 const passport = require("passport");
 
-const { inviteEvaluator } = require("../../email/invite");
+const { invite } = require("../../email/invite");
 
 const validateAddEvaluatorInput = require("../../validation/addEvaluator");
 const db = require("../../config/dbconnection");
@@ -98,7 +98,7 @@ router.post(
           if (err) {
             return res.status(500).json(err);
           }
-          inviteEvaluator(req.user.email, req.user.name, evaluatorEmail);
+          invite(req.user.email, req.user.name, evaluatorEmail);
           return res
             .status(200)
             .json(`An invitation email has been sent to ${evaluatorEmail}`);
