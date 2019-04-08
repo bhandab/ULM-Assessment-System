@@ -1,17 +1,53 @@
 import React, { Component } from "react";
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import {Form, Card, Button} from 'react-bootstrap';
-import {getRegisteredEvaluators} from '../../actions/evaluatorAction';
+import { Form, Card, Button, Modal, InputGroup, FormControl } from 'react-bootstrap';
+import { getRegisteredEvaluators, getInvitedEvaluators } from '../../actions/evaluatorAction';
+import { parse } from 'papaparse'
 
 
 class Evaluators extends Component {
 
-    componentDidMount(){
-        if (!this.props.auth.isAuthenticated || this.props.auth.user.role !== "coordinator"){
+    state = {
+        invite: false
+    }
+
+    componentDidMount() {
+        if (!this.props.auth.isAuthenticated || this.props.auth.user.role !== "coordinator") {
             this.props.history.push("/login")
         }
         this.props.getRegisteredEvaluators()
+        this.props.getInvitedEvaluators()
+    }
+
+    inviteShow = () => {
+        this.setState({ invite: true })
+    }
+
+    inviteHide = () => {
+        this.setState({ invite: false })
+    }
+
+    inviteHandler = (e) => {
+        e.preventDefault();
+        const file = e.target.myFile.files[0]
+        console.log(file)
+        //et input = document.getElementById('inputFile')
+        let invitedList = "cvcv"
+        var reader = new FileReader();
+
+
+
+        reader.onload = function () {
+            invitedList= reader.result;
+            console.log(parse(invitedList))
+        }
+
+        
+
+        console.log(invitedList)
+        reader.readAsText(file);
+
     }
 
     render() {
@@ -19,55 +55,88 @@ class Evaluators extends Component {
 
         let evaluatorsList = null
 
-        if(this.props.evaluator.evaluators !== null ){
-            this.props.evaluator.evaluators.evaluators.map(item => {
+        if (this.props.evaluator.evaluators !== null) {
+            evaluatorsList = this.props.evaluator.evaluators.evaluators.map((item, index) => {
                 return (
-                    <li class="list-group-item">{item.name}</li>  
+                    <li className="list-group-item" key={index}>{item.name}</li>
+                )
+            })
+        }
+
+        let invitedList = null
+        if (this.props.evaluator.invitedEvaluators !== null) {
+            invitedList = this.props.evaluator.invitedEvaluators.invitedEvaluators.map((item, index) => {
+                return (
+                    <li className="list-group-item" key={index}>{item}</li>
                 )
             })
 
         }
 
-        console.log(evaluatorsList)
         return (
             <section className="panel important">
-                <Card style={{ width: '30rem', height: '15rem', float:"left", marginRight:"5%", marginLeft:"5%"}}>
+                <Card style={{ width: '30rem', float: "left", marginRight: "5%", marginLeft: "5%" }}>
                     <Card.Body>
-                        <Card.Title>Existing Evaluators</Card.Title>
-                        <Card.Text>
-                            Evaluator List
-                        </Card.Text>
+                        <Card.Title>Registered Evaluators</Card.Title>
+                        <hr/>
                         <ul className="list-group">
                             {evaluatorsList}
                         </ul>
-                        <Button variant="primary" className="float-right mt-3">Add Students</Button>
+                        <Button variant="primary" className="float-right mt-3" onClick={this.inviteShow}>Invite Evaluators</Button>
                     </Card.Body>
                 </Card>
 
-                <Card style={{width: '30rem', height: '15rem', marginLeft:'5%'}}>
+                <Card style={{ width: '30rem', marginLeft: '5%' }}>
                     <Card.Body>
                         <Card.Title>Invited Evaluators</Card.Title>
-                        <Card.Text>
-                            Student List
-                        </Card.Text>
-                        <Button variant="primary" className="float-right mt-3">Add Students</Button>
+                        <hr/>
+                        <ul className="list-group">
+                            {invitedList}
+                        </ul>
                     </Card.Body>
                 </Card>
+
+                <Modal centered show={this.state.invite} onHide={this.inviteHide}>
+                    <Modal.Title className="ml-3">
+                        Invite Evaluators
+                    </Modal.Title>
+                    <Modal.Body>
+                        <Form onSubmit={this.inviteHandler.bind(this)}>
+                            <InputGroup>
+                                <InputGroup.Append>
+                                    <InputGroup.Text>
+                                        Email
+                                </InputGroup.Text>
+                                </InputGroup.Append>
+                                <Form.Control type="email" placeholder="sth@example.com" />
+                            </InputGroup>
+
+                            <InputGroup className="">
+
+                                <p className="mb-0 mt-3">Upload a CSV File:</p><Form.Control id="inputFile" type="file" name="myFile" />
+                            </InputGroup>
+                            <Button variant="danger" className="mt-3 float-right ml-3" onClick={this.inviteHide}>Close</Button>
+                            <Button variant="success" className="mt-3 float-right" type="submit">Invite</Button>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
             </section>
-            
+
         )
     }
 }
 
 Evaluators.propTypes = {
-    getRegisteredEvaluators: PropTypes.func.isRequired
+    getRegisteredEvaluators: PropTypes.func.isRequired,
+    getInvitedEvaluators: PropTypes.func.isRequired
 }
 
 const MapStateToProps = state => ({
     evaluators: state.regsEvals,
     cycles: state.cycles,
     evaluator: state.evaluator,
-    auth: state.auth
+    auth: state.auth,
+    errors: state.errors
 })
 
-export default connect (MapStateToProps, {getRegisteredEvaluators}) (Evaluators)
+export default connect(MapStateToProps, { getRegisteredEvaluators, getInvitedEvaluators })(Evaluators)

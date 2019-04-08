@@ -35,6 +35,7 @@ router.get(
   }
 );
 
+//@route GET /api/evaluators/invitedEvaluators
 router.get(
   "/invitedEvaluators",
   passport.authenticate("jwt", { session: false }),

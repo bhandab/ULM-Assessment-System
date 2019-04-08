@@ -7,11 +7,7 @@ import { logoutUser } from "../../actions/authActions";
 import "./Style.css";
 
 class AdminLayout extends Component {
-  onLogoutClick = e => {
-    e.preventDefault();
-    console.log("Logout user!");
-    this.props.logoutUser();
-  };
+  
 
   componentWillReceiveProps(nextProps) {
     console.log(nextProps.auth);
@@ -19,6 +15,13 @@ class AdminLayout extends Component {
       window.location.href = "/login";
     }
   }
+
+  onLogoutClick = e => {
+    e.preventDefault();
+    console.log("Logout user!");
+    this.props.logoutUser();
+  };
+  
   render() {
     return (
       <Fragment>

@@ -72,14 +72,14 @@ class Login extends Component {
 
     render() {
         
-
+        console.log(this.props)
         return (
             <div className="wrapper">
                 <form className="form-signin">
                     <h2 className="form-signin-heading">Please Login</h2>
                     <input type="text" className="form-control" name="email" placeholder="Username" required="" autoFocus="" value={this.state.email} onChange={this.onChangeHandler.bind(this)} />
                     <input type="password" className="form-control mb-4" name="password" placeholder="Password" required="" value={this.state.password} onChange={this.onChangeHandler} />
-                    {!(isEmpty(this.state.errors)) ? <p className="text-danger">Incorrect email or password</p> :null }
+                    {!(isEmpty(this.props.errors.password)) ? <p className="text-danger mt-0">Incorrect email or password</p> :null }
                     <label className="checkbox">
                         <input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe" /> Remember Me
                         </label>

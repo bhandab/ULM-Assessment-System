@@ -81,9 +81,9 @@ class AssessmentCycle extends Component {
 
         let cyclesList = null
         if (this.props.cycles.cycles !== null && this.props.cycles.cycles !== undefined) {
-
+            if (this.props.cycles.cycles.cycles !== null && this.props.cycles.cycles.cycles !== undefined) {
             cyclesList = this.props.cycles.cycles.cycles.map(cycle =>
-                <li key={cycle.cycleID}><Link params={cycle.cycleName} name={cycle.cycleID}
+                <li className="list-group-item" key={cycle.cycleID}><Link params={cycle.cycleName} name={cycle.cycleID}
                     to={{
                         pathname: "/admin/cycles/cycle/" + cycle.cycleID,
                     }}>
@@ -98,7 +98,10 @@ class AssessmentCycle extends Component {
                         className="delete"></button>
                 </li>
             )
-           
+            if(cyclesList.length === 0){
+                cyclesList = <li className="list-group-item">No Cycles Present</li>
+            }
+                }
         }
         else {
             cyclesList = <Spinner animation='border' variant="primary"></Spinner>
@@ -111,10 +114,10 @@ class AssessmentCycle extends Component {
         return (
             <Fragment>
                 <section className="panel important" >
-                    <h2>Assessment Cycles</h2>
-                    <ol>{cyclesList}</ol>
-                    <br></br>
-                    <Button onClick={this.modalShow}>Create New Cycle</Button>
+                    <h2><strong>Assessment Cycles</strong></h2>
+                    <ul className="list-group">{cyclesList === null ? <li className="list-group-item">No Cycles Present</li>
+                    :cyclesList}</ul>
+                    <Button className = "ml-3 mr-3 float-right" onClick={this.modalShow}>Create New Cycle</Button>
                 </section>
 
                 <Modal size="lg" show = {this.state.show} onHide = {this.modalHide}

@@ -1,4 +1,4 @@
-import { GET_ERRORS, GET_REGISTERED_EVALUATORS } from './types'
+import { GET_ERRORS, GET_REGISTERED_EVALUATORS, GET_INVITED_EVALUATORS } from './types'
 import axios from 'axios'
 
 export const inviteEvaluator = (email) => dispatch => {
@@ -21,6 +21,25 @@ export const getRegisteredEvaluators = () => dispatch => {
             console.log(res)
             dispatch({
                 type: GET_REGISTERED_EVALUATORS,
+                payload: res.data
+            })
+        })
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            }
+            )
+        })
+}
+
+export const getInvitedEvaluators = () => dispatch => {
+    axios
+        .get("/api/evaluators/invitedEvaluators")
+        .then(res => {
+            dispatch({
+                type: GET_INVITED_EVALUATORS,
                 payload: res.data
             })
         })

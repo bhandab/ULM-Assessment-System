@@ -127,7 +127,7 @@ class CycleMeasures extends Component {
           outcomeArray = this.props.cycles.cycleMeasures.outcomes;
           list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
             return (
-              <li key={outcome.outcomeID}>
+              <li className="list-group-item" key={outcome.outcomeID}>
                 <Link
                   to={
                     "/admin/cycles/cycle/" +
@@ -150,16 +150,17 @@ class CycleMeasures extends Component {
             );
           });
         } else {
-          list = <p>No Outcomes Present.</p>;
+          list = <li className="list-group-item">No Outcomes Present.</li>;
         }
         title = this.props.cycles.cycleMeasures.cycleName;
       }
       
     }
     let selections = null;
-    if (Object.keys(this.props.outcomes.outcomes) !== 0 && this.props.cycles.cycleMeasures !== undefined ) {
 
-        if (this.props.outcomes.outcomes.length > 0 && this.props.cycles.cycleMeasures !== null ) {
+    if (this.props.cycles.cycleMeasures !== undefined && this.props.cycles.cycleMeasures !== null ) {
+
+      if (this.props.cycles.cycleMeasures !== null && this.props.outcomes.outcomes !== null) {
           outcomeArray = this.props.cycles.cycleMeasures.outcomes;
           selections = this.props.outcomes.outcomes.map((item, index) => {
             const temp = outcomeArray.find(outcome => {
@@ -183,7 +184,7 @@ class CycleMeasures extends Component {
         <section className="panel important">
           <h2>{title}</h2>
           <hr/>
-          <ol>{list}</ol>
+          <ol className="list-group">{list}</ol>
           <Button className="btn mt-3 float-right ml-3" onClick={this.addOutcomeShow}>Add Outcome</Button>
 
           <Button className="btn mt-3 float-right" onClick={this.createOutcomeShow}>Create Outcome</Button>

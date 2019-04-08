@@ -125,7 +125,7 @@ class OutcomeMeasures extends Component {
         if (this.props.cycles.outcomeMeasures.measures.length > 0) {
           measures = this.props.cycles.outcomeMeasures.measures.map(measure => {
             return (
-              <li key={measure.measureID}>
+              <li className="list-group-item" key={measure.measureID}>
                 <Link
                   to={
                     "/admin/cycles/cycle/" +
@@ -143,7 +143,7 @@ class OutcomeMeasures extends Component {
           });
           measureTitle = this.props.cycles.outcomeMeasures.outcomeName;
         } else {
-          measures = <p>No measures present for this outcome</p>;
+          measures = <li className="list-group-item">No measures present for this outcome</li>;
         }
         measureTitle = this.props.cycles.outcomeMeasures.outcomeName;
       }
@@ -214,16 +214,16 @@ class OutcomeMeasures extends Component {
       <Fragment>
         <section className="panel important border border-info rounded p-3">
           <h2>{measureTitle}</h2>
-          <ol>{measures}</ol>
+          <ol className="list-group">{measures}</ol>
           <button
             onClick={this.addMeasuresShow}
-            className="btn btn-primary  ml-3 float-right"
+            className="btn btn-primary  ml-3 float-right mt-3"
           >
             Add Measure
           </button>
           <button
             onClick={this.createMeasuresShow}
-            className="btn btn-primary float-right"
+            className="btn btn-primary float-right mt-3"
           >
             Create Measure
           </button>

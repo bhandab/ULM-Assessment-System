@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {registerUser} from '../../actions/authActions'
 import './Login.css'
+import {Link} from 'react-router-dom'
  
 
 
@@ -45,8 +46,9 @@ class Register extends Component {
                     <p className="mb-0">Password</p>
                     <input type="password" className="form-control mb-2" name="password" placeholder="Password" required=""  />
                     <p className="mb-0">Confirm Password</p>
-                    <input type="password" className="form-control mb-5" name="password2" placeholder="Confirm Password" required="" />
+                    <input type="password" className="form-control mb-4" name="password2" placeholder="Confirm Password" required="" />
                     <button className="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+                    <Link className="float-right" to="/login">Login</Link>
                 </form>
             </div>
         )

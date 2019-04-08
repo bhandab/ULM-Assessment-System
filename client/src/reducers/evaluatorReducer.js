@@ -1,8 +1,9 @@
-import {GET_REGISTERED_EVALUATORS} from '../actions/types'
+import {GET_REGISTERED_EVALUATORS, GET_INVITED_EVALUATORS} from '../actions/types'
 
 const initialState = {
     evaluators : null,
-    evaluator: null
+    evaluator: null,
+    invitedEvaluators: null
 }
 
 export default function (state = initialState, action) {
@@ -13,6 +14,11 @@ export default function (state = initialState, action) {
                 ...state,
                 evaluators: action.payload
             }
+        case GET_INVITED_EVALUATORS:
+        return{
+            ...state,
+            invitedEvaluators:action.payload
+        }
         default:
             return state;
     }

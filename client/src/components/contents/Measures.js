@@ -32,11 +32,11 @@ class Measures extends Component {
 
         else {
             if(this.props.measures.measures.length === 0){
-                measuresList = <p>No Measures Present</p>
+                measuresList = <li className="list-group-item">No Measures Present</li>
             }
             else {
             measuresList = this.props.measures.measures.map((measure, index) =>
-                <li key={index}>{measure.measureDescription}</li>
+                <li className="list-group-item" key={index}>{measure.measureDescription}</li>
             )
             }
         }
@@ -46,7 +46,7 @@ class Measures extends Component {
                 <section className="panel important">
                     <h2> List of Performance Measures </h2>
                     <hr />
-                    <ol>
+                    <ol className="list-group">
                         {measuresList}
                     </ol>
                 </section>

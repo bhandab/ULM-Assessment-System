@@ -217,6 +217,7 @@ export const getMeasureEvaluators = (measureID) => dispatch => {
 export const addEvaluator = (measureID, body) => dispatch => {
     axios
         .post("/api/cycles/" + measureID + "/addEvaluator", body)
+        .then(dispatch(getMeasureEvaluators(measureID)))
         .catch(err => {
             dispatch({
                 type: GET_ERRORS,
