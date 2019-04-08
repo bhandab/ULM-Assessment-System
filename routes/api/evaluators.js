@@ -94,15 +94,20 @@ router.post(
           ", " +
           db.escape(adminID) +
           ")";
-        db.query(sql2, (err, result) => {
-          if (err) {
-            return res.status(500).json(err);
-          }
-          invite(req.user.email, req.user.name, evaluatorEmail);
-          return res
-            .status(200)
-            .json(`An invitation email has been sent to ${evaluatorEmail}`);
-        });
+          invite(req.user.email, req.user.name, evaluatorEmail).then((value)=>{
+            db.query(sql2, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              
+              return res
+                .status(200)
+                .json(`An invitation email has been sent to ${evaluatorEmail}`);
+            });
+          }).catch((e)=>{
+            return res.status(404).json("There was some problem adding and sending email to the evaluator")
+          })
+      
       });
     });
   }
