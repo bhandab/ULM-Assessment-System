@@ -253,6 +253,11 @@ div .jumbotron{
   margin-left: 5px;
 }
 
+.measureCard {
+  height: 12rem;
+  overflow: auto;
+}
+
 /** Media Query*/
 @media screen and (min-width: 600px) {
   html,

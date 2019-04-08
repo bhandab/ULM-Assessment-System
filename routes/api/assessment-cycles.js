@@ -939,16 +939,18 @@ router.post(
                     return true;
                   }
                 });
+                console.log(newArray.length)
                 let sql3 =
                   "INSERT INTO STUDENT (studentName,studentEmail,studentCWID,corId,measureID) VALUES ?";
-                if (students.length > 0) {
+                if (newArray.length > 0) {
                   db.query(sql3, [newArray], (err, result) => {
                     if (err) {
                       return res.status(500).json(err);
                     }
+                    res.status(200).json({ students: newArray });
                   });
                 }
-                res.status(200).json({ students: newArray });
+               
               });
           }
         });
