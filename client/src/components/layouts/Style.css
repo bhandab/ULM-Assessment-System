@@ -258,6 +258,10 @@ div .jumbotron{
   overflow: auto;
 }
 
+main ol li ol {
+  padding-left: 0 !important
+} 
+
 /** Media Query*/
 @media screen and (min-width: 600px) {
   html,

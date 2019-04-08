@@ -225,6 +225,19 @@ export const addEvaluator = (measureID, body) => dispatch => {
         })
 }
 
+export const addStudentToMeasure = (measureID, body) => dispatch => {
+    axios
+        .post("/api/cycles/" + measureID + "/addStudent", body)
+        .then(() => dispatch(getStudentsOfMeasure(measureID)))
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            })
+        })
+}
+
 export const addStudentsToMeasure = (measureID, formData, config) => dispatch => {
     axios
         .post("/api/cycles/" + measureID + "/uploadStudents", formData, config)
