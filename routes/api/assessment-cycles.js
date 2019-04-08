@@ -786,7 +786,7 @@ router.post(
             "Evaluator Account Does not Exist. Please check the invitee lists or invite the evaluator to create an account";
           return res.status(404).json(errors);
         } else {
-          let evalID = result[0].evalID
+          let evalID = result[0].evalID;
           let evaluatorName = result[0].evalName;
           let sql3 =
             "SELECT * FROM MEASURE_EVALUATOR WHERE evalEmail=" +
@@ -809,8 +809,8 @@ router.post(
               db.escape(evaluatorEmail) +
               ", " +
               db.escape(measureID) +
-              ", "+
-              db.escape(evalID)+
+              ", " +
+              db.escape(evalID) +
               ")";
             db.query(sql5, (err, result) => {
               if (err) {
@@ -864,7 +864,7 @@ router.get(
   }
 );
 
-// @route POST api/:measureIdentifier/uploadStudents
+// @route POST api/cycles/:measureIdentifier/uploadStudents
 // @desc Uploads students to be evaluated
 // @access Private
 
@@ -913,34 +913,39 @@ router.post(
             result.forEach(row => {
               existingStudents.add(row.studentEmail);
             });
+            var count = 0;
             csv
               .fromPath(req.file.path)
               .on("data", data => {
-                console.log(data);
-                if (!existingStudents.has(data[1])) {
-                  existingStudents.add(data[1]);
-                  data.push(req.user.id);
-                  data.push(measureID);
-                  students.push(data);
-                }
+                data.push(req.user.id);
+                data.push(measureID);
+                students.push(data);
               })
               .on("end", () => {
-                console.log(students);
                 fs.unlinkSync(req.file.path);
                 const validationError = validateCSVStudents(students);
+
                 if (validationError) {
                   return res.status(404).json({ errors: validationError });
                 }
+                var newArray = students.filter((row, index) => {
+                  if (index === 0 || existingStudents.has(row[1])) {
+                    return false;
+                  } else {
+                    existingStudents.add(row[1]);
+                    return true;
+                  }
+                });
                 let sql3 =
                   "INSERT INTO STUDENT (studentName,studentEmail,studentCWID,corId,measureID) VALUES ?";
-                db.query(sql3, (err, result) => {
-                  if (err) {
-                    return res.status(500).json(err);
-                  }
-                  res
-                    .status(200)
-                    .json("Number of records inserted: " + result.affectedRows);
-                });
+                if (students.length > 0) {
+                  db.query(sql3, [newArray], (err, result) => {
+                    if (err) {
+                      return res.status(500).json(err);
+                    }
+                  });
+                }
+                res.status(200).json({ students: newArray });
               });
           }
         });

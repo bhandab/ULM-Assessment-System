@@ -9,7 +9,7 @@ const invite = (invitorEmail, invitorName, inviteeEmail) => {
     subject: "Invitation to Join ULM Evaluation App",
     html: `<p>Hello, My name is ${invitorName}. Please click this <a href = 'https://ulm-assessment-system.herokuapp.com/register'>Evaluator Registration Link</a> to sign up and and evaluate students</p>`
   };
-  sgMail.send(msg);
+  return sgMail.send(msg);
 };
 
 module.exports = { invite };

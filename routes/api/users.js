@@ -25,24 +25,21 @@ router.post("/register", (req, res) => {
   }
   //Check if user already exists in the database
   let email = req.body.email;
-  let program = req.body.program;
+  //let program = req.body.program;
   let sql =
-    "SELECT * FROM COORDINATOR WHERE corEmail = " +
-    db.escape(email) +
-    " AND programName = " +
-    db.escape(program);
-  db.query(sql, (err, result) => {
+    "SELECT * FROM INVITED_COORDINATOR WHERE invitedCorEmail = " +
+    db.escape(email);
+    db.query(sql, (err, result) => {
     if (err) {
       return res.status(500).json(error);
     }
-    if (result.length > 0) {
-      errors.email = "Email already exists";
-      return res.status(404).json(errors);
-    }
 
-    let adminName = req.body.name;
-    let password = req.body.password;
-
+    if (result.length >0) 
+    {
+      let adminName = req.body.name;
+      let password = req.body.password;
+      let program = result[0].programName
+      
     sql =
       "INSERT INTO COORDINATOR (corName, corEmail, corPWHash, programName) VALUES (" +
       db.escape(adminName) +
@@ -54,14 +51,78 @@ router.post("/register", (req, res) => {
       "," +
       db.escape(program) +
       ")";
-    db.query(sql, (err, result) => {
+
+      db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
-      } else if (result) {
+      } 
+      let sql1 =
+      "DELETE FROM INVITED_COORDINATOR WHERE invitedCorEmail = " +
+      db.escape(email);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }     
+      else {
         return res.status(200).json(result);
       }
     });
   });
+}
+    
+    else if (result<=0) {
+   // console.log(result.length);
+      let sql2=
+      "SELECT * FROM INVITED_EVALUATOR WHERE invitedEvalEmail = " +
+      db.escape(email);
+      db.query(sql2, (err, result) => {
+      if (err) {
+        return res.status(500).json(error);
+      }
+      
+      console.log(email);
+      if (result.length >0) 
+      {
+       
+        let evalName = req.body.name;
+        let password = req.body.password;
+        let sql3 =
+        "INSERT INTO EVALUATOR (evalName, evalEmail, evalPWHash) VALUES(" +
+        db.escape(evalName) +
+        ", " +
+        db.escape(email) +
+        ", password(" +
+        db.escape(password) +
+        "))";
+       
+        db.query(sql3, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        } 
+        let sql4 =
+        "DELETE FROM INVITED_EVALUATOR WHERE invitedEvalEmail = " +
+        db.escape(email);
+
+        db.query(sql4, (err, result) => {
+        if (err) { 
+          return res.status(500).json(err);
+        }     
+        else {
+          return res.status(200).json(result);
+        }
+      });
+    });
+  }
+    else
+   {
+      errors.email =
+        "Either your account already exists or you have not been added in the system. Please try logging in or contact with the email sender";
+      return res.status(404).json({errors});
+    }
+ });
+}
+   
+   });
 });
 
 // @route POST api/users/registerEvaluator
@@ -127,7 +188,40 @@ router.post("/login", (req, res) => {
   }
   let email = req.body.email;
   let password = req.body.password;
+  let sql =
+  "SELECT * from SUPER_USER WHERE superEmail=" +
+  db.escape(email) +
+  " and superPassword=" +
+  db.escape(password);
 
+db.query(sql, (err, result) => {  
+  if (err) {
+    return res.status(500).json(err);
+  }
+
+  else if (result.length > 0) {
+    const payload = {
+      email,
+      id: result[0].superID,
+      role: "superuser"
+    };
+
+    jwt.sign(
+      payload,
+      keys.secretOrkey,
+      {
+        expiresIn: 5400
+      },
+      (err, token) => {
+        res.status(200).json({
+          success: true,
+          token: "Bearer " + token
+        });
+      }
+    );
+  }
+
+  else if (result <=0){
   let sql =
     "SELECT * from COORDINATOR WHERE corEmail=" +
     db.escape(email) +
@@ -135,6 +229,7 @@ router.post("/login", (req, res) => {
     db.escape(password) +
     ")";
   db.query(sql, (err, result) => {
+  
     if (err) {
       return res.status(500).json(err);
     }
@@ -161,7 +256,9 @@ router.post("/login", (req, res) => {
           });
         }
       );
-    } else if (result.length <= 0) {
+        
+     } 
+    else if (result.length <= 0) {
       sql =
         "SELECT * from EVALUATOR WHERE evalEmail=" +
         db.escape(email) +
@@ -202,6 +299,8 @@ router.post("/login", (req, res) => {
       });
     }
   });
+  }
+});
 });
 
 module.exports = router;
