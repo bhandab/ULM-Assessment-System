@@ -943,9 +943,10 @@ router.post(
                     if (err) {
                       return res.status(500).json(err);
                     }
+                    res.status(200).json({ students: newArray });
                   });
                 }
-                res.status(200).json({ students: newArray });
+               
               });
           }
         });

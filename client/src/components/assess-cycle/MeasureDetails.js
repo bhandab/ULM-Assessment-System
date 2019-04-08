@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from "prop-types";
 import { inviteEvaluator } from '../../actions/evaluatorAction'
-import { getMeasureDetails, getMeasureEvaluators, addEvaluator } from '../../actions/assessmentCycleAction';
+import { getMeasureDetails, getMeasureEvaluators, addEvaluator, addStudentsToMeasure } from '../../actions/assessmentCycleAction';
 import { Jumbotron, Card, Button, Modal, Form, InputGroup } from 'react-bootstrap'
 import { isEmpty } from "../../utils/isEmpty";
 
@@ -14,7 +14,8 @@ class MeasureDetails extends Component {
         addStud: false,
         inviteEval: false,
         email: "",
-        errors: {}
+        errors: {},
+        file:""
     }
 
 
@@ -53,14 +54,14 @@ class MeasureDetails extends Component {
     }
 
     addStudHide = () => {
-        this.setState({ inviteEval: false })
+        this.setState({ addStud: false })
     }
 
     addEvaluatorHandler = (e) => {
         e.preventDefault()
         this.props.addEvaluator(this.props.match.params.measureID,
             { evaluatorEmail: e.target.evalEmail.value })
-        this.setState({ email: e.target.evalEmail.value })
+        this.setState({ email: e.target.evalEmail.value, addEval:false})
     }
 
     inviteEvaluatorHandler = (e) => {
@@ -70,6 +71,30 @@ class MeasureDetails extends Component {
 
     }
 
+    fileChangeHandler = (e) => {
+        this.setState({file:e.target.files[0]})
+    }
+
+    addStudentsHandler = (e) => {
+        e.preventDefault()
+        console.log(e.target)
+        this.fileUpload(this.state.file)
+    }
+
+    fileUpload = (file) => {
+        const formData = new FormData()
+        formData.append('file',file)
+
+        const config = {
+            headers:{
+                'content-type': 'multipart/fomr-data'
+            }
+        }
+        console.log(formData)
+        this.props.addStudentsToMeasure(this.props.match.params.measureID,formData,config)
+        //Upload file action here
+    }
+
 
 
     render() {
@@ -77,6 +102,7 @@ class MeasureDetails extends Component {
         let typeRubric = false
         let measureTitle = null
         let evaluatorList = []
+
         if (this.props.cycles.measureDetails !== null && this.props.cycles.measureDetails !== undefined) {
             measureTitle = this.props.cycles.measureDetails.measureDescription
             if (this.props.cycles.measureEvaluators !== null && this.props.cycles.measureEvaluators !== undefined) {
@@ -109,7 +135,7 @@ class MeasureDetails extends Component {
 
                         {typeRubric ?
                             <Fragment>
-                                <Card style={{ height: '15rem', width: '30rem', float: "left" }}>
+                                <Card style={{width: '30rem', float: "left" }}>
                                     <Card.Body>
                                         <Card.Title>Evaluators</Card.Title>
                                         <ol className="list-group">
@@ -137,7 +163,7 @@ class MeasureDetails extends Component {
                         Add Students to Measure
                     </Modal.Title>
                     <Modal.Body>
-                        <Form>
+                        <Form onSubmit={this.addStudentsHandler.bind(this)}>
                             <InputGroup>
                                 <InputGroup.Append>
                                     <InputGroup.Text>
@@ -149,7 +175,11 @@ class MeasureDetails extends Component {
 
                             <InputGroup className="">
 
-                                <p className="mb-0 mt-3">Upload a CSV File:</p><Form.Control id="inputFile" type="file" name="myFile" />
+                                <p className="mb-0 mt-3">Upload a CSV File:</p><Form.Control 
+                                id="studentFile" 
+                                type="file" 
+                                name="studentFile"
+                                onChange={this.fileChangeHandler.bind(this)}/>
                             </InputGroup>
                             <Button variant="danger" className="mt-3 float-right ml-3" onClick={this.addStudHide}>Close</Button>
                             <Button variant="success" className="mt-3 float-right" type="submit">Add</Button>
@@ -205,7 +235,8 @@ MeasureDetails.propTypes = {
     getMeasureDetails: PropTypes.func.isRequired,
     getMeasureEvaluators: PropTypes.func.isRequired,
     addEvaluator: PropTypes.func.isRequired,
-    inviteEvaluator: PropTypes.func.isRequired
+    inviteEvaluator: PropTypes.func.isRequired,
+    addStudentsToMeasure: PropTypes.func.isRequired
 }
 
 const MapStateToProps = state => ({
@@ -215,4 +246,9 @@ const MapStateToProps = state => ({
     measureEvaluators: state.measureEvaluators,
     errors: state.errors
 })
-export default connect(MapStateToProps, { getMeasureDetails, getMeasureEvaluators, addEvaluator, inviteEvaluator })(MeasureDetails);
+export default connect(MapStateToProps, 
+    { getMeasureDetails, 
+    getMeasureEvaluators, 
+    addEvaluator, 
+    inviteEvaluator,
+    addStudentsToMeasure })(MeasureDetails);
