@@ -17,7 +17,7 @@ router.get(
   (req, res) => {
     let evaluators = [];
 
-    let sql = "SELECT * FROM EVALUATOR WHERE corId=" + db.escape(req.user.id);
+    let sql = "SELECT * FROM EVALUATOR"
 
     db.query(sql, (err, result) => {
       if (err) {
@@ -35,6 +35,7 @@ router.get(
   }
 );
 
+//@route GET /api/evaluators/invitedEvaluators
 router.get(
   "/invitedEvaluators",
   passport.authenticate("jwt", { session: false }),

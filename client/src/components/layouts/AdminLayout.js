@@ -7,18 +7,21 @@ import { logoutUser } from "../../actions/authActions";
 import "./Style.css";
 
 class AdminLayout extends Component {
+  
+
+  componentWillReceiveProps(nextProps) {
+    console.log(nextProps.auth);
+    if (!nextProps.auth.isAuthenticated || nextProps.auth.user.role !== "coordinator") {
+      window.location.href = "/login";
+    }
+  }
+
   onLogoutClick = e => {
     e.preventDefault();
     console.log("Logout user!");
     this.props.logoutUser();
   };
-
-  componentWillReceiveProps(nextProps) {
-    console.log(nextProps.auth);
-    if (!nextProps.auth.isAuthenticated) {
-      window.location.href = "/login";
-    }
-  }
+  
   render() {
     return (
       <Fragment>
@@ -52,6 +55,9 @@ class AdminLayout extends Component {
             </li>
             <li className="assess-cycle">
               <Link to="/admin/cycles">Assessment Cycle</Link>
+            </li>
+            <li className="evaluators">
+            <Link to="/admin/evaluators">Evaluators</Link>
             </li>
           </ul>
         </nav>

@@ -1,43 +1,77 @@
 import React, { Component } from 'react';
-import "./Register.css"
+import {connect} from 'react-redux';
+import PropTypes from 'prop-types';
+import {registerUser} from '../../actions/authActions'
+import './Login.css'
+import {Link} from 'react-router-dom'
+ 
 
 
 
 class Register extends Component {
 
+    state = {
+        email:"",
+        password:"",
+        cpassword:""
+    }
+
+    registerhandler = (e) => {
+        e.preventDefault();
+
+        const userData = {
+            email: e.target.email.value,
+            password: e.target.password.value,
+            password2: e.target.password2.value,
+            name: e.target.userName.value,
+            program:"none"
+        }
+        this.props.registerUser(userData,this.props.history)
+        console.log(userData)
+    }
+
+
 
     render() {
-
+        console.log(this.props)
         return (
 
-            <div id ="center">
-                <div className='d-flex align-items-center'>
-                    <div className='container styling'>
-                        <form>
-                            <h2>Evaluator Registration</h2>
-                            <div className="form-group">
-                                <label for="exampleInputEmail1" className="labelStyle">Name</label>
-                                <input type="text" className="form-control" id="exampleInputEmail1" placeholder="Full Name" required />
-                            </div>
-                            <div className="form-group">
-                                <label for="exampleInputEmail1" className = "labelStyle">Email address</label>
-                                <input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" required />
-                            </div>
-                            <div className="form-group">
-                                <label for="exampleInputPassword1" className="labelStyle">Password</label>
-                                <input type="password" className="form-control" id="exampleInputPassword1" placeholder="Password" required />
-                            </div>
-                            <div className="form-group">
-                                <label for="exampleInputPassword2" className="labelStyle">Confirm Password</label>
-                                <input type="password" className="form-control" id="exampleInputPassword2" placeholder="Confirm Password" required />
-                            </div>
-                            <button type="submit" className="btn btn-outline-light btn-block btn-lg">Register</button>
-                        </form>
-                    </div>
-                </div>
+            <div className="wrapper">
+                <form className="form-signin" onSubmit={this.registerhandler.bind(this)}>
+                    <h2 className="form-signin-heading">Register</h2>
+                    
+                    <p className="mb-0">Name</p>
+                    <input type="text" className="form-control mb-0" name="userName" placeholder="Username" required="" autoFocus="" />
+                    <p className="mt-0" style={{fontSize:'12px', color:'red'}}>{this.props.errors.name}</p>
+
+                    <p className="mb-0">Email</p>
+                    <input type="email" className="form-control mb-0" name="email" placeholder="Username" required="" autoFocus=""/>
+                    <p className="mt-0" style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.email}</p>
+
+                    <p className="mb-0">Password</p>
+                    <input type="password" className="form-control mb-0" name="password" placeholder="Password" required=""  />
+                    <p className="mt-0" style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.password}</p>
+
+                    <p className="mb-0">Confirm Password</p>
+                    <input type="password" className="form-control mb-0" name="password2" placeholder="Confirm Password" required="" />
+                    <p className="mt-0 mb-4" style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.password2}</p>
+
+                    <button className="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+                    <Link className="float-right" to="/login">Login</Link>
+                </form>
             </div>
         )
     }
 }
 
-export default Register;
+Register.propTypes = {
+    registerUser: PropTypes.func.isRequired,
+    auth: PropTypes.object.isRequired
+}
+
+const MapStateToProps = state => ({
+    auth: state.auth,
+    errors: state.errors
+})
+
+export default connect(MapStateToProps, {registerUser})(Register);

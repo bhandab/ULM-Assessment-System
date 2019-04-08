@@ -9,7 +9,7 @@ class Outcomes extends Component {
 
     componentDidMount() {
         if(this.props.auth.isAuthenticated){
-        this.props.getOutcomes(this.props.auth.user.id);
+            this.props.getOutcomes(this.props.auth.user.id && this.props.auth.user.role !== "coordinator");
         }
         else{
             this.props.history.push('/login')
@@ -19,23 +19,26 @@ class Outcomes extends Component {
 
  
     render() {
-        //console.log(this.props)
+        console.log(this.props)
         let outcomesList = null
-        if (this.props.outcomes.outcomes[0] === undefined) {
+        if (this.props.outcomes.outcomes === null) {
             outcomesList = <Spinner animation='border' variant="primary"></Spinner>
         }
         else {
             outcomesList = this.props.outcomes.outcomes.map( (outcome, index) =>
-                <li key={index}>{outcome}</li>
+                <li className="list-group-item" key={index}>{outcome}</li>
             )
+            if(outcomesList.length === 0) {
+                outcomesList = <li className="list-group-item" key="0">No Outcomes Present</li>
+            }
         }
 
         return (
             <Fragment>
-                <section className="panel important">
+                <section className="panel important border border-info rounded p-3">
                     <h2> List of Outcomes </h2>
                     <hr />
-                    <ol>
+                    <ol className="list-group">
                         {outcomesList}
                     </ol>
                 </section>

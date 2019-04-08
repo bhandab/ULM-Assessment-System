@@ -786,6 +786,7 @@ router.post(
             "Evaluator Account Does not Exist. Please check the invitee lists or invite the evaluator to create an account";
           return res.status(404).json(errors);
         } else {
+          let evalID = result[0].evalID;
           let evaluatorName = result[0].evalName;
           let sql3 =
             "SELECT * FROM MEASURE_EVALUATOR WHERE evalEmail=" +
@@ -802,11 +803,14 @@ router.post(
                 " to the current performance measure";
               return res.status(404).json(errors);
             }
+            // let sql11 = "SELECT * FROM EVALUATOR WHERE evalEmail"
             let sql5 =
-              "INSERT INTO MEASURE_EVALUATOR (evalEmail,measureID) VALUES (" +
+              "INSERT INTO MEASURE_EVALUATOR (evalEmail,measureID,evalID) VALUES (" +
               db.escape(evaluatorEmail) +
               ", " +
               db.escape(measureID) +
+              ", " +
+              db.escape(evalID) +
               ")";
             db.query(sql5, (err, result) => {
               if (err) {
@@ -857,6 +861,99 @@ router.get(
       });
       res.status(200).json({ evaluators });
     });
+  }
+);
+
+// @route POST api/cycles/:measureIdentifier/uploadStudents
+// @desc Uploads students to be evaluated
+// @access Private
+
+const multer = require("multer");
+const csv = require("fast-csv");
+const fs = require("fs");
+const { validateCSVStudents } = require("../../validation/uploadStudents");
+const upload = multer({
+  dest: "measureStudents",
+  limits: {
+    fileSize: 1000000
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.csv$/)) {
+      return cb(new Error("Please upload a .csv file"));
+    }
+    cb(undefined, true);
+  }
+});
+
+router.post(
+  "/:measureIdentifier/uploadStudents",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("file"),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
+
+    let existingStudents = new Set();
+    let students = [];
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res.status(404).json({ errors: "Measure Not Found" });
+      } else {
+        let sql2 =
+          "SELECT * FROM STUDENT WHERE measureID=" + db.escape(measureID);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          } else {
+            result.forEach(row => {
+              existingStudents.add(row.studentEmail);
+            });
+            var count = 0;
+            csv
+              .fromPath(req.file.path)
+              .on("data", data => {
+                data.push(req.user.id);
+                data.push(measureID);
+                students.push(data);
+              })
+              .on("end", () => {
+                fs.unlinkSync(req.file.path);
+                const validationError = validateCSVStudents(students);
+
+                if (validationError) {
+                  return res.status(404).json({ errors: validationError });
+                }
+                var newArray = students.filter((row, index) => {
+                  if (index === 0 || existingStudents.has(row[1])) {
+                    return false;
+                  } else {
+                    existingStudents.add(row[1]);
+                    return true;
+                  }
+                });
+                let sql3 =
+                  "INSERT INTO STUDENT (studentName,studentEmail,studentCWID,corId,measureID) VALUES ?";
+                if (students.length > 0) {
+                  db.query(sql3, [newArray], (err, result) => {
+                    if (err) {
+                      return res.status(500).json(err);
+                    }
+                  });
+                }
+                res.status(200).json({ students: newArray });
+              });
+          }
+        });
+      }
+    });
+  },
+  (error, req, res, next) => {
+    return res.status(400).json({ errors: error.message });
   }
 );
 

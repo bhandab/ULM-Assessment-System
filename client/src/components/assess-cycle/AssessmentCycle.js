@@ -18,7 +18,7 @@ class AssessmentCycle extends Component {
     }
 
     componentDidMount() {
-        if(!this.props.auth.isAuthenticated){
+        if(!this.props.auth.isAuthenticated || this.props.auth.user.role !=="coordinator"){
             this.props.history.push('/login')
         }
         this.props.getAssessmentCycles()
@@ -77,28 +77,35 @@ class AssessmentCycle extends Component {
 
     render() {
 
-        let cyclesList = null
-        if (this.props.cycles.cycles === null) {
-            cyclesList = <Spinner animation='border' variant="primary"></Spinner>
-        }
-        else {
+        //console.log(this.props)
 
+        let cyclesList = null
+        if (this.props.cycles.cycles !== null && this.props.cycles.cycles !== undefined) {
+            if (this.props.cycles.cycles.cycles !== null && this.props.cycles.cycles.cycles !== undefined) {
             cyclesList = this.props.cycles.cycles.cycles.map(cycle =>
-                <li key={cycle.cycleID}><Link params={cycle.cycleName} name={cycle.cycleID}
+                <li className="list-group-item" key={cycle.cycleID}><Link params={cycle.cycleName} name={cycle.cycleID}
                     to={{
-                        pathname: "/admin/cycles/cycle/"+cycle.cycleID,
+                        pathname: "/admin/cycles/cycle/" + cycle.cycleID,
                     }}>
-                    {cycle.cycleName}</Link> 
-                    <button style = {{border:"none", background:"none"}}
-                    name={cycle.cycleID} value={cycle.cycleName} 
-                    onClick={this.editShow.bind(this)} 
-                    className="outcome-edit ml-2"></button>
+                    {cycle.cycleName}</Link>
+                    <button style={{ border: "none", background: "none" }}
+                        name={cycle.cycleID} value={cycle.cycleName}
+                        onClick={this.editShow.bind(this)}
+                        className="outcome-edit ml-2"></button>
                     <button style={{ border: "none", background: "none" }}
                         name={cycle.cycleID} value={cycle.cycleName}
                         onClick={this.deleteShow.bind(this)}
-                    className="delete"></button>
+                        className="delete"></button>
                 </li>
             )
+            if(cyclesList.length === 0){
+                cyclesList = <li className="list-group-item">No Cycles Present</li>
+            }
+                }
+        }
+        else {
+            cyclesList = <Spinner animation='border' variant="primary"></Spinner>
+           
         }
 
        
@@ -106,11 +113,11 @@ class AssessmentCycle extends Component {
         
         return (
             <Fragment>
-                <section className="panel important" >
-                    <h2>Assessment Cycles</h2>
-                    <ol>{cyclesList}</ol>
-                    <br></br>
-                    <Button onClick={this.modalShow}>Create New Cycle</Button>
+                <section className="panel important border border-info rounded p-3" >
+                    <h2><strong>Assessment Cycles</strong></h2>
+                    <ul className="list-group">{cyclesList === null ? <li className="list-group-item">No Cycles Present</li>
+                    :cyclesList}</ul>
+                    <Button className = "ml-3 mr-3 float-right" onClick={this.modalShow}>Create New Cycle</Button>
                 </section>
 
                 <Modal size="lg" show = {this.state.show} onHide = {this.modalHide}

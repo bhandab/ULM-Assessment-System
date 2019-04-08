@@ -84,6 +84,20 @@ export const updateCellDescription = (rubricID, body) => dispatch => {
 
 }
 
+export const updateCriteriaWeight = (rubricID,criteriaID,body) => dispatch => {
+    axios
+        .post("/api/rubrics/"+rubricID+"/"+criteriaID+"/updateWeight",body)
+        .then(() => {
+            dispatch(getSingleRubric(rubricID, false))
+        })
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+            })
+        })
+} 
+
 export const setRubricsLoading = () => {
     return {
         type: LOADING
