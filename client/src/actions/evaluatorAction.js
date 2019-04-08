@@ -4,6 +4,7 @@ import axios from 'axios'
 export const inviteEvaluator = (email) => dispatch => {
     axios
         .post("/api/evaluators/invite", email)
+        .then(() => dispatch(getInvitedEvaluators()))
         .catch(err => {
             dispatch({
                 type: GET_ERRORS,

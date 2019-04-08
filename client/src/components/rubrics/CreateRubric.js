@@ -2,7 +2,8 @@ import React, { Component, Fragment } from "react";
 import {
   getSingleRubric,
   updateRubricCriteria,
-  updateCellDescription
+  updateCellDescription,
+  updateCriteriaWeight
 } from "../../actions/rubricsAction";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
@@ -49,6 +50,14 @@ class CreateRubric extends Component {
     this.props.updateCellDescription(this.props.match.params.rubricID, body);
   };
 
+  updateCriteriaWeight = e => {
+    const body = {
+      weight: e.target.value
+    }
+    const id = e.target.name
+    this.props.updateCriteriaWeight(this.props.match.params.rubricID, id, body)
+  } 
+
   render() {
     console.log(this.props);
 
@@ -65,14 +74,14 @@ class CreateRubric extends Component {
         .rubricTitle;
 
       tableHeader.push(
-        <th key="cross">
+        <th key="row1col1">
           <div>Criteria</div>
         </th>
       );
 
       for (let i = 0; i < rubricDetails.scaleInfo.length; i++) {
         tableHeader.push(
-          <th key={rubricDetails.scaleInfo[i].scaleID}>
+          <th key={"row1col"+(i+2)}>
             <div style={{ border: "none" }}>
               {rubricDetails.scaleInfo[i].scaleDescription}
             </div>
@@ -80,7 +89,7 @@ class CreateRubric extends Component {
         );
       }
       if(weighted === 1){
-        tableHeader.push(<th className="weight" key="wei"><div>Weight</div></th>)
+        tableHeader.push(<th className="weight" key={"row1col"+(rubricDetails.scaleInfo.length+2)}><div>Weight</div></th>)
       }
       tableHeader = <tr key={"row"+1}>{tableHeader}</tr>;
       table.push(tableHeader);
@@ -89,7 +98,7 @@ class CreateRubric extends Component {
       for (let j = 0; j < tableRows.length; j++) {
         let cells = [];
         cells.push(
-          <td key={rubricDetails.criteriaInfo[j].criteriaID}>
+          <td key={"row"+(j+2)+"col1"}>
             <FormControl
               className="p-0 m-0"
               as="textarea"
@@ -104,7 +113,7 @@ class CreateRubric extends Component {
         const tableCols = tableRows[j];
         for (let k = 0; k < tableCols.length; k++) {
           cells.push(
-            <td key={tableCols[k].cellID}>
+            <td key={"row"+(j+2)+"col"+(k+2)}>
               <FormControl
                 as="textarea"
                 defaultValue={tableCols[k].cellDescription}
@@ -120,10 +129,11 @@ class CreateRubric extends Component {
               style={{ height: "100px" }}
               defaultValue={rubricDetails.criteriaInfo[j].criteriaWeight} 
               name={rubricDetails.criteriaInfo[j].criteriaID}
+              onChange={this.updateCriteriaWeight.bind(this)}
               />
           </td>
         )
-        cells = <tr>{cells}</tr>;
+        cells = <tr key={"row"+(j+2)}>{cells}</tr>;
         table.push(cells);
       }
       table = (
@@ -158,7 +168,8 @@ CreateRubric.propTypes = {
   getSingleRubric: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
   updateRubricCriteria: PropTypes.func.isRequired,
-  updateCellDescription: PropTypes.func.isRequired
+  updateCellDescription: PropTypes.func.isRequired,
+  updateCriteriaWeight :PropTypes.func.isRequired
 };
 
 const MapStateToProps = state => ({
@@ -169,5 +180,5 @@ const MapStateToProps = state => ({
 
 export default connect(
   MapStateToProps,
-  { getSingleRubric, updateRubricCriteria, updateCellDescription }
+  { getSingleRubric, updateRubricCriteria, updateCellDescription, updateCriteriaWeight}
 )(CreateRubric);

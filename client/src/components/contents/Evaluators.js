@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Form, Card, Button, Modal, InputGroup, FormControl } from 'react-bootstrap';
-import { getRegisteredEvaluators, getInvitedEvaluators } from '../../actions/evaluatorAction';
+import { getRegisteredEvaluators, getInvitedEvaluators, inviteEvaluator} from '../../actions/evaluatorAction';
 import { parse } from 'papaparse'
 
 
@@ -30,23 +30,23 @@ class Evaluators extends Component {
 
     inviteHandler = (e) => {
         e.preventDefault();
-        const file = e.target.myFile.files[0]
-        console.log(file)
-        //et input = document.getElementById('inputFile')
+
+        console.log(e.target.invEmail.value)
+        
+        //IN CASE OF A FILE INPUT
+       /* const file = e.target.myFile.files[0]
         let invitedList = "cvcv"
         var reader = new FileReader();
-
-
-
         reader.onload = function () {
             invitedList= reader.result;
             console.log(parse(invitedList))
         }
-
-        
-
         console.log(invitedList)
-        reader.readAsText(file);
+        reader.readAsText(file);*/
+
+        this.props.inviteEvaluator({ evaluatorEmail: e.target.invEmail.value})
+        this.setState({invite:false})
+
 
     }
 
@@ -74,7 +74,7 @@ class Evaluators extends Component {
         }
 
         return (
-            <section className="panel important">
+            <section className="panel important border border-info rounded p-3">
                 <Card style={{ width: '30rem', float: "left", marginRight: "5%", marginLeft: "5%" }}>
                     <Card.Body>
                         <Card.Title>Registered Evaluators</Card.Title>
@@ -108,7 +108,7 @@ class Evaluators extends Component {
                                         Email
                                 </InputGroup.Text>
                                 </InputGroup.Append>
-                                <Form.Control type="email" placeholder="sth@example.com" />
+                                <Form.Control type="email" name="invEmail" placeholder="sth@example.com" />
                             </InputGroup>
 
                             <InputGroup className="">
@@ -128,7 +128,8 @@ class Evaluators extends Component {
 
 Evaluators.propTypes = {
     getRegisteredEvaluators: PropTypes.func.isRequired,
-    getInvitedEvaluators: PropTypes.func.isRequired
+    getInvitedEvaluators: PropTypes.func.isRequired,
+    inviteEvaluator: PropTypes.func.isRequired
 }
 
 const MapStateToProps = state => ({
@@ -139,4 +140,4 @@ const MapStateToProps = state => ({
     errors: state.errors
 })
 
-export default connect(MapStateToProps, { getRegisteredEvaluators, getInvitedEvaluators })(Evaluators)
+export default connect(MapStateToProps, { getRegisteredEvaluators, getInvitedEvaluators, inviteEvaluator })(Evaluators)
