@@ -4,6 +4,7 @@ import {
     GET_CYCLES,
     GET_CYCLES_MEASURES,
     GET_MEASURE_EVALUATORS,
+    GET_MEASURE_STUDENTS,
     GET_CYCLES_OUTCOMES,
     GET_MEASURE_DETAILS,
     CYCLE_LOADING
@@ -11,7 +12,6 @@ import {
     from './types';
 
 export const getAssessmentCycles = () => dispatch => {
-    //dispatch(setLoading())
     axios
         .get("/api/cycles")
         .then(res => {
@@ -27,7 +27,7 @@ export const getAssessmentCycles = () => dispatch => {
         }))
 }
 
-export const createCycle = (cycleName, history) => dispatch => {
+export const createCycle = (cycleName) => dispatch => {
     axios
         .post("/api/cycles/createCycle", cycleName)
         .then(() => dispatch(getAssessmentCycles()))
@@ -38,11 +38,10 @@ export const createCycle = (cycleName, history) => dispatch => {
             }))
 }
 
-export const linkOutcomeToCycle = (cycleID, outcome, history) => dispatch => {
+export const linkOutcomeToCycle = (cycleID, outcome) => dispatch => {
     axios
         .post("/api/cycles/" + cycleID + "/addNewOutcome", outcome)
         .then((res) => {
-            //console.log(res.data);
             dispatch(getCycleMeasures(cycleID));
         })
         .catch(err =>
@@ -89,7 +88,6 @@ export const getCycleMeasures = (cycleID) => dispatch => { //outcomes of a cycle
 
 export const getOutcomesMeasures = (cycleID, outcomeID) => dispatch => { //measures of outcomes
     dispatch(setLoading())
-    //console.log(cycleID+outcomeID)
     axios
         .get("/api/cycles/" + cycleID + "/" + outcomeID + "/measures")
         .then(res => {
@@ -109,7 +107,6 @@ export const getOutcomesMeasures = (cycleID, outcomeID) => dispatch => { //measu
         })
 }
 
-//export const getMeasureDetails = ()
 
 export const updateCycleName = (cycleID, body) => dispatch => {
     axios
@@ -228,17 +225,37 @@ export const addEvaluator = (measureID, body) => dispatch => {
         })
 }
 
-export const addStudentsToMeasure = (measureID,formData,config) => dispatch => {
+export const addStudentsToMeasure = (measureID, formData, config) => dispatch => {
     axios
-    .post("/api/cycles/"+measureID+"/uploadStudents",formData,config)
+        .post("/api/cycles/" + measureID + "/uploadStudents", formData, config)
+        .then(() => dispatch(getStudentsOfMeasure(measureID)))
         .catch(err => {
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
 
-            }
-            )
+            })
         })
+}
+
+export const getStudentsOfMeasure = (measureID) => dispatch => {
+    axios
+        .get("/api/cycles/" + measureID + "/studentsList")
+        .then(res => {
+            dispatch({
+                type: GET_MEASURE_STUDENTS,
+                payload: res.data
+            })
+        })
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            })
+        })
+
+
 }
 
 export const setLoading = () => {

@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from "prop-types";
 import { inviteEvaluator } from '../../actions/evaluatorAction'
-import { getMeasureDetails, getMeasureEvaluators, addEvaluator, addStudentsToMeasure } from '../../actions/assessmentCycleAction';
+import { getMeasureDetails, getMeasureEvaluators, addEvaluator, addStudentsToMeasure, getStudentsOfMeasure } from '../../actions/assessmentCycleAction';
 import { Jumbotron, Card, Button, Modal, Form, InputGroup } from 'react-bootstrap'
 import { isEmpty } from "../../utils/isEmpty";
 
@@ -15,7 +15,7 @@ class MeasureDetails extends Component {
         inviteEval: false,
         email: "",
         errors: {},
-        file:""
+        file: ""
     }
 
 
@@ -29,6 +29,7 @@ class MeasureDetails extends Component {
 
         this.props.getMeasureDetails(cycleID, outcomeID, measureID)
         this.props.getMeasureEvaluators(measureID)
+        this.props.getStudentsOfMeasure(measureID)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -61,7 +62,7 @@ class MeasureDetails extends Component {
         e.preventDefault()
         this.props.addEvaluator(this.props.match.params.measureID,
             { evaluatorEmail: e.target.evalEmail.value })
-        this.setState({ email: e.target.evalEmail.value, addEval:false})
+        this.setState({ email: e.target.evalEmail.value, addEval: false })
     }
 
     inviteEvaluatorHandler = (e) => {
@@ -72,26 +73,27 @@ class MeasureDetails extends Component {
     }
 
     fileChangeHandler = (e) => {
-        this.setState({file:e.target.files[0]})
+        this.setState({ file: e.target.files[0] })
     }
 
     addStudentsHandler = (e) => {
         e.preventDefault()
         console.log(e.target)
         this.fileUpload(this.state.file)
+        this.setState({addStud:false})
     }
 
     fileUpload = (file) => {
         const formData = new FormData()
-        formData.append('file',file)
+        formData.append('file', file)
 
         const config = {
-            headers:{
+            headers: {
                 'content-type': 'multipart/fomr-data'
             }
         }
         console.log(formData)
-        this.props.addStudentsToMeasure(this.props.match.params.measureID,formData,config)
+        this.props.addStudentsToMeasure(this.props.match.params.measureID, formData, config)
         //Upload file action here
     }
 
@@ -102,20 +104,31 @@ class MeasureDetails extends Component {
         let typeRubric = false
         let measureTitle = null
         let evaluatorList = []
+        let studentList = []
 
         if (this.props.cycles.measureDetails !== null && this.props.cycles.measureDetails !== undefined) {
-            measureTitle = this.props.cycles.measureDetails.measureDescription
-            if (this.props.cycles.measureEvaluators !== null && this.props.cycles.measureEvaluators !== undefined) {
-                evaluatorList = this.props.cycles.measureEvaluators.evaluators.map(evaluator => {
-                    return (
-                        <li key={evaluator.measureEvalID} className="list-group-item">{evaluator.name} ({evaluator.email})</li>
-                    )
-                })
-            }
             if (this.props.cycles.measureDetails.toolType === "rubric") {
                 typeRubric = true
             }
 
+            if (typeRubric) {
+                measureTitle = this.props.cycles.measureDetails.measureDescription
+                if (this.props.cycles.measureEvaluators !== null && this.props.cycles.measureEvaluators !== undefined) {
+                    evaluatorList = this.props.cycles.measureEvaluators.evaluators.map(evaluator => {
+                        return (
+                            <li key={evaluator.measureEvalID} className="list-group-item">{evaluator.name} ({evaluator.email})</li>
+                        )
+                    })
+                }
+                if (this.props.cycles.measureStudents !== null && this.props.cycles.measureStudents !== undefined) {
+                    studentList = this.props.cycles.measureStudents.students.map(student => {
+                        return (
+                            <li key={student.studentID} className="list-group-item">{student.name}</li>
+                        )
+                    })
+                }
+
+            }
         }
 
         const inviteError = "Evaluator Account Does not Exist. Please check the invitee lists or invite the evaluator to create an account"
@@ -123,7 +136,7 @@ class MeasureDetails extends Component {
 
         if (this.state.errors === this.props.errors && this.props.errors.evaluatorEmail === invitedError) {
             window.alert("Invitation has been sent, but Evaluator has not created the account yet; Please contact the evaluator")
-            this.setState({errors:{}})
+            this.setState({ errors: {} })
         }
         return (
             <Fragment>
@@ -135,22 +148,22 @@ class MeasureDetails extends Component {
 
                         {typeRubric ?
                             <Fragment>
-                                <Card style={{width: '30rem', float: "left" }}>
+                                <Card style={{ width: '30rem', height:'20rem', float: "left" }}>
                                     <Card.Body>
                                         <Card.Title>Evaluators</Card.Title>
-                                        <ol className="list-group">
+                                        <ol className="list-group measureCard">
                                             {evaluatorList}
                                         </ol>
                                         <Button variant="primary" className="float-right mt-3" onClick={this.addEvalShow}>Add Evaluators</Button>
                                     </Card.Body>
                                 </Card>
 
-                                <Card style={{ width: '30rem', height: '15rem' }}>
+                                <Card style={{ width: '30rem', height:'20rem'}}>
                                     <Card.Body>
                                         <Card.Title>Students</Card.Title>
-                                        <Card.Text>
-                                            Student List
-                                </Card.Text>
+                                        <ol className="list-group measureCard">
+                                            {studentList}
+                                        </ol>
                                         <Button variant="primary" className="float-right mt-3" onClick={this.addStudShow}>Add Students</Button>
                                     </Card.Body>
                                 </Card>
@@ -175,11 +188,11 @@ class MeasureDetails extends Component {
 
                             <InputGroup className="">
 
-                                <p className="mb-0 mt-3">Upload a CSV File:</p><Form.Control 
-                                id="studentFile" 
-                                type="file" 
-                                name="studentFile"
-                                onChange={this.fileChangeHandler.bind(this)}/>
+                                <p className="mb-0 mt-3">Upload a CSV File:</p><Form.Control
+                                    id="studentFile"
+                                    type="file"
+                                    name="studentFile"
+                                    onChange={this.fileChangeHandler.bind(this)} />
                             </InputGroup>
                             <Button variant="danger" className="mt-3 float-right ml-3" onClick={this.addStudHide}>Close</Button>
                             <Button variant="success" className="mt-3 float-right" type="submit">Add</Button>
@@ -236,7 +249,8 @@ MeasureDetails.propTypes = {
     getMeasureEvaluators: PropTypes.func.isRequired,
     addEvaluator: PropTypes.func.isRequired,
     inviteEvaluator: PropTypes.func.isRequired,
-    addStudentsToMeasure: PropTypes.func.isRequired
+    addStudentsToMeasure: PropTypes.func.isRequired,
+    getStudentsOfMeasure: PropTypes.func.isRequired
 }
 
 const MapStateToProps = state => ({
@@ -244,11 +258,15 @@ const MapStateToProps = state => ({
     cycles: state.cycles,
     measureDetails: state.measureDetails,
     measureEvaluators: state.measureEvaluators,
-    errors: state.errors
+    errors: state.errors,
+    measureStudents: state.measureStudents
 })
-export default connect(MapStateToProps, 
-    { getMeasureDetails, 
-    getMeasureEvaluators, 
-    addEvaluator, 
-    inviteEvaluator,
-    addStudentsToMeasure })(MeasureDetails);
+export default connect(MapStateToProps,
+    {
+        getMeasureDetails,
+        getMeasureEvaluators,
+        addEvaluator,
+        inviteEvaluator,
+        addStudentsToMeasure,
+        getStudentsOfMeasure
+    })(MeasureDetails);    
