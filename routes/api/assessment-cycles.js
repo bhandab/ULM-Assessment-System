@@ -871,7 +871,10 @@ router.get(
 const multer = require("multer");
 const csv = require("fast-csv");
 const fs = require("fs");
-const { validateCSVStudents } = require("../../validation/uploadStudents");
+const {
+  validateCSVStudents,
+  validateCSVStudentsRow
+} = require("../../validation/uploadStudents");
 const upload = multer({
   dest: "measureStudents",
   limits: {
@@ -913,7 +916,7 @@ router.post(
             result.forEach(row => {
               existingStudents.add(row.studentEmail);
             });
-            var count = 0;
+
             csv
               .fromPath(req.file.path)
               .on("data", data => {
@@ -957,7 +960,75 @@ router.post(
   }
 );
 
-// @route POST api/cycles/:measureIdentifier/studentsList
+// @route POST api/cycles/:measureIdentifier/uploadStudents
+// @desc Adds students to be evaluated from form
+// @access Private
+
+router.post(
+  ":/measureIdentifier/addStudent",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
+    let students = [req.body.name, req.body.email, req.body.CWID];
+    let errors = {};
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res.status(404).json({ errors: "Measure Not Found" });
+      } else {
+        students.push(measureID);
+        students.push(req.user.id);
+        const validationError = validateCSVStudentsRow(students);
+        if (validationError) {
+          errors.validationError = validationError;
+          return res.status(404).json(errors);
+        }
+        let name = req.body.name;
+        let email = req.body.email;
+        let CWID = req.body.CWID;
+        let sql2 =
+          "SELECT * FROM STUDENT WHERE measureID=" +
+          db.escape(measureID) +
+          " AND studentEmail=" +
+          db.escape(email);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          } else if (result.length > 0) {
+            errors.studentError = "Student Already Exists";
+            return res.status(errors);
+          }
+          let sql3 =
+            "INSERT INTO STUDENT (studentName, studentEmail,studentCWID, measureID,corId) VALUES (" +
+            db.escape(name) +
+            ", " +
+            db.escape(email) +
+            ", " +
+            db.escape(CWID) +
+            ", " +
+            db.escape(measureID) +
+            ", " +
+            db.escape(req.user.id);
+          db.query(sql3, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            res
+              .status(200)
+              .json({ name, email, CWID, measureID, adminID: req.user.id });
+          });
+        });
+      }
+    });
+  }
+);
+
+// @route GET api/cycles/:measureIdentifier/studentsList
 // @desc Lists students associated with the measure
 // @access Private
 router.get(

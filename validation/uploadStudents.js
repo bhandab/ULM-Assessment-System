@@ -31,4 +31,4 @@ const validateCSVStudentsRow = row => {
   return;
 };
 
-module.exports = { validateCSVStudents };
+module.exports = { validateCSVStudents, validateCSVStudentsRow };
