@@ -9,6 +9,7 @@ const validateCSVStudents = rows => {
       return `${rowError} on Row ${i + 1}`;
     }
   }
+
   return;
 };
 
