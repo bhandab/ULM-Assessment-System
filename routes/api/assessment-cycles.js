@@ -864,4 +864,92 @@ router.get(
   }
 );
 
+// @route POST api/:measureIdentifier/uploadStudents
+// @desc Uploads students to be evaluated
+// @access Private
+
+const multer = require("multer");
+const csv = require("fast-csv");
+const fs = require("fs");
+const { validateCSVStudents } = require("../../validation/uploadStudents");
+const upload = multer({
+  dest: "measureStudents",
+  limits: {
+    fileSize: 1000000
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.csv$/)) {
+      return cb(new Error("Please upload a .csv file"));
+    }
+    cb(undefined, true);
+  }
+});
+
+router.post(
+  "/:measureIdentifier/uploadStudents",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("file"),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
+
+    let existingStudents = new Set();
+    let students = [];
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res.status(404).json({ errors: "Measure Not Found" });
+      } else {
+        let sql2 =
+          "SELECT * FROM STUDENT WHERE measureID=" + db.escape(measureID);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          } else {
+            result.forEach(row => {
+              existingStudents.add(row.studentEmail);
+            });
+            csv
+              .fromPath(req.file.path)
+              .on("data", data => {
+                console.log(data);
+                if (!existingStudents.has(data[1])) {
+                  existingStudents.add(data[1]);
+                  data.push(req.user.id);
+                  data.push(measureID);
+                  students.push(data);
+                }
+              })
+              .on("end", () => {
+                console.log(students);
+                fs.unlinkSync(req.file.path);
+                const validationError = validateCSVStudents(students);
+                if (validationError) {
+                  return res.status(404).json({ errors: validationError });
+                }
+                let sql3 =
+                  "INSERT INTO STUDENT (studentName,studentEmail,studentCWID,corId,measureID) VALUES ?";
+                db.query(sql3, (err, result) => {
+                  if (err) {
+                    return res.status(500).json(err);
+                  }
+                  res
+                    .status(200)
+                    .json("Number of records inserted: " + result.affectedRows);
+                });
+              });
+          }
+        });
+      }
+    });
+  },
+  (error, req, res, next) => {
+    return res.status(400).json({ errors: error.message });
+  }
+);
+
 module.exports = router;
