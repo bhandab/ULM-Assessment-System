@@ -2,7 +2,7 @@ const sgMail = require("@sendgrid/mail");
 require("dotenv").config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const inviteEvaluator = (invitorEmail, invitorName, inviteeEmail) => {
+const invite = (invitorEmail, invitorName, inviteeEmail) => {
   const msg = {
     to: inviteeEmail,
     from: invitorEmail,
@@ -12,4 +12,4 @@ const inviteEvaluator = (invitorEmail, invitorName, inviteeEmail) => {
   sgMail.send(msg);
 };
 
-module.exports = { inviteEvaluator };
+module.exports = { invite };

@@ -77,19 +77,19 @@ class AllRubrics extends Component {
         if (isEmpty(this.props.rubric.rubrics) === false) {
             if (this.props.rubric.rubrics.rubrics.length > 0) {
                 allRubrics = this.props.rubric.rubrics.rubrics.map(rubric => {
-                    return (<li key={rubric.rubricID}>
+                    return (<li className="list-group-item" key={rubric.rubricID}>
                         <Link to={"/admin/rubrics/" + rubric.rubricID}> {rubric.rubricTitle}
                         </Link>
                     </li>)
                 })
             }
             else {
-                allRubrics = <p>No Rubrics Present!!</p>;
+                allRubrics = <li className="list-group-item">No Rubrics Present!!</li>;
 
             }
         }
         else {
-            allRubrics = <p>No Rubrics Present!!</p>;
+            allRubrics = <li className="list-group-item">No Rubrics Present!!</li>;
 
         }
 
@@ -133,7 +133,7 @@ class AllRubrics extends Component {
             <section className="panel important">
                 <h2>All Rubrics</h2>
                 <hr />
-                <ol>{allRubrics}</ol>
+                <ol className="list-group">{allRubrics}</ol>
                 <br></br>
                 <Button
                     variant="primary"

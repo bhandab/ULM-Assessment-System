@@ -23,7 +23,7 @@ class CycleMeasures extends Component {
   };
 
   componentDidMount() {
-    if (!this.props.auth.isAuthenticated) {
+    if (!this.props.auth.isAuthenticated && this.props.auth.user.role !== "coordinator") {
       this.props.history.push('/login')
     }
 
@@ -113,19 +113,21 @@ class CycleMeasures extends Component {
 
 
   render() {
+
+    console.log(this.props)
     let title = null;
     let list = <Spinner animation="border" variant="primary" />;
     let outcomeArray = null;
 
-    if (this.props.cycles.cycleMeasures !== null) {
-      let cycleID = this.props.cycles.cycleMeasures.cycleIdentifier;
+    if (this.props.cycles.cycleLoading !== true) {
+      let cycleID = this.props.match.params.cycleID;
 
-      if (this.props.cycles.cycleMeasures.outcomes !== undefined) {
+      if (this.props.cycles.cycleMeasures !== null && this.props.cycles.cycleMeasures !== undefined) {
         if (this.props.cycles.cycleMeasures.outcomes.length > 0) {
           outcomeArray = this.props.cycles.cycleMeasures.outcomes;
           list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
             return (
-              <li key={outcome.outcomeID}>
+              <li className="list-group-item" key={outcome.outcomeID}>
                 <Link
                   to={
                     "/admin/cycles/cycle/" +
@@ -148,15 +150,17 @@ class CycleMeasures extends Component {
             );
           });
         } else {
-          list = <p>No Outcomes Present.</p>;
+          list = <li className="list-group-item">No Outcomes Present.</li>;
         }
+        title = this.props.cycles.cycleMeasures.cycleName;
       }
-      title = this.props.cycles.cycleMeasures.cycleName;
+      
     }
     let selections = null;
-      if (Object.keys(this.props.outcomes.outcomes) !== 0) {
 
-        if (this.props.outcomes.outcomes.length > 0) {
+    if (this.props.cycles.cycleMeasures !== undefined && this.props.cycles.cycleMeasures !== null ) {
+
+      if (this.props.cycles.cycleMeasures !== null && this.props.outcomes.outcomes !== null) {
           outcomeArray = this.props.cycles.cycleMeasures.outcomes;
           selections = this.props.outcomes.outcomes.map((item, index) => {
             const temp = outcomeArray.find(outcome => {
@@ -180,7 +184,7 @@ class CycleMeasures extends Component {
         <section className="panel important">
           <h2>{title}</h2>
           <hr/>
-          <ol>{list}</ol>
+          <ol className="list-group">{list}</ol>
           <Button className="btn mt-3 float-right ml-3" onClick={this.addOutcomeShow}>Add Outcome</Button>
 
           <Button className="btn mt-3 float-right" onClick={this.createOutcomeShow}>Create Outcome</Button>

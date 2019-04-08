@@ -786,6 +786,7 @@ router.post(
             "Evaluator Account Does not Exist. Please check the invitee lists or invite the evaluator to create an account";
           return res.status(404).json(errors);
         } else {
+          let evalID = result[0].evalID
           let evaluatorName = result[0].evalName;
           let sql3 =
             "SELECT * FROM MEASURE_EVALUATOR WHERE evalEmail=" +
@@ -802,11 +803,14 @@ router.post(
                 " to the current performance measure";
               return res.status(404).json(errors);
             }
+            // let sql11 = "SELECT * FROM EVALUATOR WHERE evalEmail"
             let sql5 =
-              "INSERT INTO MEASURE_EVALUATOR (evalEmail,measureID) VALUES (" +
+              "INSERT INTO MEASURE_EVALUATOR (evalEmail,measureID,evalID) VALUES (" +
               db.escape(evaluatorEmail) +
               ", " +
               db.escape(measureID) +
+              ", "+
+              db.escape(evalID)+
               ")";
             db.query(sql5, (err, result) => {
               if (err) {

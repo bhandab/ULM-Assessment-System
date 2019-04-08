@@ -169,7 +169,6 @@ main li {
 }
 
 main li:before {
-  content: "";
   position: absolute;
   width: 0;
   height: 0;
@@ -227,7 +226,29 @@ table {
   color: red;
 }
 
+/** Measure Details Jumbotron*/
+div .jumbotron{
+  padding-top:1em; 
+  padding-bottom: 10em !important;
+  height: auto !important;
+}
 
+#measure-title-label{
+  color:white;
+  background-color:blue;
+  width:120px;
+  padding: 2px;
+  text-align: center;
+  border-radius: 20%;
+  margin: 2px;
+  font-size: 14px;
+}
+
+#measure-title{
+  margin-left: 5px;
+}
+
+/** Media Query*/
 @media screen and (min-width: 600px) {
   html,
   body {
