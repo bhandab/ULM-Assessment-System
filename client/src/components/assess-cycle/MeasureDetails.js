@@ -2,9 +2,14 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from "prop-types";
 import { inviteEvaluator } from '../../actions/evaluatorAction'
-import { getMeasureDetails, getMeasureEvaluators, addEvaluator } from '../../actions/assessmentCycleAction';
+import { getMeasureDetails,
+    getMeasureEvaluators, 
+    addEvaluator, 
+    addStudentsToMeasure,
+    addStudentToMeasure, 
+    getStudentsOfMeasure } from '../../actions/assessmentCycleAction';
 import { Jumbotron, Card, Button, Modal, Form, InputGroup } from 'react-bootstrap'
-import { isEmpty } from "../../utils/isEmpty";
+//import { isEmpty } from "../../utils/isEmpty";
 
 
 
@@ -14,7 +19,9 @@ class MeasureDetails extends Component {
         addStud: false,
         inviteEval: false,
         email: "",
-        errors: {}
+        errors: {},
+        file: "",
+        uploadFile:false
     }
 
 
@@ -28,6 +35,7 @@ class MeasureDetails extends Component {
 
         this.props.getMeasureDetails(cycleID, outcomeID, measureID)
         this.props.getMeasureEvaluators(measureID)
+        this.props.getStudentsOfMeasure(measureID)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -53,14 +61,14 @@ class MeasureDetails extends Component {
     }
 
     addStudHide = () => {
-        this.setState({ inviteEval: false })
+        this.setState({ addStud: false })
     }
 
     addEvaluatorHandler = (e) => {
         e.preventDefault()
         this.props.addEvaluator(this.props.match.params.measureID,
             { evaluatorEmail: e.target.evalEmail.value })
-        this.setState({ email: e.target.evalEmail.value })
+        this.setState({ email: e.target.evalEmail.value, addEval: false })
     }
 
     inviteEvaluatorHandler = (e) => {
@@ -70,6 +78,53 @@ class MeasureDetails extends Component {
 
     }
 
+    fileChangeHandler = (e) => {
+        this.setState({ file: e.target.files[0] })
+    }
+
+    uploadStudentsHandler = (e) => {
+        e.preventDefault()
+        console.log(e.target)
+        this.fileUpload(this.state.file)
+        this.setState({uploadFile:false})
+    }
+
+    addStudentsHandler = (e) => {
+        e.preventDefault()
+        const name = e.target.studName.value
+        const email = e.target.studEmail.value
+        const CWID = e.target.studCWID.value
+
+        const body = {
+            name,email,CWID
+        }
+        console.log(body)
+        this.props.addStudentToMeasure(this.props.match.params.measureID,body)
+        this.setState({addStudHide:false})
+    }
+
+    fileUpload = (file) => {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const config = {
+            headers: {
+                'content-type': 'multipart/fomr-data'
+            }
+        }
+        console.log(formData)
+        this.props.addStudentsToMeasure(this.props.match.params.measureID, formData, config)
+        //Upload file action here
+    }
+
+    uploadFileShow = () => {
+        this.setState({ uploadFile: true, addStud:false})
+    }
+
+    uploadFileHide = () => {
+        this.setState({ uploadFile:false})
+    }
+
 
 
     render() {
@@ -77,19 +132,31 @@ class MeasureDetails extends Component {
         let typeRubric = false
         let measureTitle = null
         let evaluatorList = []
+        let studentList = []
+
         if (this.props.cycles.measureDetails !== null && this.props.cycles.measureDetails !== undefined) {
-            measureTitle = this.props.cycles.measureDetails.measureDescription
-            if (this.props.cycles.measureEvaluators !== null && this.props.cycles.measureEvaluators !== undefined) {
-                evaluatorList = this.props.cycles.measureEvaluators.evaluators.map(evaluator => {
-                    return (
-                        <li key={evaluator.measureEvalID} className="list-group-item">{evaluator.name} ({evaluator.email})</li>
-                    )
-                })
-            }
             if (this.props.cycles.measureDetails.toolType === "rubric") {
                 typeRubric = true
             }
 
+            if (typeRubric) {
+                measureTitle = this.props.cycles.measureDetails.measureDescription
+                if (this.props.cycles.measureEvaluators !== null && this.props.cycles.measureEvaluators !== undefined) {
+                    evaluatorList = this.props.cycles.measureEvaluators.evaluators.map(evaluator => {
+                        return (
+                            <li key={evaluator.measureEvalID} className="list-group-item">{evaluator.name} ({evaluator.email})</li>
+                        )
+                    })
+                }
+                if (this.props.cycles.measureStudents !== null && this.props.cycles.measureStudents !== undefined) {
+                    studentList = this.props.cycles.measureStudents.students.map(student => {
+                        return (
+                            <li key={student.studentID} className="list-group-item"><ol><li>Name: {student.name}</li> <li>Email: ({student.email})</li> <li>CWID: {student.CWID}</li></ol></li>
+                        )
+                    })
+                }
+
+            }
         }
 
         const inviteError = "Evaluator Account Does not Exist. Please check the invitee lists or invite the evaluator to create an account"
@@ -97,7 +164,7 @@ class MeasureDetails extends Component {
 
         if (this.state.errors === this.props.errors && this.props.errors.evaluatorEmail === invitedError) {
             window.alert("Invitation has been sent, but Evaluator has not created the account yet; Please contact the evaluator")
-            this.setState({errors:{}})
+            this.setState({ errors: {} })
         }
         return (
             <Fragment>
@@ -109,22 +176,22 @@ class MeasureDetails extends Component {
 
                         {typeRubric ?
                             <Fragment>
-                                <Card style={{ height: '15rem', width: '30rem', float: "left" }}>
+                                <Card style={{ width: '30rem', height:'20rem', float: "left" }}>
                                     <Card.Body>
                                         <Card.Title>Evaluators</Card.Title>
-                                        <ol className="list-group">
+                                        <ol className="list-group measureCard">
                                             {evaluatorList}
                                         </ol>
                                         <Button variant="primary" className="float-right mt-3" onClick={this.addEvalShow}>Add Evaluators</Button>
                                     </Card.Body>
                                 </Card>
 
-                                <Card style={{ width: '30rem', height: '15rem' }}>
+                                <Card style={{ width: '30rem', height:'20rem'}}>
                                     <Card.Body>
                                         <Card.Title>Students</Card.Title>
-                                        <Card.Text>
-                                            Student List
-                                </Card.Text>
+                                        <ol className="list-group measureCard">
+                                            {studentList}
+                                        </ol>
                                         <Button variant="primary" className="float-right mt-3" onClick={this.addStudShow}>Add Students</Button>
                                     </Card.Body>
                                 </Card>
@@ -134,24 +201,62 @@ class MeasureDetails extends Component {
 
                 <Modal centered show={this.state.addStud} onHide={this.addStudHide}>
                     <Modal.Title className="ml-3">
-                        Add Students to Measure
+                        Add Student to Measure
                     </Modal.Title>
                     <Modal.Body>
-                        <Form>
+                        <Form onSubmit={this.addStudentsHandler.bind(this)}>
                             <InputGroup>
                                 <InputGroup.Append>
                                     <InputGroup.Text>
-                                        Details
+                                        Name
                                 </InputGroup.Text>
                                 </InputGroup.Append>
-                                <Form.Control type="email" placeholder="name,CWID,email" />
+                                <Form.Control name="studName" placeholder="Name" />
+                            </InputGroup>
+                            <InputGroup>
+                                <InputGroup.Append>
+                                    <InputGroup.Text>
+                                        Email 
+                                </InputGroup.Text>
+                                </InputGroup.Append>
+                                <Form.Control type="email" name="studEmail" placeholder="something@example.com" />
+                            </InputGroup>
+                            <InputGroup>
+                                <InputGroup.Append>
+                                    <InputGroup.Text>
+                                        CWID
+                                </InputGroup.Text>
+                                </InputGroup.Append>
+                                <Form.Control placeholder="CWID" name="studCWID"/>
                             </InputGroup>
 
                             <InputGroup className="">
 
-                                <p className="mb-0 mt-3">Upload a CSV File:</p><Form.Control id="inputFile" type="file" name="myFile" />
+                                <button onClick={this.uploadFileShow} className="mb-0 mt-3">Upload a CSV File</button>
+                               
                             </InputGroup>
                             <Button variant="danger" className="mt-3 float-right ml-3" onClick={this.addStudHide}>Close</Button>
+                            <Button variant="success" className="mt-3 float-right" type="submit">Add</Button>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
+
+                <Modal centered show={this.state.uploadFile} onHide={this.uploadFileHide}>
+                    <Modal.Title className="ml-3">
+                        Upload Students File
+                    </Modal.Title>
+                    <Modal.Body>
+                        <Form onSubmit={this.uploadStudentsHandler.bind(this)}>
+
+                            <InputGroup className="">
+                                <Form.Control
+                                    id="studentFile"
+                                    type="file"
+                                    name="studentFile"
+                                    onChange={this.fileChangeHandler.bind(this)} />
+
+                            </InputGroup>
+                            <Button variant="danger" className="mt-3 float-right ml-3" onClick={this.uploadFileHide}>Close</Button>
                             <Button variant="success" className="mt-3 float-right" type="submit">Add</Button>
                         </Form>
                     </Modal.Body>
@@ -205,7 +310,10 @@ MeasureDetails.propTypes = {
     getMeasureDetails: PropTypes.func.isRequired,
     getMeasureEvaluators: PropTypes.func.isRequired,
     addEvaluator: PropTypes.func.isRequired,
-    inviteEvaluator: PropTypes.func.isRequired
+    inviteEvaluator: PropTypes.func.isRequired,
+    addStudentsToMeasure: PropTypes.func.isRequired,
+    getStudentsOfMeasure: PropTypes.func.isRequired,
+    addStudentToMeasure: PropTypes.func.isRequired
 }
 
 const MapStateToProps = state => ({
@@ -213,6 +321,16 @@ const MapStateToProps = state => ({
     cycles: state.cycles,
     measureDetails: state.measureDetails,
     measureEvaluators: state.measureEvaluators,
-    errors: state.errors
+    errors: state.errors,
+    measureStudents: state.measureStudents
 })
-export default connect(MapStateToProps, { getMeasureDetails, getMeasureEvaluators, addEvaluator, inviteEvaluator })(MeasureDetails);
+export default connect(MapStateToProps,
+    {
+        getMeasureDetails,
+        getMeasureEvaluators,
+        addEvaluator,
+        inviteEvaluator,
+        addStudentsToMeasure,
+        addStudentToMeasure,
+        getStudentsOfMeasure
+    })(MeasureDetails);    

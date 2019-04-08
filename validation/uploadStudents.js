@@ -9,6 +9,7 @@ const validateCSVStudents = rows => {
       return `${rowError} on Row ${i + 1}`;
     }
   }
+
   return;
 };
 
@@ -30,4 +31,4 @@ const validateCSVStudentsRow = row => {
   return;
 };
 
-module.exports = { validateCSVStudents };
+module.exports = { validateCSVStudents, validateCSVStudentsRow };

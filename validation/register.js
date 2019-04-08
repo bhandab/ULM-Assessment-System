@@ -9,7 +9,7 @@ module.exports = function validateRegisterInput(data) {
   data.email = !isEmpty(data.email) ? data.email.trim() : "";
   data.password = !isEmpty(data.password) ? data.password.trim() : "";
   data.password2 = !isEmpty(data.password2) ? data.password2.trim() : "";
-  data.program = !isEmpty(data.program) ? data.program.trim() : "";
+  //data.program = !isEmpty(data.program) ? data.program.trim() : "";
 
   // Name checks
   if (Validator.isEmpty(data.name)) {
@@ -17,9 +17,9 @@ module.exports = function validateRegisterInput(data) {
   }
 
   //Program Name Checks
-  if (Validator.isEmpty(data.program)) {
-    errors.program = "Program Name field is required";
-  }
+  // if (Validator.isEmpty(data.program)) {
+  //   errors.program = "Program Name field is required";
+  // }
 
   // Email checks
   if (Validator.isEmpty(data.email)) {
