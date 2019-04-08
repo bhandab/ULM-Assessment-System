@@ -231,9 +231,7 @@ class MeasureDetails extends Component {
                             </InputGroup>
 
                             <InputGroup className="">
-
-                                <button onClick={this.uploadFileShow} className="mb-0 mt-3">Upload a CSV File</button>
-                               
+                                <div onClick={this.uploadFileShow} id="gotoUpload" className="mb-0 mt-3">Upload a CSV File</div>
                             </InputGroup>
                             <Button variant="danger" className="mt-3 float-right ml-3" onClick={this.addStudHide}>Close</Button>
                             <Button variant="success" className="mt-3 float-right" type="submit">Add</Button>
