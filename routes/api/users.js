@@ -1,210 +1,306 @@
-const  express = require('express')
-const jwt = require('jsonwebtoken')
-const passport = require('passport')
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const passport = require("passport");
 
-const keys = require('../../config/keys')
+const keys = require("../../config/keys");
 
 //Load database connection
-const db = require('../../config/dbconnection')
+const db = require("../../config/dbconnection");
 
-
-const router  = express.Router()
+const router = express.Router();
 
 //Load user validation
-const validateRegisterInput = require('../../validation/register')
-const validateLoginInput = require('../../validation/login')
-const validateAddEvaluatorInput = require('../../validation/addEvaluator')
+const validateRegisterInput = require("../../validation/register");
+const validateLoginInput = require("../../validation/login");
+const validateAddEvaluatorInput = require("../../validation/addEvaluator");
 
 // @route POST api/users/register
 // @desc Register admin [Temporary purpose]
 // @access Public
 
-router.post('/register', (req, res)=>{
-    const {errors, isValid} = validateRegisterInput(req.body)
-    if(!isValid){
-        return res.status(400).json(errors)
+router.post("/register", (req, res) => {
+  const { errors, isValid } = validateRegisterInput(req.body);
+  if (!isValid) {
+    return res.status(404).json(errors);
+  }
+  //Check if user already exists in the database
+  let email = req.body.email;
+  //let program = req.body.program;
+  let sql =
+    "SELECT * FROM INVITED_COORDINATOR WHERE invitedCorEmail = " +
+    db.escape(email);
+    db.query(sql, (err, result) => {
+    if (err) {
+      return res.status(500).json(error);
     }
-     //Check if user already exists in the database
-    let email = db.escape(req.body.email)
-    let sql = "SELECT * FROM COORDINATOR WHERE corEmail = "+ email
-    db.query(sql, (err, result)=>{
-         if(err){
-             return res.status(500).json(error)
-         }
-        if(result.length>0){
-            errors.email='Email already exists'
-            return res.status(400).json(errors)
-        }
-        
-        let adminName = db.escape(req.body.name) 
-        let password = db.escape(req.body.password)
+
+    if (result.length >0) 
+    {
+      let adminName = req.body.name;
+      let password = req.body.password;
+      let program = result[0].programName
+      
+    sql =
+      "INSERT INTO COORDINATOR (corName, corEmail, corPWHash, programName) VALUES (" +
+      db.escape(adminName) +
+      "," +
+      db.escape(email) +
+      ",password(" +
+      db.escape(password) +
+      ") " +
+      "," +
+      db.escape(program) +
+      ")";
+
+      db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } 
+      let sql1 =
+      "DELETE FROM INVITED_COORDINATOR WHERE invitedCorEmail = " +
+      db.escape(email);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }     
+      else {
+        return res.status(200).json(result);
+      }
+    });
+  });
+}
     
-                sql = 'INSERT INTO COORDINATOR (corName, corEmail, corPWHash) VALUES ('+adminName+','+email+',password('+password+'))'
-                db.query(sql,(err, result)=>{
-                     if (err){
-                         
-                         return res.status(500).json(err)
-                     }
-                    else if (result){
-                        return res.status(200).json(result)
-                    }
-                   
-                })
-    })
-})
+    else if (result<=0) {
+   // console.log(result.length);
+      let sql2=
+      "SELECT * FROM INVITED_EVALUATOR WHERE invitedEvalEmail = " +
+      db.escape(email);
+      db.query(sql2, (err, result) => {
+      if (err) {
+        return res.status(500).json(error);
+      }
+      
+      console.log(email);
+      if (result.length >0) 
+      {
+       
+        let evalName = req.body.name;
+        let password = req.body.password;
+        let sql3 =
+        "INSERT INTO EVALUATOR (evalName, evalEmail, evalPWHash) VALUES(" +
+        db.escape(evalName) +
+        ", " +
+        db.escape(email) +
+        ", password(" +
+        db.escape(password) +
+        "))";
+       
+        db.query(sql3, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        } 
+        let sql4 =
+        "DELETE FROM INVITED_EVALUATOR WHERE invitedEvalEmail = " +
+        db.escape(email);
+
+        db.query(sql4, (err, result) => {
+        if (err) { 
+          return res.status(500).json(err);
+        }     
+        else {
+          return res.status(200).json(result);
+        }
+      });
+    });
+  }
+    else
+   {
+      errors.email =
+        "Either your account already exists or you have not been added in the system. Please try logging in or contact with the email sender";
+      return res.status(404).json({errors});
+    }
+ });
+}
+   
+   });
+});
 
 // @route POST api/users/registerEvaluator
 // @desc Register evaluator
 // @access Protected
 
-router.post('/registerEvaluator',(req, res)=>{
-    let {errors, isValid} = validateRegisterInput(req.body)
-    if(!isValid){
-        return res.status(400).json(errors)
+router.post("/registerEvaluator", (req, res) => {
+  let { errors, isValid } = validateRegisterInput(req.body);
+  if (!isValid) {
+    return res.status(404).json(errors);
+  }
+
+  let evalName = req.body.name;
+  let email = req.body.email;
+  let password = req.body.password;
+
+  let sql =
+    "SELECT * FROM INVITED_EVALUATOR WHERE invitedEvalEmail=" +
+    db.escape(email);
+  db.query(sql, (err, result) => {
+    if (err) {
+      return res.status(500).json(err);
+    } else if (result.length <= 0) {
+      errors.email =
+        "You have not been added in the system yet. Please check with your coordinator";
+      return res.status(404).json(errors);
     }
 
-    let evalName = db.escape(req.body.name)
-    let email = db.escape(req.body.email)
-    let password = db.escape(req.body.password)
-
-    let sql = "SELECT * FROM EVALUATOR WHERE evalEmail="+email
-    db.query(sql,(err,result)=>{
-        if(err){
-            return res.status(500).json(err)
+    sql =
+      "INSERT INTO EVALUATOR (evalName, evalEmail, evalPWHash) VALUES(" +
+      db.escape(evalName) +
+      ", " +
+      db.escape(email) +
+      ", password(" +
+      db.escape(password) +
+      "))";
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      let sql1 =
+        "DELETE FROM INVITED_EVALUATOR WHERE invitedEvalEmail=" +
+        db.escape(email);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
         }
-        else if(result.length<=0){
-            errors.email = "You have not been added by coordinator yet; please contact the coordinator!"
-            return res.status(400).json(errors)
-        }
-        
-            sql = "UPDATE EVALUATOR SET evalName="+evalName+", evalPWHash=password("+password+") WHERE evalEmail="+email
-            db.query(sql, (err,result)=>{
-                if(err){
-                    return res.status(500).json(err)
-                }
-                res.status(200).json(result)
-            })
-        
-    })
-
-})
-
-
-// @route POST api/users/addEvaluator
-// @desc Add Evaluator [Coordinator first adds and then evaluator can register]
-// @access Private
-
-router.post('/addEvaluator',passport.authenticate('jwt',{session:false}),(req,res)=>{
-
-       let{errors,isValid} = validateAddEvaluatorInput(req.body)
-       if(!isValid){
-           return res.status(400).json(errors)
-       }
-        let evaluatorEmail = db.escape(req.body.evaluatorEmail)
-        let adminID = db.escape(req.user.id)
-        let sql = "SELECT * FROM EVALUATOR WHERE evalEmail="+evaluatorEmail+" AND corId="+adminID
-        db.query(sql,(err,result)=>{
-            if(err){
-                return res.status(500).json(err)
-            }
-            else if(result.length>0){
-                errors.evaluatorEmail = "You have already added evaluator with this email"
-                return res.status(400).json(errors)
-            }
-            sql = "INSERT INTO EVALUATOR (evalEmail,corId) VALUES ("+evaluatorEmail+", "+adminID+")"
-            db.query(sql,(err,result)=>{
-                if(err){
-                    return res.status(500).json(err)
-                }
-                return res.status(200).json({evaluatorEmail,adminID})
-            })
-        })
-
-})
+        res.status(200).json(result);
+      });
+    });
+  });
+});
 
 // @route POST api/users/login
 // @desc Login User
 // @access Public
 
-router.post('/login',(req, res)=>{
-    //req body input validation
-    const {errors, isValid} = validateLoginInput(req.body)
-    if(!isValid){
-        return res.status(400).json(errors)
-    }
-    let email = req.body.email
-    let password = req.body.password
+router.post("/login", (req, res) => {
+  //req body input validation
+  const { errors, isValid } = validateLoginInput(req.body);
+  if (!isValid) {
+    return res.status(404).json(errors);
+  }
+  let email = req.body.email;
+  let password = req.body.password;
+  let sql =
+  "SELECT * from SUPER_USER WHERE superEmail=" +
+  db.escape(email) +
+  " and superPassword=" +
+  db.escape(password);
 
-    let sql = "SELECT * from COORDINATOR WHERE corEmail="+db.escape(email)+" and corPWHash=password("+db.escape(password)+")"
-    db.query(sql, (err, result)=>{
-        if(err){
-            return res.status(500).json(err)
+db.query(sql, (err, result) => {  
+  if (err) {
+    return res.status(500).json(err);
+  }
+
+  else if (result.length > 0) {
+    const payload = {
+      email,
+      id: result[0].superID,
+      role: "superuser"
+    };
+
+    jwt.sign(
+      payload,
+      keys.secretOrkey,
+      {
+        expiresIn: 5400
+      },
+      (err, token) => {
+        res.status(200).json({
+          success: true,
+          token: "Bearer " + token
+        });
+      }
+    );
+  }
+
+  else if (result <=0){
+  let sql =
+    "SELECT * from COORDINATOR WHERE corEmail=" +
+    db.escape(email) +
+    " and corPWHash=password(" +
+    db.escape(password) +
+    ")";
+  db.query(sql, (err, result) => {
+  
+    if (err) {
+      return res.status(500).json(err);
+    }
+
+    //User email and password exists
+    else if (result.length > 0) {
+      const payload = {
+        email,
+        name: result[0].corName,
+        id: result[0].corId,
+        role: "coordinator"
+      };
+
+      jwt.sign(
+        payload,
+        keys.secretOrkey,
+        {
+          expiresIn: 5400
+        },
+        (err, token) => {
+          res.status(200).json({
+            success: true,
+            token: "Bearer " + token
+          });
+        }
+      );
+        
+     } 
+    else if (result.length <= 0) {
+      sql =
+        "SELECT * from EVALUATOR WHERE evalEmail=" +
+        db.escape(email) +
+        " and evalPWHash= password(" +
+        db.escape(password) +
+        ")";
+      db.query(sql, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
         }
 
         //User email and password exists
-        else if (result.length>0){
-            const payload = {
-                email,
-                name:result[0].corName,
-                id:result[0].corId,
-                role:'coordinator'
+        else if (result.length > 0) {
+          const payload = {
+            email,
+            name: result[0].evalName,
+            id: result[0].evalID,
+            role: "evaluator"
+          };
+
+          jwt.sign(
+            payload,
+            keys.secretOrkey,
+            {
+              expiresIn: 5400
+            },
+            (err, token) => {
+              res.status(200).json({
+                success: true,
+                token: "Bearer " + token
+              });
             }
-
-            jwt.sign(
-                payload,
-                keys.secretOrkey,
-                {
-                    expiresIn:5400
-                },
-                (err, token)=>{
-                    res.status(200).json({
-                        success:true,
-                        token:'Bearer '+token
-                    })
-                }
-
-            )
+          );
+        } else {
+          errors.password = "Password Incorrect";
+          res.status(404).json(errors);
         }
-        else if (result.length<=0){
-            sql = "SELECT * from EVALUATOR WHERE evalEmail="+db.escape(email)+" and evalPWHash= password("+db.escape(password)+")"
-            db.query(sql,(err,result)=>{
-                if(err){
-                    return res.status(500).json(err)
-                }
-        
-                //User email and password exists
-                else if (result.length>0){
-                    const payload = {
-                        email,
-                        name:result[0].evalName,
-                        id:result[0].evalID,
-                        role:'evaluator'
-                    }
-        
-                    jwt.sign(
-                        payload,
-                        keys.secretOrkey,
-                        {
-                            expiresIn:5400
-                        },
-                        (err, token)=>{
-                            res.status(200).json({
-                                success:true,
-                                token:'Bearer '+token
-                            })
-                        }
-        
-                    )
-                }
-                else{
-                    errors.password = "Password Incorrect"
-                    res.status(400).json(errors);
-                }
-            })
-        }
-        
-    })
-})
+      });
+    }
+  });
+  }
+});
+});
 
-module.exports = router
-
+module.exports = router;

@@ -1,9 +1,20 @@
-import { GET_CYCLES, GET_CYCLES_MEASURES, GET_CYCLES_OUTCOMES } from "../actions/types";
+import { GET_CYCLES,
+    GET_CYCLES_MEASURES,
+    GET_CYCLES_OUTCOMES,
+    GET_MEASURE_DETAILS,
+    CYCLE_LOADING,
+    GET_MEASURE_EVALUATORS,
+    GET_MEASURE_STUDENTS}
+    from "../actions/types";
 
 const initialState = {
     cycles: null,
     cycleMeasures: null,
-    outcomeMeasures: null
+    outcomeMeasures: null,
+    measureDetails: null,
+    cycleLoading: true,
+    measureEvaluators: null,
+    measureStudents: null
 }
 
 export default function (state = initialState, action) {
@@ -11,18 +22,45 @@ export default function (state = initialState, action) {
         case GET_CYCLES:
             return{
                 ...state,
-                cycles: action.payload
+                cycles: action.payload,
+                cycleLoading: false
             }
         case GET_CYCLES_OUTCOMES:
             return{
                 ...state,
-                cycleMeasures: action.payload
+                cycleMeasures: action.payload,
+                cycleLoading: false
             }
         case GET_CYCLES_MEASURES:
             return {
                 ...state,
-                outcomeMeasures: action.payload
+                outcomeMeasures: action.payload,
+                cycleLoading: false
             }
+        case GET_MEASURE_DETAILS:
+        return {
+            ...state,
+            measureDetails: action.payload,
+            cycleLoading: false
+        }
+        case GET_MEASURE_EVALUATORS:
+            return{
+                ...state,
+                measureEvaluators: action.payload,
+                cycleLoading: false
+            }
+
+        case GET_MEASURE_STUDENTS :
+        return {
+            ...state,
+            measureStudents: action.payload,
+            cycleLoading: false
+        }
+         
+        case CYCLE_LOADING:
+        return{
+            cycleLoading:true
+        }
         default:
             return state;
     }

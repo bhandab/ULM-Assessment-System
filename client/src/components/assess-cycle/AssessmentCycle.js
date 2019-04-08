@@ -1,72 +1,161 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { getAssessmentCycles, createCycle } from '../../actions/assessmentCycleAction'
-import PropTypes from "prop-types"
-import { Link, Route} from 'react-router-dom'
+import { getAssessmentCycles, createCycle, updateCycleName, deleteCycle } from '../../actions/assessmentCycleAction';
+import PropTypes from "prop-types";
+import { Link} from 'react-router-dom';
+import {Spinner, Button, Modal, Form} from 'react-bootstrap';
+import Delete from '../../utils/Delete';
 
 
 class AssessmentCycle extends Component {
 
+    state = {
+        show : false,
+        editShow: false,
+        cycleName:"",
+        cycleID:null,
+        deleteShow:false
+    }
 
     componentDidMount() {
+        if(!this.props.auth.isAuthenticated || this.props.auth.user.role !=="coordinator"){
+            this.props.history.push('/login')
+        }
         this.props.getAssessmentCycles()
         
     }
 
-     submitHandler= (e) => {
+    clickHandler = e => {
+        console.log(e.target)
+    }
+
+     submitHandler = (e) => {
         e.preventDefault()
         let value = e.target.cycleName.value
         this.props.createCycle({cycleTitle:value},this.props.history)
-        window.location.reload()
-        
 
     }
 
-   /* renderMeasures = () => {
-        console.log(this.props)
-    }*/
+    saveChangesHandler = e => {
+        e.preventDefault()
+        const value = e.target.cycleName.value
+        this.props.updateCycleName(this.state.cycleID, { cycleTitle: value })
+        this.setState({ cycleName: "", cycleID: null, editShow: false })
+    }
+
+    deleteCycleHandler = () => {
+        this.props.deleteCycle(this.state.cycleID)
+        this.setState({ cycleName: "", cycleID: null, deleteShow: false })
+    }
+
+  
+    modalShow = () => {
+        this.setState({ show: true })
+    }
+
+    modalHide = () => {
+        this.setState({show:false})
+    }
+
+    editShow = (e) => {
+        this.setState({ cycleName: e.target.value, cycleID: e.target.name, editShow: true  })
+    }
+    
+    editHide = () => {
+        this.setState({ editShow: false })
+    }
+
+    deleteShow = (e) => {
+        this.setState({ cycleName: e.target.value, cycleID: e.target.name, deleteShow:true})
+    }
+
+    deleteHide = () => {
+        this.setState({deleteShow:false})
+    }
 
 
 
     render() {
-        
+
+        //console.log(this.props)
 
         let cyclesList = null
-        if (this.props.cycles.cycles === null) {
-            cyclesList = <p>Loading Assessment Cycles </p>
-        }
-        else {
-
+        if (this.props.cycles.cycles !== null && this.props.cycles.cycles !== undefined) {
+            if (this.props.cycles.cycles.cycles !== null && this.props.cycles.cycles.cycles !== undefined) {
             cyclesList = this.props.cycles.cycles.cycles.map(cycle =>
-                <li key={cycle.cycleID}><Link params={cycle.cycleName} name={cycle.cycleID}
+                <li className="list-group-item" key={cycle.cycleID}><Link params={cycle.cycleName} name={cycle.cycleID}
                     to={{
-                        pathname: "/admin/cycles/"+cycle.cycleID,
-                                              
+                        pathname: "/admin/cycles/cycle/" + cycle.cycleID,
                     }}>
                     {cycle.cycleName}</Link>
+                    <button style={{ border: "none", background: "none" }}
+                        name={cycle.cycleID} value={cycle.cycleName}
+                        onClick={this.editShow.bind(this)}
+                        className="outcome-edit ml-2"></button>
+                    <button style={{ border: "none", background: "none" }}
+                        name={cycle.cycleID} value={cycle.cycleName}
+                        onClick={this.deleteShow.bind(this)}
+                        className="delete"></button>
                 </li>
             )
+            if(cyclesList.length === 0){
+                cyclesList = <li className="list-group-item">No Cycles Present</li>
+            }
+                }
         }
+        else {
+            cyclesList = <Spinner animation='border' variant="primary"></Spinner>
+           
+        }
+
+       
 
         
         return (
             <Fragment>
-                <section className="panel important">
-                    <h2>Assessment Cycles</h2>
-                    <ol>{cyclesList}</ol>
+                <section className="panel important border border-info rounded p-3" >
+                    <h2><strong>Assessment Cycles</strong></h2>
+                    <ul className="list-group">{cyclesList === null ? <li className="list-group-item">No Cycles Present</li>
+                    :cyclesList}</ul>
+                    <Button className = "ml-3 mr-3 float-right" onClick={this.modalShow}>Create New Cycle</Button>
                 </section>
 
-                <section className="panel important">
-                    <h2>Create New Cycle</h2>
-                    <form onSubmit = {this.submitHandler.bind(this)}>
-                    <input type="text" name="cycleName" placeholder = "Cycle Name"/> 
-                    <button className = "btn btn-primary btn-sm" type="submit" value="Create">Create</button> 
-                    </form>
-
-                </section>
-                <section className="panel important">
-                
-                </section>
+                <Modal size="lg" show = {this.state.show} onHide = {this.modalHide}
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">
+                            Create New Assessment Cycle
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={this.submitHandler.bind(this)}>
+                            <Form.Control name="cycleName" placeholder="Cycle Name"></Form.Control>
+                            <Button className="mt-3 float-right" type="submit" onClick={this.modalHide}>Create</Button>
+                        </Form>
+                    </Modal.Body>
+                    </Modal>
+                <Modal show={this.state.editShow} onHide={this.editHide}
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">
+                            Edit Cycle Name
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={this.saveChangesHandler.bind(this)}>
+                            <Form.Control name="cycleName" defaultValue={this.state.cycleName}/>
+                            <Button className="mt-3 float-right" type="submit" onClick={this.modalHide}>Save Changes</Button>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
+                <Delete hide={this.deleteHide}
+                show={this.state.deleteShow}
+                value ="Assessment Cycle"
+                name = {this.state.cycleName}
+                delete = {this.deleteCycleHandler}
+                />
             </Fragment>
         )
     }
@@ -75,7 +164,9 @@ class AssessmentCycle extends Component {
 AssessmentCycle.propTypes = {
     getAssessmentCycles: PropTypes.func.isRequired,
     createCycle: PropTypes.func.isRequired,
-    auth: PropTypes.object.isRequired
+    auth: PropTypes.object.isRequired,
+    updateCycleName: PropTypes.func.isRequired,
+    deleteCycle: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
@@ -83,4 +174,4 @@ const mapStateToProps = state => ({
     cycles: state.cycles,
 })
 
-export default connect(mapStateToProps, { getAssessmentCycles, createCycle }) (AssessmentCycle);
+export default connect(mapStateToProps, { getAssessmentCycles, createCycle, updateCycleName, deleteCycle }) (AssessmentCycle);

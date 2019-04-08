@@ -1,4 +1,4 @@
-require('dotenv').config()
+require("dotenv").config();
 module.exports = {
-    secretOrkey:process.env.SECRET
-}
+  secretOrkey: process.env.SECRET
+};
