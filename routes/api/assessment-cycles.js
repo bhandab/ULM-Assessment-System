@@ -542,17 +542,17 @@ router.post(
     let toolID = req.body.toolID;
 
     let measureName =
-      "At Least " +
+      "At least " +
       projectedStudentNumber +
       " " +
       studentNumberOperator +
-      " in Class " +
+      " in class " +
       course +
-      " Will Score " +
+      " will score " +
       projectedValue +
       " " +
       valueOperator +
-      " or Greater In " +
+      " or greater in " +
       toolName +
       " " +
       toolType;
