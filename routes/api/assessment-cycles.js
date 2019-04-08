@@ -957,4 +957,51 @@ router.post(
   }
 );
 
+// @route POST api/cycles/:measureIdentifier/studentsList
+// @desc Lists students associated with the measure
+// @access Private
+router.get(
+  "/:measureIdentifier/studentsList",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
+
+    let students = [];
+    let errors = {};
+
+    let sql =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        errors.identifierError = "Measure ID not found";
+      }
+
+      let sql1 =
+        "SELECT * FROM STUDENT NATURAL LEFT JOIN EVALUATOR_ASSIGN WHERE measureID=" +
+        db.escape(measureID);
+
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        result.forEach(row => {
+          if (!row.measureEvalID) {
+            student = {
+              name: row.studentName,
+              email: row.studentEmail,
+              CWID: row.studentCWID,
+              studentID: row.studentID
+            };
+            students.push(student);
+          }
+        });
+        res.status(200).json({ students });
+      });
+    });
+  }
+);
+
 module.exports = router;
