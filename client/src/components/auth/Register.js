@@ -39,14 +39,23 @@ class Register extends Component {
             <div className="wrapper">
                 <form className="form-signin" onSubmit={this.registerhandler.bind(this)}>
                     <h2 className="form-signin-heading">Register</h2>
+                    
                     <p className="mb-0">Name</p>
-                    <input type="text" className="form-control mb-2" name="userName" placeholder="Username" required="" autoFocus="" />
+                    <input type="text" className="form-control mb-0" name="userName" placeholder="Username" required="" autoFocus="" />
+                    <p className="mt-0" style={{fontSize:'12px', color:'red'}}>{this.props.errors.name}</p>
+
                     <p className="mb-0">Email</p>
-                    <input type="email" className="form-control mb-2" name="email" placeholder="Username" required="" autoFocus=""/>
+                    <input type="email" className="form-control mb-0" name="email" placeholder="Username" required="" autoFocus=""/>
+                    <p className="mt-0" style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.email}</p>
+
                     <p className="mb-0">Password</p>
-                    <input type="password" className="form-control mb-2" name="password" placeholder="Password" required=""  />
+                    <input type="password" className="form-control mb-0" name="password" placeholder="Password" required=""  />
+                    <p className="mt-0" style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.password}</p>
+
                     <p className="mb-0">Confirm Password</p>
-                    <input type="password" className="form-control mb-4" name="password2" placeholder="Confirm Password" required="" />
+                    <input type="password" className="form-control mb-0" name="password2" placeholder="Confirm Password" required="" />
+                    <p className="mt-0 mb-4" style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.password2}</p>
+
                     <button className="btn btn-lg btn-primary btn-block" type="submit">Register</button>
                     <Link className="float-right" to="/login">Login</Link>
                 </form>

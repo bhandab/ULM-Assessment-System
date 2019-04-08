@@ -43,7 +43,7 @@ class Measures extends Component {
 
         return (
             <Fragment>
-                <section className="panel important">
+                <section className="panel important border border-info rounded p-3">
                     <h2> List of Performance Measures </h2>
                     <hr />
                     <ol className="list-group">

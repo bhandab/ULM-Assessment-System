@@ -4,7 +4,7 @@ import {Modal, Button} from 'react-bootstrap'
 const deleteModal = (props) => {
     return (
         <Modal show={props.show} centered onHide={props.hide}>
-            <Modal.Title style={{color:"red"}} className="ml-3">
+            <Modal.Title style={{color:"red"}} className="ml-3 mt-2">
                 Confirm Delete <hr/>
             </Modal.Title>
             <Modal.Body>

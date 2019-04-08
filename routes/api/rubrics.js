@@ -463,7 +463,7 @@ router.post(
         "UPDATE CRITERIA SET criteriaWeight=" +
         db.escape(weight / 100) +
         " WHERE toolID=" +
-        db.escape(toolID) +
+        db.escape(rubricID) +
         " AND criteriaID=" +
         db.escape(criteriaID);
       db.query(sql1, (err, result) => {

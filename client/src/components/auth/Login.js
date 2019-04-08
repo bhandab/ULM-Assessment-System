@@ -77,9 +77,13 @@ class Login extends Component {
             <div className="wrapper">
                 <form className="form-signin">
                     <h2 className="form-signin-heading">Please Login</h2>
+
                     <input type="text" className="form-control" name="email" placeholder="Username" required="" autoFocus="" value={this.state.email} onChange={this.onChangeHandler.bind(this)} />
-                    <input type="password" className="form-control mb-4" name="password" placeholder="Password" required="" value={this.state.password} onChange={this.onChangeHandler} />
-                    {!(isEmpty(this.props.errors.password)) ? <p className="text-danger mt-0">Incorrect email or password</p> :null }
+                    <p className="mt-0" style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.email}</p>
+
+                    <input type="password" className="form-control" name="password" placeholder="Password" required="" value={this.state.password} onChange={this.onChangeHandler} />
+                    <p className="mt-0" style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.password}</p>
+
                     <label className="checkbox">
                         <input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe" /> Remember Me
                         </label>
