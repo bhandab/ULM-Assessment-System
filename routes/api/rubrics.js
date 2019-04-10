@@ -83,13 +83,9 @@ router.post(
           let sql7 =
             "INSERT INTO RATING_SCALE (toolID, scaleDesc,scaleValue) VALUES ?";
 
-          req.body.scales.sort((a, b) => b.scaleValue - a.scaleValue);
+          //req.body.scales.sort((a, b) => b.scaleValue - a.scaleValue);
           for (var i = 0; i < noOfColumns; i++) {
-            values.push([
-              rubricID,
-              req.body.scales[i].scaleDesc,
-              req.body.scales[i].scaleValue
-            ]);
+            values.push([rubricID, "", i + 1]);
           }
 
           db.query(sql7, [values], (err, result) => {
@@ -101,8 +97,8 @@ router.post(
             for (var i = 0; i < noOfColumns; i++) {
               scales.push({
                 scaleID,
-                scaleDescription: req.body.scales[i].scaleDesc,
-                scaleValue: req.body.scales[i].scaleValue
+                scaleDescription: "",
+                scaleValue: i + 1
               });
               scaleID++;
             }
@@ -110,11 +106,12 @@ router.post(
 
             let criterias = [];
             let crValues = [];
-            let sql8 = "INSERT INTO CRITERIA (toolID,criteriaDesc) VALUES ?";
+            let sql8 =
+              "INSERT INTO CRITERIA (toolID,criteriaDesc,criteriaWeight) VALUES ?";
             let criteriaDescription = "";
 
             for (var i = 0; i < noOfRows; i++) {
-              crValues.push([rubricID, criteriaDescription]);
+              crValues.push([rubricID, criteriaDescription, 0]);
             }
 
             db.query(sql8, [crValues], (err, result) => {
@@ -439,39 +436,59 @@ router.post(
 // @desc Updates scale weight of a rubric
 // @access Private
 router.post(
-  "/:rubricIdentifier/:criteriaIdentifier/updateWeight",
+  "/:rubricIdentifier/updateWeight",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let rubricID = req.params.rubricIdentifier;
     let criteriaID = req.params.criteriaIdentifier;
     let adminID = req.user.id;
-
-    let weight = parseFloat(req.body.weight);
-    let sql =
-      "SELECT * FROM CRITERIA WHERE toolID=" +
-      db.escape(rubricID) +
-      " AND criteriaID=" +
-      db.escape(criteriaID);
+    let errors = {};
+    let totalWeight = 0;
+    for (var i = 0; i < req.body.length; i++) {
+      req.body[i].weight = parseFloat(req.body[i].weight);
+      totalWeight += req.body[i].weight;
+    }
+    if (totalWeight !== 100) {
+      errors.weightSum = "Weight Sum is not equal to hundred";
+      return res.status(404).json({ errors });
+    }
+    //parseFloat(req.body.weight);
+    let sql = "SELECT * FROM RUBRIC WHERE toolID=" + db.escape(rubricID);
 
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
       } else if (result.length <= 0) {
-        return res.status(404).json({ errors: "Param values invalid" });
+        errors.param = "Params Value Invalid";
+        return res.status(404).json({ errors });
       }
-      let sql1 =
-        "UPDATE CRITERIA SET criteriaWeight=" +
-        db.escape(weight / 100) +
-        " WHERE toolID=" +
-        db.escape(rubricID) +
-        " AND criteriaID=" +
-        db.escape(criteriaID);
-      db.query(sql1, (err, result) => {
-        if (err) {
-          return res.status(500).json(err);
+      async.forEachOfSeries(
+        req.body,
+        (value, key, callback) => {
+          let sql1 =
+            "UPDATE CRITERIA SET criteriaWeight=" +
+            db.escape(value.weight / 100) +
+            " WHERE toolID=" +
+            db.escape(rubricID) +
+            " AND criteriaID=" +
+            db.escape(value.criteriaID);
+          db.query(sql1, (err, result) => {
+            if (!err) {
+              console.log("Sucess 1");
+              callback();
+            } else {
+              console.log("Reaches here");
+              return callback(err);
+            }
+          });
+        },
+        err => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          return res.status(200).json("Sucess");
         }
-        res.status(200).json(weight, criteriaID, rubricID);
-      });
+      );
     });
   }
 );
