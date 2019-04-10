@@ -393,8 +393,8 @@ router.post(
   }
 );
 
-// @route POST api/cycles/:rubricIdentifier/:cellIdentifier/updateLevelDescription
-// @desc Updates scale description of a rubric
+// @route POST api/cycles/:rubricIdentifier/updateLevelDescription
+// @desc Updates level description of a rubric
 // @access Private
 router.post(
   "/:rubricIdentifier/updateLevelDescription",
@@ -432,8 +432,8 @@ router.post(
   }
 );
 
-// @route POST api/cycles/:rubricIdentifier/:criteriaIdentifier/updateWeight
-// @desc Updates scale weight of a rubric
+// @route POST api/cycles/:rubricIdentifier/updateWeight
+// @desc Updates criteria weight of a rubric
 // @access Private
 router.post(
   "/:rubricIdentifier/updateWeight",
@@ -492,4 +492,47 @@ router.post(
     });
   }
 );
+
+// @route POST api/rubrics/:rubricIdentifier/updateScaleDescription
+// @desc Updates scale description  of a rubric
+// @access Private
+router.post(
+  "/:rubricIdentifier/updateScaleDescription",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let rubricID = req.params.rubricIdentifier;
+    let scaleID = req.body.scaleID;
+    let adminID = req.user.id;
+    let scaleDesc = req.body.scaleDescription;
+
+    let errors = {};
+
+    let sql1 =
+      "SELECT * FROM RATING_SCALE WHERE toolID=" +
+      db.escape(rubricID) +
+      " AND scaleID=" +
+      db.escape(scaleID);
+
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        errors.paramsError = "Rubric Cell with the given details not found";
+        return res.status(404).json({ errors });
+      }
+      let sql2 =
+        "UPDATE RATING_SCALE SET scaleDesc=" +
+        db.escape(scaleDesc) +
+        " WHERE scaleID=" +
+        db.escape(scaleID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        res.status(200).json({ scaleDesc, adminID, scaleID, rubricID });
+      });
+    });
+  }
+);
+
 module.exports = router;
