@@ -967,13 +967,13 @@ router.post(
 // @access Private
 
 router.post(
-  ":/measureIdentifier/addStudent",
+  "/:measureIdentifier/addStudent",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let measureID = req.params.measureIdentifier;
     let students = [req.body.name, req.body.email, req.body.CWID];
     let errors = {};
-
+    
     let sql1 =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
       db.escape(measureID);
@@ -990,41 +990,47 @@ router.post(
           errors.validationError = validationError;
           return res.status(404).json(errors);
         }
-        let name = req.body.name;
-        let email = req.body.email;
-        let CWID = req.body.CWID;
-        let sql2 =
-          "SELECT * FROM STUDENT WHERE measureID=" +
-          db.escape(measureID) +
-          " AND studentEmail=" +
-          db.escape(email);
-        db.query(sql2, (err, result) => {
-          if (err) {
-            return res.status(500).json(err);
-          } else if (result.length > 0) {
-            errors.studentError = "Student Already Exists";
-            return res.status(errors);
-          }
-          let sql3 =
-            "INSERT INTO STUDENT (studentName, studentEmail,studentCWID, measureID,corId) VALUES (" +
-            db.escape(name) +
-            ", " +
-            db.escape(email) +
-            ", " +
-            db.escape(CWID) +
-            ", " +
+        else{
+          let name = req.body.name;
+          let email = req.body.email;
+          let CWID = req.body.CWID;
+          let sql2 =
+            "SELECT * FROM STUDENT WHERE measureID=" +
             db.escape(measureID) +
-            ", " +
-            db.escape(req.user.id);
-          db.query(sql3, (err, result) => {
+            " AND studentEmail=" +
+            db.escape(email);
+          db.query(sql2, (err, result) => {
             if (err) {
               return res.status(500).json(err);
+            } else if (result.length > 0) {
+              errors.studentError = "Student Already Exists";
+              return res.status(errors);
             }
-            res
-              .status(200)
-              .json({ name, email, CWID, measureID, adminID: req.user.id });
+            else{
+              let sql3 =
+                "INSERT INTO STUDENT (studentName, studentEmail,studentCWID, measureID,corId) VALUES (" +
+                db.escape(name) +
+                ", " +
+                db.escape(email) +
+                ", " +
+                db.escape(CWID) +
+                ", " +
+                db.escape(measureID) +
+                ", " +
+                db.escape(req.user.id)+")";
+              db.query(sql3, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
+                res
+                  .status(200)
+                  .json({ name, email, CWID, measureID, adminID: req.user.id });
+              });
+            }
+         
           });
-        });
+        }
+
       }
     });
   }

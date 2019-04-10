@@ -258,6 +258,22 @@ div .jumbotron{
   overflow: auto;
 }
 
+main ol li ol {
+  padding-left: 0 !important
+}
+
+#gotoUpload{
+  border: 1px solid rgb(233, 236, 239);
+  padding: 2px;
+  border-radius: 5%;
+  background: rgba(233, 236, 239,.5);
+}
+
+#gotoUpload:hover{
+  cursor: pointer;
+  background: rgba(233, 236, 239,1)
+}
+
 /** Media Query*/
 @media screen and (min-width: 600px) {
   html,
