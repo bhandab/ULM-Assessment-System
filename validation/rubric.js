@@ -13,9 +13,8 @@ module.exports = function validateRubricStructureInput(data) {
     errors.weighted = "Weighted Field Cannot be empty";
   } else if (!Validator.isBoolean) {
     errors.weighted = "Weighted Field Should be a boolean";
-  }
-  else{
-    data.weighted = Validator.toBoolean(data.weighted)
+  } else {
+    data.weighted = Validator.toBoolean(data.weighted);
   }
 
   if (Validator.isEmpty(data.rows)) {
@@ -33,7 +32,7 @@ module.exports = function validateRubricStructureInput(data) {
   } else {
     data.columns = parseInt(data.columns);
   }
-
+  /*
   data.scales.forEach((scale, index) => {
     console.log(scale);
     console.log(index);
@@ -48,7 +47,7 @@ module.exports = function validateRubricStructureInput(data) {
         ? scale.scaleDesc.trim()
         : "";
     }
-  });
+  });*/
 
   if (Validator.isEmpty(data.rubricName)) {
     errors.rubricName = "Rubric Title field cannot be empty";
