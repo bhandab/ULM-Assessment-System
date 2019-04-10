@@ -15,7 +15,7 @@ class AllRubrics extends Component {
     }
 
     componentDidMount() {
-        if (!this.props.auth.isAuthenticated) {
+        if (!this.props.auth.isAuthenticated && this.props.auth.user.role !== "coordinator") {
             this.props.history.push('/login')
         }
 
