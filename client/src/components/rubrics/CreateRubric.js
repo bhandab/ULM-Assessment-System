@@ -61,27 +61,38 @@ class CreateRubric extends Component {
   saveChangesClick = e => {
     const criteriaWeight = []
     const criteriaWtObj = []
-    let sum = 0 
+    let sum = 0
+    const weighted = this.props.rubric.singleRubric.rubricDetails.structureInfo.weighted
+    
+    if(weighted === 1){
     const length = this.props.rubric.singleRubric.rubricDetails.criteriaInfo.length
     for(let i = 0; i < length; i++ ) {
       const id = "weight" + i
       const wt = document.getElementById(id)
-      criteriaWeight.push(wt.value)
-      sum += parseFloat(wt.value)
+      const value = parseFloat(wt.value)
+      //if (value !== "number" ){value = 0}
+      criteriaWeight.push(value)
+      sum += value
       criteriaWtObj.push({
         criteriaID: wt.name,
-        weight: wt.value
+        weight: value
       })
     }
-    console.log(criteriaWtObj)
+    // console.log(criteriaWtObj)
     console.log(criteriaWeight)
+    console.log(sum)
     if(sum < 100){
-      const alert = "The total criteria weight should be 100%".fontcolor("red")
+      const alert = "The total criteria weight should be 100%"
       window.alert(alert)
     }
     else if (sum > 100){
       window.alert("The total criteria weight cannot exceed 100%")
     }
+    else{
+      this.props.updateCriteriaWeight(this.props.match.params.rubricID, criteriaWtObj)
+      this.props.history.push("/admin/rubrics")
+    }
+  }
   }
 
   render() {
@@ -109,7 +120,7 @@ class CreateRubric extends Component {
         tableHeader.push(
           <th key={"row1col"+(i+2)}>
             <div style={{ border: "none" }}>
-              {rubricDetails.scaleInfo[i].scaleDescription}
+              {rubricDetails.scaleInfo[i].scaleValue}
             </div>
           </th>
         );
@@ -158,7 +169,8 @@ class CreateRubric extends Component {
               id={"weight"+j}
               defaultValue={rubricDetails.criteriaInfo[j].criteriaWeight} 
               name={rubricDetails.criteriaInfo[j].criteriaID}
-              onChange={this.updateCriteriaWeight.bind(this)}
+              min = "0"
+              max = "100"
               />
           </td>
         )
