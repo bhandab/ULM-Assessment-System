@@ -932,14 +932,15 @@ router.post(
                   return res.status(404).json({ errors: validationError });
                 }
                 var newArray = students.filter((row, index) => {
-                  if (index === 0 || existingStudents.has(row[1])) {
+                  if (existingStudents.has(row[1])) {
                     return false;
                   } else {
                     existingStudents.add(row[1]);
                     return true;
                   }
                 });
-                console.log(newArray.length);
+                //console.log(newArray.length);
+                //console.log("Gets Here");
                 let sql3 =
                   "INSERT INTO STUDENT (studentName,studentEmail,studentCWID,corId,measureID) VALUES ?";
                 if (newArray.length > 0) {
@@ -1033,7 +1034,7 @@ router.post(
 );
 
 // @route GET api/cycles/:measureIdentifier/notAssignedstudentsList
-// @desc Lists students associated with the measure; but not assigned yet
+// @desc Lists students associated with the measure but not assigned as well as the total list of students
 // @access Private
 router.get(
   "/:measureIdentifier/studentsList",
@@ -1083,11 +1084,11 @@ router.get(
 );
 
 // @route GET api/cycles/:measureIdentifier/assignedStudentsInformation
-// @desc List Assigned but not evaluated and assigned and evaluated students list
+// @desc List Assigned but not evaluated as well as assigned and evaluated students list
 // @access private
 
 router.get(
-  "/:measureIdentiifer/assignedStudentsInformation",
+  "/:measureIdentifier/assignedStudentsInformation",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let measureID = req.params.measureIdentifier;
@@ -1177,9 +1178,9 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         } else if (result.length > 0) {
-          errors.foundError =
+          errors.assignmentFoundError =
             "You have already assigned the selected evaluator and student to this rubric";
-          return res.status({ errors });
+          return res.status(404).json({ errors });
         }
         let sql2 =
           "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES (" +
