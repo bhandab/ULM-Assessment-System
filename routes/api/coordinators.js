@@ -14,7 +14,8 @@ router.get(
   (req, res) => {
     let invitedCoordinators = [];
     let sql =
-      "SELECT * FROM INVITED_COORDINATOR WHERE superID=" + db.escape(req.user.id);
+      "SELECT * FROM INVITED_COORDINATOR WHERE superID=" +
+      db.escape(req.user.id);
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -36,7 +37,7 @@ router.post(
       return res.status(404).json(errors);
     }
     let coordinatorEmail = req.body.coordinatorEmail;
-    let programName =req.body.programName;
+    let programName = req.body.programName;
     let adminID = req.user.id;
     let sql0 =
       "SELECT * FROM COORDINATOR WHERE corEmail=" + db.escape(coordinatorEmail);
@@ -61,46 +62,47 @@ router.post(
             "Invitation has been sent, but coordinator has not created the account yet; Please contact the coordinator";
 
           return res.status(404).json(errors);
-        }
-        else{
+        } else {
           let sql2 =
-          "INSERT INTO INVITED_COORDINATOR (invitedCorEmail,programName,superId) VALUES(" +
-          db.escape(coordinatorEmail) +
-          ", " +  
-          db.escape(programName) +
-          ", " +
-          db.escape(adminID) +
-          ")";
+            "INSERT INTO INVITED_COORDINATOR (invitedCorEmail,programName,superId) VALUES(" +
+            db.escape(coordinatorEmail) +
+            ", " +
+            db.escape(programName) +
+            ", " +
+            db.escape(adminID) +
+            ")";
           //console.log(invite(req.user.email, req.user.name, coordinatorEmail,res))
           //if(invite(req.user.email, req.user.name, coordinatorEmail)){
-            invite(req.user.email, req.user.name, coordinatorEmail)
-            .then((value)=>{
+          invite(req.user.email, req.user.name, coordinatorEmail)
+            .then(value => {
               db.query(sql2, (err, result) => {
                 if (err) {
                   return res.status(500).json(err);
                 }
-                
-                 res
-                  .status(200)
-                  .json(`An invitation email has been sent to ${coordinatorEmail}`);
-              });
-            }).catch((e)=>{
-              return res.status(404).json("There was some problem adding and sending email to the coordinator")
-            })
-            
-           
-          //}
-         // else{
-            //return res.status(404).json("There was some problem")
-          //}
-         
-       
-        }
 
+                res
+                  .status(200)
+                  .json(
+                    `An invitation email has been sent to ${coordinatorEmail}`
+                  );
+              });
+            })
+            .catch(e => {
+              return res
+                .status(404)
+                .json(
+                  "There was some problem adding and sending email to the coordinator"
+                );
+            });
+
+          //}
+          // else{
+          //return res.status(404).json("There was some problem")
+          //}
+        }
       });
     });
   }
 );
-
 
 module.exports = router;

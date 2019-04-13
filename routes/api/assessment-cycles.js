@@ -865,7 +865,7 @@ router.get(
 );
 
 // @route POST api/cycles/:measureIdentifier/uploadStudents
-// @desc Uploads students to be evaluated
+// @desc Uploads students to be evaluated using file upload
 // @access Private
 
 const multer = require("multer");
@@ -939,7 +939,7 @@ router.post(
                     return true;
                   }
                 });
-                console.log(newArray.length)
+                console.log(newArray.length);
                 let sql3 =
                   "INSERT INTO STUDENT (studentName,studentEmail,studentCWID,corId,measureID) VALUES ?";
                 if (newArray.length > 0) {
@@ -950,7 +950,6 @@ router.post(
                     res.status(200).json({ students: newArray });
                   });
                 }
-               
               });
           }
         });
@@ -962,8 +961,8 @@ router.post(
   }
 );
 
-// @route POST api/cycles/:measureIdentifier/uploadStudents
-// @desc Adds students to be evaluated from form
+// @route POST api/cycles/:measureIdentifier/addStudent
+// @desc Adds student to be evaluated from form
 // @access Private
 
 router.post(
@@ -973,7 +972,7 @@ router.post(
     let measureID = req.params.measureIdentifier;
     let students = [req.body.name, req.body.email, req.body.CWID];
     let errors = {};
-    
+
     let sql1 =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
       db.escape(measureID);
@@ -989,8 +988,7 @@ router.post(
         if (validationError) {
           errors.validationError = validationError;
           return res.status(404).json(errors);
-        }
-        else{
+        } else {
           let name = req.body.name;
           let email = req.body.email;
           let CWID = req.body.CWID;
@@ -1005,8 +1003,7 @@ router.post(
             } else if (result.length > 0) {
               errors.studentError = "Student Already Exists";
               return res.status(errors);
-            }
-            else{
+            } else {
               let sql3 =
                 "INSERT INTO STUDENT (studentName, studentEmail,studentCWID, measureID,corId) VALUES (" +
                 db.escape(name) +
@@ -1017,7 +1014,8 @@ router.post(
                 ", " +
                 db.escape(measureID) +
                 ", " +
-                db.escape(req.user.id)+")";
+                db.escape(req.user.id) +
+                ")";
               db.query(sql3, (err, result) => {
                 if (err) {
                   return res.status(500).json(err);
@@ -1027,17 +1025,15 @@ router.post(
                   .json({ name, email, CWID, measureID, adminID: req.user.id });
               });
             }
-         
           });
         }
-
       }
     });
   }
 );
 
-// @route GET api/cycles/:measureIdentifier/studentsList
-// @desc Lists students associated with the measure
+// @route GET api/cycles/:measureIdentifier/notAssignedstudentsList
+// @desc Lists students associated with the measure; but not assigned yet
 // @access Private
 router.get(
   "/:measureIdentifier/studentsList",
@@ -1046,6 +1042,7 @@ router.get(
     let measureID = req.params.measureIdentifier;
 
     let students = [];
+    let notAssignedStudents = [];
     let errors = {};
 
     let sql =
@@ -1056,6 +1053,7 @@ router.get(
         return res.status(500).json(err);
       } else if (result.length <= 0) {
         errors.identifierError = "Measure ID not found";
+        return res.status(404).json(errors);
       }
 
       let sql1 =
@@ -1067,17 +1065,140 @@ router.get(
           return res.status(500).json(err);
         }
         result.forEach(row => {
+          student = {
+            name: row.studentName,
+            email: row.studentEmail,
+            CWID: row.studentCWID,
+            studentID: row.studentID
+          };
           if (!row.measureEvalID) {
-            student = {
-              name: row.studentName,
-              email: row.studentEmail,
-              CWID: row.studentCWID,
-              studentID: row.studentID
-            };
-            students.push(student);
+            notAssignedStudents.push(student);
+          }
+          students.push(student);
+        });
+        res.status(200).json({ notAssignedStudents, students });
+      });
+    });
+  }
+);
+
+// @route GET api/cycles/:measureIdentifier/assignedStudentsInformation
+// @desc List Assigned but not evaluated and assigned and evaluated students list
+// @access private
+
+router.get(
+  "/:measureIdentiifer/assignedStudentsInformation",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
+
+    let assignedStudentsList = [];
+    let evaluatedStudentsList = [];
+    let errors = {};
+
+    let sql =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        errors.identifierError = "Measure ID not found";
+        return res.status(404).json({ errors });
+      }
+      let sql1 =
+        "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN EVALUATOR_ASSIGN NATURAL LEFT JOIN EVALUATE WHERE measureID=" +
+        db.escape(measureID);
+
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        result.forEach(row => {
+          student = {
+            name: row.studentName,
+            email: row.studentEmail,
+            CWID: row.studentCWID,
+            studentID: row.studentID,
+            evalEmail: row.evalEmail,
+            evalName: row.evalName,
+            measureEvalID: row.measureEvalID
+          };
+          if (!row.criteriaScore) {
+            assignedStudentsList.push(student);
+          } else {
+            evaluatedStudentsList.push(student);
           }
         });
-        res.status(200).json({ students });
+        res.status(200).json({ assignedStudentsList, evaluatedStudentsList });
+      });
+    });
+  }
+);
+
+// @route POST api/cycles/:measureIdentifier/assign
+// @desc Assign Tool and Student to Evaluator for evaluation purpose
+// @access private
+
+router.post(
+  "/:measureIdentifier/assign",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
+    let adminID = req.user.id;
+    let evalID = req.body.evalID;
+    let rubricID = req.body.rubricID;
+    let studentID = req.body.studentID;
+    let errors = {};
+    let sql =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        errors.identifierError = "Measure ID not found";
+        return res.status(404).json(errors);
+      }
+
+      let sql1 =
+        "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
+        db.escape(adminID) +
+        " AND measureEvalID=" +
+        db.escape(evalID) +
+        " AND studentID=" +
+        db.escape(studentID) +
+        " AND toolID=" +
+        db.escape(rubricID) +
+        " AND measureID=" +
+        db.escape(measureID);
+
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        } else if (result.length > 0) {
+          errors.foundError =
+            "You have already assigned the selected evaluator and student to this rubric";
+          return res.status({ errors });
+        }
+        let sql2 =
+          "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES (" +
+          db.escape(adminID) +
+          ", " +
+          db.escape(evalID) +
+          ", " +
+          db.escape(studentID) +
+          ", " +
+          db.escape(rubricID) +
+          ", " +
+          db.escape(measureID) +
+          ")";
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json(result);
+        });
       });
     });
   }
