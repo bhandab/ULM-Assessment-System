@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 
 class CreateRubric extends Component {
   componentDidMount() {
-    if (!this.props.auth.isAuthenticated) {
+    if (!this.props.auth.isAuthenticated && this.props.auth.user.role !== "coordinator") {
       this.props.history.push("/login");
     }
 
@@ -26,11 +26,11 @@ class CreateRubric extends Component {
     console.log(e.target.name);
   };
 
-  onChangehandler = e => {
-    console.log("onChange");
-    console.log(e.target.value);
-    console.log(e.target.name);
-  };
+  // onChangehandler = e => {
+  //   console.log("onChange");
+  //   console.log(e.target.value);
+  //   console.log(e.target.name);
+  // };
 
   updateCriteria = e => {
     const body = {
@@ -58,6 +58,43 @@ class CreateRubric extends Component {
     this.props.updateCriteriaWeight(this.props.match.params.rubricID, id, body)
   } 
 
+  saveChangesClick = e => {
+    const criteriaWeight = []
+    const criteriaWtObj = []
+    let sum = 0
+    const weighted = this.props.rubric.singleRubric.rubricDetails.structureInfo.weighted
+    
+    if(weighted === 1){
+    const length = this.props.rubric.singleRubric.rubricDetails.criteriaInfo.length
+    for(let i = 0; i < length; i++ ) {
+      const id = "weight" + i
+      const wt = document.getElementById(id)
+      const value = parseFloat(wt.value)
+      //if (value !== "number" ){value = 0}
+      criteriaWeight.push(value)
+      sum += value
+      criteriaWtObj.push({
+        criteriaID: wt.name,
+        weight: value
+      })
+    }
+    // console.log(criteriaWtObj)
+    console.log(criteriaWeight)
+    console.log(sum)
+    if(sum < 100){
+      const alert = "The total criteria weight should be 100%"
+      window.alert(alert)
+    }
+    else if (sum > 100){
+      window.alert("The total criteria weight cannot exceed 100%")
+    }
+    else{
+      this.props.updateCriteriaWeight(this.props.match.params.rubricID, criteriaWtObj)
+      this.props.history.push("/admin/rubrics")
+    }
+  }
+  }
+
   render() {
     console.log(this.props);
 
@@ -83,7 +120,7 @@ class CreateRubric extends Component {
         tableHeader.push(
           <th key={"row1col"+(i+2)}>
             <div style={{ border: "none" }}>
-              {rubricDetails.scaleInfo[i].scaleDescription}
+              {rubricDetails.scaleInfo[i].scaleValue}
             </div>
           </th>
         );
@@ -123,16 +160,21 @@ class CreateRubric extends Component {
             </td>
           );
         }
+        
+        if (weighted === 1) {
         cells.push(
           <td key={"wei" + rubricDetails.criteriaInfo[j].criteriaID}>
             <FormControl type="number"
               style={{ height: "100px" }}
+              id={"weight"+j}
               defaultValue={rubricDetails.criteriaInfo[j].criteriaWeight} 
               name={rubricDetails.criteriaInfo[j].criteriaID}
-              onChange={this.updateCriteriaWeight.bind(this)}
+              min = "0"
+              max = "100"
               />
           </td>
         )
+        }
         cells = <tr key={"row"+(j+2)}>{cells}</tr>;
         table.push(cells);
       }
@@ -152,11 +194,11 @@ class CreateRubric extends Component {
           <section className="panel important">
             <h2 className="align-middle">{rubricTitle}</h2>
             {table}
-            <Link to={"/admin/rubrics"}>
-              <Button className="btn btn-primary mt-2 float-right">
+            {/*<Link to={"/admin/rubrics"}>*/}
+              <Button onClick={this.saveChangesClick.bind(this)} className="btn btn-primary mt-2 float-right">
                 Save Changes
               </Button>
-            </Link>
+            {/*</Link>*/}
           </section>
         )}
       </Fragment>

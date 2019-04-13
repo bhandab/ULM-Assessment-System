@@ -15,7 +15,7 @@ class AllRubrics extends Component {
     }
 
     componentDidMount() {
-        if (!this.props.auth.isAuthenticated) {
+        if (!this.props.auth.isAuthenticated && this.props.auth.user.role !== "coordinator") {
             this.props.history.push('/login')
         }
 
@@ -23,9 +23,10 @@ class AllRubrics extends Component {
     }
 
     saveChangesHandler = e => {
+        
         e.preventDefault();
 
-        let scaleInfo = []
+        /*let scaleInfo = []
 
         for(let i = 0; i < this.state.scaleInfo.length; i++){
             const scaleDescName = `scaleDesc${i+1}`
@@ -37,19 +38,19 @@ class AllRubrics extends Component {
                 scaleValue : value
             }
             scaleInfo.push(scale)
-        }
+        }*/
         
         const rubricDetails = {
             rubricName: e.target.rubricTitle.value,
             rows: e.target.rows.value,
             columns: e.target.cols.value,
-            scales: scaleInfo,
+            //scales: scaleInfo,
             weighted: e.target.weighted.checked+""
         };
         this.props.createRubric(rubricDetails);
         console.log(rubricDetails)
         //localStorage.setItem('rubric',JSON.stringify(rubricDetails))
-        this.setState({createRubric:false, scaleInfo:[]})
+        this.setState({createRubric:false})
     };
 
     handleRubricCreateHide = () => {
@@ -60,14 +61,14 @@ class AllRubrics extends Component {
         this.setState({ createRubric: true });
     };
 
-    columnChangeHandler = (e) => {
+    /*columnChangeHandler = (e) => {
         console.log("Column Changed")
         console.log(e.target.parent)
         const cols = e.target.value
         for(let i = 0; i < cols; i++){
 
         }
-    }
+    }*/
 
     render() {
 
@@ -94,9 +95,9 @@ class AllRubrics extends Component {
         }
 
         
-       const columnChangeHandler = (e) => {
-            this.setState({scaleInfo:[]})
-            let scaleInfo = []
+       /*const columnChangeHandler = (e) => {
+            //this.setState({scaleInfo:[]})
+            //let scaleInfo = []
             console.log("Column Changed")
             console.log(e.target.parentNode.parentNode)
             const cols = e.target.value
@@ -127,7 +128,7 @@ class AllRubrics extends Component {
                 scaleInfo.push(scale)
                 this.setState({scaleInfo:scaleInfo})
             }
-        }
+        }*/
 
         return (
             <section className="panel important">
@@ -179,7 +180,7 @@ class AllRubrics extends Component {
                                     <Form.Label className="font-weight-bold">
                                         Columns
                                     </Form.Label>
-                                    <Form.Control onChange={columnChangeHandler.bind(this)}
+                                    <Form.Control
                                         type="number"
                                         placeholder="No. of Cols"
                                         min="0"
@@ -191,7 +192,6 @@ class AllRubrics extends Component {
                         <FormCheck type="checkbox" label="Weighted Rubric" name="weighted"/>
                            
 
-                            {this.state.scaleInfo}
                             <Button
                                 variant="secondary"
                                 className="float-right ml-2"
