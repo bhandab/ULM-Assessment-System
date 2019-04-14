@@ -58,7 +58,7 @@ class Evaluators extends Component {
         if (this.props.evaluator.evaluators !== null) {
             evaluatorsList = this.props.evaluator.evaluators.evaluators.map((item, index) => {
                 return (
-                    <li className="list-group-item" key={index}>{item.name}</li>
+                    <li className="list-group-item" key={index}>{item.name} ({item.email})</li>
                 )
             })
         }
