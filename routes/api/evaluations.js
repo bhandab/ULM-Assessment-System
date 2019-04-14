@@ -14,7 +14,7 @@ router.get(
     let evaluations = [];
 
     let sql =
-      "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN STUDENT WHERE evalID=" +
+      "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN STUDENT NATURAL JOIN RUBRIC WHERE evalID=" +
       db.escape(evalID);
 
     db.query(sql, (err, result) => {
@@ -33,7 +33,8 @@ router.get(
           evalName: row.evalName,
           studentName: row.studentName,
           studentCWID: row.studentCWID,
-          studentEmail: row.studentEmail
+          studentEmail: row.studentEmail,
+          rubricName: row.rubricTitle
         };
         evaluations.push(evalInfo);
       });

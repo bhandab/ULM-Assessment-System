@@ -414,7 +414,8 @@ const MapStateToProps = state => ({
     measureDetails: state.measureDetails,
     measureEvaluators: state.measureEvaluators,
     errors: state.errors,
-    measureStudents: state.measureStudents
+    measureStudents: state.measureStudents,
+    assignStudents: state.assugnedStudents
 })
 export default connect(MapStateToProps,
     {

@@ -1,7 +1,9 @@
-import React, {Component} from 'react'
+import React, {Component, Fragment} from 'react'
 import { connect } from "react-redux";
 import PropTypes from 'prop-types';
+import { Route, Switch } from 'react-router-dom';
 import EvaluatorLayout from '../layouts/EvaluatorLayout';
+import Evaluate from '../evaluator/Evaluate';
 
 
 class Evaluator extends Component {
@@ -15,7 +17,14 @@ class Evaluator extends Component {
 
     render (){
         return(
+            <Fragment>
             <EvaluatorLayout/>
+
+            <main>
+                <Route path="/evaluator/evaluate" component ={Evaluate}/>
+            </main>
+            </Fragment>
+            
         )
     }
 } 

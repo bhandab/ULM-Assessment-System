@@ -7,6 +7,7 @@ import {
     GET_MEASURE_STUDENTS,
     GET_CYCLES_OUTCOMES,
     GET_MEASURE_DETAILS,
+    GET_ASSIGNED_STUDENTS,
     CYCLE_LOADING
 }
     from './types';
@@ -275,19 +276,19 @@ export const assignStudentsToMeasure = (measureID, body) => dispatch => {
     console.log("gets to action")
     axios
         .post("/api/cycles/" + measureID + "/assign",body)
-        .then(res => {
+        .then(res =>
             dispatch({
-                type: GET_MEASURE_STUDENTS,
+                type: GET_ASSIGNED_STUDENTS,
                 payload: res.data
             })
-        })
-        .catch(err => {
-            dispatch({
+        )
+        .catch(err => console.log(err) /*{
+            dispatch(console.log(err){
                 type: GET_ERRORS,
                 payload: err.response.data
 
-            })
-        })
+            
+        }*/)
 }
 
 export const setLoading = () => {

@@ -1,8 +1,8 @@
 import axios from 'axios'
-import {} from './types'
+import {EVALUATION_DETAILS} from './types'
 
 
-export const evaluatorDetails = () => dispatch => {
+export const getEvaluatorDetails = () => dispatch => {
     axios
     .get("/api/evaluations")
     .then(res => dispatch({

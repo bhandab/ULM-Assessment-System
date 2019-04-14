@@ -4,7 +4,8 @@ import { GET_CYCLES,
     GET_MEASURE_DETAILS,
     CYCLE_LOADING,
     GET_MEASURE_EVALUATORS,
-    GET_MEASURE_STUDENTS}
+    GET_MEASURE_STUDENTS,
+    GET_ASSIGNED_STUDENTS}
     from "../actions/types";
 
 const initialState = {
@@ -14,7 +15,8 @@ const initialState = {
     measureDetails: null,
     cycleLoading: true,
     measureEvaluators: null,
-    measureStudents: null
+    measureStudents: null,
+    assignedStudents: null
 }
 
 export default function (state = initialState, action) {
@@ -55,6 +57,17 @@ export default function (state = initialState, action) {
             ...state,
             measureStudents: action.payload,
             cycleLoading: false
+        }
+
+        case GET_ASSIGNED_STUDENTS:
+        console.log(action.payload) 
+        return {
+            ...state,
+            assignedStudents: action.payload,
+            cycleLoading: false
+
+
+
         }
          
         case CYCLE_LOADING:
