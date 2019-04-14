@@ -280,7 +280,8 @@ export const assignStudentsToMeasure = (measureID, body) => dispatch => {
                 type: GET_MEASURE_STUDENTS,
                 payload: res.data
             })
-        })        .catch(err => {
+        })
+        .catch(err => {
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data

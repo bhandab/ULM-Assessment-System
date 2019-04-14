@@ -236,7 +236,7 @@ class MeasureDetails extends Component {
                                 <a href="#" className="btn btn-primary">Measure Detail</a>
                             </div>
                         </div>
-                        </div>
+                    </div>
 
                     <Jumbotron>
                         <p id="measure-title-label">Measure Title</p>
