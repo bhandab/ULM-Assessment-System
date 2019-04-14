@@ -274,6 +274,9 @@ main ol li ol {
   background: rgba(233, 236, 239,1)
 }
 
+#studAssign {
+  font-color:red;
+}
 /** Media Query*/
 @media screen and (min-width: 600px) {
   html,

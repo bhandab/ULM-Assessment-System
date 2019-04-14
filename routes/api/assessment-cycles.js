@@ -1,6 +1,7 @@
 const express = require("express");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
+const async = require("async");
 
 const db = require("../../config/dbconnection");
 const validateCycleInput = require("../../validation/assessment-cycle");
@@ -932,14 +933,15 @@ router.post(
                   return res.status(404).json({ errors: validationError });
                 }
                 var newArray = students.filter((row, index) => {
-                  if (index === 0 || existingStudents.has(row[1])) {
+                  if (existingStudents.has(row[1])) {
                     return false;
                   } else {
                     existingStudents.add(row[1]);
                     return true;
                   }
                 });
-                console.log(newArray.length);
+                //console.log(newArray.length);
+                //console.log("Gets Here");
                 let sql3 =
                   "INSERT INTO STUDENT (studentName,studentEmail,studentCWID,corId,measureID) VALUES ?";
                 if (newArray.length > 0) {
@@ -1033,7 +1035,7 @@ router.post(
 );
 
 // @route GET api/cycles/:measureIdentifier/notAssignedstudentsList
-// @desc Lists students associated with the measure; but not assigned yet
+// @desc Lists students associated with the measure but not assigned as well as the total list of students
 // @access Private
 router.get(
   "/:measureIdentifier/studentsList",
@@ -1083,11 +1085,11 @@ router.get(
 );
 
 // @route GET api/cycles/:measureIdentifier/assignedStudentsInformation
-// @desc List Assigned but not evaluated and assigned and evaluated students list
+// @desc List Assigned but not evaluated as well as assigned and evaluated students list
 // @access private
 
 router.get(
-  "/:measureIdentiifer/assignedStudentsInformation",
+  "/:measureIdentifier/assignedStudentsInformation",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let measureID = req.params.measureIdentifier;
@@ -1137,7 +1139,75 @@ router.get(
 );
 
 // @route POST api/cycles/:measureIdentifier/assign
-// @desc Assign Tool and Student to Evaluator for evaluation purpose
+// @desc Assign Rubric and Student to Evaluator for evaluation purpose
+// @access private
+
+// router.post(
+//   "/:measureIdentifier/assign",
+//   passport.authenticate("jwt", { session: false }),
+//   (req, res) => {
+//     let measureID = req.params.measureIdentifier;
+//     let adminID = req.user.id;
+//     let evalID = req.body.evalID;
+//     let rubricID = req.body.rubricID;
+//     let studentID = req.body.studentID;
+//     let errors = {};
+//     let sql =
+//       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+//       db.escape(measureID);
+//     db.query(sql, (err, result) => {
+//       if (err) {
+//         return res.status(500).json(err);
+//       } else if (result.length <= 0) {
+//         errors.identifierError = "Measure ID not found";
+//         return res.status(404).json(errors);
+//       }
+
+//       let sql1 =
+//         "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
+//         db.escape(adminID) +
+//         " AND measureEvalID=" +
+//         db.escape(evalID) +
+//         " AND studentID=" +
+//         db.escape(studentID) +
+//         " AND toolID=" +
+//         db.escape(rubricID) +
+//         " AND measureID=" +
+//         db.escape(measureID);
+
+//       db.query(sql1, (err, result) => {
+//         if (err) {
+//           return res.status(500).json(err);
+//         } else if (result.length > 0) {
+//           errors.assignmentFoundError =
+//             "You have already assigned the selected evaluator and student to this rubric";
+//           return res.status(404).json({ errors });
+//         }
+//         let sql2 =
+//           "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES (" +
+//           db.escape(adminID) +
+//           ", " +
+//           db.escape(evalID) +
+//           ", " +
+//           db.escape(studentID) +
+//           ", " +
+//           db.escape(rubricID) +
+//           ", " +
+//           db.escape(measureID) +
+//           ")";
+//         db.query(sql2, (err, result) => {
+//           if (err) {
+//             return res.status(500).json(err);
+//           }
+//           res.status(200).json(result);
+//         });
+//       });
+//     });
+//   }
+// );
+
+// @route POST api/cycles/:measureIdentifier/assign
+// @desc Assign Rubric and Student to Evaluator for evaluation purpose
 // @access private
 
 router.post(
@@ -1148,7 +1218,9 @@ router.post(
     let adminID = req.user.id;
     let evalID = req.body.evalID;
     let rubricID = req.body.rubricID;
-    let studentID = req.body.studentID;
+    alreadyAssignedStudents = [];
+    tobeAssignedStudents = [];
+    //let studentID = req.body.studentID;
     let errors = {};
     let sql =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
@@ -1159,47 +1231,63 @@ router.post(
       } else if (result.length <= 0) {
         errors.identifierError = "Measure ID not found";
         return res.status(404).json(errors);
-      }
+      } else {
+        async.forEachOfSeries(
+          req.body.studentIDs,
+          (value, key, callback) => {
+            let sql1 =
+              "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
+              db.escape(adminID) +
+              " AND measureEvalID=" +
+              db.escape(evalID) +
+              " AND studentID=" +
+              db.escape(value) +
+              " AND toolID=" +
+              db.escape(rubricID) +
+              " AND measureID=" +
+              db.escape(measureID);
 
-      let sql1 =
-        "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
-        db.escape(adminID) +
-        " AND measureEvalID=" +
-        db.escape(evalID) +
-        " AND studentID=" +
-        db.escape(studentID) +
-        " AND toolID=" +
-        db.escape(rubricID) +
-        " AND measureID=" +
-        db.escape(measureID);
-
-      db.query(sql1, (err, result) => {
-        if (err) {
-          return res.status(500).json(err);
-        } else if (result.length > 0) {
-          errors.foundError =
-            "You have already assigned the selected evaluator and student to this rubric";
-          return res.status({ errors });
-        }
-        let sql2 =
-          "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES (" +
-          db.escape(adminID) +
-          ", " +
-          db.escape(evalID) +
-          ", " +
-          db.escape(studentID) +
-          ", " +
-          db.escape(rubricID) +
-          ", " +
-          db.escape(measureID) +
-          ")";
-        db.query(sql2, (err, result) => {
-          if (err) {
-            return res.status(500).json(err);
+            db.query(sql1, (err, result) => {
+              if (err) {
+                callback(err);
+              } else if (result.length > 0) {
+                alreadyAssignedStudents.push({
+                  studentID: value,
+                  evalID,
+                  rubricID
+                });
+                //console.log(alreadyAssignedStudents);
+                callback();
+              } else {
+                tobeAssignedStudents.push([
+                  adminID,
+                  evalID,
+                  value,
+                  rubricID,
+                  measureID
+                ]);
+                callback();
+              }
+            });
+          },
+          err => {
+            if (err) {
+              return res.status(500).json(err);
+            } else {
+              let sql2 =
+                "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES ?";
+              if (tobeAssignedStudents.length > 0) {
+                db.query(sql2, [tobeAssignedStudents], (err, result) => {
+                  if (err) {
+                    return res.status(500).json(err);
+                  }
+                });
+              }
+              res.status(200).json({ alreadyAssignedStudents });
+            }
           }
-          res.status(200).json(result);
-        });
-      });
+        );
+      }
     });
   }
 );
