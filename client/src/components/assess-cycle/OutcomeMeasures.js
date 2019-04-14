@@ -34,17 +34,25 @@ class OutcomeMeasures extends Component {
     e.preventDefault();
     let index = e.target.measures.value;
     const measure = this.props.measures.measures[index];
-
+    console.log(e.target.measures.value)
+    console.log(measure)
     const measureDetails = {
-      measureDescription: measure.measureName,
-      projectedStudentNumber: measure.projectedStudentNumber + "",
-      projectedValue: measure.projectedValue + "",
-      course: measure.course
-    };
+      measureDescription: measure.measureDescription,
+      projectedStudentNumber: measure.projectedStudentNumber+"",
+      projectedValue: measure.projectedResult+"",
+      course: measure.course,
+      toolTitle: measure.toolName,
+      toolID: measure.toolID+"",
+      toolType: measure.toolType,
+      valueOperator: measure.resultScale,
+      studentNumberOperator: measure.studentNumberScale
 
-    console.log(measureDetails);
+    }
 
-    //this.props.linkMeasureToOutcome(this.props.match.params.cycleID, this.props.match.params.outcomeID, measureDetails)
+    //console.log(measureDetails);
+
+    this.props.linkMeasureToOutcome(this.props.match.params.cycleID, this.props.match.params.outcomeID, measureDetails)
+    this.setState({ addMeasuresShow: false})
   };
 
   measureCreateHandler = e => {
@@ -213,6 +221,16 @@ class OutcomeMeasures extends Component {
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">
+         <div className="container">
+                        <div className="row">
+                            <div className="btn-group btn-breadcrumb">
+                                <a href="#" className="btn btn-primary">Admin</a>
+                                <a href="#" className="btn btn-primary">Cycles</a>
+                                <a href="#" className="btn btn-primary">Outcomes</a>
+                                <a href="#" className="btn btn-primary">Measures</a>
+                            </div>
+                        </div>
+                    </div>
           <h2>{measureTitle}</h2>
           <ol className="list-group">{measures}</ol>
           <button
