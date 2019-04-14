@@ -1078,7 +1078,8 @@ router.get(
           };
           if (!row.measureEvalID) {
             notAssignedStudents.push(student);
-          } else if (!studentsEmail.has(row.studentEmail)) {
+          }  
+          if (!studentsEmail.has(row.studentEmail)) {
             students.push(student);
             studentsEmail.add(row.studentEmail);
           }
@@ -1237,10 +1238,11 @@ router.post(
         errors.identifierError = "Measure ID not found";
         return res.status(404).json(errors);
       } else {
+        
         async.forEachOfSeries(
           req.body.studentIDs,
           (value, key, callback) => {
-            console.log(value);
+            //console.log(value);
             let sql1 =
               "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
               db.escape(adminID) +
@@ -1254,6 +1256,7 @@ router.post(
               db.escape(measureID);
 
             db.query(sql1, (err, result) => {
+              //console.log("I am here")
               if (err) {
                 return callback(err);
               } else if (result.length > 0) {
@@ -1262,7 +1265,7 @@ router.post(
                   evalID,
                   rubricID
                 });
-                //console.log(alreadyAssignedStudents);
+                console.log(alreadyAssignedStudents);
                 callback();
               } else {
                 tobeAssignedStudents.push([
@@ -1277,9 +1280,12 @@ router.post(
             });
           },
           err => {
+              console.log("I am here")
+
             if (err) {
               return res.status(500).json(err);
             } else {
+              console.log("I am here")
               let sql2 =
                 "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES ?";
               if (tobeAssignedStudents.length > 0) {
@@ -1289,9 +1295,11 @@ router.post(
                   }
                 });
               }
-              return res
+              console.log("Before response was sent")
+              console.log(alreadyAssignedStudents, tobeAssignedStudents)
+               res
                 .status(200)
-                .json({ alreadyAssignedStudents, tobeAssignedStudents });
+                .json( {alreadyAssignedStudents, tobeAssignedStudents} );
             }
           }
         );

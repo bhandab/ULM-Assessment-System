@@ -275,8 +275,12 @@ export const assignStudentsToMeasure = (measureID, body) => dispatch => {
     console.log("gets to action")
     axios
         .post("/api/cycles/" + measureID + "/assign",body)
-        //.then(() => dispatch(getStudentsOfMeasure(measureID)))
-        .catch(err => {
+        .then(res => {
+            dispatch({
+                type: GET_MEASURE_STUDENTS,
+                payload: res.data
+            })
+        })        .catch(err => {
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
