@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { getAssessmentCycles, createCycle, updateCycleName, deleteCycle } from '../../actions/assessmentCycleAction';
 import PropTypes from "prop-types";
 import { Link} from 'react-router-dom';
-import {Spinner, Button, Modal, Form} from 'react-bootstrap';
+import { Spinner, Button, Modal, Form, Card} from 'react-bootstrap';
 import Delete from '../../utils/Delete';
 
 
@@ -96,6 +96,7 @@ class AssessmentCycle extends Component {
                         name={cycle.cycleID} value={cycle.cycleName}
                         onClick={this.deleteShow.bind(this)}
                         className="delete"></button>
+                        
                 </li>
             )
             if(cyclesList.length === 0){
@@ -119,7 +120,7 @@ class AssessmentCycle extends Component {
                     :cyclesList}</ul>
                     <Button className = "ml-3 mr-3 float-right" onClick={this.modalShow}>Create New Cycle</Button>
                 </section>
-
+               
                 <Modal size="lg" show = {this.state.show} onHide = {this.modalHide}
                     aria-labelledby="contained-modal-title-vcenter"
                     centered>
@@ -157,6 +158,7 @@ class AssessmentCycle extends Component {
                 delete = {this.deleteCycleHandler}
                 />
             </Fragment>
+          
         )
     }
 }

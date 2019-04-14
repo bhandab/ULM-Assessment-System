@@ -29,7 +29,6 @@ class Admin extends Component {
                 <AdminLayout></AdminLayout>
 
                 <main>
-                    <Switch>
                         <Route exact path='/admin/rubrics' component={AllRubrics} />
                         <Route exact path='/admin/outcomes' component={Outcomes} />
                         <Route exact path='/admin/measures' component={Measures} />
@@ -37,10 +36,9 @@ class Admin extends Component {
                         <Route path='/admin/rubrics/:rubricID(\d+)' component={CreateRubric} />
                         <Route path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)/measures/:measureID(\d+)' component={MeasureDetails}/>
                         <Route path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)/rubric/:rubricID(\d+)' component={CreateRubric} />
-                        <Route path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)' component={OutcomeMeasures} />
-                        <Route path='/admin/cycles/cycle/:cycleID(\d+)' component={CycleMeasures} />
+                        {/**<Route exact path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)' component={OutcomeMeasures} />*/}
+                        <Route  exact path='/admin/cycles/cycle/:cycleID(\d+)' component={CycleMeasures} />
                         <Route exact path='/admin/cycles' component={AssessmentCycle} />
-                    </Switch>
 
                 </main>
             </Fragment>

@@ -45,7 +45,8 @@ class MeasureDetails extends Component {
     }
 
     addEvalShow = () => {
-        this.setState({ addEval: true })
+        this.setState({ addEval: true})
+        console.log(this.state)
     }
 
     addEvalHide = () => {
@@ -60,15 +61,19 @@ class MeasureDetails extends Component {
         this.setState({ addStud: false })
     }
 
-    addStudHide = () => {
-        this.setState({ addStud: false })
+    inviteEvalHide = () => {
+        this.setState({ inviteEval: false, errors: {}})
+    }
+
+    inviteEvalShow = () => {
+        this.setState({ inviteEval: true })
     }
 
     addEvaluatorHandler = (e) => {
         e.preventDefault()
         this.props.addEvaluator(this.props.match.params.measureID,
             { evaluatorEmail: e.target.evalEmail.value })
-        this.setState({ email: e.target.evalEmail.value, addEval: false })
+        this.setState({ email: e.target.evalEmail.value, addEval: false, inviteEval:true })
     }
 
     inviteEvaluatorHandler = (e) => {
@@ -129,6 +134,7 @@ class MeasureDetails extends Component {
 
     render() {
         console.log(this.props)
+        console.log(this.state)
         let typeRubric = false
         let measureTitle = null
         let evaluatorList = []
@@ -151,7 +157,13 @@ class MeasureDetails extends Component {
                 if (this.props.cycles.measureStudents !== null && this.props.cycles.measureStudents !== undefined) {
                     studentList = this.props.cycles.measureStudents.students.map(student => {
                         return (
-                            <li key={student.studentID} className="list-group-item"><ol><li>Name: {student.name}</li> <li>Email: ({student.email})</li> <li>CWID: {student.CWID}</li></ol></li>
+                            <li key={student.studentID} className="list-group-item">
+                            <ol>
+                            <li>Name: {student.name}</li>
+                            <li>Email: ({student.email})</li>
+                            <li>CWID: {student.CWID}</li>
+                            </ol>
+                            </li>
                         )
                     })
                 }
@@ -261,7 +273,7 @@ class MeasureDetails extends Component {
                 </Modal>
 
 
-                <Modal show={this.state.addEval && this.props.errors.evaluatorEmail !== inviteError} onHide={this.addEvalHide} centered>
+                <Modal show={this.state.addEval} onHide={this.addEvalHide} centered>
                     <Modal.Title className="ml-3 mt-2">
                         Add Evaluator
                     </Modal.Title>
@@ -277,7 +289,7 @@ class MeasureDetails extends Component {
                     </Modal.Body>
                 </Modal>
 
-                <Modal show={this.props.errors.evaluatorEmail === inviteError} centered>
+                <Modal show={this.props.errors.evaluatorEmail === inviteError && this.state.inviteEval} centered onHide={this.inviteEvalHide}>
                     <Modal.Title className="ml-3 mt-2">
                         Invite Evaluator
                         </Modal.Title>
@@ -290,7 +302,7 @@ class MeasureDetails extends Component {
                                         {this.state.errors.evaluatorEmail}
                                     </Form.Text>*/}
                             </Form.Group>
-                            <Button variant="danger" className="mt-3 float-right">No</Button>
+                            <Button variant="danger" className="mt-3 float-right" onClick={this.inviteEvalHide}>No</Button>
                             <Button variant="success" type="submit" className="mt-3 float-right mr-2">Invite</Button>
 
                         </Form>

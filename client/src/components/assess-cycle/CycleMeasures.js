@@ -6,20 +6,22 @@ import {
   deleteOutcome
 } from "../../actions/assessmentCycleAction";
 import { getOutcomes } from "../../actions/outcomesAction";
-import { Link } from "react-router-dom";
+import { Link, Route } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { Spinner, Modal, Form, Button, InputGroup } from "react-bootstrap";
+import { Spinner, Modal, Form, Button, InputGroup, Card } from "react-bootstrap";
+import OutcomeMeasures from './OutcomeMeasures';
 import Delete from '../../utils/Delete'
 
 class CycleMeasures extends Component {
   state = {
     addOutcome: false,
     createOutcome: false,
-    editShow:false,
-    deleteShow:false,
-    outcomeName:"",
-    outcomeID:null
+    editShow: false,
+    deleteShow: false,
+    outcomeName: "",
+    outcomeID: '',
+    cycleID: ''
   };
 
   componentDidMount() {
@@ -57,13 +59,13 @@ class CycleMeasures extends Component {
   outcomeCreateHandler = e => {
     e.preventDefault();
     this.props.linkOutcomeToCycle(
-      this.props.match.params.cycleID,{ outcomeDescription: e.target.newOutcome.value });
-    this.setState({createOutcome:false});
+      this.props.match.params.cycleID, { outcomeDescription: e.target.newOutcome.value });
+    this.setState({ createOutcome: false });
   };
 
-  
+
   createOutcomeShow = () => {
-    this.setState({createOutcome:true})
+    this.setState({ createOutcome: true })
   }
 
   createOutcomeHide = () => {
@@ -76,9 +78,9 @@ class CycleMeasures extends Component {
   }
 
   addOutcomeHide = () => {
-    this.setState({ addOutcome: false})
+    this.setState({ addOutcome: false })
   }
-  
+
   editShow = (e) => {
     this.setState({ outcomeName: e.target.value, outcomeID: e.target.name, editShow: true })
   }
@@ -94,14 +96,18 @@ class CycleMeasures extends Component {
   }
 
   deleteHide = () => {
-    this.setState({deleteShow: false })
+    this.setState({ deleteShow: false })
+  }
+
+  outcomeClick = (a, b) => {
+    const val = <OutcomeMeasures name="angel" ></OutcomeMeasures>
   }
 
   saveChangesHandler = e => {
     e.preventDefault()
     const value = e.target.outcomeName.value
-    this.props.updateOutcomeName(this.props.match.params.cycleID,this.state.outcomeID, { outcomeDescription: value })
-    this.setState({outcomeName: "", outcomeID: null, editShow: false })
+    this.props.updateOutcomeName(this.props.match.params.cycleID, this.state.outcomeID, { outcomeDescription: value })
+    this.setState({ outcomeName: "", outcomeID: null, editShow: false })
   }
 
   outcomeDeleteHandler = () => {
@@ -126,27 +132,25 @@ class CycleMeasures extends Component {
         if (this.props.cycles.cycleMeasures.outcomes.length > 0) {
           outcomeArray = this.props.cycles.cycleMeasures.outcomes;
           list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
+            //console.log(outcome.outcomeID)
             return (
-              <li className="list-group-item" key={outcome.outcomeID}>
-                <Link
-                  to={
-                    "/admin/cycles/cycle/" +
-                    cycleID +
-                    "/outcomes/" +
-                    outcome.outcomeID
-                  }
-                >
-                  {outcome.outcomeName}
-                </Link>
-                <button style={{ border: "none", background: "none" }}
-                  name={outcome.outcomeID} value={outcome.outcomeName}
-                  onClick={this.editShow.bind(this)}
-                  className="outcome-edit ml-2"></button>
-                <button style={{ border: "none", background: "none" }}
-                  name={outcome.outcomeID} value={outcome.outcomeName}
-                  onClick={this.deleteShow.bind(this)}
-                  className="delete"></button>
-              </li>
+
+
+              <div className="card" key={outcome.outcomeID}>
+                <div className="card-header" id={"heading" + outcome.outcomeID}>
+                  <h5 className="mb-0">
+                    <button className="btn btn-link" type="button" data-toggle="collapse" data-target={"#collapse" + outcome.outcomeID} aria-expanded="true" aria-controls={"collapse" + outcome.outcomeID}>
+                      {outcome.outcomeName}
+        </button>
+                  </h5>
+                </div>
+
+                <div id={"collapse" +outcome.outcomeID} className="collapse" aria-labelledby={"heading"+outcome.outcomeID} data-parent="#accordionOutcome">
+                  <div className="card-body">
+                    <OutcomeMeasures outcomeID={outcome.outcomeID} cycleID={cycleID}/>
+                  </div>
+                </div>
+              </div>
             );
           });
         } else {
@@ -154,43 +158,56 @@ class CycleMeasures extends Component {
         }
         title = this.props.cycles.cycleMeasures.cycleName;
       }
-      
+
     }
     let selections = null;
 
-    if (this.props.cycles.cycleMeasures !== undefined && this.props.cycles.cycleMeasures !== null ) {
+    if (this.props.cycles.cycleMeasures !== undefined && this.props.cycles.cycleMeasures !== null) {
 
       if (this.props.cycles.cycleMeasures !== null && this.props.outcomes.outcomes !== null) {
-          outcomeArray = this.props.cycles.cycleMeasures.outcomes;
-          selections = this.props.outcomes.outcomes.map((item, index) => {
-            const temp = outcomeArray.find(outcome => {
-              return outcome.outcomeName === item;
-            });
-            if (temp === undefined) {
-              return (
-                <option key={index} value={item}>
-                  {item}
-                </option>
-              );
-            } else {
-              return null;
-            }
+        outcomeArray = this.props.cycles.cycleMeasures.outcomes;
+        selections = this.props.outcomes.outcomes.map((item, index) => {
+          const temp = outcomeArray.find(outcome => {
+            return outcome.outcomeName === item;
           });
-        }
+          if (temp === undefined) {
+            return (
+              <option key={index} value={item}>
+                {item}
+              </option>
+            );
+          } else {
+            return null;
+          }
+        });
       }
+    }
 
     return (
       <Fragment>
+
+
         <section className="panel important border border-info rounded p-3">
           <h2>{title}</h2>
-          <hr/>
-          <ol className="list-group">{list}</ol>
+          <hr />
+          {/*<ol className="list-group">{list}</ol>*/}
+          <div className="accordion" id="accordionOutcome">
+          {list}
+          </div>
           <Button className="btn mt-3 float-right ml-3" onClick={this.addOutcomeShow}>Add Outcome</Button>
 
           <Button className="btn mt-3 float-right" onClick={this.createOutcomeShow}>Create Outcome</Button>
         </section>
 
-        <Modal 
+
+
+
+
+        <section className="panel important">
+
+        </section>
+
+        <Modal
           show={this.state.createOutcome} onHide={this.createOutcomeHide}
           aria-labelledby="contained-modal-title-vcenter"
           centered>
@@ -218,19 +235,19 @@ class CycleMeasures extends Component {
           </Modal.Header>
           <Modal.Body>
             <Form onSubmit={this.outcomeAddHandler.bind(this)}>
-            <InputGroup>
-              <InputGroup.Prepend>
-                <InputGroup.Text id="basic-addon7" className="text-bold">
-                  Select an Outcome:
+              <InputGroup>
+                <InputGroup.Prepend>
+                  <InputGroup.Text id="basic-addon7" className="text-bold">
+                    Select an Outcome:
                 </InputGroup.Text>
-              </InputGroup.Prepend>
-              <select name="outcomes" className="custom-select">{selections}</select>
+                </InputGroup.Prepend>
+                <select name="outcomes" className="custom-select">{selections}</select>
               </InputGroup>
               <Button className="mt-3 float-right" type="submit">Save Changes</Button>
             </Form>
           </Modal.Body>
         </Modal>
-        
+
 
         <Modal show={this.state.editShow} onHide={this.editHide}
           aria-labelledby="contained-modal-title-vcenter"
@@ -253,6 +270,8 @@ class CycleMeasures extends Component {
           name={this.state.outcomeName}
           delete={this.outcomeDeleteHandler}
         />
+
+
       </Fragment>
     );
   }
@@ -278,9 +297,11 @@ const MapStateToProps = state => ({
 
 export default connect(
   MapStateToProps,
-  { getOutcomes, 
-    linkOutcomeToCycle, 
-    getCycleMeasures, 
-    updateOutcomeName, 
-    deleteOutcome }
+  {
+    getOutcomes,
+    linkOutcomeToCycle,
+    getCycleMeasures,
+    updateOutcomeName,
+    deleteOutcome
+  }
 )(CycleMeasures);

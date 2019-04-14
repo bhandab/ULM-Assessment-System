@@ -23,8 +23,8 @@ class OutcomeMeasures extends Component {
       this.props.history.push('/login')
     }
 
-    const cycleID = this.props.match.params.cycleID;
-    const outcomeID = this.props.match.params.outcomeID;
+    const cycleID = this.props.cycleID;
+    const outcomeID = this.props.outcomeID;
     this.props.getOutcomesMeasures(cycleID, outcomeID);
     this.props.getAllRubrics(cycleID, outcomeID);
     this.props.getMeasures();
@@ -125,7 +125,7 @@ class OutcomeMeasures extends Component {
         if (this.props.cycles.outcomeMeasures.measures.length > 0) {
           measures = this.props.cycles.outcomeMeasures.measures.map(measure => {
             return (
-              <li className="list-group-item" key={measure.measureID}>
+              <li  className="list-group-item" key={measure.measureID}>
                 <Link
                   to={
                     "/admin/cycles/cycle/" +
@@ -152,13 +152,13 @@ class OutcomeMeasures extends Component {
     let selections = null;
     if (this.props.cycles.cycleLoading !==true) {
       //console.log(this.props)
-      if (this.props.measures.measures !== null && this.props.measures.measures !== undefined && this.props.cycles.outcomeMeasures !==null ) {
+      if (this.props.measures.measures !== null && this.props.measures.measures !== undefined && this.props.cycles.outcomeMeasures !==null &&this.props.cycles.outcomeMeasures !==undefined ) {
         let outcomeMeasures = this.props.cycles.outcomeMeasures.measures
         selections = this.props.measures.measures.map((item, index) => {
           const measure = outcomeMeasures.find(measure=> {
             return measure.measureName === item.measureDescription
           })
-          console.log(measure)
+          // console.log(measure)
           if(measure === undefined){
           return (
             <option key={index} value={index}>
@@ -212,8 +212,6 @@ class OutcomeMeasures extends Component {
     // console.log(selections)
     return (
       <Fragment>
-        <section className="panel important border border-info rounded p-3">
-          <h2>{measureTitle}</h2>
           <ol className="list-group">{measures}</ol>
           <button
             onClick={this.addMeasuresShow}
@@ -227,7 +225,6 @@ class OutcomeMeasures extends Component {
           >
             Create Measure
           </button>
-        </section>
 
         <Modal
           aria-labelledby="contained-modal-title-vcenter"
@@ -259,7 +256,6 @@ class OutcomeMeasures extends Component {
           <Modal.Body />
         </Modal>
 
-        <section className="panel important">
 
           <Modal
             size="lg"
@@ -382,7 +378,6 @@ class OutcomeMeasures extends Component {
               </Form>
             </Modal.Body>
           </Modal>
-        </section>
 
         
       </Fragment>
