@@ -271,6 +271,20 @@ export const getStudentsOfMeasure = (measureID) => dispatch => {
 
 }
 
+export const assignStudentsToMeasure = (measureID, body) => dispatch => {
+    console.log("gets to action")
+    axios
+        .post("/api/cycles/" + measureID + "/assign",body)
+        //.then(() => dispatch(getStudentsOfMeasure(measureID)))
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            })
+        })
+}
+
 export const setLoading = () => {
     return {
         type: CYCLE_LOADING

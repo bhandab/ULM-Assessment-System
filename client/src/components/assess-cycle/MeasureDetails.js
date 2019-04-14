@@ -7,7 +7,8 @@ import { getMeasureDetails,
     addEvaluator, 
     addStudentsToMeasure,
     addStudentToMeasure, 
-    getStudentsOfMeasure } from '../../actions/assessmentCycleAction';
+    getStudentsOfMeasure,
+    assignStudentsToMeasure } from '../../actions/assessmentCycleAction';
 import { Jumbotron, Card, Button, Modal, Form, InputGroup, ModalBody } from 'react-bootstrap'
 //import { isEmpty } from "../../utils/isEmpty";
 
@@ -155,6 +156,7 @@ class MeasureDetails extends Component {
             studentID, rubricID, evalID
         }
         console.log(body)
+        this.props.assignStudentsToMeasure(this.props.match.params.measureID, body)
     }
 
 
@@ -386,7 +388,8 @@ MeasureDetails.propTypes = {
     inviteEvaluator: PropTypes.func.isRequired,
     addStudentsToMeasure: PropTypes.func.isRequired,
     getStudentsOfMeasure: PropTypes.func.isRequired,
-    addStudentToMeasure: PropTypes.func.isRequired
+    addStudentToMeasure: PropTypes.func.isRequired,
+    assignStudentsToMeasure: PropTypes.func.isRequired
 }
 
 const MapStateToProps = state => ({
@@ -405,5 +408,6 @@ export default connect(MapStateToProps,
         inviteEvaluator,
         addStudentsToMeasure,
         addStudentToMeasure,
-        getStudentsOfMeasure
+        getStudentsOfMeasure,
+        assignStudentsToMeasure
     })(MeasureDetails);    
