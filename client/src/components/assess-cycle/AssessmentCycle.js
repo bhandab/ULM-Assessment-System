@@ -114,6 +114,16 @@ class AssessmentCycle extends Component {
         return (
             <Fragment>
                 <section className="panel important border border-info rounded p-3" >
+
+                    <div className="container">
+                        <div className="row">
+                            <div className="btn-group btn-breadcrumb">
+                                <a href="#" className="btn btn-primary">Admin</a>
+                                <a href="#" className="btn btn-primary">Cycles</a>
+                            </div>
+                        </div>
+                    </div>
+
                     <h2><strong>Assessment Cycles</strong></h2>
                     <ul className="list-group">{cyclesList === null ? <li className="list-group-item">No Cycles Present</li>
                     :cyclesList}</ul>

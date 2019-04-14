@@ -221,13 +221,27 @@ class MeasureDetails extends Component {
         //         });
         //     }
         // });
+
         return (
             <Fragment>
                 <section className="panel important">
+                   
+                    <div className="container">
+                        <div className="row">
+                            <div className="btn-group btn-breadcrumb">
+                                <a href="#" className="btn btn-primary">Admin</a>
+                                <a href="#" className="btn btn-primary">Cycles</a>
+                                <a href="#" className="btn btn-primary">Outcomes</a>
+                                <a href="#" className="btn btn-primary">Measures</a>
+                                <a href="#" className="btn btn-primary">Measure Detail</a>
+                            </div>
+                        </div>
+                        </div>
+
                     <Jumbotron>
                         <p id="measure-title-label">Measure Title</p>
                         <h4 id="measure-title">{measureTitle}</h4>
-                        <hr />
+                        <hr/>
 
                         {typeRubric ?
                             <Fragment>

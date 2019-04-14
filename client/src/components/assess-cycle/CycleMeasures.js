@@ -182,6 +182,15 @@ class CycleMeasures extends Component {
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">
+          <div className="container">
+            <div className="row">
+              <div className="btn-group btn-breadcrumb">
+                <a href="#" className="btn btn-primary">Admin</a>
+                <a href="#" className="btn btn-primary">Cycles</a>
+                <a href="#" className="btn btn-primary">Outcomes</a>
+              </div>
+            </div>
+          </div>
           <h2>{title}</h2>
           <hr/>
           <ol className="list-group">{list}</ol>
