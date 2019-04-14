@@ -949,9 +949,11 @@ router.post(
                     if (err) {
                       return res.status(500).json(err);
                     }
-                    res.status(200).json({ students: newArray });
                   });
                 }
+                res
+                  .status(200)
+                  .json({ existingStudents: Array.from(existingStudents) });
               });
           }
         });
@@ -1045,6 +1047,7 @@ router.get(
 
     let students = [];
     let notAssignedStudents = [];
+    let studentsEmail = new Set();
     let errors = {};
 
     let sql =
@@ -1075,8 +1078,10 @@ router.get(
           };
           if (!row.measureEvalID) {
             notAssignedStudents.push(student);
+          } else if (!studentsEmail.has(row.studentEmail)) {
+            students.push(student);
+            studentsEmail.add(row.studentEmail);
           }
-          students.push(student);
         });
         res.status(200).json({ notAssignedStudents, students });
       });
@@ -1109,7 +1114,7 @@ router.get(
         return res.status(404).json({ errors });
       }
       let sql1 =
-        "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN EVALUATOR_ASSIGN NATURAL LEFT JOIN EVALUATE WHERE measureID=" +
+        "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN STUDENT NATURAL JOIN EVALUATOR_ASSIGN NATURAL LEFT JOIN EVALUATE WHERE measureID=" +
         db.escape(measureID);
 
       db.query(sql1, (err, result) => {
@@ -1235,6 +1240,7 @@ router.post(
         async.forEachOfSeries(
           req.body.studentIDs,
           (value, key, callback) => {
+            console.log(value);
             let sql1 =
               "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
               db.escape(adminID) +
@@ -1249,7 +1255,7 @@ router.post(
 
             db.query(sql1, (err, result) => {
               if (err) {
-                callback(err);
+                return callback(err);
               } else if (result.length > 0) {
                 alreadyAssignedStudents.push({
                   studentID: value,
@@ -1283,7 +1289,9 @@ router.post(
                   }
                 });
               }
-              res.status(200).json({ alreadyAssignedStudents });
+              return res
+                .status(200)
+                .json({ alreadyAssignedStudents, tobeAssignedStudents });
             }
           }
         );
