@@ -1231,61 +1231,63 @@ router.post(
       } else if (result.length <= 0) {
         errors.identifierError = "Measure ID not found";
         return res.status(404).json(errors);
-      }
-      async.forEachOfSeries(
-        req.body.studentIDs,
-        (value, key, callback) => {
-          let sql1 =
-            "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
-            db.escape(adminID) +
-            " AND measureEvalID=" +
-            db.escape(evalID) +
-            " AND studentID=" +
-            db.escape(value) +
-            " AND toolID=" +
-            db.escape(rubricID) +
-            " AND measureID=" +
-            db.escape(measureID);
+      } else {
+        async.forEachOfSeries(
+          req.body.studentIDs,
+          (value, key, callback) => {
+            let sql1 =
+              "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
+              db.escape(adminID) +
+              " AND measureEvalID=" +
+              db.escape(evalID) +
+              " AND studentID=" +
+              db.escape(value) +
+              " AND toolID=" +
+              db.escape(rubricID) +
+              " AND measureID=" +
+              db.escape(measureID);
 
-          db.query(sql1, (err, result) => {
+            db.query(sql1, (err, result) => {
+              if (err) {
+                callback(err);
+              } else if (result.length > 0) {
+                alreadyAssignedStudents.push({
+                  studentID: value,
+                  evalID,
+                  rubricID
+                });
+                //console.log(alreadyAssignedStudents);
+                callback();
+              } else {
+                tobeAssignedStudents.push([
+                  adminID,
+                  evalID,
+                  value,
+                  rubricID,
+                  measureID
+                ]);
+                callback();
+              }
+            });
+          },
+          err => {
             if (err) {
-              callback(err);
-            } else if (result.length > 0) {
-              alreadyAssignedStudents.push({
-                studentID: value,
-                evalID,
-                rubricID
-              });
-              callback();
+              return res.status(500).json(err);
             } else {
-              tobeAssignedStudents.push([
-                adminID,
-                evalID,
-                value,
-                rubricID,
-                measureID
-              ]);
-              callback();
+              let sql2 =
+                "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES ?";
+              if (tobeAssignedStudents.length > 0) {
+                db.query(sql2, [tobeAssignedStudents], (err, result) => {
+                  if (err) {
+                    return res.status(500).json(err);
+                  }
+                });
+              }
+              res.status(200).json({ alreadyAssignedStudents });
             }
-          });
-        },
-        err => {
-          if (err) {
-            return res.status(500).json(err);
-          } else {
-            let sql2 =
-              "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES ?";
-            if (tobeAssignedStudents.length > 0) {
-              db.query(sql2, (err, result) => {
-                if (err) {
-                  return res.status(500).json(err);
-                }
-              });
-            }
-            res.status(200).json({ alreadyAssignedStudents });
           }
-        }
-      );
+        );
+      }
     });
   }
 );
