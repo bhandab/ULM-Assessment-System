@@ -62,21 +62,12 @@ class MeasureDetails extends Component {
         this.setState({ addStud: false })
     }
 
-<<<<<<< HEAD
     inviteEvalHide = () => {
         this.setState({ inviteEval: false, errors: {}})
     }
 
     inviteEvalShow = () => {
         this.setState({ inviteEval: true })
-=======
-    inviteEvalShow = () => {
-        this.setState({ inviteEval: true })
-    }
-
-   inviteEvalHide = () => {
-        this.setState({ inviteEval: false, errors:{} })
->>>>>>> 00e5fcb24d314d833b549482ed3c1302714d9ba2
     }
 
     addEvaluatorHandler = (e) => {
@@ -349,11 +340,7 @@ class MeasureDetails extends Component {
                     </Modal.Body>
                 </Modal>
 
-<<<<<<< HEAD
                 <Modal show={this.props.errors.evaluatorEmail === inviteError && this.state.inviteEval} centered onHide={this.inviteEvalHide}>
-=======
-                <Modal show={this.props.errors.evaluatorEmail === inviteError && this.state.inviteEval} centered>
->>>>>>> 00e5fcb24d314d833b549482ed3c1302714d9ba2
                     <Modal.Title className="ml-3 mt-2">
                         Invite Evaluator
                         </Modal.Title>
