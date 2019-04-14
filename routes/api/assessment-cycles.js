@@ -1047,6 +1047,7 @@ router.get(
 
     let students = [];
     let notAssignedStudents = [];
+    let studentsEmail = new Set();
     let errors = {};
 
     let sql =
@@ -1077,8 +1078,10 @@ router.get(
           };
           if (!row.measureEvalID) {
             notAssignedStudents.push(student);
+          } else if (!studentsEmail.has(row.studentEmail)) {
+            students.push(student);
+            studentsEmail.add(row.studentEmail);
           }
-          students.push(student);
         });
         res.status(200).json({ notAssignedStudents, students });
       });
