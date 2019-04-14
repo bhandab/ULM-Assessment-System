@@ -1240,7 +1240,6 @@ router.post(
         async.forEachOfSeries(
           req.body.studentIDs,
           (value, key, callback) => {
-            console.log(value);
             let sql1 =
               "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
               db.escape(adminID) +
@@ -1287,11 +1286,15 @@ router.post(
                   if (err) {
                     return res.status(500).json(err);
                   }
+                  return res
+                    .status(200)
+                    .json({ alreadyAssignedStudents, tobeAssignedStudents });
                 });
+              } else {
+                return res
+                  .status(200)
+                  .json({ alreadyAssignedStudents, tobeAssignedStudents });
               }
-              return res
-                .status(200)
-                .json({ alreadyAssignedStudents, tobeAssignedStudents });
             }
           }
         );
