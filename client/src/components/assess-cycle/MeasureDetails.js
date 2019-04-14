@@ -8,7 +8,7 @@ import { getMeasureDetails,
     addStudentsToMeasure,
     addStudentToMeasure, 
     getStudentsOfMeasure } from '../../actions/assessmentCycleAction';
-import { Jumbotron, Card, Button, Modal, Form, InputGroup } from 'react-bootstrap'
+import { Jumbotron, Card, Button, Modal, Form, InputGroup, ModalBody } from 'react-bootstrap'
 //import { isEmpty } from "../../utils/isEmpty";
 
 
@@ -21,7 +21,8 @@ class MeasureDetails extends Component {
         email: "",
         errors: {},
         file: "",
-        uploadFile:false
+        uploadFile:false,
+        studAssign: false
     }
 
 
@@ -129,6 +130,32 @@ class MeasureDetails extends Component {
         this.setState({ uploadFile:false})
     }
 
+    assignStudShow = () => {
+        this.setState({studAssign:true})
+    } 
+
+    assignStudHide = () => {
+        this.setState({studAssign:false})
+    }
+
+    assignStudentsHandle = e => {
+        e.preventDefault()
+        let students = document.getElementsByName('studentCheck')
+        let studentID = []
+        let evalID = e.target.evaluator.value
+        // console.log(evaluator)
+        for(let i=0; i < students.length; i++){
+            if (students[i].checked){
+            studentID.push(students[i].value)
+            }
+            
+        }
+        let rubricID = this.props.cycles.measureDetails.toolID
+        const body = {
+            studentID, rubricID, evalID
+        }
+        console.log(body)
+    }
 
 
     render() {
@@ -137,6 +164,8 @@ class MeasureDetails extends Component {
         let measureTitle = null
         let evaluatorList = []
         let studentList = []
+        let evaluatorSelect = []
+        let studentSelect = []
 
         if (this.props.cycles.measureDetails !== null && this.props.cycles.measureDetails !== undefined) {
             if (this.props.cycles.measureDetails.toolType === "rubric") {
@@ -147,6 +176,10 @@ class MeasureDetails extends Component {
                 measureTitle = this.props.cycles.measureDetails.measureDescription
                 if (this.props.cycles.measureEvaluators !== null && this.props.cycles.measureEvaluators !== undefined) {
                     evaluatorList = this.props.cycles.measureEvaluators.evaluators.map(evaluator => {
+                        evaluatorSelect.push(
+                            <div key={evaluator.measureEvalID} ><input type="radio" name="evaluator" value={evaluator.measureEvalID} /> <label><h5>{evaluator.name}</h5></label></div>
+
+                        )
                         return (
                             <li key={evaluator.measureEvalID} className="list-group-item">{evaluator.name} ({evaluator.email})</li>
                         )
@@ -154,6 +187,9 @@ class MeasureDetails extends Component {
                 }
                 if (this.props.cycles.measureStudents !== null && this.props.cycles.measureStudents !== undefined) {
                     studentList = this.props.cycles.measureStudents.students.map(student => {
+                        studentSelect.push(
+                            <div key={student.studentID}><input type="checkbox" value={student.studentID} name="studentCheck" /><label className="ml-2"><h5>{student.name}</h5></label></div>
+                        )
                         return (
                             <li key={student.studentID} className="list-group-item"><ol><li>Name: {student.name}</li> <li>Email: ({student.email})</li> <li>CWID: {student.CWID}</li></ol></li>
                         )
@@ -170,6 +206,19 @@ class MeasureDetails extends Component {
             window.alert("Invitation has been sent, but Evaluator has not created the account yet; Please contact the evaluator")
             this.setState({ errors: {} })
         }
+
+        // ('#select-all').click(function (event) {
+        //     if (this.checked) {
+        //         // Iterate each checkbox
+        //         (':checkbox').each(function () {
+        //             this.checked = true;
+        //         });
+        //     } else {
+        //         (':checkbox').each(function () {
+        //             this.checked = false;
+        //         });
+        //     }
+        // });
         return (
             <Fragment>
                 <section className="panel important">
@@ -199,6 +248,8 @@ class MeasureDetails extends Component {
                                         <Button variant="primary" className="float-right mt-3" onClick={this.addStudShow}>Add Students</Button>
                                     </Card.Body>
                                 </Card>
+
+                                <Button className='mt-2' onClick={this.assignStudShow}>Assign Students</Button>
                             </Fragment> : null}
                     </Jumbotron>
                 </section>
@@ -299,6 +350,26 @@ class MeasureDetails extends Component {
 
                         </Form>
                     </Modal.Body>
+                </Modal>
+
+                <Modal show = {this.state.studAssign} onHide={this.assignStudHide} centered size='lg'>
+                <Modal.Title className="ml-3">
+                        Assign Students to Evaluator
+                </Modal.Title>
+                <ModalBody>
+                <Form onSubmit={this.assignStudentsHandle.bind(this)} id="studAssign">
+                            <div className="d-inline-block mr-5 border p-3" style={{width:'300px'}}>Eval List
+                        {evaluatorSelect}
+                        </div>
+                            <div className="d-inline-block border  p-3">Student List
+                        {studentSelect}
+                        </div>
+                        
+                        <Button type="submit" className="mt-3 d-block">submit </Button>
+                        </Form>
+                </ModalBody>
+                
+                                    
                 </Modal>
 
             </Fragment>
