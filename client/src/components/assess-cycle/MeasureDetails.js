@@ -49,7 +49,7 @@ class MeasureDetails extends Component {
     }
 
     addEvalHide = () => {
-        this.setState({ addEval: false, errors: {} })
+        this.setState({ addEval: false, errors: {}})
     }
 
     addStudShow = () => {
@@ -60,15 +60,19 @@ class MeasureDetails extends Component {
         this.setState({ addStud: false })
     }
 
-    addStudHide = () => {
-        this.setState({ addStud: false })
+    inviteEvalShow = () => {
+        this.setState({ inviteEval: true })
+    }
+
+   inviteEvalHide = () => {
+        this.setState({ inviteEval: false, errors:{} })
     }
 
     addEvaluatorHandler = (e) => {
         e.preventDefault()
         this.props.addEvaluator(this.props.match.params.measureID,
             { evaluatorEmail: e.target.evalEmail.value })
-        this.setState({ email: e.target.evalEmail.value, addEval: false })
+        this.setState({ email: e.target.evalEmail.value, addEval: false, inviteEval:true })
     }
 
     inviteEvaluatorHandler = (e) => {
@@ -261,7 +265,7 @@ class MeasureDetails extends Component {
                 </Modal>
 
 
-                <Modal show={this.state.addEval && this.props.errors.evaluatorEmail !== inviteError} onHide={this.addEvalHide} centered>
+                <Modal show={this.state.addEval} onHide={this.addEvalHide} centered>
                     <Modal.Title className="ml-3 mt-2">
                         Add Evaluator
                     </Modal.Title>
@@ -277,7 +281,7 @@ class MeasureDetails extends Component {
                     </Modal.Body>
                 </Modal>
 
-                <Modal show={this.props.errors.evaluatorEmail === inviteError} centered>
+                <Modal show={this.props.errors.evaluatorEmail === inviteError && this.state.inviteEval} centered>
                     <Modal.Title className="ml-3 mt-2">
                         Invite Evaluator
                         </Modal.Title>
@@ -290,7 +294,7 @@ class MeasureDetails extends Component {
                                         {this.state.errors.evaluatorEmail}
                                     </Form.Text>*/}
                             </Form.Group>
-                            <Button variant="danger" className="mt-3 float-right">No</Button>
+                            <Button variant="danger" className="mt-3 float-right" onClick={this.inviteEvalHide}>No</Button>
                             <Button variant="success" type="submit" className="mt-3 float-right mr-2">Invite</Button>
 
                         </Form>
