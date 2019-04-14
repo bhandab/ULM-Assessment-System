@@ -7,7 +7,8 @@ import { getMeasureDetails,
     addEvaluator, 
     addStudentsToMeasure,
     addStudentToMeasure, 
-    getStudentsOfMeasure } from '../../actions/assessmentCycleAction';
+    getStudentsOfMeasure,
+    assignStudentsToMeasure } from '../../actions/assessmentCycleAction';
 import { Jumbotron, Card, Button, Modal, Form, InputGroup, ModalBody } from 'react-bootstrap'
 //import { isEmpty } from "../../utils/isEmpty";
 
@@ -141,20 +142,21 @@ class MeasureDetails extends Component {
     assignStudentsHandle = e => {
         e.preventDefault()
         let students = document.getElementsByName('studentCheck')
-        let studentID = []
+        let studentIDs = []
         let evalID = e.target.evaluator.value
         // console.log(evaluator)
         for(let i=0; i < students.length; i++){
             if (students[i].checked){
-            studentID.push(students[i].value)
+            studentIDs.push(students[i].value)
             }
             
         }
         let rubricID = this.props.cycles.measureDetails.toolID
         const body = {
-            studentID, rubricID, evalID
+            studentIDs, rubricID, evalID
         }
         console.log(body)
+        this.props.assignStudentsToMeasure(this.props.match.params.measureID, body)
     }
 
 
@@ -358,14 +360,16 @@ class MeasureDetails extends Component {
                 </Modal.Title>
                 <ModalBody>
                 <Form onSubmit={this.assignStudentsHandle.bind(this)} id="studAssign">
-                            <div className="d-inline-block mr-5 border p-3" style={{width:'300px'}}>Eval List
+                            <div className="d-inline-block mr-5 border p-3" style={{width:'300px'}}>
+                                <h3>Evaluator List</h3>
                         {evaluatorSelect}
                         </div>
-                            <div className="d-inline-block border  p-3">Student List
+                            <div className="d-inline-block border  p-3">
+                            <h3>Student List</h3>
                         {studentSelect}
                         </div>
                         
-                        <Button type="submit" className="mt-3 d-block">submit </Button>
+                        <Button type="submit" className="mt-3 d-block">Submit </Button>
                         </Form>
                 </ModalBody>
                 
@@ -386,7 +390,8 @@ MeasureDetails.propTypes = {
     inviteEvaluator: PropTypes.func.isRequired,
     addStudentsToMeasure: PropTypes.func.isRequired,
     getStudentsOfMeasure: PropTypes.func.isRequired,
-    addStudentToMeasure: PropTypes.func.isRequired
+    addStudentToMeasure: PropTypes.func.isRequired,
+    assignStudentsToMeasure: PropTypes.func.isRequired
 }
 
 const MapStateToProps = state => ({
@@ -405,5 +410,6 @@ export default connect(MapStateToProps,
         inviteEvaluator,
         addStudentsToMeasure,
         addStudentToMeasure,
-        getStudentsOfMeasure
+        getStudentsOfMeasure,
+        assignStudentsToMeasure
     })(MeasureDetails);    
