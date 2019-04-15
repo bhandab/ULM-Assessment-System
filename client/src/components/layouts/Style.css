@@ -24,18 +24,20 @@ header h1 {
   font-weight: 300;
   padding: 1rem;
   text-align: left;
+  background-color: rgba(112, 128, 144, 0.705);
 }
 
 header h1:before {
   content: "\f0c9";
   font-family: FontAwesome;
   padding-right: 0.6em;
-  color: rgb(64, 93, 224);
+  /* color: rgb(64, 93, 224);*/
 }
 header .utilities {
   width: 100%;
-  background: slategray;
-  color: #ddd;
+  background: black;
+  color: #ddd; 
+
 }
 header .utilities li {
   border-bottom: solid 1px rgba(255, 255, 255, 0.2);
@@ -43,11 +45,13 @@ header .utilities li {
 }
 
 header .utilities li:hover {
-background-color: rgba(0 ,5, 55, .3);
+/*background-color: rgba(0 ,5, 55, .3);*/
+background-color: white;
+color: red;
 }
 
 header .utilities li a {
-  padding: 0.7em;
+  padding: 5em;
   display: block;
 }
 
