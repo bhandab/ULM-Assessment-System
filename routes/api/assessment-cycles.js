@@ -602,7 +602,7 @@ router.post(
               "The selected performance measure is already associated with this learning outcome";
             return res.status(404).json(errors);
           } else {
-            if(toolType==='test'){
+            if (toolType === "test") {
               let sql0 =
                 "INSERT INTO TOOL (toolType,corId) VALUES (" +
                 db.escape(toolType) +
@@ -615,58 +615,59 @@ router.post(
                     .status(500)
                     .json("Measure Could not be created \n", err);
                 }
-                  toolID = result.insertId;})
-            }
-         
-              let sql4 =
-                "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolID,toolName, toolType, studentNumberScale,projectedValueScale) VALUES (" +
-                db.escape(outcomeID) +
-                ", " +
-                db.escape(cycleID) +
-                ", " +
-                db.escape(measureName) +
-                ", " +
-                db.escape(projectedValue) +
-                ", " +
-                db.escape(projectedStudentNumber) +
-                ", " +
-                db.escape(course) +
-                ", " +
-                db.escape(adminID) +
-                ", " +
-                db.escape(toolID) +
-                ", " +
-                db.escape(toolName) +
-                ", " +
-                db.escape(toolType) +
-                ", " +
-                db.escape(studentNumberOperator) +
-                ", " +
-                db.escape(valueOperator) +
-                ")";
-
-              db.query(sql4, (err, result) => {
-                if (err) {
-                  return res.status(500).json(err);
-                }
-                let measureID = result.insertId;
-                res.status(200).json({
-                  cycleID,
-                  outcomeID,
-                  measureID,
-                  adminID,
-                  measureName,
-                  projectedValue,
-                  projectedStudentNumber,
-                  course,
-                  toolType,
-                  toolName,
-                  studentNumberOperator,
-                  valueOperator,
-                  toolID
-                });
+                toolID = result.insertId;
               });
-           // });
+            }
+
+            let sql4 =
+              "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolID,toolName, toolType, studentNumberScale,projectedValueScale) VALUES (" +
+              db.escape(outcomeID) +
+              ", " +
+              db.escape(cycleID) +
+              ", " +
+              db.escape(measureName) +
+              ", " +
+              db.escape(projectedValue) +
+              ", " +
+              db.escape(projectedStudentNumber) +
+              ", " +
+              db.escape(course) +
+              ", " +
+              db.escape(adminID) +
+              ", " +
+              db.escape(toolID) +
+              ", " +
+              db.escape(toolName) +
+              ", " +
+              db.escape(toolType) +
+              ", " +
+              db.escape(studentNumberOperator) +
+              ", " +
+              db.escape(valueOperator) +
+              ")";
+
+            db.query(sql4, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              let measureID = result.insertId;
+              res.status(200).json({
+                cycleID,
+                outcomeID,
+                measureID,
+                adminID,
+                measureName,
+                projectedValue,
+                projectedStudentNumber,
+                course,
+                toolType,
+                toolName,
+                studentNumberOperator,
+                valueOperator,
+                toolID
+              });
+            });
+            // });
           }
         });
       });
@@ -1081,7 +1082,7 @@ router.get(
           };
           if (!row.measureEvalID) {
             notAssignedStudents.push(student);
-          }  
+          }
           if (!studentsEmail.has(row.studentEmail)) {
             students.push(student);
             studentsEmail.add(row.studentEmail);
@@ -1241,7 +1242,6 @@ router.post(
         errors.identifierError = "Measure ID not found";
         return res.status(404).json(errors);
       } else {
-        
         async.forEachOfSeries(
           req.body.studentIDs,
           (value, key, callback) => {
@@ -1282,12 +1282,9 @@ router.post(
             });
           },
           err => {
-              console.log("I am here")
-
             if (err) {
               return res.status(500).json(err);
             } else {
-              console.log("I am here")
               let sql2 =
                 "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES ?";
               if (tobeAssignedStudents.length > 0) {
