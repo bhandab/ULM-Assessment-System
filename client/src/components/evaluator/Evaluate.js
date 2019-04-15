@@ -11,7 +11,8 @@ class Evaluate extends Component {
 
     state = {
        measureID:'',
-       studentID:''
+       studentID:'',
+       measureEvalID:''
     }
 
     componentDidMount(){
@@ -25,7 +26,9 @@ class Evaluate extends Component {
     onClickListener = e => {
         const index = e.target.dataset.idx
         this.props.getSingleRubric(index, true)
-        this.setState({measureID:e.target.dataset.measureid,studentID:e.target.dataset.studentid})
+        this.setState({measureID:e.target.dataset.measureid,
+            studentID:e.target.dataset.studentid,
+            measureEvalID:e.target.dataset.measureeval})
     }
     
 
@@ -39,6 +42,7 @@ class Evaluate extends Component {
                 data-idx = {student.rubricID}
                 data-measureid = {student.measureID}
                 data-studentid = {student.studentID}
+                data-measureeval={student.measureEvalID}
                 key={student.studentID}>{student.studentName}</ListGroup.Item>
             )
             }
@@ -128,7 +132,8 @@ class Evaluate extends Component {
                         <td onClick={(e) => scoreClick(e)}
                             key={"row" + (j + 2) + "col" + (k + 2)}
                             data-criteriaid={tableCols[k].criteriaID}
-                            data-scaleid={tableCols[k].scaleID}>
+                            data-scaleid={tableCols[k].scaleID}
+                            >
                            >{tableCols[k].cellDescription}
                         </td>
                     );
@@ -185,20 +190,21 @@ class Evaluate extends Component {
                 keys.push(key)
             })
             keys.sort().forEach(item=>{
-                scores.push(scoreMap.get(item))
+                scores.push({criteriaScore:scoreMap.get(item),criteriaID:item})
             })
             console.log(scores)
 
             const body = {
                 rubricID: this.props.rubric.singleRubric.rubricDetails.structureInfo.rubricID,
-                mesureID: this.state.measureID+"",
+                measureID: this.state.measureID+"",
                 studentID: this.state.studentID+"",
-                measureEvalID: this.props.auth.user.id+"",
+                measureEvalID: this.state.measureEvalID,
                 criteriaScores: scores
             }
             if (scores.length == this.props.rubric.singleRubric.rubricDetails.structureInfo.noOfRows){
             this.props.submitRubricScores(body)
             scoreMap = new Map ()
+            window.alert("Student successfully graded!")
             }
             else{
                 window.alert("All criterias of the rubric must be scored!")
