@@ -2,10 +2,10 @@ import axios from 'axios';
 import { GET_OUTCOMES, GET_ERRORS } from './types';
 
 
-export const getOutcomes = () => dispatch => {
+export const getOutcomes = (adminID) => dispatch => {
 
     axios
-        .get("/api/outcomes")
+        .get("/api/outcomes",adminID)
         .then(res => {
             //console.log(res.data);
             dispatch({

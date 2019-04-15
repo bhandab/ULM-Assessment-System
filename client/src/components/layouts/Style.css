@@ -2,10 +2,6 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,400italic);
 @import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css);
 
-
-
-
-
 /* general utility classes */
 .warn {
   color: #ff0000;
@@ -16,8 +12,6 @@ header {
   background: white;
   box-shadow: 1px 1px 3px rgba(255, 0, 0, 1);
 }
-
-
 
 header h1 {
   margin: 0;
@@ -42,12 +36,18 @@ header .utilities {
 header .utilities li {
   border-bottom: solid 1px rgba(255, 255, 255, 0.2);
   border-radius: 5px;
+  text-decoration: none;
 }
 
 header .utilities li:hover {
+<<<<<<< HEAD
 /*background-color: rgba(0 ,5, 55, .3);*/
 background-color: white;
 color: red;
+=======
+  background-color: rgba(0, 5, 55, 0.3);
+  text-decoration: none;
+>>>>>>> b3446ed8c2d62816eaf68aef03f463905452d9ff
 }
 
 header .utilities li a {
@@ -64,7 +64,9 @@ header .utilities li a {
 
 .logout a:before {
   content: "\f011";
+  
 }
+
 
 nav {
   /*background: #2a3542;*/
@@ -86,10 +88,10 @@ nav li a {
   display: block;
   padding: 0.7em;
   text-align: left;
-  
 }
 
 nav li a:hover {
+<<<<<<< HEAD
   /*background-color: rgba(255, 255, 255, 0.05);*/
   background-color: white;
   color: maroon;
@@ -98,6 +100,10 @@ nav li a:hover {
 nav li a:focus{
   color: black;
   background-color: rgba(128, 0, 0, 0.8);
+=======
+  background-color: rgba(255, 255, 255, 0.05);
+  text-decoration: none;
+>>>>>>> b3446ed8c2d62816eaf68aef03f463905452d9ff
 }
 
 nav li a:before {
@@ -137,7 +143,6 @@ a {
   color: inherit;
 }
 
-
 /* lists */
 ul,
 li {
@@ -161,30 +166,36 @@ h2 {
 }
 
 .panel {
-    width: 47%;
-    clear: none;
-  }
+  width: 100%;
+  clear: none;
+}
 
-  .panel > h2, .panel > ul {
+.panel > h2,
+.panel > ul {
   margin: 1rem;
 }
 
 main {
-    margin-top: 2em;
+  margin-top: 2em;
 }
 
-  .panel.important {
-   
-    width: 96%;
-  }
+.panel.important {
+  width: 100%;
+  height: 100%;
+}
 
-  main li {
+main li {
   position: relative;
   padding-left: 1.2em;
   margin: 0.5em 0;
+  font-size: 1.5rem;
 }
+
+.card li {
+  font-size: 1.1rem;
+} 
+
 main li:before {
-  content: "";
   position: absolute;
   width: 0;
   height: 0;
@@ -192,10 +203,182 @@ main li:before {
   top: 0.3em;
   border-left: solid 10px #dde;
   border-top: solid 5px transparent;
- 
+
   border-bottom: solid 5px transparent;
 }
 
+textarea {
+  resize: none !important;
+  font-size: 14px !important;
+  height: 100px !important;
+  overflow: auto !important;
+}
+
+td {
+  padding: 2px !important;
+  margin: 0px;
+  height: auto !important;
+  border: 2px solid black !important;
+}
+
+th {
+  text-align: center;
+  border: 2px solid black !important;
+}
+
+table {
+  border: 2px solid black !important;
+}
+
+.weight {
+  width: 20px !important;
+}
+
+/* Edit Icons**/
+.outcome-edit:before{
+  content: "\f044";
+  font-family: FontAwesome;
+}
+
+.outcome-edit:hover {
+  color: orange;
+}
+
+.delete::before{
+  content: "\f00d";
+  font-family: FontAwesome;
+}
+
+.delete:hover{
+  color: red;
+}
+
+/** Measure Details Jumbotron*/
+div .jumbotron{
+  padding-top:1em; 
+  padding-bottom: 10em !important;
+  height: auto !important;
+}
+
+#measure-title-label{
+  color:white;
+  background-color:blue;
+  width:120px;
+  padding: 2px;
+  text-align: center;
+  border-radius: 20%;
+  margin: 2px;
+  font-size: 14px;
+}
+
+#measure-title{
+  margin-left: 5px;
+}
+
+.measureCard {
+  height: 12rem;
+  overflow: auto;
+}
+
+main ol li ol {
+  padding-left: 0 !important
+}
+
+#gotoUpload{
+  border: 1px solid rgb(233, 236, 239);
+  padding: 2px;
+  border-radius: 5%;
+  background: rgba(233, 236, 239,.5);
+}
+
+#gotoUpload:hover{
+  cursor: pointer;
+  background: rgba(233, 236, 239,1)
+}
+
+
+/**Bread crumbs CSS*/
+
+
+.btn-breadcrumb .btn:not(:last-child):after {
+  content: " ";
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 17px solid transparent;
+  border-bottom: 17px solid transparent;
+  border-left: 10px solid white;
+  position: absolute;
+  top: 50%;
+  margin-top: -17px;
+  left: 100%;
+  z-index: 3;
+}
+.btn-breadcrumb .btn:not(:last-child):before {
+  content: " ";
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 17px solid transparent;
+  border-bottom: 17px solid transparent;
+  border-left: 10px solid rgb(173, 173, 173);
+  position: absolute;
+  top: 50%;
+  margin-top: -17px;
+  margin-left: 1px;
+  left: 100%;
+  z-index: 3;
+}
+
+.btn-breadcrumb .btn:not(:last-child):before:hover{
+  background-color: red;
+}
+
+/** The Spacing **/
+.btn-breadcrumb .btn {
+  padding:6px 12px 6px 24px;
+}
+.btn-breadcrumb .btn:first-child {
+  padding:6px 6px 6px 10px;
+}
+.btn-breadcrumb .btn:last-child {
+  padding:6px 18px 6px 24px;
+}
+
+/** Default button
+.btn-breadcrumb .btn.btn-default:not(:last-child):after {
+  border-left: 10px solid #fff;
+}
+.btn-breadcrumb .btn.btn-default:not(:last-child):before {
+  border-left: 10px solid #ccc;
+}
+.btn-breadcrumb .btn.btn-default:hover:not(:last-child):after {
+  border-left: 10px solid #ebebeb;
+}
+.btn-breadcrumb .btn.btn-default:hover:not(:last-child):before {
+  border-left: 10px solid #adadad;
+} **/
+
+ Primary button 
+.btn-breadcrumb .btn.btn-primary:not(:last-child):after {
+  border-left: 10px solid #428bca;
+}
+.btn-breadcrumb .btn.btn-primary:not(:last-child):before {
+  border-left: 10px solid #357ebd;
+}
+.btn-breadcrumb .btn.btn-primary:hover:not(:last-child):after {
+  border-left: 10px solid #3276b1;
+}
+.btn-breadcrumb .btn.btn-primary:hover:not(:last-child):before {
+  border-left: 10px solid #285e8e;
+}
+
+
+
+
+/**Breadcrumbs End**/
+
+/** Media Query*/
 @media screen and (min-width: 600px) {
   html,
   body {
@@ -234,13 +417,12 @@ main li:before {
     top: 75px;
     bottom: 0px;
     left: 0px;
-   
   }
 
   main {
     margin: 75px 0 40px 200px;
   }
-  
+
   main:after {
     content: "";
     display: table;
@@ -258,8 +440,10 @@ main li:before {
     clear: both;
   }
 
-  .box, .onethird, .twothirds {
-    padding: .1rem;
+  .box,
+  .onethird,
+  .twothirds {
+    padding: 0.1rem;
   }
 
   .onethird {
@@ -271,8 +455,6 @@ main li:before {
     width: 66%;
     float: left;
   }
-
- 
 }
 
 @media screen and (min-width: 900px) {

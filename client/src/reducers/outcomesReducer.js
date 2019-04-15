@@ -1,7 +1,7 @@
 import { GET_OUTCOMES } from "../actions/types";
 
 const initialState = {
-    outcomes: {}
+    outcomes: null
 }
 
 export default function (state = initialState, action) {
