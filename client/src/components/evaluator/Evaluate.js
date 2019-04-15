@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import { getEvaluationRubrics, getEvaluatorDetails} from '../../actions/evaluationsAction';
+import { getEvaluationRubrics, getEvaluatorDetails, submitRubricScores} from '../../actions/evaluationsAction';
 import {getSingleRubric} from '../../actions/rubricsAction'
 import PropTypes from 'prop-types';
 import { ListGroup, Card, Form, Button } from "react-bootstrap";
@@ -10,8 +10,8 @@ import { ListGroup, Card, Form, Button } from "react-bootstrap";
 class Evaluate extends Component {
 
     state = {
-        rubric : "Select A Student",
-        stud: []
+       measureID:'',
+       studentID:''
     }
 
     componentDidMount(){
@@ -25,6 +25,7 @@ class Evaluate extends Component {
     onClickListener = e => {
         const index = e.target.dataset.idx
         this.props.getSingleRubric(index, true)
+        this.setState({measureID:e.target.dataset.measureid,studentID:e.target.dataset.studentid})
     }
     
 
@@ -36,6 +37,8 @@ class Evaluate extends Component {
                 <ListGroup.Item className="students" 
                 onClick = {this.onClickListener.bind(this)}
                 data-idx = {student.rubricID}
+                data-measureid = {student.measureID}
+                data-studentid = {student.studentID}
                 key={student.studentID}>{student.studentName}</ListGroup.Item>
             )
             }
@@ -106,7 +109,7 @@ class Evaluate extends Component {
             if (weighted === 1) {
                 tableHeader.push(<th className="weight" key={"row1col" + (rubricDetails.scaleInfo.length + 2)}><div>Weight</div></th>)
             }
-            tableHeader.push(<th key="score"><div>Score</div></th>)
+           // tableHeader.push(<th key="score"><div>Score</div></th>)
             tableHeader = <tr key={"row" + 1}>{tableHeader}</tr>;
             table.push(tableHeader);
 
@@ -126,7 +129,7 @@ class Evaluate extends Component {
                             key={"row" + (j + 2) + "col" + (k + 2)}
                             data-criteriaid={tableCols[k].criteriaID}
                             data-scaleid={tableCols[k].scaleID}>
-                            {tableCols[k].cellDescription}
+                           >{tableCols[k].cellDescription}
                         </td>
                     );
                 }
@@ -139,7 +142,7 @@ class Evaluate extends Component {
                     )
                 }
                 const criteriaID = tableCols[0].criteriaID
-                cells.push(<td key={"score" + j + 2}><Form.Control defaultValue="0" data-critetia={criteriaID} /></td>)
+                //cells.push(<td key={"score" + j + 2}><Form.Control defaultValue="0" data-critetia={criteriaID} /></td>)
                 cells = <tr key={"row" + (j + 2)}>{cells}</tr>;
                 table.push(cells);
             }
@@ -160,6 +163,7 @@ class Evaluate extends Component {
         }
 
       const  scoreClick = e => {
+            e.target.style.background ="#1eb6a7"
             const selectedCriteria = e.target.dataset.criteriaid
             console.log(e.target.dataset.criteriaid)
             const selectedScale = e.target.dataset.scaleid
@@ -175,10 +179,36 @@ class Evaluate extends Component {
 
         const submitScores = () =>{
             console.log(scoreMap)
+            const keys = []
+            const scores = []
+            scoreMap.forEach((value,key) => {
+                keys.push(key)
+            })
+            keys.sort().forEach(item=>{
+                scores.push(scoreMap.get(item))
+            })
+            console.log(scores)
+
+            const body = {
+                rubricID: this.props.rubric.singleRubric.rubricDetails.structureInfo.rubricID,
+                mesureID: this.state.measureID+"",
+                studentID: this.state.studentID+"",
+                measureEvalID: this.props.auth.user.id+"",
+                criteriaScores: scores
+            }
+            if (scores.length == this.props.rubric.singleRubric.rubricDetails.structureInfo.noOfRows){
+            this.props.submitRubricScores(body)
+            scoreMap = new Map ()
+            }
+            else{
+                window.alert("All criterias of the rubric must be scored!")
+            }
+            
         } 
 
         console.log(scoreMap)
         console.log(this.props)
+
         return(
             <section className="panel important">
             
@@ -206,7 +236,8 @@ Evaluate.propTypes = {
     auth: PropTypes.object.isRequired,
     getEvaluationRubrics: PropTypes.func.isRequired,
     getEvaluatorDetails: PropTypes.func.isRequired,
-    getSingleRubric: PropTypes.func.isRequired
+    getSingleRubric: PropTypes.func.isRequired,
+    submitRubricScores: PropTypes.func.isRequired
 }
 
 const MapStateToProps = state => ({
@@ -222,5 +253,6 @@ export default connect (MapStateToProps,
     {
         getEvaluationRubrics,
         getEvaluatorDetails,
-        getSingleRubric
+        getSingleRubric,
+        submitRubricScores
     })(Evaluate)

@@ -361,6 +361,10 @@ main ol li ol {
   padding-top: 0 !important;
 }
 
+td a:active{
+  background-color: #1eb6a7
+}
+
 /**Score Rubric*/
 #scoreRubric td {
   height: 100px;
