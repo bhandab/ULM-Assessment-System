@@ -27,7 +27,7 @@ header h1 {
 }
 
 header h1:before {
-  content: "\f0f0";
+  content: "\f0c9";
   font-family: FontAwesome;
   padding-right: 0.6em;
   color: rgb(64, 93, 224);
@@ -53,7 +53,7 @@ header .utilities li a {
 
 /* header */
 .utilities a:before {
-  content: "\f007";
+  /*content: "\f007";*/
   font-family: FontAwesome;
   padding-right: 0.6em;
 }
@@ -63,18 +63,21 @@ header .utilities li a {
 }
 
 nav {
-  background: #2a3542;
-  color: #ddd;
+  /*background: #2a3542;*/
+  /*color: #ddd;*/
+  background-color: white;
+  
 
   /* icons */
 }
 
 nav li {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
 }
 
 nav li a {
-  color: #ddd;
+  /*color: #ddd;*/
+  color: black;
   text-decoration: none;
   display: block;
   padding: 0.7em;
@@ -83,7 +86,14 @@ nav li a {
 }
 
 nav li a:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  /*background-color: rgba(255, 255, 255, 0.05);*/
+  background-color: white;
+  color: maroon;
+}
+
+nav li a:focus{
+  color: black;
+  background-color: rgba(128, 0, 0, 0.8);
 }
 
 nav li a:before {
