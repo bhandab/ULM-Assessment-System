@@ -3,7 +3,7 @@ const initialState = {
     rubric: {},
     rubrics: {},
     singleRubric: {},
-    loading: false
+    loading: true
 }
 
 export default function (state = initialState, action) {

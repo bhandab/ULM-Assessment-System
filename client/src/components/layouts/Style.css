@@ -356,6 +356,16 @@ main ol li ol {
 
 /**Breadcrumbs End**/
 
+/* Evaluate CSS**/
+#assignedRubric{
+  padding-top: 0 !important;
+}
+
+/**Score Rubric*/
+#scoreRubric td {
+  height: 100px;
+}
+
 /** Media Query*/
 @media screen and (min-width: 600px) {
   html,

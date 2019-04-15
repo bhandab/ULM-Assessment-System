@@ -10,15 +10,12 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let evalID = req.user.id;
-    let rubricID = req.body.rubricID;
     let errors = {};
     let evaluations = [];
 
     let sql =
       "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN STUDENT NATURAL JOIN RUBRIC WHERE evalID=" +
-      db.escape(evalID) +
-      " AND toolID=" +
-      db.escape(rubricID);
+      db.escape(evalID);
 
     db.query(sql, (err, result) => {
       if (err) {
@@ -56,7 +53,7 @@ router.get(
     let rubricsSet = new Set();
 
     let sql =
-      "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL RUBRIC WHERE evalID=" +
+      "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN RUBRIC WHERE evalID=" +
       db.escape(evalID);
     db.query(sql, (err, result) => {
       if (err) {

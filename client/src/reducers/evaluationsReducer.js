@@ -1,20 +1,23 @@
-import { EVALUATION_DETAILS } from '../actions/types' 
+import { EVALUATION_RUBRICS, EVALUATION_DETAILS } from '../actions/types' 
 
 const initialState = {
+    evaluationRubrics: null,
     evaluationDetails: null
 }
 
 export default function (state = initialState, action) {
     switch (action.type) {
+        case EVALUATION_RUBRICS:
+            console.log(action.payload)
+            return {
+                ...state,
+                evaluationRubrics: action.payload
+            }
         case EVALUATION_DETAILS:
-            //console.log(action.payload)
+            console.log(action.payload)
             return {
                 ...state,
                 evaluationDetails: action.payload
-            }
-        case 'a':
-            return {
-                ...state,
             }
         default:
             return state;
