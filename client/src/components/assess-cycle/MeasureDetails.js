@@ -208,7 +208,7 @@ class MeasureDetails extends Component {
                     })
                 }
 
-                if (this.props.cycles.measureReport !== null){
+                if (this.props.cycles.measureReport !== null && this.props.cycles.measureReport !== undefined){
                 let length = this.props.cycles.measureReport.length
                 const report = this.props.cycles.measureReport
                 measureReport.push(<tr>
