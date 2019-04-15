@@ -1243,8 +1243,8 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let adminID = req.user.id;
-    let measureID = req.params.id;
-
+    let measureID = req.params.measureIdentifier;
+    
     let errors = {};
 
     let results = [];
@@ -1261,7 +1261,7 @@ router.get(
         return res.status(404).json(errors);
       }
       let sql1 =
-        "SELET * FROM EVALUATE NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA NATURAL JOIN EVALUATOR WHERE measureID=" +
+        "SELECT * FROM EVALUATE NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA NATURAL JOIN EVALUATOR WHERE measureID=" +
         db.escape(measureID) +
         " ORDER BY studentName";
       db.query(sql1, (err, result) => {
@@ -1276,6 +1276,7 @@ router.get(
             criteriaName: row.criteriaDesc,
             criteriaScore: row.criteriaScore
           };
+          results.push(result)
         });
         res.status(200).json(results);
       });

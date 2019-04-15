@@ -8,7 +8,8 @@ import { getMeasureDetails,
     addStudentsToMeasure,
     addStudentToMeasure, 
     getStudentsOfMeasure,
-    assignStudentsToMeasure } from '../../actions/assessmentCycleAction';
+    assignStudentsToMeasure,
+    getMeasureReport } from '../../actions/assessmentCycleAction';
 import { Jumbotron, Card, Button, Modal, Form, InputGroup, ModalBody } from 'react-bootstrap'
 //import { isEmpty } from "../../utils/isEmpty";
 
@@ -23,7 +24,8 @@ class MeasureDetails extends Component {
         errors: {},
         file: "",
         uploadFile:false,
-        studAssign: false
+        studAssign: false,
+        measureReport: false
     }
 
 
@@ -38,6 +40,7 @@ class MeasureDetails extends Component {
         this.props.getMeasureDetails(cycleID, outcomeID, measureID)
         this.props.getMeasureEvaluators(measureID)
         this.props.getStudentsOfMeasure(measureID)
+        this.props.getMeasureReport(measureID)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -139,6 +142,13 @@ class MeasureDetails extends Component {
         this.setState({studAssign:false})
     }
 
+    measureReportShow = () => {
+        this.setState({measureReport:true})
+    }
+    measureReportHide = () => {
+        this.setState({ measureReport: false })
+    }
+
     assignStudentsHandle = e => {
         e.preventDefault()
         let students = document.getElementsByName('studentCheck')
@@ -159,7 +169,6 @@ class MeasureDetails extends Component {
         this.props.assignStudentsToMeasure(this.props.match.params.measureID, body)
     }
 
-
     render() {
         console.log(this.props)
         let typeRubric = false
@@ -168,6 +177,7 @@ class MeasureDetails extends Component {
         let studentList = []
         let evaluatorSelect = []
         let studentSelect = []
+        let measureReport = []
 
         if (this.props.cycles.measureDetails !== null && this.props.cycles.measureDetails !== undefined) {
             if (this.props.cycles.measureDetails.toolType === "rubric") {
@@ -198,6 +208,44 @@ class MeasureDetails extends Component {
                     })
                 }
 
+                if (this.props.cycles.measureReport !== null){
+                let length = this.props.cycles.measureReport.length
+                const report = this.props.cycles.measureReport
+                measureReport.push(<tr>
+                        <th>Class</th>
+                        <th>StudentName</th>
+                        <th>Criteria</th>
+                        <th>Evaluator</th>
+                    <th>Criteria Score</th>
+                    </tr>)
+                for(let i = 0; i < length; i++ ){
+                //     for(let j = 0; j < length; j++){
+                //    measureReport.push( <tr>
+                //         { i===1 ?
+                //         <th>Class</th>
+                //             : <td>{report[j].class}</td>}
+                //         {i === 1 ?
+                //         <th>Student</th>
+                //             : <td>{report[j].studentName}</td>}
+                //         {i === 1 ?
+                //         <th>Evaluator</th>
+                //         : <td>{report[j].evaluator}</td> }
+                //         <th>{report[j].criteriaName}</th>
+                //     </tr>
+                //    )
+                //     }
+                    measureReport.push(<tr>
+                    <td>{report[i].class}</td>
+                    <td>{report[i].studentName}</td>
+                    <td>{report[i].criteriaName}</td>
+                    <td>{report[i].evaluator}</td>
+                    <td>{report[i].criteriaScore}</td>
+
+
+                </tr>)
+                }
+            }
+
             }
         }
 
@@ -208,19 +256,6 @@ class MeasureDetails extends Component {
             window.alert("Invitation has been sent, but Evaluator has not created the account yet; Please contact the evaluator")
             this.setState({ errors: {} })
         }
-
-        // ('#select-all').click(function (event) {
-        //     if (this.checked) {
-        //         // Iterate each checkbox
-        //         (':checkbox').each(function () {
-        //             this.checked = true;
-        //         });
-        //     } else {
-        //         (':checkbox').each(function () {
-        //             this.checked = false;
-        //         });
-        //     }
-        // });
 
         return (
             <Fragment>
@@ -266,6 +301,7 @@ class MeasureDetails extends Component {
                                 </Card>
 
                                 <Button className='mt-2' onClick={this.assignStudShow}>Assign Students</Button>
+                                <Button className='mt-2 float-right' onClick={this.measureReportShow}>View Report</Button>
                             </Fragment> : null}
                     </Jumbotron>
                 </section>
@@ -386,9 +422,19 @@ class MeasureDetails extends Component {
                         <Button type="submit" className="mt-3 d-block">Submit </Button>
                         </Form>
                 </ModalBody>
-                
-                                    
                 </Modal>
+                
+                <Modal show={this.state.measureReport} onHide={this.measureReportHide} centered size = "lg">
+                <Modal.Title>
+                    Measure Summary
+                </Modal.Title>
+                <Modal.Body>
+                    {measureReport}
+                </Modal.Body>
+                <Button onClick={this.measureReportHide}>Close</Button>
+                </Modal>
+                                    
+                
 
             </Fragment>
         )
@@ -405,7 +451,10 @@ MeasureDetails.propTypes = {
     addStudentsToMeasure: PropTypes.func.isRequired,
     getStudentsOfMeasure: PropTypes.func.isRequired,
     addStudentToMeasure: PropTypes.func.isRequired,
-    assignStudentsToMeasure: PropTypes.func.isRequired
+    assignStudentsToMeasure: PropTypes.func.isRequired,
+    getMeasureReport: PropTypes.func.isRequired
+
+
 }
 
 const MapStateToProps = state => ({
@@ -426,5 +475,6 @@ export default connect(MapStateToProps,
         addStudentsToMeasure,
         addStudentToMeasure,
         getStudentsOfMeasure,
-        assignStudentsToMeasure
+        assignStudentsToMeasure,
+        getMeasureReport
     })(MeasureDetails);    
