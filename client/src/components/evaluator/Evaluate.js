@@ -33,7 +33,7 @@ class Evaluate extends Component {
     
 
     getStudents = (index,name) => {
-        
+        let students = []
     if(this.props.evaluations.evaluationDetails !== null & this.props.evaluations.evaluationDetails !== undefined){
        let students = this.props.evaluations.evaluationDetails.map( (student,studentIndex)=>{
             if(name === student.rubricName){
