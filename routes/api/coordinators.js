@@ -71,8 +71,6 @@ router.post(
             ", " +
             db.escape(adminID) +
             ")";
-          //console.log(invite(req.user.email, req.user.name, coordinatorEmail,res))
-          //if(invite(req.user.email, req.user.name, coordinatorEmail)){
           invite(req.user.email, req.user.name, coordinatorEmail)
             .then(value => {
               db.query(sql2, (err, result) => {
@@ -94,11 +92,6 @@ router.post(
                   "There was some problem adding and sending email to the coordinator"
                 );
             });
-
-          //}
-          // else{
-          //return res.status(404).json("There was some problem")
-          //}
         }
       });
     });
