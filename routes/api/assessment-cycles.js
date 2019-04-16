@@ -1244,10 +1244,10 @@ router.get(
   (req, res) => {
     let adminID = req.user.id;
     let measureID = req.params.measureIdentifier;
-    
+
     let errors = {};
 
-    let results = [];
+    let results = {};
 
     let sql =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID = " +
@@ -1269,15 +1269,21 @@ router.get(
           return res.status(500).json(err);
         }
         result.forEach(row => {
-          result = {
+          indResult = {
             class: row.courseAssociated,
             studentName: row.studentName,
-            evaluator: row.evalName,
-            criteriaName: row.criteriaDesc,
+            evanName: row.evalName,
+            criteriaDesc: row.criteriaDesc,
             criteriaScore: row.criteriaScore
           };
-          results.push(result)
+
+          if (!results.hasOwnProperty(row.criteriaID)) {
+            results[row.criteriaID] = [indResult];
+          } else {
+            results[row.criteriaID].push(indResult);
+          }
         });
+        //console.log(results);
         res.status(200).json(results);
       });
     });
