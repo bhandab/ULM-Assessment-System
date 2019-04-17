@@ -130,13 +130,13 @@ router.post(
           };
           evalInfo.push(indEval);
         });
-
-        let sql2 =
+        let sql2 = "";
+        let sql3 =
           "INSERT INTO EVALUATE (toolID,measureID,criteriaID,studentID,measureEvalID,criteriaScore) VALUES ?";
-        db.query(sql2, [evaluatedScores], (err, result) => {
-          if (err) {
-            return res.status(500).json(err);
-          }
+        db.query(sql3, [evaluatedScores], (err, result) => {
+          // if (err) {
+          //   return res.status(500).json(err);
+          // }
           res.status(200).json(evalInfo);
         });
       });
