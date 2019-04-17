@@ -1,20 +1,23 @@
 import axios from 'axios';
 import {GET_ERRORS, GET_RUBRICS, GET_SINGLE_RUBRIC, LOADING} from './types';
 
-export const createRubric = (rubricDetails) => dispatch => {
+export const createRubric = (rubricDetails,history) => dispatch => {
 
     axios
         .post("/api/rubrics/createRubric", rubricDetails)
-        .then(()=> {
+        .then(res => 
+            dispatch(history.push("/admin/rubrics/"+res.data.rubricDetails.strutureInfo.rubricID))
+        )
+        .then(()=>
             dispatch(getAllRubrics())
-        })
+        )
 
-        .catch(err=> {
-            dispatch({
-                type: GET_ERRORS,
-                payload: err.response.data
-            })
-        })
+        .catch(err=> //{
+            //dispatch(//{
+                // type: GET_ERRORS,
+                // payload: err.response.data
+            console.log(err)//)// })
+        )
 }
 
 export const getAllRubrics = () => dispatch => {
@@ -87,6 +90,20 @@ export const updateCellDescription = (rubricID, body) => dispatch => {
 export const updateCriteriaWeight = (rubricID,body) => dispatch => {
     axios
         .post("/api/rubrics/"+rubricID+"/updateWeight",body)
+        .then(() => {
+            dispatch(getSingleRubric(rubricID, false))
+        })
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+            })
+        })
+} 
+
+export const updateScaleDescription = (rubricID,body) => dispatch => {
+    axios
+        .post("/api/rubrics/"+rubricID+"/updateScaleDescription",body)
         .then(() => {
             dispatch(getSingleRubric(rubricID, false))
         })

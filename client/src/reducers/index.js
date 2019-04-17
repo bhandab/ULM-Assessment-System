@@ -7,6 +7,7 @@ import cyclesReducer from "./cyclesReducer";
 import rubricsReducer from "./rubricsReducer";
 import evaluatorReducer from "./evaluatorReducer";
 import evaluationsReducer from "./evaluationsReducer";
+import coordinatorReducer from './coordinatorReducer'
 
 export default combineReducers({
     auth: authReducer,
@@ -16,5 +17,6 @@ export default combineReducers({
     cycles: cyclesReducer,
     rubric: rubricsReducer,
     evaluator: evaluatorReducer,
-   evaluations: evaluationsReducer
+    evaluations: evaluationsReducer,
+    coordinators: coordinatorReducer
 });

@@ -47,7 +47,7 @@ class AllRubrics extends Component {
             //scales: scaleInfo,
             weighted: e.target.weighted.checked+""
         };
-        this.props.createRubric(rubricDetails);
+        this.props.createRubric(rubricDetails,this.props.history);
         console.log(rubricDetails)
         //localStorage.setItem('rubric',JSON.stringify(rubricDetails))
         this.setState({createRubric:false})

@@ -11,6 +11,7 @@ import Login from './components/auth/Login'
 import Admin from './components/users/Admin'
 import Evaluator from './components/users/Evaluator'
 import Register from './components/auth/Register'
+import SuperAdmin from './components/users/SuperAdmin'
 
 
 import './App.css';
@@ -50,6 +51,7 @@ class App extends Component {
             <Route path='/evaluator' component={Evaluator}></Route>
             <Route path='/login' exact component={Login}></Route>
             <Route path="/register" exact component = {Register}></Route>
+            <Route path="/superuser" component={SuperAdmin}></Route>
             <Route path='/' exact component={Login} />
             </Switch>
           </div>

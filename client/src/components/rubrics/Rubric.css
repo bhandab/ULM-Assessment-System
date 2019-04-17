@@ -1,0 +1,37 @@
+.table td, .table th {
+    vertical-align: middle;
+}
+
+div#rubric-title.card-header h2 {
+    text-align: center;
+    font-size: 3em;
+}
+
+div#rubric-table.card-body {
+    padding: 5px;
+    height: 100%;
+}
+ th#row1col1{
+     font-size: 1.7em;
+ }
+ th#table-headers {
+     height: 100%;
+     padding: 0;
+     margin: 0;
+     vertical-align: middle;
+ 
+
+ }
+ input#table-headers.form-control {
+     border: none;
+     padding: 2px;
+     height: 100%;
+     font-size: 1.5em;
+     text-align: center;
+     vertical-align: middle;
+ }
+
+ th#table-headers.weight {
+    padding:15px;
+  }
+  

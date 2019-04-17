@@ -1152,74 +1152,6 @@ router.get(
 // @desc Assign Rubric and Student to Evaluator for evaluation purpose
 // @access private
 
-// router.post(
-//   "/:measureIdentifier/assign",
-//   passport.authenticate("jwt", { session: false }),
-//   (req, res) => {
-//     let measureID = req.params.measureIdentifier;
-//     let adminID = req.user.id;
-//     let evalID = req.body.evalID;
-//     let rubricID = req.body.rubricID;
-//     let studentID = req.body.studentID;
-//     let errors = {};
-//     let sql =
-//       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
-//       db.escape(measureID);
-//     db.query(sql, (err, result) => {
-//       if (err) {
-//         return res.status(500).json(err);
-//       } else if (result.length <= 0) {
-//         errors.identifierError = "Measure ID not found";
-//         return res.status(404).json(errors);
-//       }
-
-//       let sql1 =
-//         "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
-//         db.escape(adminID) +
-//         " AND measureEvalID=" +
-//         db.escape(evalID) +
-//         " AND studentID=" +
-//         db.escape(studentID) +
-//         " AND toolID=" +
-//         db.escape(rubricID) +
-//         " AND measureID=" +
-//         db.escape(measureID);
-
-//       db.query(sql1, (err, result) => {
-//         if (err) {
-//           return res.status(500).json(err);
-//         } else if (result.length > 0) {
-//           errors.assignmentFoundError =
-//             "You have already assigned the selected evaluator and student to this rubric";
-//           return res.status(404).json({ errors });
-//         }
-//         let sql2 =
-//           "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES (" +
-//           db.escape(adminID) +
-//           ", " +
-//           db.escape(evalID) +
-//           ", " +
-//           db.escape(studentID) +
-//           ", " +
-//           db.escape(rubricID) +
-//           ", " +
-//           db.escape(measureID) +
-//           ")";
-//         db.query(sql2, (err, result) => {
-//           if (err) {
-//             return res.status(500).json(err);
-//           }
-//           res.status(200).json(result);
-//         });
-//       });
-//     });
-//   }
-// );
-
-// @route POST api/cycles/:measureIdentifier/assign
-// @desc Assign Rubric and Student to Evaluator for evaluation purpose
-// @access private
-
 router.post(
   "/:measureIdentifier/assign",
   passport.authenticate("jwt", { session: false }),
@@ -1230,7 +1162,6 @@ router.post(
     let rubricID = req.body.rubricID;
     alreadyAssignedStudents = [];
     tobeAssignedStudents = [];
-    //let studentID = req.body.studentID;
     let errors = {};
     let sql =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
@@ -1258,7 +1189,6 @@ router.post(
               db.escape(measureID);
 
             db.query(sql1, (err, result) => {
-              //console.log("I am here")
               if (err) {
                 return callback(err);
               } else if (result.length > 0) {
@@ -1267,7 +1197,6 @@ router.post(
                   evalID,
                   rubricID
                 });
-                console.log(alreadyAssignedStudents);
                 callback();
               } else {
                 tobeAssignedStudents.push([
@@ -1305,6 +1234,58 @@ router.post(
           }
         );
       }
+    });
+  }
+);
+
+router.get(
+  "/:measureIdentifier/measureRubricReport",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let adminID = req.user.id;
+    let measureID = req.params.measureIdentifier;
+
+    let errors = {};
+
+    let results = {};
+
+    let sql =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID = " +
+      db.escape(measureID);
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        errors.measureNotFound = "Measure Not Found";
+        return res.status(404).json(errors);
+      }
+      let sql1 =
+        "SELECT * FROM EVALUATE NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA NATURAL JOIN EVALUATOR WHERE measureID=" +
+        db.escape(measureID) +
+        " ORDER BY studentName";
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        result.forEach(row => {
+          indResult = {
+            class: row.courseAssociated,
+            studentName: row.studentName,
+            evanName: row.evalName,
+            criteriaDesc: row.criteriaDesc,
+            criteriaScore: row.criteriaScore
+          };
+
+          if (!results.hasOwnProperty(row.criteriaID)) {
+            results[row.criteriaID] = [indResult];
+          } else {
+            results[row.criteriaID].push(indResult);
+          }
+        });
+        //console.log(results);
+        res.status(200).json(results);
+      });
     });
   }
 );

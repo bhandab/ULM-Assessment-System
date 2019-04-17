@@ -8,7 +8,8 @@ import {
     GET_CYCLES_OUTCOMES,
     GET_MEASURE_DETAILS,
     GET_ASSIGNED_STUDENTS,
-    CYCLE_LOADING
+    CYCLE_LOADING,
+    GET_MEASURE_REPORT
 }
     from './types';
 
@@ -289,6 +290,26 @@ export const assignStudentsToMeasure = (measureID, body) => dispatch => {
 
             
         }*/)
+}
+
+export const getMeasureReport = (measureID) => dispatch => {
+    console.log(measureID)
+    axios
+    .get("/api/cycles/"+measureID+"/measureRubricReport")
+        .then(res =>
+            dispatch({
+                type: GET_MEASURE_REPORT,
+                payload: res.data
+            })
+        )
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            })
+        })
+
 }
 
 export const setLoading = () => {
