@@ -34,8 +34,8 @@ class OutcomeMeasures extends Component {
     e.preventDefault();
     let index = e.target.measures.value;
     const measure = this.props.measures.measures[index];
-    console.log(e.target.measures.value)
-    console.log(measure)
+    // console.log(e.target.measures.value)
+    // console.log(measure)
     const measureDetails = {
       measureDescription: measure.measureDescription,
       projectedStudentNumber: measure.projectedStudentNumber+"",
@@ -166,7 +166,7 @@ class OutcomeMeasures extends Component {
           const measure = outcomeMeasures.find(measure=> {
             return measure.measureName === item.measureDescription
           })
-          console.log(measure)
+          // console.log(measure)
           if(measure === undefined){
           return (
             <option key={index} value={index}>
@@ -206,7 +206,7 @@ class OutcomeMeasures extends Component {
     const rubricChangeHandler = (e) => {
     let rubricID = e.target.value.replace(/\D/g, "");
         this.props.getSingleRubric(rubricID, true)
-        console.log(rubricScoreOptions)
+        // console.log(rubricScoreOptions)
     }
 
     if(isEmpty(this.props.rubric.singleRubric) === false){

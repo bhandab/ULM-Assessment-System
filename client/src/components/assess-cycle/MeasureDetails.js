@@ -88,6 +88,7 @@ class MeasureDetails extends Component {
     this.props.addEvaluator(this.props.match.params.measureID, {
       evaluatorEmail: e.target.evalEmail.value
     });
+    // console.log(e.target.evalEmail.value)
     this.setState({
       email: e.target.evalEmail.value,
       addEval: false,
@@ -107,7 +108,7 @@ class MeasureDetails extends Component {
 
   uploadStudentsHandler = e => {
     e.preventDefault();
-    console.log(e.target);
+    // console.log(e.target);
     this.fileUpload(this.state.file);
     this.setState({ uploadFile: false });
   };
@@ -123,7 +124,7 @@ class MeasureDetails extends Component {
       email,
       CWID
     };
-    console.log(body);
+    // console.log(body);
     this.props.addStudentToMeasure(this.props.match.params.measureID, body);
     this.setState({ addStudHide: false });
   };
@@ -137,7 +138,7 @@ class MeasureDetails extends Component {
         "content-type": "multipart/fomr-data"
       }
     };
-    console.log(formData);
+    // console.log(formData);
     this.props.addStudentsToMeasure(
       this.props.match.params.measureID,
       formData,
@@ -186,7 +187,7 @@ class MeasureDetails extends Component {
       rubricID,
       evalID
     };
-    console.log(body);
+    // console.log(body);
     this.props.assignStudentsToMeasure(this.props.match.params.measureID, body);
   };
 
@@ -199,6 +200,7 @@ class MeasureDetails extends Component {
     let evaluatorSelect = [];
     let studentSelect = [];
     let measureReport = [];
+    let evaluatorOptions = [];
 
     if (
       this.props.cycles.measureDetails !== null &&
@@ -216,6 +218,9 @@ class MeasureDetails extends Component {
         ) {
           evaluatorList = this.props.cycles.measureEvaluators.evaluators.map(
             evaluator => {
+              evaluatorOptions.push(
+                <option value={evaluator.name}/>
+              )
               evaluatorSelect.push(
                 <div key={evaluator.measureEvalID}>
                   <input
@@ -271,43 +276,57 @@ class MeasureDetails extends Component {
           this.props.cycles.measureReport !== null &&
           this.props.cycles.measureReport !== undefined
         ) {
+
+          
           let length = this.props.cycles.measureReport.length;
           const report = this.props.cycles.measureReport;
+          const studentLength = report[Object.keys(report)[0]].length
+          // console.log(studentLength)
+
+          const criteriaLabel = () => {
+            let labels = []
+              Object.keys(report).forEach(key => {
+                labels.push (
+                <th>
+                  {report[key][0].criteriaDesc}
+                </th>
+                )
+              })
+              return labels
+          }
+
+          const studentScores = (val) => {
+           let scores = Object.keys(report).map(key => {
+                return(
+                  <td>{report[key][val].criteriaScore}</td>
+                )
+            })
+            return scores
+          }
+          // console.log(criteriaLabel())
           measureReport.push(
             <tr>
               <th>Class</th>
               <th>StudentName</th>
-              <th>Criteria</th>
               <th>Evaluator</th>
-              <th>Criteria Score</th>
+              {criteriaLabel()}
             </tr>
           );
-          for (let i = 0; i < length; i++) {
-            //     for(let j = 0; j < length; j++){
-            //    measureReport.push( <tr>
-            //         { i===1 ?
-            //         <th>Class</th>
-            //             : <td>{report[j].class}</td>}
-            //         {i === 1 ?
-            //         <th>Student</th>
-            //             : <td>{report[j].studentName}</td>}
-            //         {i === 1 ?
-            //         <th>Evaluator</th>
-            //         : <td>{report[j].evaluator}</td> }
-            //         <th>{report[j].criteriaName}</th>
-            //     </tr>
-            //    )
-            //     }
-            measureReport.push(
-              <tr>
-                <td>{report[i].class}</td>
-                <td>{report[i].studentName}</td>
-                <td>{report[i].criteriaName}</td>
-                <td>{report[i].evaluator}</td>
-                <td>{report[i].criteriaScore}</td>
-              </tr>
-            );
+          
+
+          for(let i = 0; i < studentLength; i++){
+            let a = 0
+            const key = Object.keys(report)[0]
+              const cells = (<tr>
+                <td>{report[key][i].class}</td>
+                <td>{report[key][i].studentName}</td>
+                <td>{report[key][i].evanName}</td>
+                {studentScores(i)}
+              </tr>)
+              measureReport.push(cells)
+            
           }
+          
         }
       }
     }
@@ -490,7 +509,8 @@ class MeasureDetails extends Component {
             </Form>
           </Modal.Body>
         </Modal>
-
+        
+        {/** Add Evaluator Modal */}
         <Modal show={this.state.addEval} onHide={this.addEvalHide} centered>
           <Modal.Title className="ml-3 mt-2">Add Evaluator</Modal.Title>
           <Modal.Body>
@@ -501,7 +521,11 @@ class MeasureDetails extends Component {
                   type="email"
                   name="evalEmail"
                   placeholder="Enter email"
+                  list = "evaluatorList"
                 />
+                <datalist id="evaluatorList">
+                    {evaluatorOptions}
+                </datalist>
               </Form.Group>
               <Button
                 variant="danger"

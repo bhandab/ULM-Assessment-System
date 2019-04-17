@@ -30,10 +30,6 @@ class AssessmentCycle extends Component {
     this.props.getAssessmentCycles();
   }
 
-  clickHandler = e => {
-    console.log(e.target);
-  };
-
   submitHandler = e => {
     e.preventDefault();
     let value = e.target.cycleName.value;
@@ -85,7 +81,6 @@ class AssessmentCycle extends Component {
   };
 
   render() {
-    //console.log(this.props)
 
     let cyclesList = null;
     if (

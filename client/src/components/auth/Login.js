@@ -34,6 +34,7 @@ class Login extends Component {
 
     componentDidMount() {
         // If logged in and user navigates to Login page, should redirect them to dashboard
+        console.log(this.props)
         if (this.props.auth.isAuthenticated && this.props.auth.user==="coordinator") {
 
             this.props.history.push("/admin/cycles");
@@ -41,6 +42,11 @@ class Login extends Component {
 
         else if (this.props.auth.isAuthenticated && this.props.auth.user === "evaluator") {
             this.props.history.push("/evaluator")
+        }
+
+        else if (this.props.auth.isAuthenticated && this.props.auth.user.role === "superuser"){
+            console.log("gets to super user")
+            this.props.history.push("/superuser")
         }
 
         else{
