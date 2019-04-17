@@ -68,7 +68,7 @@ function closeNav() {
 
         </div> */}
            
-          <div id="mySidebar" className="sidebar" style={{backgroundColor:'grey'}}>
+          <div id="mySidebar" className="sidebar">
             <a href="javascript:void(0)" className="closebtn" onClick={closeNav}>&times;</a>
            <ul className="bordered m-3"style={{backgroundColor:'white'}}>
             <li className="dashboard">

@@ -155,7 +155,7 @@ li {
 
 
 h2 {
-  color: #1eb6a7;
+  color: #633737;
 }
 
 .panel {
@@ -189,8 +189,7 @@ h2 {
 }
 .list-group a:hover {
   color: black;
-  background-color: rgba(128, 150, 86, 0.541);
-  text-decoration: none; 
+  /* background-color: rgba(128, 150, 86, 0.541); */
 }
 
 
@@ -310,6 +309,9 @@ main ol li ol {
 
 /**Bread crumbs CSS*/
 
+.btn-breadcrumb {
+  background-color: maroon !important;
+}
 
 .btn-breadcrumb .btn:not(:last-child):after {
   content: " ";
@@ -385,7 +387,9 @@ main ol li ol {
   border-left: 10px solid #285e8e;
 }
 
-
+button.btn-primary {
+  background-color: maroon !important;
+}
 
 
 /**Breadcrumbs End**/
@@ -404,6 +408,10 @@ td a:active{
   height: 100px;
 }
 /**End*/
+
+li {
+  color: #111;
+}
 
 @media screen and (min-width: 600px) {
   html,
@@ -529,12 +537,26 @@ td a:active{
   z-index: 1; /* Stay on top */
   top: 0;
   left: 0;
-  background-color: white; /* Black*/
+  background-color: rgba(112, 128, 144, 0.705);
   color: maroon;
   overflow-x: hidden; /* Disable horizontal scroll */
   padding-top: 70px; /* Place content 60px from the top */
   transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+  margin-top: 85px;
   
+}
+
+.sidebar ul {
+  /* border: 1px solid white; */
+  border-radius: 3%;
+}
+
+.sidebar ul li {
+  border-bottom: 2px grey;
+}
+
+.sidebar ul li a {
+  border: none;
 }
 
 /* The sidebar links */
