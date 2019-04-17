@@ -10,6 +10,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { isEmpty } from "../../utils/isEmpty";
 import { FormControl, Button, Spinner, Card } from "react-bootstrap";
+import './Rubric.css'
 
 class CreateRubric extends Component {
   componentDidMount() {
@@ -125,17 +126,18 @@ class CreateRubric extends Component {
         .rubricTitle;
 
       tableHeader.push(
-        <th key="row1col1">
-          <div>Criteria</div>
+        <th key="row1col1" id="row1col1">
+          Criteria
         </th>
       );
 
       for (let i = 0; i < rubricDetails.scaleInfo.length; i++) {
         tableHeader.push(
-          <th key={"row1col" + (i + 2)}>
+          <th key={"row1col" + (i + 2)} id = "table-headers">
             <FormControl
+              id = "table-headers"
               type="textarea"
-              className="p-2 m-0"
+              
               name = {rubricDetails.scaleInfo[i].scaleID}
               defaultValue={rubricDetails.scaleInfo[i].scaleDescription}
               onChange={this.updateScaleDescription.bind(this)}
@@ -145,7 +147,7 @@ class CreateRubric extends Component {
       }
       if (weighted === 1) {
         tableHeader.push(
-          <th
+          <th id = "table-headers"
             className="weight"
             key={"row1col" + (rubricDetails.scaleInfo.length + 2)}
           >
