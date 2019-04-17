@@ -81,6 +81,7 @@ router.post(
     let studentID = req.body.studentID;
     let measureEvalID = req.body.measureEvalID;
     let evaluatedScores = [];
+    let evalInfo = [];
 
     let sql0 = "SELECT * FROM RUBRIC WHERE toolID=" + db.escape(rubricID);
     db.query(sql0, (err, result) => {
@@ -92,23 +93,34 @@ router.post(
         return res.status(404).json("Please Grade all criterias of the rubric");
       }
       req.body.criteriaScores.forEach(score => {
+        let cScore = 1;
+        if (score.criteriaWeight) {
+          cScore = (cScore * parseFloat(criteriaWeight)) / 100;
+        }
         let criteriaScore = [
           rubricID,
           measureID,
           score.criteriaID,
           studentID,
-          measureEvalID
+          measureEvalID,
+          cScore
         ];
         evaluatedScores.push(criteriaScore);
+
+        let indEval = {
+          criteriaID: score.criteriaID,
+          criteriaScore: cScore
+        };
+        evalInfo.push(indEval);
       });
 
       let sql1 =
-        "INSERT INTO EVALUATE (toolID,measureID,criteriaID,studentID,measureEvalID) VALUES ?";
+        "INSERT INTO EVALUATE (toolID,measureID,criteriaID,studentID,measureEvalID,criteriaScore) VALUES ?";
       db.query(sql1, [evaluatedScores], (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
-        res.status(200).json(result);
+        res.status(200).json(evalInfo);
       });
     });
   }
