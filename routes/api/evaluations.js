@@ -134,9 +134,9 @@ router.post(
         let sql3 =
           "INSERT INTO EVALUATE (toolID,measureID,criteriaID,studentID,measureEvalID,criteriaScore) VALUES ?";
         db.query(sql3, [evaluatedScores], (err, result) => {
-          // if (err) {
-          //   return res.status(500).json(err);
-          // }
+          if (err) {
+            return res.status(200).json(evalInfo);
+          }
           res.status(200).json(evalInfo);
         });
       });

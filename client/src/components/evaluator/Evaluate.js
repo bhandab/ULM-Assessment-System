@@ -23,14 +23,6 @@ class Evaluate extends Component {
     this.props.getEvaluationRubrics();
   }
 
-  shouldComponentUpdate(nextProps, nextState){
-      if(this.props !== nextProps){
-          return true
-      }
-      else 
-      return false
-  }
-
   onClickListener = e => {
     const index = e.target.dataset.idx;
     const measureID = e.target.dataset.measureid;
@@ -131,12 +123,14 @@ class Evaluate extends Component {
       let tableHeader = [];
       let table = [];
       let rubricTitle = null;
+      let averageScore = 0
       console.log(rubricDetails);
 
 
       const weighted = rubricDetails.structureInfo.weighted;
 
       rubricTitle = rubricDetails.structureInfo.rubricTitle;
+      const cols = rubricDetails.scaleInfo.length
 
       tableHeader.push(
         <th key="row1col1">
@@ -189,19 +183,33 @@ class Evaluate extends Component {
             </td>
           );
         }
-
+        let score = this.props.evaluations.rubricScores[j].criteriaScore
+        averageScore += score
         if (weighted === 1) {
+            score = 100*1/rubricDetails.criteriaInfo[j].criteriaWeight
           cells.push(
             <td key={"wei" + rubricDetails.criteriaInfo[j].criteriaID}>
               {rubricDetails.criteriaInfo[j].criteriaWeight}%
             </td>
           );
         }
-        // const criteriaID = tableCols[0].criteriaID;
-        cells.push(<td key={"score" + j + 2}><Form.Control defaultValue="0"/></td>)
+        const criteriaID = tableCols[0].criteriaID;
+        cells.push(<td key={"score" + j + 2}>{score}</td>)
         cells = <tr key={"row" + (j + 2)}>{cells}</tr>;
         table.push(cells);
       }
+      if(weighted === 0) {
+        averageScore = averageScore / cols
+        }
+        else {
+            averageScore *= cols
+        }
+        table.push(
+            <tr key = "avgScore">
+                <td colSpan={cols+2}>Average Score</td>
+                <td>{averageScore}</td>
+            </tr>
+        )
       table = (
         <div>
           <table className="table table-bordered" id="scoreRubric">
@@ -212,11 +220,7 @@ class Evaluate extends Component {
           </Button>
         </div>
       );
-      console.log(scoreMap)
-      this.setState({scoreMap:scoreMap})
-      console.log(this.state)
       return table;
-      
     };
 
     if (!this.props.rubric.loading) {
@@ -227,18 +231,25 @@ class Evaluate extends Component {
     const scoreClick = e => {
       e.target.style.background = "#1eb6a7";
       const selectedCriteria = e.target.dataset.criteriaid;
-      console.log(e.target.dataset.criteriaid);
+      //console.log(e.target.dataset.criteriaid);
       const selectedScale = e.target.dataset.scaleid;
-      console.log(e.target.dataset.scaleid);
+      //console.log(e.target.dataset.scaleid);
       const scaleInfo = this.props.rubric.singleRubric.rubricDetails.scaleInfo.find(
         item => {
           return item.scaleID == selectedScale;
         }
       );
       const score = scaleInfo.scaleValue;
-      //console.log(scaleInfo)
-      console.log(score);
-      scoreMap.set(selectedCriteria, score);
+      //console.log(score);
+      const body = {
+      rubricID: this.props.rubric.singleRubric.rubricDetails.structureInfo.rubricID,
+      measureID: this.state.measureID + "",
+      studentID: this.state.studentID + "",
+      measureEvalID: this.state.measureEvalID,
+      criteriaID: selectedCriteria,
+      criteriaScore: score
+      }
+      this.props.updateRubricScores(body)
     };
 
     const getCriteriaWeight  = (criteria) => {

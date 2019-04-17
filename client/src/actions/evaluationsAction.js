@@ -46,12 +46,20 @@ export const submitRubricScores = (body) => dispatch => {
 }
 
 export const updateRubricScores = (body) => dispatch => {
+    
+    const newBody = {
+        rubricID:body.rubricID,
+     measureID:body.measureID,
+     studentID:body.studentID,
+     measureEvalID:body.measureEvalID
+    }
+
     console.log(body)
     axios
     .post("/api/evaluations/updateScores",body)
         .catch(err => dispatch({
             type: GET_ERRORS,
             payload: err.response.data
-        })
-        )
+        }))
+    .then(dispatch(submitRubricScores(newBody)))
 }
