@@ -208,9 +208,6 @@ table {
   border: 2px solid black !important;
 }
 
-.weight {
-  width: 20px !important;
-}
 
 /* Edit Icons**/
 .outcome-edit:before{
@@ -318,6 +315,7 @@ main ol li ol {
 }
 .btn-breadcrumb .btn:first-child {
   padding:6px 6px 6px 10px;
+  margin-left: 0;
 }
 .btn-breadcrumb .btn:last-child {
   padding:6px 18px 6px 24px;

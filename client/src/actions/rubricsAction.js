@@ -8,9 +8,9 @@ export const createRubric = (rubricDetails,history) => dispatch => {
         .then(res => 
             dispatch(history.push("/admin/rubrics/"+res.data.rubricDetails.strutureInfo.rubricID))
         )
-        .then(()=> {
+        .then(()=>
             dispatch(getAllRubrics())
-        })
+        )
 
         .catch(err=> //{
             //dispatch(//{
@@ -90,6 +90,20 @@ export const updateCellDescription = (rubricID, body) => dispatch => {
 export const updateCriteriaWeight = (rubricID,body) => dispatch => {
     axios
         .post("/api/rubrics/"+rubricID+"/updateWeight",body)
+        .then(() => {
+            dispatch(getSingleRubric(rubricID, false))
+        })
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+            })
+        })
+} 
+
+export const updateScaleDescription = (rubricID,body) => dispatch => {
+    axios
+        .post("/api/rubrics/"+rubricID+"/updateScaleDescription",body)
         .then(() => {
             dispatch(getSingleRubric(rubricID, false))
         })

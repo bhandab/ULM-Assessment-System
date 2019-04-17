@@ -3,13 +3,14 @@ import {
   getSingleRubric,
   updateRubricCriteria,
   updateCellDescription,
-  updateCriteriaWeight
+  updateCriteriaWeight,
+  updateScaleDescription
 } from "../../actions/rubricsAction";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { isEmpty } from "../../utils/isEmpty";
-import { FormControl, Button, Spinner } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { FormControl, Button, Spinner, Card } from "react-bootstrap";
+import './Rubric.css'
 
 class CreateRubric extends Component {
   componentDidMount() {
@@ -60,6 +61,14 @@ class CreateRubric extends Component {
     const id = e.target.name;
     this.props.updateCriteriaWeight(this.props.match.params.rubricID, id, body);
   };
+
+  updateScaleDescription = e => {
+    const body = {
+      scaleDescription : e.target.value,
+      scaleID: e.target.name
+  }
+  this.props.updateScaleDescription(this.props.match.params.rubricID,body)
+}
 
   saveChangesClick = e => {
     const criteriaWeight = [];
@@ -117,23 +126,28 @@ class CreateRubric extends Component {
         .rubricTitle;
 
       tableHeader.push(
-        <th key="row1col1">
-          <div>Criteria</div>
+        <th key="row1col1" id="row1col1">
+          Criteria
         </th>
       );
 
       for (let i = 0; i < rubricDetails.scaleInfo.length; i++) {
         tableHeader.push(
-          <th key={"row1col" + (i + 2)}>
-            <div style={{ border: "none" }}>
-              {rubricDetails.scaleInfo[i].scaleDescription}
-            </div>
+          <th key={"row1col" + (i + 2)} id = "table-headers">
+            <FormControl
+              id = "table-headers"
+              type="textarea"
+              
+              name = {rubricDetails.scaleInfo[i].scaleID}
+              defaultValue={rubricDetails.scaleInfo[i].scaleDescription}
+              onChange={this.updateScaleDescription.bind(this)}
+            />
           </th>
         );
       }
       if (weighted === 1) {
         tableHeader.push(
-          <th
+          <th id = "table-headers"
             className="weight"
             key={"row1col" + (rubricDetails.scaleInfo.length + 2)}
           >
@@ -209,16 +223,20 @@ class CreateRubric extends Component {
           <Spinner className="mt-5 ml-5" animation="border" variant="primary" />
         ) : (
           <section className="panel important">
-            <h2 className="align-middle">{rubricTitle}</h2>
+          <Card>
+            <Card.Header id="rubric-title"><h2 className="align-middle">{rubricTitle}</h2></Card.Header>
+            <Card.Body id="rubric-table">
             {table}
-            {/*<Link to={"/admin/rubrics"}>*/}
+            </Card.Body>
+            <Card.Footer>
             <Button
               onClick={this.saveChangesClick.bind(this)}
-              className="btn btn-primary mt-2 float-right"
+              className="btn btn-primary float-right"
             >
               Save Changes
             </Button>
-            {/*</Link>*/}
+            </Card.Footer>
+            </Card>
           </section>
         )}
       </Fragment>
@@ -246,6 +264,7 @@ export default connect(
     getSingleRubric,
     updateRubricCriteria,
     updateCellDescription,
-    updateCriteriaWeight
+    updateCriteriaWeight,
+    updateScaleDescription
   }
 )(CreateRubric);
