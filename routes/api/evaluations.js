@@ -1,5 +1,6 @@
 const express = require("express");
 const passport = require("passport");
+const async = require("async");
 
 const db = require("../../config/dbconnection");
 
@@ -82,17 +83,14 @@ router.post(
     let evaluatedScores = [];
 
     let sql0 = "SELECT * FROM RUBRIC WHERE toolID=" + db.escape(rubricID);
-    //console.log(rubricID)
     db.query(sql0, (err, result) => {
       if (err) {
         return res.status(500).json(err);
       } else if (result.length <= 0) {
         return res.status(404).json("Rubric Not Found");
+      } else if (req.body.criteriaScores.length !== result[0].rubricRows) {
+        return res.status(404).json("Please Grade all criterias of the rubric");
       }
-      // else if (req.body.criteriaScores.length !== result[0].rubricRows) {
-
-      //   return res.status(404).json("Please Grade all criterias of the rubric");
-      // }
       req.body.criteriaScores.forEach(score => {
         let criteriaScore = [
           rubricID,
@@ -100,11 +98,10 @@ router.post(
           score.criteriaID,
           studentID,
           measureEvalID
-          //parseFloat(score.criteriaScore)
         ];
         evaluatedScores.push(criteriaScore);
       });
-      //console.log(evaluatedScores)
+
       let sql1 =
         "INSERT INTO EVALUATE (toolID,measureID,criteriaID,studentID,measureEvalID) VALUES ?";
       db.query(sql1, [evaluatedScores], (err, result) => {
@@ -113,6 +110,61 @@ router.post(
         }
         res.status(200).json(result);
       });
+    });
+  }
+);
+
+router.post(
+  "/updateScores",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let evalID = req.user.id;
+    let rubricID = req.body.rubricID;
+    let measureID = req.body.measureID;
+    let studentID = req.body.studentID;
+    let measureEvalID = req.body.measureEvalID;
+
+    let sql0 = "SELECT * FROM RUBRIC WHERE toolID=" + db.escape(rubricID);
+
+    db.query(sql0, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res.status(404).json("Rubric Not Found");
+      } else if (req.body.criteriaScores.length !== result[0].rubricRows) {
+        return res.status(404).json("Please Grade all criterias of the rubric");
+      }
+
+      async.forEachOf(
+        req.body.criteriaScores,
+        (value, key, callback) => {
+          let sql1 =
+            "UPDATE EVALUATE SET criteriaScore=" +
+            db.escape(parseFloat(value.criteriaScore)) +
+            " WHERE toolID=" +
+            db.escape(rubricID) +
+            " AND measureID=" +
+            db.escape(measureID) +
+            " AND criteriaID=" +
+            db.escape(value.criteriaID) +
+            " AND studentID=" +
+            db.escape(studentID) +
+            " AND measureEvalID=" +
+            db.escape(measureEvalID);
+          db.query(sql1, (err, result) => {
+            if (err) {
+              return callback(err);
+            }
+            callback();
+          });
+        },
+        err => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Update Successful");
+        }
+      );
     });
   }
 );
