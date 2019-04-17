@@ -78,7 +78,7 @@ class Evaluate extends Component {
   render() {
     let rubrics = [];
     let rubricTable = null;
-    let scoreMap = new Map();
+    // let scoreMap = new Map();
 
     console.log(this.state)
 
@@ -162,7 +162,7 @@ class Evaluate extends Component {
 
       const tableRows = this.props.rubric.singleRubric.rubricDetails.table;
       for (let j = 0; j < tableRows.length; j++) {
-          scoreMap.set(rubricDetails.criteriaInfo[j].criteriaID+"",1)
+          // scoreMap.set(rubricDetails.criteriaInfo[j].criteriaID+"",1)
         let cells = [];
         cells.push(
           <td key={"row" + (j + 2) + "col1"}>
@@ -264,42 +264,42 @@ class Evaluate extends Component {
     }
 
     const submitScores = () => {
-      console.log(scoreMap);
-      const keys = [];
-      const scores = [];
-      scoreMap.forEach((value, key) => {
-        keys.push(key);
-      });
-      keys.sort().forEach(item => {
-          let weight = 1
-        if(this.props.rubric.singleRubric.rubricDetails.structureInfo.weighted === 1){
-            weight = getCriteriaWeight(item)/100
-        }
-        scores.push({ criteriaScore: scoreMap.get(item)*weight, criteriaID: item });
-      });
-      console.log(scores);
+    //   // console.log(scoreMap);
+    //   const keys = [];
+    //   const scores = [];
+    //   scoreMap.forEach((value, key) => {
+    //     keys.push(key);
+    //   });
+    //   keys.sort().forEach(item => {
+    //       let weight = 1
+    //     if(this.props.rubric.singleRubric.rubricDetails.structureInfo.weighted === 1){
+    //         weight = getCriteriaWeight(item)/100
+    //     }
+    //     scores.push({ criteriaScore: scoreMap.get(item)*weight, criteriaID: item });
+    //   });
+    //   console.log(scores);
 
-      const body = {
-        rubricID: this.props.rubric.singleRubric.rubricDetails.structureInfo
-          .rubricID,
-        measureID: this.state.measureID + "",
-        studentID: this.state.studentID + "",
-        measureEvalID: this.state.measureEvalID,
-        criteriaScores: scores
-      };
-    //   if (
-        // scores.length ==
-        // this.props.rubric.singleRubric.rubricDetails.structureInfo.noOfRows
-    //   ) {
-        this.props.updateRubricScores(body);
-        scoreMap = new Map();
-    //     window.alert("Student successfully graded!");
-    //   } else {
-    //     window.alert("All criterias of the rubric must be scored!");
-     // }
+    //   const body = {
+    //     rubricID: this.props.rubric.singleRubric.rubricDetails.structureInfo
+    //       .rubricID,
+    //     measureID: this.state.measureID + "",
+    //     studentID: this.state.studentID + "",
+    //     measureEvalID: this.state.measureEvalID,
+    //     criteriaScores: scores
+    //   };
+    // //   if (
+    //     // scores.length ==
+    //     // this.props.rubric.singleRubric.rubricDetails.structureInfo.noOfRows
+    // //   ) {
+    //     this.props.updateRubricScores(body);
+    //     scoreMap = new Map();
+    // //     window.alert("Student successfully graded!");
+    // //   } else {
+    // //     window.alert("All criterias of the rubric must be scored!");
+    //  // }
     };
 
-    console.log(scoreMap);
+    // console.log(scoreMap);
     console.log(this.props);
 
     return (
