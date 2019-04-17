@@ -148,12 +148,12 @@ router.post(
   "/updateScores",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    let evalID = req.user.id;
     let rubricID = req.body.rubricID;
     let measureID = req.body.measureID;
     let studentID = req.body.studentID;
     let measureEvalID = req.body.measureEvalID;
-
+    let criteriaID = req.body.criteriaID;
+    let criteriaScore = req.body.criteriaScore;
     let sql0 = "SELECT * FROM RUBRIC WHERE toolID=" + db.escape(rubricID);
 
     db.query(sql0, (err, result) => {
@@ -162,37 +162,25 @@ router.post(
       } else if (result.length <= 0) {
         return res.status(404).json("Rubric Not Found");
       }
-
-      async.forEachOf(
-        req.body.criteriaScores,
-        (value, key, callback) => {
-          let sql1 =
-            "UPDATE EVALUATE SET criteriaScore=" +
-            db.escape(parseFloat(value.criteriaScore)) +
-            " WHERE toolID=" +
-            db.escape(rubricID) +
-            " AND measureID=" +
-            db.escape(measureID) +
-            " AND criteriaID=" +
-            db.escape(value.criteriaID) +
-            " AND studentID=" +
-            db.escape(studentID) +
-            " AND measureEvalID=" +
-            db.escape(measureEvalID);
-          db.query(sql1, (err, result) => {
-            if (err) {
-              return callback(err);
-            }
-            callback();
-          });
-        },
-        err => {
-          if (err) {
-            return res.status(500).json(err);
-          }
-          res.status(200).json("Update Successful");
+      let sql1 =
+        "UPDATE EVALUATE SET criteriaScore=" +
+        db.escape(parseFloat(criteriaScore)) +
+        " WHERE toolID=" +
+        db.escape(rubricID) +
+        " AND measureID=" +
+        db.escape(measureID) +
+        " AND criteriaID=" +
+        db.escape(criteriaID) +
+        " AND studentID=" +
+        db.escape(studentID) +
+        " AND measureEvalID=" +
+        db.escape(measureEvalID);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
         }
-      );
+        res.status(200).json({ criteriaID, criteriaScore });
+      });
     });
   }
 );
