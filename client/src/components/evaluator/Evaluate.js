@@ -33,9 +33,9 @@ class Evaluate extends Component {
     
 
     getStudents = (index,name) => {
-        
+        let students = []
     if(this.props.evaluations.evaluationDetails !== null & this.props.evaluations.evaluationDetails !== undefined){
-       let students = this.props.evaluations.evaluationDetails.map( (student,studentIndex)=>{
+        students = this.props.evaluations.evaluationDetails.map( (student,studentIndex)=>{
             if(name === student.rubricName){
             return (
                 <ListGroup.Item className="students" 
@@ -61,7 +61,7 @@ class Evaluate extends Component {
         let scoreMap = new Map()
 
         if (this.props.evaluations.evaluationRubrics !== null) {
-            rubrics = this.props.evaluations.evaluationRubrics .map( (rubric, index) => {
+            rubrics = this.props.evaluations.evaluationRubrics.map( (rubric, index) => {
                 return(
                     <div className="card" key={index}>
                         <div className="card-header" id={"rubric"+index}>

@@ -42,7 +42,7 @@ class CycleMeasures extends Component {
 
   outcomeAddHandler = e => {
     e.preventDefault();
-    console.log(e.target.outcomes.value);
+    // console.log(e.target.outcomes.value);
     this.setState({ addOutcomes: !this.state.addOutcomes });
     this.props.linkOutcomeToCycle(this.props.match.params.id, {
       outcomeDescription: e.target.outcomes.value

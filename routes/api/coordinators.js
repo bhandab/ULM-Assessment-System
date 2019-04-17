@@ -21,9 +21,31 @@ router.get(
         return res.status(500).json(err);
       }
       result.forEach(row => {
-        invitedCoordinators.push(row.invitedCorEmail);
+        invitedCoordinators.push({email:row.invitedCorEmail,program:row.programName});
       });
       return res.status(200).json({ invitedCoordinators });
+    });
+  }
+);
+
+/** Registered Coordinators */
+//Angel
+
+router.get(
+  "/registeredCoordinators",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let registeredCoordinators = [];
+    let sql =
+      "SELECT * FROM COORDINATOR"
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      result.forEach(row => {
+        registeredCoordinators.push({name:row.corName,email:row.corEmail,program:row.programName});
+      });
+      return res.status(200).json({ registeredCoordinators });
     });
   }
 );

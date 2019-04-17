@@ -19,7 +19,7 @@ export const getRegisteredEvaluators = () => dispatch => {
     axios
         .get("/api/evaluators")
         .then(res => {
-            console.log(res)
+            // console.log(res)
             dispatch({
                 type: GET_REGISTERED_EVALUATORS,
                 payload: res.data
