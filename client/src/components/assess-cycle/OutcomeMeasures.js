@@ -212,7 +212,7 @@ class OutcomeMeasures extends Component {
     if(isEmpty(this.props.rubric.singleRubric) === false){
       rubricScoreOptions = this.props.rubric.singleRubric.rubricDetails.scaleInfo.map(scale => {
         return (
-          <option key = {"scale"+scale.scaleID} value = {scale.scaleValue}>{scale.scaleDescription} ({scale.scaleValue})</option>
+          <option key = {"scale"+scale.scaleID} value = {scale.scaleValue}>{scale.scaleDescription}</option>
         )
       })
     }

@@ -21,7 +21,7 @@ import {
   InputGroup,
   ModalBody
 } from "react-bootstrap";
-//import { isEmpty } from "../../utils/isEmpty";
+import { isEmpty } from "../../utils/isEmpty";
 
 class MeasureDetails extends Component {
   state = {
@@ -219,7 +219,7 @@ class MeasureDetails extends Component {
           evaluatorList = this.props.cycles.measureEvaluators.evaluators.map(
             evaluator => {
               evaluatorOptions.push(
-                <option value={evaluator.name}/>
+                <option key={evaluator.measureEvalID} value={evaluator.name}/>
               )
               evaluatorSelect.push(
                 <div key={evaluator.measureEvalID}>
@@ -274,7 +274,8 @@ class MeasureDetails extends Component {
 
         if (
           this.props.cycles.measureReport !== null &&
-          this.props.cycles.measureReport !== undefined
+          this.props.cycles.measureReport !== undefined &&
+          isEmpty(this.props.cycles.measureReport) === false
         ) {
 
           

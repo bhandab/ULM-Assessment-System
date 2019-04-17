@@ -3,7 +3,8 @@ import {
   getSingleRubric,
   updateRubricCriteria,
   updateCellDescription,
-  updateCriteriaWeight
+  updateCriteriaWeight,
+  updateScaleDescription
 } from "../../actions/rubricsAction";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
@@ -60,6 +61,14 @@ class CreateRubric extends Component {
     const id = e.target.name;
     this.props.updateCriteriaWeight(this.props.match.params.rubricID, id, body);
   };
+
+  updateScaleDescription = e => {
+    const body = {
+      scaleDescription : e.target.value,
+      scaleID: e.target.name
+  }
+  this.props.updateScaleDescription(this.props.match.params.rubricID,body)
+}
 
   saveChangesClick = e => {
     const criteriaWeight = [];
@@ -125,9 +134,12 @@ class CreateRubric extends Component {
       for (let i = 0; i < rubricDetails.scaleInfo.length; i++) {
         tableHeader.push(
           <th key={"row1col" + (i + 2)}>
-            <div style={{ border: "none" }}>
-              {rubricDetails.scaleInfo[i].scaleDescription}
-            </div>
+            <FormControl
+              className="p-2 m-0"
+              name = {rubricDetails.scaleInfo[i].scaleID}
+              defaultValue={rubricDetails.scaleInfo[i].scaleDescription}
+              onChange={this.updateScaleDescription.bind(this)}
+            />
           </th>
         );
       }
@@ -246,6 +258,7 @@ export default connect(
     getSingleRubric,
     updateRubricCriteria,
     updateCellDescription,
-    updateCriteriaWeight
+    updateCriteriaWeight,
+    updateScaleDescription
   }
 )(CreateRubric);
