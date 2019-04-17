@@ -1,8 +1,9 @@
-import { EVALUATION_RUBRICS, EVALUATION_DETAILS } from '../actions/types' 
+import { EVALUATION_RUBRICS, EVALUATION_DETAILS, RUBRIC_SCORES } from '../actions/types' 
 
 const initialState = {
     evaluationRubrics: null,
-    evaluationDetails: null
+    evaluationDetails: null,
+    rubricScores:null
 }
 
 export default function (state = initialState, action) {
@@ -18,6 +19,11 @@ export default function (state = initialState, action) {
             return {
                 ...state,
                 evaluationDetails: action.payload
+            }
+            case RUBRIC_SCORES:
+            return {
+                ...state,
+                rubricScores: action.payload
             }
         default:
             return state;

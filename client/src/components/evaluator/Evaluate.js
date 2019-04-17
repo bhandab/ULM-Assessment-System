@@ -42,7 +42,6 @@ class Evaluate extends Component {
       measureID: measureID,
       studentID: studentID,
       measureEvalID: measureEvalID,
-      criteriaScores: []
     });
 
     this.setState({
