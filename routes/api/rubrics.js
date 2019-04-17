@@ -85,7 +85,7 @@ router.post(
 
           //req.body.scales.sort((a, b) => b.scaleValue - a.scaleValue);
           for (var i = 0; i < noOfColumns; i++) {
-            values.push([rubricID, "", i + 1]);
+            values.push([rubricID, i + 1 + "", i + 1]);
           }
 
           db.query(sql7, [values], (err, result) => {
@@ -97,7 +97,7 @@ router.post(
             for (var i = 0; i < noOfColumns; i++) {
               scales.push({
                 scaleID,
-                scaleDescription: "",
+                scaleDescription: i + 1 + "",
                 scaleValue: i + 1
               });
               scaleID++;
