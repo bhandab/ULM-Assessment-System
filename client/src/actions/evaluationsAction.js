@@ -41,3 +41,13 @@ export const submitRubricScores = (body) => dispatch => {
         )
 }
 
+export const updateRubricScores = (body) => dispatch => {
+    console.log(body)
+    axios
+    .post("/api/evaluations/updateScores",body)
+        .catch(err => dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+        })
+        )
+}

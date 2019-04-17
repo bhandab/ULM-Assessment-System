@@ -131,9 +131,7 @@ router.post(
         return res.status(500).json(err);
       } else if (result.length <= 0) {
         return res.status(404).json("Rubric Not Found");
-      } else if (req.body.criteriaScores.length !== result[0].rubricRows) {
-        return res.status(404).json("Please Grade all criterias of the rubric");
-      }
+      } 
 
       async.forEachOf(
         req.body.criteriaScores,

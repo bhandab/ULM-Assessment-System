@@ -9,8 +9,7 @@ import {
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { isEmpty } from "../../utils/isEmpty";
-import { FormControl, Button, Spinner } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { FormControl, Button, Spinner, Card } from "react-bootstrap";
 
 class CreateRubric extends Component {
   componentDidMount() {
@@ -135,6 +134,7 @@ class CreateRubric extends Component {
         tableHeader.push(
           <th key={"row1col" + (i + 2)}>
             <FormControl
+              type="textarea"
               className="p-2 m-0"
               name = {rubricDetails.scaleInfo[i].scaleID}
               defaultValue={rubricDetails.scaleInfo[i].scaleDescription}
@@ -221,16 +221,20 @@ class CreateRubric extends Component {
           <Spinner className="mt-5 ml-5" animation="border" variant="primary" />
         ) : (
           <section className="panel important">
-            <h2 className="align-middle">{rubricTitle}</h2>
+          <Card>
+            <Card.Header id="rubric-title"><h2 className="align-middle">{rubricTitle}</h2></Card.Header>
+            <Card.Body id="rubric-table">
             {table}
-            {/*<Link to={"/admin/rubrics"}>*/}
+            </Card.Body>
+            <Card.Footer>
             <Button
               onClick={this.saveChangesClick.bind(this)}
-              className="btn btn-primary mt-2 float-right"
+              className="btn btn-primary float-right"
             >
               Save Changes
             </Button>
-            {/*</Link>*/}
+            </Card.Footer>
+            </Card>
           </section>
         )}
       </Fragment>

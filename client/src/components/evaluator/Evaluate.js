@@ -3,7 +3,8 @@ import { connect } from "react-redux";
 import {
   getEvaluationRubrics,
   getEvaluatorDetails,
-  submitRubricScores
+  submitRubricScores,
+  updateRubricScores
 } from "../../actions/evaluationsAction";
 import { getSingleRubric } from "../../actions/rubricsAction";
 import PropTypes from "prop-types";
@@ -193,7 +194,7 @@ class Evaluate extends Component {
         if (weighted === 1) {
           cells.push(
             <td key={"wei" + rubricDetails.criteriaInfo[j].criteriaID}>
-              {rubricDetails.criteriaInfo[j].criteriaWeight}
+              {rubricDetails.criteriaInfo[j].criteriaWeight}%
             </td>
           );
         }
@@ -218,6 +219,7 @@ class Evaluate extends Component {
       return table;
       
     };
+
     if (!this.props.rubric.loading) {
       const rubricDetails = this.props.rubric.singleRubric.rubricDetails;
       rubricTable = createRubric(rubricDetails);
@@ -240,6 +242,17 @@ class Evaluate extends Component {
       scoreMap.set(selectedCriteria, score);
     };
 
+    const getCriteriaWeight  = (criteria) => {
+        console.log(typeof criteria)
+        console.log(criteria)
+        const criteriaInfo = this.props.rubric.singleRubric.rubricDetails.criteriaInfo.find(item=>{
+            console.log(item)
+            return item.criteriaID+"" === criteria
+        })
+        return criteriaInfo.criteriaWeight
+        // return 1
+    }
+
     const submitScores = () => {
       console.log(scoreMap);
       const keys = [];
@@ -248,7 +261,11 @@ class Evaluate extends Component {
         keys.push(key);
       });
       keys.sort().forEach(item => {
-        scores.push({ criteriaScore: scoreMap.get(item), criteriaID: item });
+          let weight = 1
+        if(this.props.rubric.singleRubric.rubricDetails.structureInfo.weighted === 1){
+            weight = getCriteriaWeight(item)/100
+        }
+        scores.push({ criteriaScore: scoreMap.get(item)*weight, criteriaID: item });
       });
       console.log(scores);
 
@@ -260,16 +277,16 @@ class Evaluate extends Component {
         measureEvalID: this.state.measureEvalID,
         criteriaScores: scores
       };
-      if (
-        scores.length ==
-        this.props.rubric.singleRubric.rubricDetails.structureInfo.noOfRows
-      ) {
-        this.props.submitRubricScores(body);
+    //   if (
+        // scores.length ==
+        // this.props.rubric.singleRubric.rubricDetails.structureInfo.noOfRows
+    //   ) {
+        this.props.updateRubricScores(body);
         scoreMap = new Map();
-        window.alert("Student successfully graded!");
-      } else {
-        window.alert("All criterias of the rubric must be scored!");
-      }
+    //     window.alert("Student successfully graded!");
+    //   } else {
+    //     window.alert("All criterias of the rubric must be scored!");
+     // }
     };
 
     console.log(scoreMap);
@@ -298,7 +315,8 @@ Evaluate.propTypes = {
   getEvaluationRubrics: PropTypes.func.isRequired,
   getEvaluatorDetails: PropTypes.func.isRequired,
   getSingleRubric: PropTypes.func.isRequired,
-  submitRubricScores: PropTypes.func.isRequired
+  submitRubricScores: PropTypes.func.isRequired,
+  updateRubricScores: PropTypes.func.isRequired
 };
 
 const MapStateToProps = state => ({
@@ -316,6 +334,7 @@ export default connect(
     getEvaluationRubrics,
     getEvaluatorDetails,
     getSingleRubric,
-    submitRubricScores
+    submitRubricScores,
+    updateRubricScores
   }
 )(Evaluate);
