@@ -566,9 +566,10 @@ td a:active{
   position: absolute;
   top: 0;
   right: 25px;
-  font-size: 36px;
+  font-size: 40px;
   margin-left: 50px;
   border-bottom: none;
+  color: black;
 }
 
 /* The button used to open the sidebar */
@@ -581,12 +582,10 @@ td a:active{
   border: none;
 }
 
-.openbtn:hover {
-  background-color: #444;
-}
 
 button:hover{
-  background-color: maroon !important;
+  background-color: rgba(128, 0, 0, 0.795) !important;
+  color: black;
 }
 
 /* Style page content - use this if you want to push the page content to the right when you open the side navigation */

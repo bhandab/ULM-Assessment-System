@@ -69,7 +69,7 @@ function closeNav() {
         </div> */}
            
           <div id="mySidebar" className="sidebar" style={{backgroundColor:'grey'}}>
-            <a href="javascript:void(0)" className="closebtn" onClick={closeNav}>&#9776;</a>
+            <a href="javascript:void(0)" className="closebtn" onClick={closeNav}>&times;</a>
            <ul className="bordered m-3"style={{backgroundColor:'white'}}>
             <li className="dashboard">
               <Link to="/admin/cycles">Dashboard</Link>
@@ -107,7 +107,6 @@ function closeNav() {
             </li>
           </ul>
         </header>
-        <main></main>
       </Fragment>
     );
   }
