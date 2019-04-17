@@ -1,15 +1,20 @@
 import React, { Component } from 'react';
 import './coordinator.css';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { dbconnect } from '../../../config';
 
 class coordinator extends Component {
     state = {
-      email: "person@example.com",
-      department: "College of Business",
-      name: "Cordova",
+      email: "",
+      department: "",
+      name: "",
       id: {},
     }
-     
+    componentWillReceiveProps(nextProps)
+    {
+      
+    }
     resetHandler = e => {
       e.preventDefault();
       
@@ -25,6 +30,13 @@ class coordinator extends Component {
       </div>
     );
   }
-}
 
-export default coordinator;
+}
+const mapStateToProps = state => ({
+    auth: state.auth,
+    errors: state.errors
+});
+export default connect(
+  mapStateToProps,
+
+)(coordinator);
