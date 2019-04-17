@@ -90,7 +90,7 @@ router.post(
       } else if (result.length <= 0) {
         return res.status(404).json("Rubric Not Found");
       }
-
+      let weighted = result[0].weighted;
       let sql1 =
         "SELECT * FROM EVALUATE WHERE toolID=" +
         db.escape(rubricID) +
@@ -111,7 +111,7 @@ router.post(
           });
           return res.status(200).json(evalInfo);
         } else {
-          let weighted = result[0].weighted;
+          
           console.log(weighted);
           let sql2 =
             "SELECT * FROM CRITERIA WHERE toolID=" + db.escape(rubricID);

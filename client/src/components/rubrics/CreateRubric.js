@@ -108,6 +108,9 @@ class CreateRubric extends Component {
         this.props.history.push("/admin/rubrics");
       }
     }
+    else{
+      this.props.history.push("/admin/rubrics");
+    }
   };
 
   render() {
