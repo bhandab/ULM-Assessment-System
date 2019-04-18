@@ -111,7 +111,6 @@ router.post(
           });
           return res.status(200).json(evalInfo);
         } else {
-          
           console.log(weighted);
           let sql2 =
             "SELECT * FROM CRITERIA WHERE toolID=" + db.escape(rubricID);
@@ -178,6 +177,8 @@ router.post(
     let measureEvalID = req.body.measureEvalID;
     let criteriaID = req.body.criteriaID;
     let criteriaScore = req.body.criteriaScore;
+    let avgScore = req.body.avgScore;
+
     let sql0 = "SELECT * FROM RUBRIC WHERE toolID=" + db.escape(rubricID);
 
     db.query(sql0, (err, result) => {
@@ -203,6 +204,45 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
+
+        let sql2 =
+          "SELECT * FROM RUBRIC_SCORE WHERE toolID=" +
+          db.escape(rubricID) +
+          " AND studentID=" +
+          db.escape(studentID) +
+          " AND measureEvalID=" +
+          db.escape(measureEvalID);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          if (result.length > 0) {
+            let sql3 =
+              "UPDATE RUBRIC_SCORE SET rubricScore=" +
+              db.escape(avgScore) +
+              " WHERE toolID=" +
+              db.escape(rubricID) +
+              " AND studentID=" +
+              db.escape(studentID) +
+              " AND measureEvalID=" +
+              db.escape(measureEvalID);
+            db.query(sql3, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              let sql4 =
+                "SELECT AVG(rubricScore) FROM RUBRIC_SCORE WHERE toolID=" +
+                db.escape(rubricID) +
+                " AND studentID=" +
+                db.escape(studentID);
+              db.query(sql4, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
+              });
+            });
+          }
+        });
         res.status(200).json({ criteriaID, criteriaScore });
       });
     });
