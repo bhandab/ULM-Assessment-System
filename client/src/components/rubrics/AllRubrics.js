@@ -140,6 +140,7 @@ class AllRubrics extends Component {
                     variant="primary"
                     onClick={this.handleRubricCreateShow}
                     className="float-left"
+                    
                 >
                     Create New Rubric
           </Button>

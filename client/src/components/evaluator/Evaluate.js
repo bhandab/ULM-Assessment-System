@@ -197,7 +197,7 @@ class Evaluate extends Component {
         table.push(cells);
       }
       if(weighted === 0) {
-        averageScore = averageScore / cols
+        averageScore = (averageScore / cols).toFixed(2)
         }
         avgScore = averageScore
         table.push(
@@ -205,7 +205,7 @@ class Evaluate extends Component {
               {weighted ? <td colSpan={cols+2}><strong>Average Score</strong></td> :
               <td colSpan={cols+1}><strong>Average Score</strong></td>
             }
-                <td><strong>{averageScore}</strong></td>
+                <td><strong>{averageScore.toFixed(2)}</strong></td>
             </tr>
         )
       table = (

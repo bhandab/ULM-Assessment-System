@@ -58,7 +58,7 @@ class Evaluators extends Component {
         if (this.props.evaluator.evaluators !== null) {
             evaluatorsList = this.props.evaluator.evaluators.evaluators.map((item, index) => {
                 return (
-                    <li className="list-group-item" key={index}>{item.name} ({item.email})</li>
+                    <li className="list-group-item" id="ev-invited" key={index}>{item.name} ({item.email})</li>
                 )
             })
         }
@@ -79,7 +79,7 @@ class Evaluators extends Component {
                     <Card.Body>
                         <Card.Title>Registered Evaluators</Card.Title>
                         <hr/>
-                        <ul className="list-group">
+                        <ul className="list-group" id="ev-list">
                             {evaluatorsList}
                         </ul>
                         <Button variant="primary" className="float-right mt-3" onClick={this.inviteShow}>Invite Evaluators</Button>

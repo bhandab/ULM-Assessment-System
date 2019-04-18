@@ -28,7 +28,7 @@ class Admin extends Component {
             <Fragment>
                 <AdminLayout></AdminLayout>
 
-                <main>
+                <main id="main">
                     <Switch>
                         <Route exact path='/admin/rubrics' component={AllRubrics} />
                         <Route exact path='/admin/outcomes' component={Outcomes} />
