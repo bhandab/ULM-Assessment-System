@@ -111,8 +111,6 @@ router.post(
           });
           return res.status(200).json(evalInfo);
         } else {
-          
-          console.log(weighted);
           let sql2 =
             "SELECT * FROM CRITERIA WHERE toolID=" + db.escape(rubricID);
           db.query(sql2, (err, result) => {
@@ -130,7 +128,7 @@ router.post(
               };
               criteriaScores.push(tempCriteria);
             });
-            console.log(criteriaScores);
+
             criteriaScores.forEach(score => {
               let cScore = 1;
               if (score.criteriaWeight) {
@@ -178,6 +176,7 @@ router.post(
     let measureEvalID = req.body.measureEvalID;
     let criteriaID = req.body.criteriaID;
     let criteriaScore = req.body.criteriaScore;
+
     let sql0 = "SELECT * FROM RUBRIC WHERE toolID=" + db.escape(rubricID);
 
     db.query(sql0, (err, result) => {
@@ -186,6 +185,7 @@ router.post(
       } else if (result.length <= 0) {
         return res.status(404).json("Rubric Not Found");
       }
+      let weighted = result[0].weighted;
       let sql1 =
         "UPDATE EVALUATE SET criteriaScore=" +
         db.escape(parseFloat(criteriaScore)) +
@@ -203,7 +203,145 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        res.status(200).json({ criteriaID, criteriaScore });
+
+        let sql9 =
+          "SELECT * FROM EVALUATE WHERE toolID=" +
+          db.escape(rubricID) +
+          " AND measureID=" +
+          db.escape(measureID) +
+          " AND studentID=" +
+          db.escape(studentID) +
+          " AND measureEvalID=" +
+          db.escape(measureEvalID);
+        db.query(sql9, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          let totalScore = 0;
+          let count = 0;
+
+          result.forEach(row => {
+            totalScore += row.criteriaScore;
+            count++;
+          });
+
+          let avgScore = Number(Math.round(totalScore + "e2") + "e-2");
+          if (!weighted) {
+            avgScore = (totalScore / count).toFixed(2);
+          }
+
+          let sql2 =
+            "SELECT * FROM RUBRIC_SCORE WHERE toolID=" +
+            db.escape(rubricID) +
+            " AND studentID=" +
+            db.escape(studentID) +
+            " AND measureEvalID=" +
+            db.escape(measureEvalID);
+          db.query(sql2, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            } else if (result.length > 0) {
+              let sql3 =
+                "UPDATE RUBRIC_SCORE SET rubricScore=" +
+                db.escape(avgScore) +
+                " WHERE toolID=" +
+                db.escape(rubricID) +
+                " AND studentID=" +
+                db.escape(studentID) +
+                " AND measureEvalID=" +
+                db.escape(measureEvalID);
+              db.query(sql3, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                } else {
+                  updateAverageScore();
+                }
+              });
+            } else {
+              let sql5 =
+                "INSERT INTO RUBRIC_SCORE (toolID,studentID,measureEvalID,rubricScore) VALUES (" +
+                db.escape(rubricID) +
+                ", " +
+                db.escape(studentID) +
+                ", " +
+                db.escape(measureEvalID) +
+                ", " +
+                db.escape(avgScore) +
+                ")";
+              db.query(sql5, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
+                let sql6 =
+                  "SELECT * FROM STUDENT_AVERAGE_SCORE WHERE toolID=" +
+                  db.escape(rubricID) +
+                  " AND studentID=" +
+                  db.escape(studentID) +
+                  " AND measureID=" +
+                  db.escape(measureID);
+                db.query(sql6, (err, result) => {
+                  if (err) {
+                    return res.status(500).json(err);
+                  } else if (result.length <= 0) {
+                    let sql7 =
+                      "INSERT INTO STUDENT_AVERAGE_SCORE (toolID,studentID,measureID,averageScore) VALUES (" +
+                      db.escape(rubricID) +
+                      ", " +
+                      db.escape(studentID) +
+                      ", " +
+                      db.escape(measureID) +
+                      ", " +
+                      db.escape(avgScore) +
+                      ")";
+                    db.query(sql7, (err, result) => {
+                      if (err) {
+                        return res.status(500).json(err);
+                      }
+
+                      return res
+                        .status(200)
+                        .json({ criteriaID, criteriaScore });
+                    });
+                  } else {
+                    updateAverageScore();
+                  }
+                });
+              });
+            }
+            let updateAverageScore = () => {
+              let sql4 =
+                "SELECT AVG(rubricScore) as averageStudentScore FROM RUBRIC_SCORE WHERE toolID=" +
+                db.escape(rubricID) +
+                " AND studentID=" +
+                db.escape(studentID);
+              db.query(sql4, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
+
+                let averageStudentScore = result[0].averageStudentScore.toFixed(
+                  2
+                );
+
+                let sql8 =
+                  "UPDATE STUDENT_AVERAGE_SCORE SET averageScore=" +
+                  db.escape(averageStudentScore) +
+                  " WHERE toolID=" +
+                  db.escape(rubricID) +
+                  " AND studentID=" +
+                  db.escape(studentID) +
+                  " AND measureID=" +
+                  db.escape(measureID);
+                db.query(sql8, (err, result) => {
+                  if (err) {
+                    return res.status(500).json(err);
+                  }
+                  return res.status(200).json({ criteriaID, criteriaScore });
+                });
+              });
+            };
+          });
+        });
       });
     });
   }
