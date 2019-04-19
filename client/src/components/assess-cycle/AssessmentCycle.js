@@ -129,17 +129,15 @@ class AssessmentCycle extends Component {
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">
-          <div className="container">
             <div className="row">
               <div className="btn-group btn-breadcrumb">
-                <a href="#" className="btn btn-primary">
+                <a href="#" className="btn btn-primary brdbtn">
                   Admin
                 </a>
-                <a href="#" className="btn btn-primary">
+                <a href="#" className="btn btn-primary brdbtn">
                   Cycles
                 </a>
               </div>
-            </div>
           </div>
 
           <h2>

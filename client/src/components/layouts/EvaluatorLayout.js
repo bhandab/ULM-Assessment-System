@@ -38,16 +38,6 @@ class EvaluatorLayout extends Component {
                     </ul>
                 </header>
 
-
-                <nav>
-                    <ul className="main">
-                        <li className="dashboard"><Link to="/evaluator/dashboard">Dashboard</Link></li>
-                        <li className="rubrics"><Link to="/evaluator/rubrics">Rubrics</Link></li>
-                        <li className="assess-cycle"><Link to="/evaluator/students">Student</Link></li>
-                        <li className="assess-cycle"><Link to="/evaluator/evaluate">Evaluate</Link></li>
-                    </ul>
-                </nav>
-
             </Fragment>
         )
     }
