@@ -83,7 +83,6 @@ class Evaluate extends Component {
 
       const tableRows = this.props.rubric.singleRubric.rubricDetails.table;
       for (let j = 0; j < tableRows.length; j++) {
-          // scoreMap.set(rubricDetails.criteriaInfo[j].criteriaID+"",1)
         let cells = [];
         cells.push(
           <td key={"row" + (j + 2) + "col1"}>
@@ -104,8 +103,6 @@ class Evaluate extends Component {
             </td>
           );
         }
-        // let score = this.props.evaluations.rubricScores[j].criteriaScore
-        // averageScore += score
         if (weighted === 1) {
           cells.push(
             <td key={"wei" + rubricDetails.criteriaInfo[j].criteriaID}>
@@ -118,10 +115,6 @@ class Evaluate extends Component {
         cells = <tr key={"row" + (j + 2)}>{cells}</tr>;
         table.push(cells);
       }
-      // if(weighted === 0) {
-      //   averageScore = (averageScore / cols).toFixed(2)
-      //   }
-        // avgScore = averageScore
         table.push(
             <tr key = "avgScore">
               {weighted ? <td colSpan={cols+2}><strong>Average Score</strong></td> :
@@ -151,6 +144,12 @@ class Evaluate extends Component {
     const studentID = e.target.dataset.studentid;
     const measureEvalID = e.target.dataset.measureeval;
 
+    this.setState({
+      measureID: measureID,
+      studentID: studentID,
+      measureEvalID: measureEvalID
+    });
+
     this.props.submitRubricScores({
       rubricID: index,
       measureID: measureID,
@@ -158,15 +157,8 @@ class Evaluate extends Component {
       measureEvalID: measureEvalID,
     });
 
-    this.setState({
-      measureID: measureID,
-      studentID: studentID,
-      measureEvalID: measureEvalID
-    });
-    this.props.getSingleRubric(index, true);
-    const rubricDetails = this.props.rubric.singleRubric.rubricDetails
-    // if(!this.props.rubric.loading){
-    // this.createRubric()}
+    
+    // this.props.getSingleRubric(index, true);
   };
 
   getStudents = (index, name) => {
@@ -214,13 +206,16 @@ addScoresToTable = () => {
   let sum = 0;
   const tableRows = document.getElementById('scoreRubricTable').rows
   const rowLength = tableRows.length
-  this.props.evaluations.rubricScores.map((criteria,index) => {
+  console.log(rowLength)
+  this.props.evaluations.rubricScores.forEach((criteria,index) => {
     const cells = tableRows[index+1].cells
-    const lastCell = cells[rowLength] 
+    const cellLength = cells.length
+    const lastCell = cells[cellLength - 1]
+    console.log(lastCell)
     lastCell.innerHTML = criteria.criteriaScore
     sum += criteria.criteriaScore
   })
-  if(!this.props.rubric.singleRubric.rubricDetails.structureInfo){
+  if(!this.props.rubric.singleRubric.rubricDetails.structureInfo.weighted){
     sum = sum / this.props.evaluations.rubricScores.length
   }
   tableRows[rowLength - 1].cells[1].innerHTML= parseFloat(sum.toFixed(2))
@@ -259,7 +254,8 @@ scoreClick = e => {
   criteriaScore: score,
   avgScore: avgScore
   }
-  console.log(avgScore)
+  console.log(body)
+  // console.log(avgScore)
   this.props.updateRubricScores(body)
 };
 

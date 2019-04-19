@@ -264,6 +264,7 @@ class MeasureDetails extends Component {
           const passPoint = this.props.cycles.measureDetails.projectedResult
           const criteriaDesc = this.props.cycles.measureReport.criteriaInfo
           const criterias = []
+          let colour = ""
           const rubricCriterias = () => {
             return criteriaDesc.map((criteria, index) => {
               criterias.push(criteria.criteriaDescription)
@@ -275,8 +276,14 @@ class MeasureDetails extends Component {
           
           const criteriaScores = (details) => {
             return criterias.map(criteria => {
+              if(details[criteria] < passPoint){
+                colour="text-danger"
+              }
+              else{
+                colour="text-success"
+              }
               return (
-                <td>{details[criteria]}</td>
+                <td className={colour}>{details[criteria]}</td>
               )
             })
           }
@@ -674,8 +681,10 @@ class MeasureDetails extends Component {
           onHide={this.measureReportHide}
           centered
           size="lg"
+          dialogClassName="modal-90w"
+          aria-labelledby="example-custom-modal-styling-title"
         >
-          <Modal.Title>Measure Summary</Modal.Title>
+          <Modal.Title id="example-custom-modal-styling-title">Measure Summary</Modal.Title>
           <Modal.Body>{measureReport}</Modal.Body>
           <Button onClick={this.measureReportHide}>Close</Button>
         </Modal>
