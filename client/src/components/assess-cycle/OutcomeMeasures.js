@@ -160,7 +160,10 @@ class OutcomeMeasures extends Component {
     let selections = null;
     if (this.props.cycles.cycleLoading !==true) {
       //console.log(this.props)
-      if (this.props.measures.measures !== null && this.props.measures.measures !== undefined && this.props.cycles.outcomeMeasures !==null ) {
+      if (this.props.measures.measures !== null && 
+        this.props.measures.measures !== undefined && 
+        this.props.cycles.outcomeMeasures !== null &&
+        this.props.cycles.outcomeMeasures !== undefined) {
         let outcomeMeasures = this.props.cycles.outcomeMeasures.measures
         selections = this.props.measures.measures.map((item, index) => {
           const measure = outcomeMeasures.find(measure=> {

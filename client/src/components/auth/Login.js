@@ -60,7 +60,7 @@ class Login extends Component {
             }
             else if (nextProps.auth.user.role === "evaluator") {
                 console.log("gets here")
-                this.props.history.push('/evaluator')
+                this.props.history.push('/evaluator/evaluate')
             }
 
         }

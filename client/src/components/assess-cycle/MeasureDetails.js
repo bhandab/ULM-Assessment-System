@@ -10,8 +10,9 @@ import {
   addStudentToMeasure,
   getStudentsOfMeasure,
   assignStudentsToMeasure,
-  getMeasureReport
+  getMeasureReport,
 } from "../../actions/assessmentCycleAction";
+import {getRegisteredEvaluators} from '../../actions/evaluatorAction'
 import {
   Jumbotron,
   Card,
@@ -51,6 +52,7 @@ class MeasureDetails extends Component {
     this.props.getMeasureEvaluators(measureID);
     this.props.getStudentsOfMeasure(measureID);
     this.props.getMeasureReport(measureID);
+    this.props.getRegisteredEvaluators();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -172,15 +174,15 @@ class MeasureDetails extends Component {
 
   assignStudentsHandle = e => {
     e.preventDefault();
-    let students = document.getElementsByName("studentCheck");
     let studentIDs = [];
     let evalID = e.target.evaluator.value;
-    // console.log(evaluator)
-    for (let i = 0; i < students.length; i++) {
-      if (students[i].checked) {
-        studentIDs.push(students[i].value);
-      }
+    let optionList = e.target.assignedStudents.selectedOptions
+    for(let student of optionList){
+      studentIDs.push(
+        student.value
+      )
     }
+    console.log(studentIDs)
     let rubricID = this.props.cycles.measureDetails.toolID;
     const body = {
       studentIDs,
@@ -218,9 +220,9 @@ class MeasureDetails extends Component {
         ) {
           evaluatorList = this.props.cycles.measureEvaluators.evaluators.map(
             evaluator => {
-              evaluatorOptions.push(
-                <option key={evaluator.measureEvalID} value={evaluator.name}/>
-              )
+              // evaluatorOptions.push(
+              //   <option key={evaluator.measureEvalID} value={evaluator.name}/>
+              // )
               evaluatorSelect.push(
                 <div key={evaluator.measureEvalID}>
                   <input
@@ -241,23 +243,14 @@ class MeasureDetails extends Component {
             }
           );
         }
+        
         if (
           this.props.cycles.measureStudents !== null &&
           this.props.cycles.measureStudents !== undefined
         ) {
-          studentList = this.props.cycles.measureStudents.students.map(
-            student => {
+          studentList = this.props.cycles.measureStudents.students.map(student => {
               studentSelect.push(
-                <div key={student.studentID}>
-                  <input
-                    type="checkbox"
-                    value={student.studentID}
-                    name="studentCheck"
-                  />
-                  <label className="ml-2">
-                    <h5>{student.name}</h5>
-                  </label>
-                </div>
+                <option key={student.studentID} value={student.studentID}>{student.name}</option>
               );
               return (
                 <li key={student.studentID} className="list-group-item">
@@ -288,7 +281,7 @@ class MeasureDetails extends Component {
             let labels = []
               Object.keys(report).forEach(key => {
                 labels.push (
-                <th>
+                <th key={key}>
                   {report[key][0].criteriaDesc}
                 </th>
                 )
@@ -299,14 +292,14 @@ class MeasureDetails extends Component {
           const studentScores = (val) => {
            let scores = Object.keys(report).map(key => {
                 return(
-                  <td>{report[key][val].criteriaScore}</td>
+                  <td key={key}>{report[key][val].criteriaScore}</td>
                 )
             })
             return scores
           }
           // console.log(criteriaLabel())
           measureReport.push(
-            <tr>
+            <tr key={"tableHeader"}>
               <th>Class</th>
               <th>StudentName</th>
               <th>Evaluator</th>
@@ -316,9 +309,9 @@ class MeasureDetails extends Component {
           
 
           for(let i = 0; i < studentLength; i++){
-            let a = 0
+            // let a = 0
             const key = Object.keys(report)[0]
-              const cells = (<tr>
+              const cells = (<tr key={key}>
                 <td>{report[key][i].class}</td>
                 <td>{report[key][i].studentName}</td>
                 <td>{report[key][i].evanName}</td>
@@ -329,6 +322,16 @@ class MeasureDetails extends Component {
           }
           
         }
+
+        if(this.props.evaluator.evaluators !== null &&
+          this.props.evaluator.evaluators !== undefined
+         ){
+            evaluatorOptions = this.props.evaluator.evaluators.evaluators.map((evaluator,index) => {
+             return ( 
+             <option key={"eval"+index} value={evaluator.email}/>
+             )
+            })
+          }
       }
     }
 
@@ -350,22 +353,22 @@ class MeasureDetails extends Component {
     return (
       <Fragment>
         <section className="panel important">
-          <div className="container">
+          <div>
             <div className="row">
               <div className="btn-group btn-breadcrumb">
-                <a href="#" className="btn btn-primary">
+                <a href="#" className="btn btn-primary brdbtn">
                   Admin
                 </a>
-                <a href="#" className="btn btn-primary">
+                <a href="#" className="btn btn-primary brdbtn ">
                   Cycles
                 </a>
-                <a href="#" className="btn btn-primary">
+                <a href="#" className="btn btn-primary brdbtn">
                   Outcomes
                 </a>
-                <a href="#" className="btn btn-primary">
+                <a href="#" className="btn btn-primary brdbtn">
                   Measures
                 </a>
-                <a href="#" className="btn btn-primary">
+                <a href="#" className="btn btn-primary brdbtn">
                   Measure Detail
                 </a>
               </div>
@@ -607,7 +610,7 @@ class MeasureDetails extends Component {
               </div>
               <div className="d-inline-block border  p-3">
                 <h3>Student List</h3>
-                {studentSelect}
+                <select name="assignedStudents" multiple>{studentSelect}</select>
               </div>
 
               <Button type="submit" className="mt-3 d-block">
@@ -642,7 +645,8 @@ MeasureDetails.propTypes = {
   getStudentsOfMeasure: PropTypes.func.isRequired,
   addStudentToMeasure: PropTypes.func.isRequired,
   assignStudentsToMeasure: PropTypes.func.isRequired,
-  getMeasureReport: PropTypes.func.isRequired
+  getMeasureReport: PropTypes.func.isRequired,
+  getRegisteredEvaluators: PropTypes.func.isRequired
 };
 
 const MapStateToProps = state => ({
@@ -652,7 +656,8 @@ const MapStateToProps = state => ({
   measureEvaluators: state.measureEvaluators,
   errors: state.errors,
   measureStudents: state.measureStudents,
-  assignStudents: state.assugnedStudents
+  assignStudents: state.assugnedStudents,
+  evaluator: state.evaluator,
 });
 export default connect(
   MapStateToProps,
@@ -665,6 +670,7 @@ export default connect(
     addStudentToMeasure,
     getStudentsOfMeasure,
     assignStudentsToMeasure,
-    getMeasureReport
+    getMeasureReport,
+    getRegisteredEvaluators
   }
 )(MeasureDetails);
