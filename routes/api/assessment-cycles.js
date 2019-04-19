@@ -1267,7 +1267,7 @@ router.get(
       let threshold = result[0].projectedResult;
       //console.log(threshold);
       let sql1 =
-        "SELECT * FROM EVALUATE NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA NATURAL JOIN EVALUATOR NATURAL JOIN RUBRIC_SCORE WHERE measureID=" +
+        "SELECT * FROM EVALUATE NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA NATURAL JOIN EVALUATOR NATURAL JOIN RUBRIC_SCORE NATURAL JOIN STUDENT_AVERAGE_SCORE WHERE measureID=" +
         db.escape(measureID) +
         " ORDER BY criteriaID,studentID,measureEvalID";
       db.query(sql1, (err, result) => {
@@ -1298,6 +1298,7 @@ router.get(
         let passingPercentages = {};
         let criteriaInfo = [];
         let criteriaSet = new Set();
+        console.log(result.length);
         result.forEach((row, index) => {
           if (!criteriaSet.has(row.criteriaDesc)) {
             criteriaSet.add(row.criteriaDesc);
@@ -1316,6 +1317,7 @@ router.get(
             if (index === 0) {
               classAverage[row.criteriaDesc] = 0;
               classAverage["rubricScore"] = 0;
+              classAverage;
               passingCounts[row.criteriaDesc] = 0;
               passingCounts["rubricScore"] = 0;
             }
@@ -1327,6 +1329,8 @@ router.get(
               row.criteriaScore / row.criteriaWeight
             );
             indResult["rubricScore"] = row.rubricScore;
+            indResult["averageScore"] = row.averageScore;
+            indResult["studentID"] = row.studentID;
             classAverage[row.criteriaDesc] +=
               Math.round(row.criteriaScore / row.criteriaWeight) / count;
 
@@ -1377,17 +1381,44 @@ router.get(
             2
           );
         }
+        let prevStudentID = -1;
+        let avgtotalStudentCount = 0;
+        let avgPassingStudentCount = 0;
+        results.forEach((rslt, index) => {
+          if (index === 0) {
+            prevStudentID = rslt.studentID;
+            avgtotalStudentCount++;
+            if (rslt.averageScore >= threshold) {
+              avgPassingStudentCount++;
+            }
+          } else {
+            if (prevStudentID !== rslt.studentID) {
+              prevStudentID = rslt.studentID;
+              avgtotalStudentCount++;
+              if (rslt.averageScore >= threshold) {
+                avgPassingStudentCount++;
+              }
+            }
+          }
+        });
+        classAverage["averageScore"] = classAverage.rubricScore;
+        passingCounts["averageScore"] = avgPassingStudentCount;
+        passingPercentages["averageScore"] = round(
+          (avgPassingStudentCount / avgtotalStudentCount) * 100,
+          2
+        );
         console.log(classAverage);
         console.log(passingCounts);
         console.log(passingPercentages);
-        //console.log(results);
+        console.log(results);
         res.status(200).json({
           criteriaInfo,
           results,
           classAverage,
           passingCounts,
           passingPercentages,
-          numberOfEvaluations: count
+          numberOfEvaluations: count,
+          numberOfUniqueStudents: avgtotalStudentCount
         });
       });
     });
