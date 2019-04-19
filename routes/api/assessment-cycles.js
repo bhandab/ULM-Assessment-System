@@ -1331,10 +1331,11 @@ router.get(
             indResult["rubricScore"] = row.rubricScore;
             indResult["averageScore"] = row.averageScore;
             indResult["studentID"] = row.studentID;
-            classAverage[row.criteriaDesc] +=
-              Math.round(row.criteriaScore / row.criteriaWeight) / count;
+            classAverage[row.criteriaDesc] += Math.round(
+              row.criteriaScore / row.criteriaWeight
+            );
 
-            classAverage["rubricScore"] += row.rubricScore / count;
+            classAverage["rubricScore"] += row.rubricScore;
             passingCounts[row.criteriaDesc] =
               Math.round(row.criteriaScore / row.criteriaWeight) >= threshold
                 ? passingCounts[row.criteriaDesc] + 1
@@ -1347,8 +1348,9 @@ router.get(
           } else {
             if (index % count !== 0) {
               innerIndex++;
-              classAverage[row.criteriaDesc] +=
-                Math.round(row.criteriaScore / row.criteriaWeight) / count;
+              classAverage[row.criteriaDesc] += Math.round(
+                row.criteriaScore / row.criteriaWeight
+              );
 
               passingCounts[row.criteriaDesc] =
                 Math.round(row.criteriaScore / row.criteriaWeight) >= threshold
@@ -1359,8 +1361,9 @@ router.get(
               );
             } else {
               innerIndex = 0;
-              classAverage[row.criteriaDesc] =
-                Math.round(row.criteriaScore / row.criteriaWeight) / count;
+              classAverage[row.criteriaDesc] = Math.round(
+                row.criteriaScore / row.criteriaWeight
+              );
 
               passingCounts[row.criteriaDesc] =
                 Math.round(row.criteriaScore / row.criteriaWeight) >= threshold
@@ -1373,7 +1376,7 @@ router.get(
           }
         });
         for (let average in classAverage) {
-          classAverage[average] = round(classAverage[average], 2);
+          classAverage[average] = round(classAverage[average] / count, 2);
         }
         for (let passingCount in passingCounts) {
           passingPercentages[passingCount] = round(
