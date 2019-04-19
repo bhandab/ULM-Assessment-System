@@ -111,7 +111,6 @@ router.post(
           });
           return res.status(200).json(evalInfo);
         } else {
-          console.log(weighted);
           let sql2 =
             "SELECT * FROM CRITERIA WHERE toolID=" + db.escape(rubricID);
           db.query(sql2, (err, result) => {
@@ -129,7 +128,7 @@ router.post(
               };
               criteriaScores.push(tempCriteria);
             });
-            console.log(criteriaScores);
+
             criteriaScores.forEach(score => {
               let cScore = 1;
               if (score.criteriaWeight) {
@@ -225,10 +224,12 @@ router.post(
             totalScore += row.criteriaScore;
             count++;
           });
-          let avgScore = totalScore.toFixed(2);
+
+          let avgScore = Number(Math.round(totalScore + "e2") + "e-2");
           if (!weighted) {
             avgScore = (totalScore / count).toFixed(2);
           }
+
           let sql2 =
             "SELECT * FROM RUBRIC_SCORE WHERE toolID=" +
             db.escape(rubricID) +

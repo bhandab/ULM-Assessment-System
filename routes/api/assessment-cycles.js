@@ -1242,12 +1242,16 @@ router.get(
   "/:measureIdentifier/measureRubricReport",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
+    function round(value, decimals) {
+      return Number(Math.round(value + "e" + decimals) + "e-" + decimals);
+    }
+
     let adminID = req.user.id;
     let measureID = req.params.measureIdentifier;
 
     let errors = {};
 
-    let results = {};
+    let results = [];
 
     let sql =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID = " +
@@ -1260,31 +1264,131 @@ router.get(
         errors.measureNotFound = "Measure Not Found";
         return res.status(404).json(errors);
       }
+      let threshold = result[0].projectedResult;
+      //console.log(threshold);
       let sql1 =
-        "SELECT * FROM EVALUATE NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA NATURAL JOIN EVALUATOR WHERE measureID=" +
+        "SELECT * FROM EVALUATE NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA NATURAL JOIN EVALUATOR NATURAL JOIN RUBRIC_SCORE WHERE measureID=" +
         db.escape(measureID) +
-        " ORDER BY studentName";
+        " ORDER BY criteriaID,studentID,measureEvalID";
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
-        result.forEach(row => {
-          indResult = {
-            class: row.courseAssociated,
-            studentName: row.studentName,
-            evanName: row.evalName,
-            criteriaDesc: row.criteriaDesc,
-            criteriaScore: row.criteriaScore
-          };
 
-          if (!results.hasOwnProperty(row.criteriaID)) {
-            results[row.criteriaID] = [indResult];
+        let prevCriteria = "";
+        let count = 0;
+        let weighted = 0;
+        result.forEach((row, index) => {
+          if (row.weighted) {
+            weighted = 1;
+          }
+          if (index === 0) {
+            prevCriteria = row.criteriaID;
+          }
+          if (row.criteriaID !== prevCriteria) {
+            return;
+          }
+          count++;
+        });
+
+        //console.log(count);
+        let innerIndex = 0;
+        let classAverage = {};
+        let passingCounts = {};
+        let passingPercentages = {};
+        let criteriaInfo = [];
+        let criteriaSet = new Set();
+        result.forEach((row, index) => {
+          if (!criteriaSet.has(row.criteriaDesc)) {
+            criteriaSet.add(row.criteriaDesc);
+
+            if (weighted) {
+              criteriaInfo.push({
+                criteriaDescription: row.criteriaDesc,
+                criteriaWeight: row.criteriaWeight * 100
+              });
+            } else {
+              criteriaInfo.push({ criteriaDescription: row.criteriaDesc });
+            }
+          }
+          //criteriaSet.add(row.criteriaDesc)
+          if (index < count) {
+            if (index === 0) {
+              classAverage[row.criteriaDesc] = 0;
+              classAverage["rubricScore"] = 0;
+              passingCounts[row.criteriaDesc] = 0;
+              passingCounts["rubricScore"] = 0;
+            }
+            let indResult = new Object();
+            indResult["class"] = row.courseAssociated;
+            indResult["studentName"] = row.studentName;
+            indResult["evalName"] = row.evalName;
+            indResult[row.criteriaDesc] = Math.round(
+              row.criteriaScore / row.criteriaWeight
+            );
+            indResult["rubricScore"] = row.rubricScore;
+            classAverage[row.criteriaDesc] +=
+              Math.round(row.criteriaScore / row.criteriaWeight) / count;
+
+            classAverage["rubricScore"] += row.rubricScore / count;
+            passingCounts[row.criteriaDesc] =
+              Math.round(row.criteriaScore / row.criteriaWeight) >= threshold
+                ? passingCounts[row.criteriaDesc] + 1
+                : passingCounts[row.criteriaDesc];
+            passingCounts["rubricScore"] =
+              row.rubricScore >= threshold
+                ? passingCounts["rubricScore"] + 1
+                : passingCounts["rubricScore"];
+            results.push(indResult);
           } else {
-            results[row.criteriaID].push(indResult);
+            if (index % count !== 0) {
+              innerIndex++;
+              classAverage[row.criteriaDesc] +=
+                Math.round(row.criteriaScore / row.criteriaWeight) / count;
+
+              passingCounts[row.criteriaDesc] =
+                Math.round(row.criteriaScore / row.criteriaWeight) >= threshold
+                  ? passingCounts[row.criteriaDesc] + 1
+                  : passingCounts[row.criteriaDesc];
+              results[innerIndex][row.criteriaDesc] = Math.round(
+                row.criteriaScore / row.criteriaWeight
+              );
+            } else {
+              innerIndex = 0;
+              classAverage[row.criteriaDesc] =
+                Math.round(row.criteriaScore / row.criteriaWeight) / count;
+
+              passingCounts[row.criteriaDesc] =
+                Math.round(row.criteriaScore / row.criteriaWeight) >= threshold
+                  ? 1
+                  : 0;
+              results[innerIndex][row.criteriaDesc] = Math.round(
+                row.criteriaScore / row.criteriaWeight
+              );
+            }
           }
         });
+        for (let average in classAverage) {
+          classAverage[average] = round(classAverage[average], 2);
+        }
+        for (let passingCount in passingCounts) {
+          passingPercentages[passingCount] = round(
+            (passingCounts[passingCount] / count) * 100,
+            2
+          );
+        }
+        console.log(classAverage);
+        console.log(passingCounts);
+        console.log(passingPercentages);
         //console.log(results);
-        res.status(200).json(results);
+        res.status(200).json({
+          criteriaInfo,
+          results,
+          classAverage,
+          passingCounts,
+          passingPercentages,
+          numberOfEvaluations: count
+        });
       });
     });
   }
