@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
+import {Link} from 'react-router-dom';
 import { inviteEvaluator } from "../../actions/evaluatorAction";
 import {
   getMeasureDetails,
@@ -10,9 +11,9 @@ import {
   addStudentToMeasure,
   getStudentsOfMeasure,
   assignStudentsToMeasure,
-  getMeasureReport,
+  getMeasureReport
 } from "../../actions/assessmentCycleAction";
-import {getRegisteredEvaluators} from '../../actions/evaluatorAction'
+import { getRegisteredEvaluators } from "../../actions/evaluatorAction";
 import {
   Jumbotron,
   Card,
@@ -171,11 +172,9 @@ class MeasureDetails extends Component {
     e.preventDefault();
     let studentIDs = [];
     let evalID = e.target.evaluator.value;
-    let optionList = e.target.assignedStudents.selectedOptions
-    for(let student of optionList){
-      studentIDs.push(
-        student.value
-      )
+    let optionList = e.target.assignedStudents.selectedOptions;
+    for (let student of optionList) {
+      studentIDs.push(student.value);
     }
     let rubricID = this.props.cycles.measureDetails.toolID;
     const body = {
@@ -233,14 +232,17 @@ class MeasureDetails extends Component {
             }
           );
         }
-        
+
         if (
           this.props.cycles.measureStudents !== null &&
           this.props.cycles.measureStudents !== undefined
         ) {
-          studentList = this.props.cycles.measureStudents.students.map(student => {
+          studentList = this.props.cycles.measureStudents.students.map(
+            student => {
               studentSelect.push(
-                <option key={student.studentID} value={student.studentID}>{student.name}</option>
+                <option key={student.studentID} value={student.studentID}>
+                  {student.name}
+                </option>
               );
               return (
                 <li key={student.studentID} className="list-group-item">
@@ -260,60 +262,54 @@ class MeasureDetails extends Component {
           this.props.cycles.measureReport !== undefined &&
           isEmpty(this.props.cycles.measureReport) === false
         ) {
-
-          const passPoint = this.props.cycles.measureDetails.projectedResult
-          const criteriaDesc = this.props.cycles.measureReport.criteriaInfo
-          const criterias = []
-          let colour = ""
+          const passPoint = this.props.cycles.measureDetails.projectedResult;
+          const criteriaDesc = this.props.cycles.measureReport.criteriaInfo;
+          const criterias = [];
+          let colour = "";
           const rubricCriterias = () => {
             return criteriaDesc.map((criteria, index) => {
-              criterias.push(criteria.criteriaDescription)
+              criterias.push(criteria.criteriaDescription);
               return (
-                <th key = {"criteria"+index}>{criteria.criteriaDescription}</th>
-              )
-            })
-          }
-          
-          const criteriaScores = (details) => {
-            return criterias.map(criteria => {
-              if(details[criteria] < passPoint){
-                colour="text-danger"
-              }
-              else{
-                colour="text-success"
-              }
-              return (
-                <td className={colour}>{details[criteria]}</td>
-              )
-            })
-          }
+                <th key={"criteria" + index}>{criteria.criteriaDescription}</th>
+              );
+            });
+          };
 
-          const criteriaAvg = (details) => {
+          const criteriaScores = details => {
             return criterias.map(criteria => {
-              return (
-                <td>{details[criteria]}</td>
-              )
-            })
-          }
+              if (details[criteria] < passPoint) {
+                colour = "text-danger";
+              } else {
+                colour = "text-success";
+              }
+              return <td className={colour}>{details[criteria]}</td>;
+            });
+          };
+
+          const criteriaAvg = details => {
+            return criterias.map(criteria => {
+              return <td>{details[criteria]}</td>;
+            });
+          };
 
           measureReport.push(
             <thead>
-            <tr>
-              <th>Class</th>
-              <th>Student</th>
-              <th>Evaluator</th>
-              {rubricCriterias()}
-              <th>Overall Score</th>
-              <th>Average Score</th>
-            </tr>
+              <tr>
+                <th>Class</th>
+                <th>Student</th>
+                <th>Evaluator</th>
+                {rubricCriterias()}
+                <th>Overall Score</th>
+                <th>Average Score</th>
+              </tr>
             </thead>
-          )
+          );
 
-          const reportBody = []
+          const reportBody = [];
 
           reportBody.push(
             this.props.cycles.measureReport.results.map(student => {
-              return(
+              return (
                 <tr>
                   <td>{student.class}</td>
                   <td>{student.studentName}</td>
@@ -322,72 +318,67 @@ class MeasureDetails extends Component {
                   <td>{student.rubricScore}</td>
                   <td>{student.averageScore}</td>
                 </tr>
-              )
+              );
             })
-          )
-          const avgDetails = this.props.cycles.measureReport.classAverage
+          );
+          const avgDetails = this.props.cycles.measureReport.classAverage;
           reportBody.push(
             <tr>
               <td colSpan="3">Class avg.</td>
-               {criteriaAvg(avgDetails)}
-               <td>{avgDetails.averageScore}</td>
-               <td>{avgDetails.rubricScore}</td>
+              {criteriaAvg(avgDetails)}
+              <td>{avgDetails.averageScore}</td>
+              <td>{avgDetails.rubricScore}</td>
             </tr>
-          )
-          const passingCounts = this.props.cycles.measureReport.passingCounts
+          );
+          const passingCounts = this.props.cycles.measureReport.passingCounts;
           reportBody.push(
-              <tr>
-                <td colSpan="3">Number >= {passPoint}</td>
-                 {criteriaAvg(passingCounts)}
-                 <td>{passingCounts.rubricScore}</td>
-                 <td>{passingCounts.averageScore}</td>
-              </tr>
-          )
+            <tr>
+              <td colSpan="3">Number >= {passPoint}</td>
+              {criteriaAvg(passingCounts)}
+              <td>{passingCounts.rubricScore}</td>
+              <td>{passingCounts.averageScore}</td>
+            </tr>
+          );
           reportBody.push(
             <tr>
               <td colSpan="3">Number of Students</td>
-               {criterias.map(()=>{
-                 return(
-                   <td>{this.props.cycles.measureReport.numberOfEvaluations}</td>
-                 )
-               })}
-               <td>{this.props.cycles.measureReport.numberOfEvaluations}</td>
-               <td>{this.props.cycles.measureReport.numberOfUniqueStudents}</td>
+              {criterias.map(() => {
+                return (
+                  <td>{this.props.cycles.measureReport.numberOfEvaluations}</td>
+                );
+              })}
+              <td>{this.props.cycles.measureReport.numberOfEvaluations}</td>
+              <td>{this.props.cycles.measureReport.numberOfUniqueStudents}</td>
             </tr>
-        )
-        const passingPercentages = this.props.cycles.measureReport.passingPercentages
-        reportBody.push(
+          );
+          const passingPercentages = this.props.cycles.measureReport
+            .passingPercentages;
+          reportBody.push(
             <tr>
               <td colSpan="3">% >= {passPoint}</td>
-               {criteriaAvg(passingPercentages)}
-               <td>{passingPercentages.rubricScore}</td>
-               <td>{passingPercentages.averageScore}</td>
+              {criteriaAvg(passingPercentages)}
+              <td>{passingPercentages.rubricScore}</td>
+              <td>{passingPercentages.averageScore}</td>
             </tr>
-        )
+          );
 
-        measureReport.push(<tbody>
-          {reportBody}
-        </tbody>)
+          measureReport.push(<tbody>{reportBody}</tbody>);
 
-        measureReport = (<table className="table table-striped">
-          {measureReport}
-        </table>)
-          
-      
-          
-
-
+          measureReport = (
+            <table className="table table-striped">{measureReport}</table>
+          );
         }
-        
-        if(this.props.evaluator.evaluators !== null &&
+
+        if (
+          this.props.evaluator.evaluators !== null &&
           this.props.evaluator.evaluators !== undefined
-         ){
-            evaluatorOptions = this.props.evaluator.evaluators.evaluators.map((evaluator,index) => {
-             return ( 
-             <option key={"eval"+index} value={evaluator.email}/>
-             )
-            })
-          }
+        ) {
+          evaluatorOptions = this.props.evaluator.evaluators.evaluators.map(
+            (evaluator, index) => {
+              return <option key={"eval" + index} value={evaluator.email} />;
+            }
+          );
+        }
       }
     }
 
@@ -408,6 +399,7 @@ class MeasureDetails extends Component {
 
     return (
       <Fragment>
+    
         <section className="panel important">
           <div>
             <div className="row">
@@ -471,12 +463,14 @@ class MeasureDetails extends Component {
                 <Button className="mt-2" onClick={this.assignStudShow}>
                   Assign Students
                 </Button>
+                <Link to={"/admin/measure/"+this.props.match.params.measureID+"/report"}>
                 <Button
                   className="mt-2 float-right"
                   onClick={this.measureReportShow}
                 >
                   View Report
                 </Button>
+                </Link>
               </Fragment>
             ) : null}
           </Jumbotron>
@@ -569,7 +563,7 @@ class MeasureDetails extends Component {
             </Form>
           </Modal.Body>
         </Modal>
-        
+
         {/** Add Evaluator Modal */}
         <Modal show={this.state.addEval} onHide={this.addEvalHide} centered>
           <Modal.Title className="ml-3 mt-2">Add Evaluator</Modal.Title>
@@ -581,11 +575,9 @@ class MeasureDetails extends Component {
                   type="email"
                   name="evalEmail"
                   placeholder="Enter email"
-                  list = "evaluatorList"
+                  list="evaluatorList"
                 />
-                <datalist id="evaluatorList">
-                    {evaluatorOptions}
-                </datalist>
+                <datalist id="evaluatorList">{evaluatorOptions}</datalist>
               </Form.Group>
               <Button
                 variant="danger"
@@ -666,7 +658,9 @@ class MeasureDetails extends Component {
               </div>
               <div className="d-inline-block border  p-3">
                 <h3>Student List</h3>
-                <select name="assignedStudents" multiple>{studentSelect}</select>
+                <select name="assignedStudents" multiple>
+                  {studentSelect}
+                </select>
               </div>
 
               <Button type="submit" className="mt-3 d-block">
@@ -679,15 +673,21 @@ class MeasureDetails extends Component {
         <Modal
           show={this.state.measureReport}
           onHide={this.measureReportHide}
-          centered
+          id="measureReportModal"
+          dialogClassName="modal-90"
           size="lg"
-          dialogClassName="modal-90w"
-          aria-labelledby="example-custom-modal-styling-title"
+          style={{height:"100%"}}
         >
-          <Modal.Title id="example-custom-modal-styling-title">Measure Summary</Modal.Title>
+          <Modal.Title>
+            Measure Summary
+          </Modal.Title>
           <Modal.Body>{measureReport}</Modal.Body>
+          <Modal.Footer>
           <Button onClick={this.measureReportHide}>Close</Button>
+          </Modal.Footer>
         </Modal>
+
+    
       </Fragment>
     );
   }
@@ -715,7 +715,7 @@ const MapStateToProps = state => ({
   errors: state.errors,
   measureStudents: state.measureStudents,
   assignStudents: state.assugnedStudents,
-  evaluator: state.evaluator,
+  evaluator: state.evaluator
 });
 export default connect(
   MapStateToProps,

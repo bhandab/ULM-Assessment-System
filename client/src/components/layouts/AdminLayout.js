@@ -56,7 +56,7 @@ openNav = () => {
 
     return (
       <Fragment>
-        <header id="pageHeader">
+        <header id="pageHeader" className="noprint">
         <h1 className = "justify-content-between">
           <button id = "disappear" className="openbtn" onClick={this.openNav}>&#9776; </button>
            <span className="ml-3">Coordinator</span>
@@ -75,7 +75,7 @@ openNav = () => {
             </li>
           </ul>
         </header>
-        <div id="mySidebar" className="sidebar">
+        <div id="mySidebar" className="sidebar noprint">
             {/* <a href="javascript:void(0)" className="closebtn" onClick={this.closeNav}>&times;</a> */}
            <ul className="bordered m-3"style={{backgroundColor:'white'}}>
             <li className="dashboard">

@@ -57,7 +57,7 @@ li.logout a:hover {
   color: black;
 }
 header .utilities li a {
-  padding: 10em;
+  padding: 4%;
   display: block;
 }
 
@@ -422,6 +422,17 @@ li {
   color: #111;
 }
 
+
+/* Measure Report **/
+#measureReport {
+  min-height: 100%;
+}
+
+#measureReport .table td{
+  height: 260px !important;
+}
+
+
 /* button .close  */
 
 @media screen and (min-width: 600px) {
@@ -642,4 +653,10 @@ button:hover{
 @media screen and (max-height: 450px) {
   .sidebar {padding-top: 15px;}
   .sidebar a {font-size: 18px;}
+}
+
+@media print {
+  .noprint {
+    display: none !important;
+  }
 }

@@ -1298,6 +1298,11 @@ router.get(
         let passingPercentages = {};
         let criteriaInfo = [];
         let criteriaSet = new Set();
+        let toolName = result[0].toolName;
+        let benchmark = result[0].projectedResult;
+        let weightedRubric = "";
+        if(result[0].toolType === 'rubric')
+        weightedRubric = result[0].weighted
         console.log(result.length);
         result.forEach((row, index) => {
           if (!criteriaSet.has(row.criteriaDesc)) {
@@ -1421,7 +1426,10 @@ router.get(
           passingCounts,
           passingPercentages,
           numberOfEvaluations: count,
-          numberOfUniqueStudents: avgtotalStudentCount
+          numberOfUniqueStudents: avgtotalStudentCount,
+          toolName,
+          benchmark,
+          weightedRubric
         });
       });
     });
