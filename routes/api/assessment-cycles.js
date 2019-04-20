@@ -602,26 +602,6 @@ router.post(
               "The selected performance measure is already associated with this learning outcome";
             return res.status(404).json(errors);
           } else {
-            if (toolType === "test") {
-              let sql0 =
-                "INSERT INTO TOOL (toolType,corId) VALUES (" +
-                db.escape(toolType) +
-                ", " +
-                db.escape(adminID) +
-                ")";
-              db.query(sql0, (err, result) => {
-                if (err) {
-                  return res
-                    .status(500)
-                    .json("Measure Could not be created \n", err);
-                }
-                toolID = result.insertId;
-                insertIntoMeasure();
-              });
-            } else {
-              insertIntoMeasure();
-            }
-            //console.log(toolID);
             let insertIntoMeasure = () => {
               let sql4 =
                 "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolID,toolName, toolType, studentNumberScale,projectedValueScale) VALUES (" +
@@ -672,6 +652,27 @@ router.post(
                 });
               });
             };
+            if (toolType === "test") {
+              let sql0 =
+                "INSERT INTO TOOL (toolType,corId) VALUES (" +
+                db.escape(toolType) +
+                ", " +
+                db.escape(adminID) +
+                ")";
+              db.query(sql0, (err, result) => {
+                if (err) {
+                  return res
+                    .status(500)
+                    .json("Measure Could not be created \n", err);
+                }
+                toolID = result.insertId;
+                insertIntoMeasure();
+              });
+            } else {
+              insertIntoMeasure();
+            }
+            //console.log(toolID);
+
 
             // });
           }
@@ -1482,7 +1483,7 @@ router.get(
         let passingPercentages = {};
         let criteriaInfo = [];
         let criteriaSet = new Set();
-        console.log(result.length);
+        // console.log(result.length);
         result.forEach((row, index) => {
           if (!criteriaSet.has(row.criteriaDesc)) {
             criteriaSet.add(row.criteriaDesc);
@@ -1501,7 +1502,6 @@ router.get(
             if (index === 0) {
               classAverage[row.criteriaDesc] = 0;
               classAverage["rubricScore"] = 0;
-              classAverage;
               passingCounts[row.criteriaDesc] = 0;
               passingCounts["rubricScore"] = 0;
             }

@@ -109,9 +109,12 @@ router.post(
             let sql8 =
               "INSERT INTO CRITERIA (toolID,criteriaDesc,criteriaWeight) VALUES ?";
             let criteriaDescription = "";
-
+            let weightedValue = 1;
+            if (weighted) {
+              weightedValue = 0;
+            }
             for (var i = 0; i < noOfRows; i++) {
-              crValues.push([rubricID, criteriaDescription, 0]);
+              crValues.push([rubricID, criteriaDescription, weightedValue]);
             }
 
             db.query(sql8, [crValues], (err, result) => {
