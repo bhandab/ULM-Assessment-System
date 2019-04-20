@@ -515,6 +515,98 @@ router.post(
   }
 );
 
+// @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/Delete"
+// @desc DELETE an  measure of existing assessment Cycle
+// @access Private BIKASH
+router.post(
+  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/Delete",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let cycleID = req.params.cycleIdentifier;
+    let learnID = req.params.outcomeIdentifier;
+    let measureID=req.params.measureIdentifier;
+    console.log(measureID);
+    let adminID = req.user.id;
+
+    let sql0 =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND corId=" +
+      db.escape(adminID);
+
+    db.query(sql0, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors = "Cycle with cycle ID " + cycleID + " Does not Exist!";
+        return res.status(404).json({ errors });
+      }
+
+      let sql1 =
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
+        db.escape(cycleID) +
+        " AND learnID=" +
+        db.escape(learnID) +
+        " AND corId=" +
+        db.escape(adminID);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+
+        if (result.length <= 0) {
+          errors =
+            "The Selected Outcome is not in the current Assessment Cycle";
+          return res.status(404).json({ errors });
+        }
+
+        
+      let sql2 =
+      "SELECT * FROM performance_measure WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND learnID=" +
+      db.escape(learnID) +
+      " AND corId=" +
+      db.escape(adminID) +
+      " AND  measureID=" +
+      db.escape(measureID);
+
+    db.query(sql2, (err, result) =>  {
+      if (err) {
+        return res.status(500).json(err);
+      }
+
+      if (result.length <= 0) {
+        errors =
+          "The Selected measure is not in the current Assessment Cycle";
+        return res.status(404).json({ errors });
+      }
+        let sql3 =
+          "DELETE FROM performance_measure WHERE cycleID=" +
+          db.escape(cycleID) +
+          " AND learnID=" +
+          db.escape(learnID) +
+          " AND corId=" +
+          db.escape(adminID) +
+          " AND measureID=" +
+          db.escape(measureID);
+
+        let measureDetails = result[0].measureDesc;
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          res.status(200).json({ cycleID, learnID, adminID,measureID,measureDetails });
+        });
+      });
+      });
+    });
+  }
+);
+
+
 // @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/addNewMeasure
 // @desc Adds a new measure within an outcome which in turn to cycle
 // @access Private
