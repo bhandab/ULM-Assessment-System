@@ -90,7 +90,6 @@ class MeasureDetails extends Component {
     this.props.addEvaluator(this.props.match.params.measureID, {
       evaluatorEmail: e.target.evalEmail.value
     });
-    // console.log(e.target.evalEmail.value)
     this.setState({
       email: e.target.evalEmail.value,
       addEval: false,
@@ -110,7 +109,6 @@ class MeasureDetails extends Component {
 
   uploadStudentsHandler = e => {
     e.preventDefault();
-    // console.log(e.target);
     this.fileUpload(this.state.file);
     this.setState({ uploadFile: false });
   };
@@ -126,7 +124,6 @@ class MeasureDetails extends Component {
       email,
       CWID
     };
-    // console.log(body);
     this.props.addStudentToMeasure(this.props.match.params.measureID, body);
     this.setState({ addStudHide: false });
   };
@@ -140,13 +137,11 @@ class MeasureDetails extends Component {
         "content-type": "multipart/fomr-data"
       }
     };
-    // console.log(formData);
     this.props.addStudentsToMeasure(
       this.props.match.params.measureID,
       formData,
       config
     );
-    //Upload file action here
   };
 
   uploadFileShow = () => {
@@ -182,14 +177,12 @@ class MeasureDetails extends Component {
         student.value
       )
     }
-    console.log(studentIDs)
     let rubricID = this.props.cycles.measureDetails.toolID;
     const body = {
       studentIDs,
       rubricID,
       evalID
     };
-    // console.log(body);
     this.props.assignStudentsToMeasure(this.props.match.params.measureID, body);
   };
 
@@ -220,9 +213,6 @@ class MeasureDetails extends Component {
         ) {
           evaluatorList = this.props.cycles.measureEvaluators.evaluators.map(
             evaluator => {
-              // evaluatorOptions.push(
-              //   <option key={evaluator.measureEvalID} value={evaluator.name}/>
-              // )
               evaluatorSelect.push(
                 <div key={evaluator.measureEvalID}>
                   <input
@@ -271,58 +261,124 @@ class MeasureDetails extends Component {
           isEmpty(this.props.cycles.measureReport) === false
         ) {
 
-          
-          let length = this.props.cycles.measureReport.length;
-          const report = this.props.cycles.measureReport;
-          const studentLength = report[Object.keys(report)[0]].length
-          // console.log(studentLength)
-
-          const criteriaLabel = () => {
-            let labels = []
-              Object.keys(report).forEach(key => {
-                labels.push (
-                <th key={key}>
-                  {report[key][0].criteriaDesc}
-                </th>
-                )
-              })
-              return labels
-          }
-
-          const studentScores = (val) => {
-           let scores = Object.keys(report).map(key => {
-                return(
-                  <td key={key}>{report[key][val].criteriaScore}</td>
-                )
+          const passPoint = this.props.cycles.measureDetails.projectedResult
+          const criteriaDesc = this.props.cycles.measureReport.criteriaInfo
+          const criterias = []
+          let colour = ""
+          const rubricCriterias = () => {
+            return criteriaDesc.map((criteria, index) => {
+              criterias.push(criteria.criteriaDescription)
+              return (
+                <th key = {"criteria"+index}>{criteria.criteriaDescription}</th>
+              )
             })
-            return scores
           }
-          // console.log(criteriaLabel())
+          
+          const criteriaScores = (details) => {
+            return criterias.map(criteria => {
+              if(details[criteria] < passPoint){
+                colour="text-danger"
+              }
+              else{
+                colour="text-success"
+              }
+              return (
+                <td className={colour}>{details[criteria]}</td>
+              )
+            })
+          }
+
+          const criteriaAvg = (details) => {
+            return criterias.map(criteria => {
+              return (
+                <td>{details[criteria]}</td>
+              )
+            })
+          }
+
           measureReport.push(
-            <tr key={"tableHeader"}>
+            <thead>
+            <tr>
               <th>Class</th>
-              <th>StudentName</th>
+              <th>Student</th>
               <th>Evaluator</th>
-              {criteriaLabel()}
+              {rubricCriterias()}
+              <th>Overall Score</th>
+              <th>Average Score</th>
             </tr>
-          );
+            </thead>
+          )
+
+          const reportBody = []
+
+          reportBody.push(
+            this.props.cycles.measureReport.results.map(student => {
+              return(
+                <tr>
+                  <td>{student.class}</td>
+                  <td>{student.studentName}</td>
+                  <td>{student.evalName}</td>
+                  {criteriaScores(student)}
+                  <td>{student.rubricScore}</td>
+                  <td>{student.averageScore}</td>
+                </tr>
+              )
+            })
+          )
+          const avgDetails = this.props.cycles.measureReport.classAverage
+          reportBody.push(
+            <tr>
+              <td colSpan="3">Class avg.</td>
+               {criteriaAvg(avgDetails)}
+               <td>{avgDetails.averageScore}</td>
+               <td>{avgDetails.rubricScore}</td>
+            </tr>
+          )
+          const passingCounts = this.props.cycles.measureReport.passingCounts
+          reportBody.push(
+              <tr>
+                <td colSpan="3">Number >= {passPoint}</td>
+                 {criteriaAvg(passingCounts)}
+                 <td>{passingCounts.rubricScore}</td>
+                 <td>{passingCounts.averageScore}</td>
+              </tr>
+          )
+          reportBody.push(
+            <tr>
+              <td colSpan="3">Number of Students</td>
+               {criterias.map(()=>{
+                 return(
+                   <td>{this.props.cycles.measureReport.numberOfEvaluations}</td>
+                 )
+               })}
+               <td>{this.props.cycles.measureReport.numberOfEvaluations}</td>
+               <td>{this.props.cycles.measureReport.numberOfUniqueStudents}</td>
+            </tr>
+        )
+        const passingPercentages = this.props.cycles.measureReport.passingPercentages
+        reportBody.push(
+            <tr>
+              <td colSpan="3">% >= {passPoint}</td>
+               {criteriaAvg(passingPercentages)}
+               <td>{passingPercentages.rubricScore}</td>
+               <td>{passingPercentages.averageScore}</td>
+            </tr>
+        )
+
+        measureReport.push(<tbody>
+          {reportBody}
+        </tbody>)
+
+        measureReport = (<table className="table table-striped">
+          {measureReport}
+        </table>)
+          
+      
           
 
-          for(let i = 0; i < studentLength; i++){
-            // let a = 0
-            const key = Object.keys(report)[0]
-              const cells = (<tr key={key}>
-                <td>{report[key][i].class}</td>
-                <td>{report[key][i].studentName}</td>
-                <td>{report[key][i].evanName}</td>
-                {studentScores(i)}
-              </tr>)
-              measureReport.push(cells)
-            
-          }
-          
+
         }
-
+        
         if(this.props.evaluator.evaluators !== null &&
           this.props.evaluator.evaluators !== undefined
          ){
@@ -625,8 +681,10 @@ class MeasureDetails extends Component {
           onHide={this.measureReportHide}
           centered
           size="lg"
+          dialogClassName="modal-90w"
+          aria-labelledby="example-custom-modal-styling-title"
         >
-          <Modal.Title>Measure Summary</Modal.Title>
+          <Modal.Title id="example-custom-modal-styling-title">Measure Summary</Modal.Title>
           <Modal.Body>{measureReport}</Modal.Body>
           <Button onClick={this.measureReportHide}>Close</Button>
         </Modal>
