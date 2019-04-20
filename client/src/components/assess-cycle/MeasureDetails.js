@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import {Link} from 'react-router-dom';
 import { inviteEvaluator } from "../../actions/evaluatorAction";
 import {
   getMeasureDetails,
@@ -16,7 +15,6 @@ import {
   getMeasureTestReport,
   addStudentScore
 } from "../../actions/assessmentCycleAction";
-import { getRegisteredEvaluators } from "../../actions/evaluatorAction";
 import {
   Jumbotron,
   Card,
@@ -29,21 +27,20 @@ import {
   ButtonGroup,
   Table
 } from "react-bootstrap";
-import { isEmpty } from "../../utils/isEmpty";
+//import { isEmpty } from "../../utils/isEmpty";
 
 class MeasureDetails extends Component {
   state = {
     addEval: false,
     addStud: false,
     inviteEval: false,
-    testModal:false,
     email: "",
     errors: {},
     file: "",
     uploadFile: false,
     studAssign: false,
-    uploadTest:false,
-    testReport:false
+    uploadTest: false,
+    testReport: false
   };
 
   componentDidMount() {
@@ -63,15 +60,17 @@ class MeasureDetails extends Component {
     this.props.getRegisteredEvaluators();
   }
 
-  componentDidUpdate(prevProps){
+  componentDidUpdate(prevProps) {
     const measureID = this.props.match.params.measureID;
 
-    if(!this.props.cycles.cycleLoading){
-      if(this.props.cycles.measureDetails !== prevProps.cycles.measureDetails){
-        if(this.props.cycles.measureDetails.toolType === 'rubric' ){
+    if (!this.props.cycles.cycleLoading) {
+      if (
+        this.props.cycles.measureDetails !== prevProps.cycles.measureDetails
+      ) {
+        if (this.props.cycles.measureDetails.toolType === "rubric") {
           this.props.getMeasureRubricReport(measureID);
         }
-        if(this.props.cycles.measureDetails.toolType === 'test' ){
+        if (this.props.cycles.measureDetails.toolType === "test") {
           this.props.getMeasureTestReport(measureID);
         }
       }
@@ -125,28 +124,28 @@ class MeasureDetails extends Component {
   };
 
   testModalShow = () => {
-    this.setState({testModal:true})
-  }
+    this.setState({ testModal: true });
+  };
 
   testModalHide = () => {
-    this.setState({testModal:false})
-  }
+    this.setState({ testModal: false });
+  };
 
-  uploadTestShow = () =>{
-    this.setState({uploadTest:true})
-  }
+  uploadTestShow = () => {
+    this.setState({ uploadTest: true });
+  };
 
   uploadTestHide = () => {
-    this.setState({uploadTest:false})
-  }
+    this.setState({ uploadTest: false });
+  };
 
   testReportShow = () => {
-    this.setState({testReport:true})
-  }
+    this.setState({ testReport: true });
+  };
 
   testReportHide = () => {
-    this.setState({testReport:false})
-  }
+    this.setState({ testReport: false });
+  };
 
   addEvaluatorHandler = e => {
     e.preventDefault();
@@ -167,12 +166,13 @@ class MeasureDetails extends Component {
   };
 
   fileChangeHandler = e => {
-    console.log("file changed")
-    this.setState({file: e.target.files[0]});
+    console.log("file changed");
+    this.setState({ file: e.target.files[0] });
   };
 
   uploadStudentsHandler = e => {
     e.preventDefault();
+    console.log(e.target);
     this.fileUpload(this.state.file);
     this.setState({ uploadFile: false });
   };
@@ -188,6 +188,7 @@ class MeasureDetails extends Component {
       email,
       CWID
     };
+    console.log(body);
     this.props.addStudentToMeasure(this.props.match.params.measureID, body);
     this.setState({ addStudHide: false });
   };
@@ -198,22 +199,23 @@ class MeasureDetails extends Component {
 
     const config = {
       headers: {
-        "content-type": "multipart/form-data"
+        "content-type": "multipart/fomr-data"
       }
     };
+    console.log(formData);
     this.props.addStudentsToMeasure(
       this.props.match.params.measureID,
       formData,
       config
     );
+    //Upload file action here
   };
 
-  uplaodTestScoresHandler = (e) => {
-    e.preventDefault()
+  uplaodTestScoresHandler = e => {
+    e.preventDefault();
     this.testScoresUpload(this.state.file);
     this.setState({ uploadTest: false });
-
-  }
+  };
 
   testScoresUpload = file => {
     const formData = new FormData();
@@ -232,23 +234,26 @@ class MeasureDetails extends Component {
   };
 
   scoreSingleStudent = e => {
-    e.preventDefault()
-    const email= e.target.email.value
-    const name = e.target.name.value
-    const score = e.target.score.value
-    const CWID = e.target.CWID.value
+    e.preventDefault();
+    const email = e.target.email.value;
+    const name = e.target.name.value;
+    const score = e.target.score.value;
+    const CWID = e.target.CWID.value;
 
-    const body = {name,email,CWID,score}
-    this.props.addStudentScore(this.props.match.params.measureID,body)
-  }
+    const body = { name, email, CWID, score };
+    this.props.addStudentScore(this.props.match.params.measureID, body);
+  };
 
   assignStudentsHandle = e => {
     e.preventDefault();
+    let students = document.getElementsByName("studentCheck");
     let studentIDs = [];
     let evalID = e.target.evaluator.value;
-    let optionList = e.target.assignedStudents.selectedOptions;
-    for (let student of optionList) {
-      studentIDs.push(student.value);
+    // console.log(evaluator)
+    for (let i = 0; i < students.length; i++) {
+      if (students[i].checked) {
+        studentIDs.push(students[i].value);
+      }
     }
     let rubricID = this.props.cycles.measureDetails.toolID;
     const body = {
@@ -256,6 +261,7 @@ class MeasureDetails extends Component {
       rubricID,
       evalID
     };
+    console.log(body);
     this.props.assignStudentsToMeasure(this.props.match.params.measureID, body);
   };
 
@@ -277,8 +283,7 @@ class MeasureDetails extends Component {
     ) {
       if (this.props.cycles.measureDetails.toolType === "rubric") {
         typeRubric = true;
-      }
-      else if(this.props.cycles.measureDetails.toolType === "test"){
+      } else if (this.props.cycles.measureDetails.toolType === "test") {
         typeTest = true;
       }
       measureTitle = this.props.cycles.measureDetails.measureDescription;
@@ -309,7 +314,6 @@ class MeasureDetails extends Component {
             }
           );
         }
-
         if (
           this.props.cycles.measureStudents !== null &&
           this.props.cycles.measureStudents !== undefined
@@ -317,9 +321,16 @@ class MeasureDetails extends Component {
           studentList = this.props.cycles.measureStudents.students.map(
             student => {
               studentSelect.push(
-                <option key={student.studentID} value={student.studentID}>
-                  {student.name}
-                </option>
+                <div key={student.studentID}>
+                  <input
+                    type="checkbox"
+                    value={student.studentID}
+                    name="studentCheck"
+                  />
+                  <label className="ml-2">
+                    <h5>{student.name}</h5>
+                  </label>
+                </div>
               );
               return (
                 <li key={student.studentID} className="list-group-item">
@@ -334,52 +345,95 @@ class MeasureDetails extends Component {
           );
         }
 
-      if (
-          this.props.evaluator.evaluators !== null &&
-          this.props.evaluator.evaluators !== undefined
+        if (
+          this.props.cycles.measureReport !== null &&
+          this.props.cycles.measureReport !== undefined
         ) {
-          evaluatorOptions = this.props.evaluator.evaluators.evaluators.map(
-            (evaluator, index) => {
-              return <option key={"eval" + index} value={evaluator.email} />;
-            }
+          let length = this.props.cycles.measureReport.length;
+          const report = this.props.cycles.measureReport;
+          measureReport.push(
+            <tr>
+              <th>Class</th>
+              <th>StudentName</th>
+              <th>Criteria</th>
+              <th>Evaluator</th>
+              <th>Criteria Score</th>
+            </tr>
           );
+          for (let i = 0; i < length; i++) {
+            //     for(let j = 0; j < length; j++){
+            //    measureReport.push( <tr>
+            //         { i===1 ?
+            //         <th>Class</th>
+            //             : <td>{report[j].class}</td>}
+            //         {i === 1 ?
+            //         <th>Student</th>
+            //             : <td>{report[j].studentName}</td>}
+            //         {i === 1 ?
+            //         <th>Evaluator</th>
+            //         : <td>{report[j].evaluator}</td> }
+            //         <th>{report[j].criteriaName}</th>
+            //     </tr>
+            //    )
+            //     }
+            measureReport.push(
+              <tr>
+                <td>{report[i].class}</td>
+                <td>{report[i].studentName}</td>
+                <td>{report[i].criteriaName}</td>
+                <td>{report[i].evaluator}</td>
+                <td>{report[i].criteriaScore}</td>
+              </tr>
+            );
+          }
         }
       }
 
-      if(typeTest){
-            if(this.props.cycles.measureReport !== null &&
-              this.props.cycles.measureReport !== undefined){
-                let header = (
-                  <thead key = {"testHeader"}>
-                    <tr>
-                      <th>#</th>
-                      <th>Student</th>
-                      <th>Email</th>
-                      <th>Score</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                )
-                measureReport.push(header)
-                let body = this.props.cycles.measureReport.report.map((student,index) => {
-                  let colour = "text-danger"
-                  if(student.passing){
-                    colour = "text-success"
-                  }
-                  return (
-                      <tr key={student.CWID}>
-                        <td>{index+1}</td>
-                        <td>{student.studentName}</td>
-                        <td>{student.studentEmail}</td>
-                        <td className={colour}>{student.score}</td>
-                        {student.passing ? <td className="text-success">Pass</td> : 
-                        <td className="text-danger">Fail</td>}
-                      </tr>
-                  )
-                })
-                measureReport.push(<tbody key = "testBody">{body}</tbody>)
-                measureReport = (<Table striped bordered hover>{measureReport}</Table>)
+      if (typeTest) {
+        if (
+          this.props.cycles.measureReport !== null &&
+          this.props.cycles.measureReport !== undefined
+        ) {
+          let header = (
+            <thead key={"testHeader"}>
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>Email</th>
+                <th>Score</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+          );
+          measureReport.push(header);
+          let body = this.props.cycles.measureReport.report.map(
+            (student, index) => {
+              let colour = "text-danger";
+              if (student.passing) {
+                colour = "text-success";
               }
+              return (
+                <tr key={student.CWID}>
+                  <td>{index + 1}</td>
+                  <td>{student.studentName}</td>
+                  <td>{student.studentEmail}</td>
+                  <td className={colour}>{student.score}</td>
+                  {student.passing ? (
+                    <td className="text-success">Pass</td>
+                  ) : (
+                    <td className="text-danger">Fail</td>
+                  )}
+                </tr>
+              );
+            }
+          );
+          measureReport.push(<tbody key="testBody">{body}</tbody>);
+          measureReport = (
+            <Table striped bordered hover>
+              {measureReport}
+            </Table>
+          );
+        }
       }
     }
 
@@ -400,9 +454,8 @@ class MeasureDetails extends Component {
 
     return (
       <Fragment>
-    
         <section className="panel important">
-          <div>
+          <div className="container">
             <div className="row">
               <div className="btn-group btn-breadcrumb">
                 <li href="#" className="btn btn-primary brdbtn">
@@ -417,146 +470,190 @@ class MeasureDetails extends Component {
                 <li href="#" className="btn btn-primary brdbtn">
                   Measures
                 </li>
-                <li className="btn btn-primary brdbtn">
-                  Measure Detail
-                </li>
+                <li className="btn btn-primary brdbtn">Measure Detail</li>
               </div>
             </div>
           </div>
 
           <Jumbotron>
             <p id="measure-title-label">Measure Title</p>
-            <h4 id="measure-title">{measureTitle} 
-            {typeTest? 
-            <button 
-            className="float-right" onClick={this.testReportShow}>
-              <i className="fas fa-file-invoice" size="lg"></i>
-            </button>: null}
-            {typeRubric ? 
-              <Link to={"/admin/measure/"+this.props.match.params.measureID+"/report"}>
-              <button
-                className="float-right"
-                onClick={this.measureReportShow}
-              >
-              <i className="fas fa-file-invoice" size="lg"></i>
-              </button>
-              </Link>
-              : null}
-            </h4>
-            <hr/>
-
-            
-              <Fragment>
-                <Card
-                  style={{ width: "30rem", height: "20rem", float: "left" }}
+            <h4 id="measure-title">
+              {measureTitle}
+              {typeTest ? (
+                <button className="float-right" onClick={this.testReportShow}>
+                  <i className="fas fa-file-invoice" size="lg" />
+                </button>
+              ) : null}
+              {typeRubric ? (
+                <Link
+                  to={
+                    "/admin/measure/" +
+                    this.props.match.params.measureID +
+                    "/report"
+                  }
                 >
-                  <Card.Body>
-                    <Card.Header>Evaluators</Card.Header>
-                    <ol className="list-group measureCard">{evaluatorList}</ol>
-                    <Button
-                      variant="primary"
-                      className="float-right mt-3"
-                      onClick={this.addEvalShow}
-                    >
-                      Add Evaluators
-                    </Button>
-                  </Card.Body>
-                </Card>
+                  <button
+                    className="float-right"
+                    onClick={this.measureReportShow}
+                  >
+                    <i className="fas fa-file-invoice" size="lg" />
+                  </button>
+                </Link>
+              ) : null}
+            </h4>
+            <hr />
 
-                <Card style={{ width: "30rem", height: "20rem" }}>
-                  <Card.Body>
-                    <Card.Header>Students</Card.Header>
-                    <ol className="list-group measureCard">{studentList}</ol>
-                    <Button
-                      variant="primary"
-                      className="float-right mt-3"
-                      onClick={this.addStudShow}
-                    >
-                      Add Students
-                    </Button>
-                  </Card.Body>
-                </Card>
-
-                <Button className="mt-2" onClick={this.assignStudShow}>
-                  Assign Students
-                </Button>
-                </Fragment>
-            
-            {typeTest ?
             <Fragment>
+              <Card style={{ width: "30rem", height: "20rem", float: "left" }}>
+                <Card.Body>
+                  <Card.Header>Evaluators</Card.Header>
+                  <ol className="list-group measureCard">{evaluatorList}</ol>
+                  <Button
+                    variant="primary"
+                    className="float-right mt-3"
+                    onClick={this.addEvalShow}
+                  >
+                    Add Evaluators
+                  </Button>
+                </Card.Body>
+              </Card>
 
-                <ButtonGroup aria-label="Basic example" className="float-right">
-                <Button size="lg"
-              onClick={this.testModalShow}>
-              <i className="fas fa-users"></i>
+              <Card style={{ width: "30rem", height: "20rem" }}>
+                <Card.Body>
+                  <Card.Header>Students</Card.Header>
+                  <ol className="list-group measureCard">{studentList}</ol>
+                  <Button
+                    variant="primary"
+                    className="float-right mt-3"
+                    onClick={this.addStudShow}
+                  >
+                    Add Students
+                  </Button>
+                </Card.Body>
+              </Card>
+
+              <Button className="mt-2" onClick={this.assignStudShow}>
+                Assign Students
               </Button>
-              <Button  size="lg"
-              onClick={this.uploadTestShow}>
-              <i className="fas fa-file-csv"></i>
-              </Button>
-            </ButtonGroup>
-
-              
-             
-
-              <Modal show={this.state.testModal} onHide={this.testModalHide} centered>
-            <Modal.Header closeButton><h3>Students</h3></Modal.Header>
-               <Modal.Body className="pt-2 pb-1">
-                   <Form onSubmit={this.scoreSingleStudent.bind(this)}>
-                     <InputGroup className="row">
-                        <InputGroup.Prepend className="col-4">
-                                <InputGroup.Text id="basic-addon10" >Student Name</InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl placeholder='John Doe' name="name"/>
-                     </InputGroup>
-                     <InputGroup className="row mt-1">
-                        <InputGroup.Prepend className="col-4">
-                                <InputGroup.Text id="basic-addon11">Email (@)</InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl type="email"placeholder='example@example.com' name="email"/>
-                     </InputGroup>
-                     <InputGroup className="row mt-1">
-                        <InputGroup.Prepend className="col-4">
-                                <InputGroup.Text id="basic-addon12">CWID</InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl placeholder='12345678' name="CWID"/>
-                     </InputGroup>
-                     <InputGroup className="row mt-1">
-                        <InputGroup.Prepend className="col-4">
-                                <InputGroup.Text id="basic-addon13">Score</InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl placeholder='85' name="score"/>
-                     </InputGroup>
-                    
-                     <Button type="submit" className="mt-3 mr-3 mb-3 float-right">Submit</Button>
-                   </Form>
-                  </Modal.Body>
-            </Modal>
-
-            <Modal show={this.state.uploadTest} onHide={this.uploadTestHide} centered >
-              <Modal.Header closeButton>
-                <h3>Upload Test Scores</h3>
-                </Modal.Header>
-                <Modal.Body>
-                  <Form onSubmit={this.uplaodTestScoresHandler.bind(this)}>
-                    <Form.Control type="file" onChange={this.fileChangeHandler.bind(this)}/>
-                    <Button className="mt-3 float-right" type="submit">Upload</Button>
-                  </Form>
-                </Modal.Body>
-            </Modal>
-
-            <Modal show={this.state.testReport} onHide={this.testReportHide} centered size="lg">
-              <Modal.Header closeButton><h3>Test Summary</h3></Modal.Header>
-              <Modal.Body>{measureReport}</Modal.Body>
-              <Modal.Footer><button className="btn btn-danger" onClick={this.testReportHide}>Close</button></Modal.Footer>
-            </Modal>
             </Fragment>
-            : null}
+
+            {typeTest ? (
+              <Fragment>
+                <ButtonGroup aria-label="Basic example" className="float-right">
+                  <Button size="lg" onClick={this.testModalShow}>
+                    <i className="fas fa-users" />
+                  </Button>
+                  <Button size="lg" onClick={this.uploadTestShow}>
+                    <i className="fas fa-file-csv" />
+                  </Button>
+                </ButtonGroup>
+
+                <Modal
+                  show={this.state.testModal}
+                  onHide={this.testModalHide}
+                  centered
+                >
+                  <Modal.Header closeButton>
+                    <h3>Students</h3>
+                  </Modal.Header>
+                  <Modal.Body className="pt-2 pb-1">
+                    <Form onSubmit={this.scoreSingleStudent.bind(this)}>
+                      <InputGroup className="row">
+                        <InputGroup.Prepend className="col-4">
+                          <InputGroup.Text id="basic-addon10">
+                            Student Name
+                          </InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <FormControl placeholder="John Doe" name="name" />
+                      </InputGroup>
+                      <InputGroup className="row mt-1">
+                        <InputGroup.Prepend className="col-4">
+                          <InputGroup.Text id="basic-addon11">
+                            Email (@)
+                          </InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <FormControl
+                          type="email"
+                          placeholder="example@example.com"
+                          name="email"
+                        />
+                      </InputGroup>
+                      <InputGroup className="row mt-1">
+                        <InputGroup.Prepend className="col-4">
+                          <InputGroup.Text id="basic-addon12">
+                            CWID
+                          </InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <FormControl placeholder="12345678" name="CWID" />
+                      </InputGroup>
+                      <InputGroup className="row mt-1">
+                        <InputGroup.Prepend className="col-4">
+                          <InputGroup.Text id="basic-addon13">
+                            Score
+                          </InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <FormControl placeholder="85" name="score" />
+                      </InputGroup>
+
+                      <Button
+                        type="submit"
+                        className="mt-3 mr-3 mb-3 float-right"
+                      >
+                        Submit
+                      </Button>
+                    </Form>
+                  </Modal.Body>
+                </Modal>
+
+                <Modal
+                  show={this.state.uploadTest}
+                  onHide={this.uploadTestHide}
+                  centered
+                >
+                  <Modal.Header closeButton>
+                    <h3>Upload Test Scores</h3>
+                  </Modal.Header>
+                  <Modal.Body>
+                    <Form onSubmit={this.uplaodTestScoresHandler.bind(this)}>
+                      <Form.Control
+                        type="file"
+                        onChange={this.fileChangeHandler.bind(this)}
+                      />
+                      <Button className="mt-3 float-right" type="submit">
+                        Upload
+                      </Button>
+                    </Form>
+                  </Modal.Body>
+                </Modal>
+
+                <Modal
+                  show={this.state.testReport}
+                  onHide={this.testReportHide}
+                  centered
+                  size="lg"
+                >
+                  <Modal.Header closeButton>
+                    <h3>Test Summary</h3>
+                  </Modal.Header>
+                  <Modal.Body>{measureReport}</Modal.Body>
+                  <Modal.Footer>
+                    <button
+                      className="btn btn-danger"
+                      onClick={this.testReportHide}
+                    >
+                      Close
+                    </button>
+                  </Modal.Footer>
+                </Modal>
+              </Fragment>
+            ) : null}
           </Jumbotron>
         </section>
 
         <Modal centered show={this.state.addStud} onHide={this.addStudHide}>
-          <Modal.Header className="ml-3" closeButton>Add Student to Measure</Modal.Header>
+          <Modal.Header className="ml-3" closeButton>
+            Add Student to Measure
+          </Modal.Header>
           <Modal.Body>
             <Form onSubmit={this.addStudentsHandler.bind(this)}>
               <InputGroup>
@@ -643,7 +740,6 @@ class MeasureDetails extends Component {
           </Modal.Body>
         </Modal>
 
-        {/** Add Evaluator Modal */}
         <Modal show={this.state.addEval} onHide={this.addEvalHide} centered>
           <Modal.Title className="ml-3 mt-2">Add Evaluator</Modal.Title>
           <Modal.Body>
@@ -654,9 +750,7 @@ class MeasureDetails extends Component {
                   type="email"
                   name="evalEmail"
                   placeholder="Enter email"
-                  list="evaluatorList"
                 />
-                <datalist id="evaluatorList">{evaluatorOptions}</datalist>
               </Form.Group>
               <Button
                 variant="danger"
@@ -692,6 +786,9 @@ class MeasureDetails extends Component {
                   Do you want to invite <strong>{this.state.email}</strong> for
                   registration?
                 </Form.Label>
+                {/*<Form.Text className="text-muted text-danger">
+                                        {this.state.errors.evaluatorEmail}
+                                    </Form.Text>*/}
               </Form.Group>
               <Button
                 variant="danger"
@@ -734,9 +831,7 @@ class MeasureDetails extends Component {
               </div>
               <div className="d-inline-block border  p-3">
                 <h3>Student List</h3>
-                <select name="assignedStudents" multiple>
-                  {studentSelect}
-                </select>
+                {studentSelect}
               </div>
 
               <Button type="submit" className="mt-3 d-block">
@@ -746,8 +841,16 @@ class MeasureDetails extends Component {
           </ModalBody>
         </Modal>
 
-
-    
+        <Modal
+          show={this.state.measureReport}
+          onHide={this.measureReportHide}
+          centered
+          size="lg"
+        >
+          <Modal.Title>Measure Summary</Modal.Title>
+          <Modal.Body>{measureReport}</Modal.Body>
+          <Button onClick={this.measureReportHide}>Close</Button>
+        </Modal>
       </Fragment>
     );
   }
@@ -777,8 +880,7 @@ const MapStateToProps = state => ({
   measureEvaluators: state.measureEvaluators,
   errors: state.errors,
   measureStudents: state.measureStudents,
-  assignStudents: state.assugnedStudents,
-  evaluator: state.evaluator
+  assignStudents: state.assugnedStudents
 });
 export default connect(
   MapStateToProps,
