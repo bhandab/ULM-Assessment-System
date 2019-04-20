@@ -1419,6 +1419,9 @@ router.post(
   }
 );
 
+// @route POST api/cycles/:measureIdentifier/measureRubricReport
+// @desc Generates Measure Report
+// @access private
 router.get(
   "/:measureIdentifier/measureRubricReport",
   passport.authenticate("jwt", { session: false }),
@@ -1609,4 +1612,61 @@ router.get(
   }
 );
 
+// @route POST api/cycles/:measureIdentifier/measureTestReport
+// @desc Generates Measure Report for Test tool
+// @access private
+router.get(
+  "/:measureIdentifier/measureTestReport",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
+    let errors = {};
+    let report = [];
+
+    let sql =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID = " +
+      db.escape(measureID);
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        errors.measureNotFound = "Measure Not Found";
+        return res.status(404).json(errors);
+      }
+      let threshold = result[0].projectedResult;
+      let sql1 =
+        "SELECT * FROM TEST_SCORE WHERE measureID=" + db.escape(measureID);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        let totalStudents = result.length;
+        let passingCounts = 0;
+        result.forEach(row => {
+          result = {
+            studentName: row.testStudentName,
+            studentEmail: row.testStudentEmail,
+            CWID: row.testStudentCWID,
+            score: row.testScore,
+            passing: row.testScore >= threshold ? true : false
+          };
+          report.push(result);
+          if (row.testScore >= threshold) {
+            passingCounts++;
+          }
+        });
+        let passingPercentage = 0;
+        if (totalStudents !== 0 && passingCounts !== 0) {
+          passingPercentage = Number(
+            Math.round((passingCounts / totalStudents) * 100 + "e2") + "e-2"
+          );
+        }
+        res
+          .status(200)
+          .json({ report, totalStudents, passingCounts, passingPercentage });
+      });
+    });
+  }
+);
 module.exports = router;
