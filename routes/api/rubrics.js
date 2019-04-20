@@ -2,6 +2,7 @@ const express = require("express");
 const passport = require("passport");
 const async = require("async");
 
+const isEmpty = require("../../validation/isEmpty");
 const db = require("../../config/dbconnection");
 const validateRubricStructureInput = require("../../validation/rubric");
 
@@ -108,13 +109,23 @@ router.post(
             let crValues = [];
             let sql8 =
               "INSERT INTO CRITERIA (toolID,criteriaDesc,criteriaWeight) VALUES ?";
-            let criteriaDescription = "";
+            let criteriaDescription = "Criteria ";
             let weightedValue = 1;
             if (weighted) {
               weightedValue = 0;
             }
             for (var i = 0; i < noOfRows; i++) {
-              crValues.push([rubricID, criteriaDescription, weightedValue]);
+              crValues.push([
+                rubricID,
+                i === 0
+                  ? i + 1 + "st " + criteriaDescription
+                  : i == 1
+                  ? i + 1 + "nd " + criteriaDescription
+                  : i == 2
+                  ? i + 1 + "rd " + criteriaDescription
+                  : i + 1 + "th " + criteriaDescription,
+                weightedValue
+              ]);
             }
 
             db.query(sql8, [crValues], (err, result) => {
@@ -368,6 +379,10 @@ router.post(
     let criteriaID = req.body.criteriaID;
     let adminID = req.user.id;
     let criteriaDesc = req.body.criteriaDesc;
+    if (isEmpty(criteriaDesc)) {
+      return res.status(404).json("Criteria Desc Cannot be Empty");
+    }
+
     let sql1 =
       "SELECT * FROM CRITERIA WHERE toolID=" +
       db.escape(rubricID) +
@@ -509,6 +524,10 @@ router.post(
     let scaleDesc = req.body.scaleDescription;
 
     let errors = {};
+    if (isEmpty(scaleDesc)) {
+      errors.EmptyScaleDescription = "Scale Description Cannot be Empty";
+      return res.status(404).json(errors);
+    }
 
     let sql1 =
       "SELECT * FROM RATING_SCALE WHERE toolID=" +
