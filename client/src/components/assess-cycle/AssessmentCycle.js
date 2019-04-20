@@ -81,7 +81,6 @@ class AssessmentCycle extends Component {
   };
 
   render() {
-
     let cyclesList = null;
     if (
       this.props.cycles.cycles !== null &&
@@ -129,15 +128,15 @@ class AssessmentCycle extends Component {
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">
-            <div className="row">
-              <div className="btn-group btn-breadcrumb">
-                <a href="#" className="btn btn-primary brdbtn">
-                  Admin
-                </a>
-                <a href="#" className="btn btn-primary brdbtn">
-                  Cycles
-                </a>
-              </div>
+          <div className="row">
+            <div className="btn-group btn-breadcrumb">
+              <a href="#" className="btn btn-primary brdbtn">
+                Admin
+              </a>
+              <a href="#" className="btn btn-primary brdbtn">
+                Cycles
+              </a>
+            </div>
           </div>
 
           <h2>

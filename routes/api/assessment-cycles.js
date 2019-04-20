@@ -673,7 +673,6 @@ router.post(
             }
             //console.log(toolID);
 
-
             // });
           }
         });
@@ -1486,15 +1485,15 @@ router.get(
         let weightedRubric = "";
         let toolName = "";
         let benchmark = "";
-        
-        if(result.length > 0){
-         toolName = result[0].toolName;
-         benchmark = result[0].projectedResult;
-        
-        if(result[0].toolType === 'rubric'){
-        weightedRubric = result[0].weighted
+
+        if (result.length > 0) {
+          toolName = result[0].toolName;
+          benchmark = result[0].projectedResult;
+
+          if (result[0].toolType === "rubric") {
+            weightedRubric = result[0].weighted;
+          }
         }
-      }
         console.log(result.length);
         result.forEach((row, index) => {
           if (!criteriaSet.has(row.criteriaDesc)) {
