@@ -103,7 +103,7 @@ import PropTypes from "prop-types";
         );
         reportBody.push(
           <tr>
-            <td colSpan="3">Number of Students</td>
+            <td colSpan="3">Number of Evaluations</td>
             {criterias.map(() => {
               return (
                 <td>{this.props.cycles.measureReport.numberOfEvaluations}</td>

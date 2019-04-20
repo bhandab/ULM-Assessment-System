@@ -10,8 +10,7 @@ import {
   addStudentsToMeasure,
   addStudentToMeasure,
   getStudentsOfMeasure,
-  assignStudentsToMeasure,
-  getMeasureReport
+  assignStudentsToMeasure
 } from "../../actions/assessmentCycleAction";
 import { getRegisteredEvaluators } from "../../actions/evaluatorAction";
 import {
@@ -21,7 +20,9 @@ import {
   Modal,
   Form,
   InputGroup,
-  ModalBody
+  ModalBody,
+  FormControl,
+  Spinner
 } from "react-bootstrap";
 import { isEmpty } from "../../utils/isEmpty";
 
@@ -30,12 +31,13 @@ class MeasureDetails extends Component {
     addEval: false,
     addStud: false,
     inviteEval: false,
+    testModal:false,
     email: "",
     errors: {},
     file: "",
     uploadFile: false,
     studAssign: false,
-    measureReport: false
+    uploadTest:false,
   };
 
   componentDidMount() {
@@ -52,7 +54,6 @@ class MeasureDetails extends Component {
     this.props.getMeasureDetails(cycleID, outcomeID, measureID);
     this.props.getMeasureEvaluators(measureID);
     this.props.getStudentsOfMeasure(measureID);
-    this.props.getMeasureReport(measureID);
     this.props.getRegisteredEvaluators();
   }
 
@@ -86,6 +87,38 @@ class MeasureDetails extends Component {
     this.setState({ inviteEval: false, errors: {} });
   };
 
+  uploadFileShow = () => {
+    this.setState({ uploadFile: true, addStud: false });
+  };
+
+  uploadFileHide = () => {
+    this.setState({ uploadFile: false });
+  };
+
+  assignStudShow = () => {
+    this.setState({ studAssign: true });
+  };
+
+  assignStudHide = () => {
+    this.setState({ studAssign: false });
+  };
+
+  testModalShow = () => {
+    this.setState({testModal:true})
+  }
+
+  testModalHide = () => {
+    this.setState({testModal:false})
+  }
+
+  uploadTestShow = () =>{
+    this.setState({uploadTest:true})
+  }
+
+  uploadTestHide = () => {
+    this.setState({uploadTest:false})
+  }
+
   addEvaluatorHandler = e => {
     e.preventDefault();
     this.props.addEvaluator(this.props.match.params.measureID, {
@@ -105,7 +138,7 @@ class MeasureDetails extends Component {
   };
 
   fileChangeHandler = e => {
-    this.setState({ file: e.target.files[0] });
+    this.setState({file: e.target.files[0]});
   };
 
   uploadStudentsHandler = e => {
@@ -135,7 +168,7 @@ class MeasureDetails extends Component {
 
     const config = {
       headers: {
-        "content-type": "multipart/fomr-data"
+        "content-type": "multipart/form-data"
       }
     };
     this.props.addStudentsToMeasure(
@@ -143,29 +176,6 @@ class MeasureDetails extends Component {
       formData,
       config
     );
-  };
-
-  uploadFileShow = () => {
-    this.setState({ uploadFile: true, addStud: false });
-  };
-
-  uploadFileHide = () => {
-    this.setState({ uploadFile: false });
-  };
-
-  assignStudShow = () => {
-    this.setState({ studAssign: true });
-  };
-
-  assignStudHide = () => {
-    this.setState({ studAssign: false });
-  };
-
-  measureReportShow = () => {
-    this.setState({ measureReport: true });
-  };
-  measureReportHide = () => {
-    this.setState({ measureReport: false });
   };
 
   assignStudentsHandle = e => {
@@ -188,6 +198,7 @@ class MeasureDetails extends Component {
   render() {
     console.log(this.props);
     let typeRubric = false;
+    let typeTest = false;
     let measureTitle = null;
     let evaluatorList = [];
     let studentList = [];
@@ -203,9 +214,11 @@ class MeasureDetails extends Component {
       if (this.props.cycles.measureDetails.toolType === "rubric") {
         typeRubric = true;
       }
-
+      else if(this.props.cycles.measureDetails.toolType === "test"){
+        typeTest = true;
+      }
+      measureTitle = this.props.cycles.measureDetails.measureDescription;
       if (typeRubric) {
-        measureTitle = this.props.cycles.measureDetails.measureDescription;
         if (
           this.props.cycles.measureEvaluators !== null &&
           this.props.cycles.measureEvaluators !== undefined
@@ -257,119 +270,7 @@ class MeasureDetails extends Component {
           );
         }
 
-        if (
-          this.props.cycles.measureReport !== null &&
-          this.props.cycles.measureReport !== undefined &&
-          isEmpty(this.props.cycles.measureReport) === false
-        ) {
-          const passPoint = this.props.cycles.measureDetails.projectedResult;
-          const criteriaDesc = this.props.cycles.measureReport.criteriaInfo;
-          const criterias = [];
-          let colour = "";
-          const rubricCriterias = () => {
-            return criteriaDesc.map((criteria, index) => {
-              criterias.push(criteria.criteriaDescription);
-              return (
-                <th key={"criteria" + index}>{criteria.criteriaDescription}</th>
-              );
-            });
-          };
-
-          const criteriaScores = details => {
-            return criterias.map(criteria => {
-              if (details[criteria] < passPoint) {
-                colour = "text-danger";
-              } else {
-                colour = "text-success";
-              }
-              return <td className={colour}>{details[criteria]}</td>;
-            });
-          };
-
-          const criteriaAvg = details => {
-            return criterias.map(criteria => {
-              return <td>{details[criteria]}</td>;
-            });
-          };
-
-          measureReport.push(
-            <thead>
-              <tr>
-                <th>Class</th>
-                <th>Student</th>
-                <th>Evaluator</th>
-                {rubricCriterias()}
-                <th>Overall Score</th>
-                <th>Average Score</th>
-              </tr>
-            </thead>
-          );
-
-          const reportBody = [];
-
-          reportBody.push(
-            this.props.cycles.measureReport.results.map(student => {
-              return (
-                <tr>
-                  <td>{student.class}</td>
-                  <td>{student.studentName}</td>
-                  <td>{student.evalName}</td>
-                  {criteriaScores(student)}
-                  <td>{student.rubricScore}</td>
-                  <td>{student.averageScore}</td>
-                </tr>
-              );
-            })
-          );
-          const avgDetails = this.props.cycles.measureReport.classAverage;
-          reportBody.push(
-            <tr>
-              <td colSpan="3">Class avg.</td>
-              {criteriaAvg(avgDetails)}
-              <td>{avgDetails.averageScore}</td>
-              <td>{avgDetails.rubricScore}</td>
-            </tr>
-          );
-          const passingCounts = this.props.cycles.measureReport.passingCounts;
-          reportBody.push(
-            <tr>
-              <td colSpan="3">Number >= {passPoint}</td>
-              {criteriaAvg(passingCounts)}
-              <td>{passingCounts.rubricScore}</td>
-              <td>{passingCounts.averageScore}</td>
-            </tr>
-          );
-          reportBody.push(
-            <tr>
-              <td colSpan="3">Number of Students</td>
-              {criterias.map(() => {
-                return (
-                  <td>{this.props.cycles.measureReport.numberOfEvaluations}</td>
-                );
-              })}
-              <td>{this.props.cycles.measureReport.numberOfEvaluations}</td>
-              <td>{this.props.cycles.measureReport.numberOfUniqueStudents}</td>
-            </tr>
-          );
-          const passingPercentages = this.props.cycles.measureReport
-            .passingPercentages;
-          reportBody.push(
-            <tr>
-              <td colSpan="3">% >= {passPoint}</td>
-              {criteriaAvg(passingPercentages)}
-              <td>{passingPercentages.rubricScore}</td>
-              <td>{passingPercentages.averageScore}</td>
-            </tr>
-          );
-
-          measureReport.push(<tbody>{reportBody}</tbody>);
-
-          measureReport = (
-            <table className="table table-striped">{measureReport}</table>
-          );
-        }
-
-        if (
+      if (
           this.props.evaluator.evaluators !== null &&
           this.props.evaluator.evaluators !== undefined
         ) {
@@ -379,6 +280,10 @@ class MeasureDetails extends Component {
             }
           );
         }
+      }
+
+      if(typeTest){
+
       }
     }
 
@@ -473,6 +378,66 @@ class MeasureDetails extends Component {
                 </Link>
               </Fragment>
             ) : null}
+
+            {typeTest ?
+            <Fragment>
+
+              <Button className="float-right"
+              onClick={this.testModalShow}>
+              <i class="fas fa-users"></i>
+              </Button>
+              <Button className="float-right"
+              onClick={this.uploadTestShow}>
+              <i class="fas fa-file-csv"></i>
+              </Button>
+
+              <Modal show={this.state.testModal} onHide={this.testModalHide} centered>
+            <Modal.Header><h3>Students</h3></Modal.Header>
+               <Modal.Body className="pt-2 pb-1">
+                   <Form>
+                     <InputGroup className="row">
+                        <InputGroup.Prepend className="col-4">
+                                <InputGroup.Text id="basic-addon10" >Student Name</InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <FormControl placeholder='John Doe'/>
+                     </InputGroup>
+                     <InputGroup className="row mt-1">
+                        <InputGroup.Prepend className="col-4">
+                                <InputGroup.Text id="basic-addon11">Email (@)</InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <FormControl type="email"placeholder='example@example.com'/>
+                     </InputGroup>
+                     <InputGroup className="row mt-1">
+                        <InputGroup.Prepend className="col-4">
+                                <InputGroup.Text id="basic-addon12">CWID</InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <FormControl placeholder='12345678'/>
+                     </InputGroup>
+                     <InputGroup className="row mt-1">
+                        <InputGroup.Prepend className="col-4">
+                                <InputGroup.Text id="basic-addon13">Score</InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <FormControl placeholder='85'/>
+                     </InputGroup>
+                    
+                     <Button type="submit" className="mt-3 mr-3 float-right">Submit</Button>
+                   </Form>
+                    <Form.Control className="mb-6 pt-0" accept=".csv" type="file" />
+                  </Modal.Body>
+            </Modal>
+
+            <Modal>
+              <Modal.Header>
+                <h3>Upload Test Scores</h3>
+                <Modal.Body>
+                  <Form>
+                    <Form.Control type="file"/>
+                  </Form>
+                </Modal.Body>
+              </Modal.Header>
+            </Modal>
+            </Fragment>
+            : null}
           </Jumbotron>
         </section>
 
@@ -613,9 +578,6 @@ class MeasureDetails extends Component {
                   Do you want to invite <strong>{this.state.email}</strong> for
                   registration?
                 </Form.Label>
-                {/*<Form.Text className="text-muted text-danger">
-                                        {this.state.errors.evaluatorEmail}
-                                    </Form.Text>*/}
               </Form.Group>
               <Button
                 variant="danger"
@@ -670,22 +632,6 @@ class MeasureDetails extends Component {
           </ModalBody>
         </Modal>
 
-        <Modal
-          show={this.state.measureReport}
-          onHide={this.measureReportHide}
-          id="measureReportModal"
-          dialogClassName="modal-90"
-          size="lg"
-          style={{height:"100%"}}
-        >
-          <Modal.Title>
-            Measure Summary
-          </Modal.Title>
-          <Modal.Body>{measureReport}</Modal.Body>
-          <Modal.Footer>
-          <Button onClick={this.measureReportHide}>Close</Button>
-          </Modal.Footer>
-        </Modal>
 
     
       </Fragment>
@@ -728,7 +674,6 @@ export default connect(
     addStudentToMeasure,
     getStudentsOfMeasure,
     assignStudentsToMeasure,
-    getMeasureReport,
     getRegisteredEvaluators
   }
 )(MeasureDetails);
