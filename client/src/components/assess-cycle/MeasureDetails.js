@@ -69,7 +69,7 @@ class MeasureDetails extends Component {
     if(!this.props.cycles.cycleLoading){
       if(this.props.cycles.measureDetails !== prevProps.cycles.measureDetails){
         if(this.props.cycles.measureDetails.toolType === 'rubric' ){
-          this.props.getMeasureReport(measureID);
+          this.props.getMeasureRubricReport(measureID);
         }
         if(this.props.cycles.measureDetails.toolType === 'test' ){
           this.props.getMeasureTestReport(measureID);
@@ -282,7 +282,7 @@ class MeasureDetails extends Component {
         typeTest = true;
       }
       measureTitle = this.props.cycles.measureDetails.measureDescription;
-      if (typeRubric) {
+      if (true) {
         if (
           this.props.cycles.measureEvaluators !== null &&
           this.props.cycles.measureEvaluators !== undefined
@@ -426,14 +426,26 @@ class MeasureDetails extends Component {
 
           <Jumbotron>
             <p id="measure-title-label">Measure Title</p>
-            <h4 id="measure-title">{measureTitle} {typeTest? <button 
-            className="float-right" onClick={this.testReportShow}
-            >
+            <h4 id="measure-title">{measureTitle} 
+            {typeTest? 
+            <button 
+            className="float-right" onClick={this.testReportShow}>
               <i className="fas fa-file-invoice" size="lg"></i>
-            </button>: null}</h4>
-            <hr />
+            </button>: null}
+            {typeRubric ? 
+              <Link to={"/admin/measure/"+this.props.match.params.measureID+"/report"}>
+              <button
+                className="float-right"
+                onClick={this.measureReportShow}
+              >
+              <i className="fas fa-file-invoice" size="lg"></i>
+              </button>
+              </Link>
+              : null}
+            </h4>
+            <hr/>
 
-            {typeRubric ? (
+            
               <Fragment>
                 <Card
                   style={{ width: "30rem", height: "20rem", float: "left" }}
@@ -468,17 +480,8 @@ class MeasureDetails extends Component {
                 <Button className="mt-2" onClick={this.assignStudShow}>
                   Assign Students
                 </Button>
-                <Link to={"/admin/measure/"+this.props.match.params.measureID+"/report"}>
-                <Button
-                  className="mt-2 float-right"
-                  onClick={this.measureReportShow}
-                >
-                  View Report
-                </Button>
-                </Link>
-              </Fragment>
-            ) : null}
-
+                </Fragment>
+            
             {typeTest ?
             <Fragment>
 

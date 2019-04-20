@@ -30,13 +30,12 @@ import PropTypes from "prop-types";
         const rubricCriterias = () => {
           return criteriaDesc.map((criteria, index) => {
             criterias.push(criteria.criteriaDescription);
-            if(weighted){
             return (
-              <th key={"criteria" + index}>{criteria.criteriaDescription} ({criteria.criteriaWeight}%)</th>
-            );}
+              <th key={"criteria" + index}>{criteria.criteriaDescription}  {weighted ?  `(${criteria.criteriaWeight}%)` :null } </th>
+            );
           });
         };
-
+        console.log(criterias)
         const criteriaScores = details => {
           return criterias.map(criteria => {
             if (details[criteria] < passPoint) {
