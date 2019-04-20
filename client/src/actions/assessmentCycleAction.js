@@ -312,6 +312,18 @@ export const getMeasureReport = (measureID) => dispatch => {
 
 }
 
+export const uploadTestScores = (measureID,formData, config) => dispatch => {
+    axios
+    .post("/api/cycles/"+measureID+"/uploadTestScores",formData,config)
+    .catch(err => {
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+
+        })
+    })
+}
+
 export const setLoading = () => {
     return {
         type: CYCLE_LOADING

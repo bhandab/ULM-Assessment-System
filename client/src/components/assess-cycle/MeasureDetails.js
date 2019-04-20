@@ -10,7 +10,9 @@ import {
   addStudentsToMeasure,
   addStudentToMeasure,
   getStudentsOfMeasure,
-  assignStudentsToMeasure
+  assignStudentsToMeasure,
+  uploadTestScores,
+  getMeasureReport
 } from "../../actions/assessmentCycleAction";
 import { getRegisteredEvaluators } from "../../actions/evaluatorAction";
 import {
@@ -22,7 +24,7 @@ import {
   InputGroup,
   ModalBody,
   FormControl,
-  Spinner
+  ButtonGroup
 } from "react-bootstrap";
 import { isEmpty } from "../../utils/isEmpty";
 
@@ -55,6 +57,7 @@ class MeasureDetails extends Component {
     this.props.getMeasureEvaluators(measureID);
     this.props.getStudentsOfMeasure(measureID);
     this.props.getRegisteredEvaluators();
+    this.props.getMeasureReport(measureID);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -138,6 +141,7 @@ class MeasureDetails extends Component {
   };
 
   fileChangeHandler = e => {
+    console.log("file changed")
     this.setState({file: e.target.files[0]});
   };
 
@@ -172,6 +176,29 @@ class MeasureDetails extends Component {
       }
     };
     this.props.addStudentsToMeasure(
+      this.props.match.params.measureID,
+      formData,
+      config
+    );
+  };
+
+  uplaodTestScoresHandler = (e) => {
+    e.preventDefault()
+    this.testScoresUpload(this.state.file);
+    this.setState({ uploadTest: false });
+
+  }
+
+  testScoresUpload = file => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const config = {
+      headers: {
+        "content-type": "multipart/form-data"
+      }
+    };
+    this.props.uploadTestScores(
       this.props.match.params.measureID,
       formData,
       config
@@ -339,7 +366,7 @@ class MeasureDetails extends Component {
                   style={{ width: "30rem", height: "20rem", float: "left" }}
                 >
                   <Card.Body>
-                    <Card.Title>Evaluators</Card.Title>
+                    <Card.Header>Evaluators</Card.Header>
                     <ol className="list-group measureCard">{evaluatorList}</ol>
                     <Button
                       variant="primary"
@@ -353,7 +380,7 @@ class MeasureDetails extends Component {
 
                 <Card style={{ width: "30rem", height: "20rem" }}>
                   <Card.Body>
-                    <Card.Title>Students</Card.Title>
+                    <Card.Header>Students</Card.Header>
                     <ol className="list-group measureCard">{studentList}</ol>
                     <Button
                       variant="primary"
@@ -382,14 +409,19 @@ class MeasureDetails extends Component {
             {typeTest ?
             <Fragment>
 
-              <Button className="float-right"
+                <ButtonGroup aria-label="Basic example" className="float-right">
+                <Button size="lg"
               onClick={this.testModalShow}>
-              <i class="fas fa-users"></i>
+              <i className="fas fa-users"></i>
               </Button>
-              <Button className="float-right"
+              <Button  size="lg"
               onClick={this.uploadTestShow}>
-              <i class="fas fa-file-csv"></i>
+              <i className="fas fa-file-csv"></i>
               </Button>
+            </ButtonGroup>
+
+              
+             
 
               <Modal show={this.state.testModal} onHide={this.testModalHide} centered>
             <Modal.Header><h3>Students</h3></Modal.Header>
@@ -420,21 +452,21 @@ class MeasureDetails extends Component {
                         <FormControl placeholder='85'/>
                      </InputGroup>
                     
-                     <Button type="submit" className="mt-3 mr-3 float-right">Submit</Button>
+                     <Button type="submit" className="mt-3 mr-3 mb-3 float-right">Submit</Button>
                    </Form>
-                    <Form.Control className="mb-6 pt-0" accept=".csv" type="file" />
                   </Modal.Body>
             </Modal>
 
-            <Modal>
-              <Modal.Header>
+            <Modal show={this.state.uploadTest} onHide={this.uploadTestHide} centered >
+              <Modal.Header closeButton>
                 <h3>Upload Test Scores</h3>
+                </Modal.Header>
                 <Modal.Body>
-                  <Form>
-                    <Form.Control type="file"/>
+                  <Form onSubmit={this.uplaodTestScoresHandler.bind(this)}>
+                    <Form.Control type="file" onChange={this.fileChangeHandler.bind(this)}/>
+                    <Button className="mt-3 float-right" type="submit">Upload</Button>
                   </Form>
                 </Modal.Body>
-              </Modal.Header>
             </Modal>
             </Fragment>
             : null}
@@ -442,7 +474,7 @@ class MeasureDetails extends Component {
         </section>
 
         <Modal centered show={this.state.addStud} onHide={this.addStudHide}>
-          <Modal.Title className="ml-3">Add Student to Measure</Modal.Title>
+          <Modal.Header className="ml-3" closeButton>Add Student to Measure</Modal.Header>
           <Modal.Body>
             <Form onSubmit={this.addStudentsHandler.bind(this)}>
               <InputGroup>
@@ -650,7 +682,8 @@ MeasureDetails.propTypes = {
   addStudentToMeasure: PropTypes.func.isRequired,
   assignStudentsToMeasure: PropTypes.func.isRequired,
   getMeasureReport: PropTypes.func.isRequired,
-  getRegisteredEvaluators: PropTypes.func.isRequired
+  getRegisteredEvaluators: PropTypes.func.isRequired,
+  uploadTestScores: PropTypes.func.isRequired
 };
 
 const MapStateToProps = state => ({
@@ -674,6 +707,8 @@ export default connect(
     addStudentToMeasure,
     getStudentsOfMeasure,
     assignStudentsToMeasure,
-    getRegisteredEvaluators
+    getRegisteredEvaluators,
+    uploadTestScores,
+    getMeasureReport
   }
 )(MeasureDetails);
