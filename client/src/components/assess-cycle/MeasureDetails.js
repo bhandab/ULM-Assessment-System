@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 import { inviteEvaluator } from "../../actions/evaluatorAction";
 import {
   getMeasureDetails,
@@ -15,6 +16,7 @@ import {
   getMeasureTestReport,
   addStudentScore
 } from "../../actions/assessmentCycleAction";
+import { getRegisteredEvaluators } from "../../actions/evaluatorAction";
 import {
   Jumbotron,
   Card,
@@ -27,13 +29,14 @@ import {
   ButtonGroup,
   Table
 } from "react-bootstrap";
-//import { isEmpty } from "../../utils/isEmpty";
+import { isEmpty } from "../../utils/isEmpty";
 
 class MeasureDetails extends Component {
   state = {
     addEval: false,
     addStud: false,
     inviteEval: false,
+    testModal: false,
     email: "",
     errors: {},
     file: "",
@@ -172,7 +175,6 @@ class MeasureDetails extends Component {
 
   uploadStudentsHandler = e => {
     e.preventDefault();
-    console.log(e.target);
     this.fileUpload(this.state.file);
     this.setState({ uploadFile: false });
   };
@@ -188,7 +190,6 @@ class MeasureDetails extends Component {
       email,
       CWID
     };
-    console.log(body);
     this.props.addStudentToMeasure(this.props.match.params.measureID, body);
     this.setState({ addStudHide: false });
   };
@@ -199,16 +200,14 @@ class MeasureDetails extends Component {
 
     const config = {
       headers: {
-        "content-type": "multipart/fomr-data"
+        "content-type": "multipart/form-data"
       }
     };
-    console.log(formData);
     this.props.addStudentsToMeasure(
       this.props.match.params.measureID,
       formData,
       config
     );
-    //Upload file action here
   };
 
   uplaodTestScoresHandler = e => {
@@ -246,14 +245,11 @@ class MeasureDetails extends Component {
 
   assignStudentsHandle = e => {
     e.preventDefault();
-    let students = document.getElementsByName("studentCheck");
     let studentIDs = [];
     let evalID = e.target.evaluator.value;
-    // console.log(evaluator)
-    for (let i = 0; i < students.length; i++) {
-      if (students[i].checked) {
-        studentIDs.push(students[i].value);
-      }
+    let optionList = e.target.assignedStudents.selectedOptions;
+    for (let student of optionList) {
+      studentIDs.push(student.value);
     }
     let rubricID = this.props.cycles.measureDetails.toolID;
     const body = {
@@ -261,7 +257,6 @@ class MeasureDetails extends Component {
       rubricID,
       evalID
     };
-    console.log(body);
     this.props.assignStudentsToMeasure(this.props.match.params.measureID, body);
   };
 
@@ -314,6 +309,7 @@ class MeasureDetails extends Component {
             }
           );
         }
+
         if (
           this.props.cycles.measureStudents !== null &&
           this.props.cycles.measureStudents !== undefined
@@ -321,16 +317,9 @@ class MeasureDetails extends Component {
           studentList = this.props.cycles.measureStudents.students.map(
             student => {
               studentSelect.push(
-                <div key={student.studentID}>
-                  <input
-                    type="checkbox"
-                    value={student.studentID}
-                    name="studentCheck"
-                  />
-                  <label className="ml-2">
-                    <h5>{student.name}</h5>
-                  </label>
-                </div>
+                <option key={student.studentID} value={student.studentID}>
+                  {student.name}
+                </option>
               );
               return (
                 <li key={student.studentID} className="list-group-item">
@@ -346,46 +335,14 @@ class MeasureDetails extends Component {
         }
 
         if (
-          this.props.cycles.measureReport !== null &&
-          this.props.cycles.measureReport !== undefined
+          this.props.evaluator.evaluators !== null &&
+          this.props.evaluator.evaluators !== undefined
         ) {
-          let length = this.props.cycles.measureReport.length;
-          const report = this.props.cycles.measureReport;
-          measureReport.push(
-            <tr>
-              <th>Class</th>
-              <th>StudentName</th>
-              <th>Criteria</th>
-              <th>Evaluator</th>
-              <th>Criteria Score</th>
-            </tr>
+          evaluatorOptions = this.props.evaluator.evaluators.evaluators.map(
+            (evaluator, index) => {
+              return <option key={"eval" + index} value={evaluator.email} />;
+            }
           );
-          for (let i = 0; i < length; i++) {
-            //     for(let j = 0; j < length; j++){
-            //    measureReport.push( <tr>
-            //         { i===1 ?
-            //         <th>Class</th>
-            //             : <td>{report[j].class}</td>}
-            //         {i === 1 ?
-            //         <th>Student</th>
-            //             : <td>{report[j].studentName}</td>}
-            //         {i === 1 ?
-            //         <th>Evaluator</th>
-            //         : <td>{report[j].evaluator}</td> }
-            //         <th>{report[j].criteriaName}</th>
-            //     </tr>
-            //    )
-            //     }
-            measureReport.push(
-              <tr>
-                <td>{report[i].class}</td>
-                <td>{report[i].studentName}</td>
-                <td>{report[i].criteriaName}</td>
-                <td>{report[i].evaluator}</td>
-                <td>{report[i].criteriaScore}</td>
-              </tr>
-            );
-          }
         }
       }
 
@@ -455,7 +412,7 @@ class MeasureDetails extends Component {
     return (
       <Fragment>
         <section className="panel important">
-          <div className="container">
+          <div>
             <div className="row">
               <div className="btn-group btn-breadcrumb">
                 <li href="#" className="btn btn-primary brdbtn">
@@ -740,6 +697,7 @@ class MeasureDetails extends Component {
           </Modal.Body>
         </Modal>
 
+        {/** Add Evaluator Modal */}
         <Modal show={this.state.addEval} onHide={this.addEvalHide} centered>
           <Modal.Title className="ml-3 mt-2">Add Evaluator</Modal.Title>
           <Modal.Body>
@@ -750,7 +708,9 @@ class MeasureDetails extends Component {
                   type="email"
                   name="evalEmail"
                   placeholder="Enter email"
+                  list="evaluatorList"
                 />
+                <datalist id="evaluatorList">{evaluatorOptions}</datalist>
               </Form.Group>
               <Button
                 variant="danger"
@@ -786,9 +746,6 @@ class MeasureDetails extends Component {
                   Do you want to invite <strong>{this.state.email}</strong> for
                   registration?
                 </Form.Label>
-                {/*<Form.Text className="text-muted text-danger">
-                                        {this.state.errors.evaluatorEmail}
-                                    </Form.Text>*/}
               </Form.Group>
               <Button
                 variant="danger"
@@ -807,7 +764,6 @@ class MeasureDetails extends Component {
             </Form>
           </Modal.Body>
         </Modal>
-
         <Modal
           show={this.state.studAssign}
           onHide={this.assignStudHide}
@@ -831,31 +787,20 @@ class MeasureDetails extends Component {
               </div>
               <div className="d-inline-block border  p-3">
                 <h3>Student List</h3>
-                {studentSelect}
+                <select name="assignedStudents" multiple>
+                  {studentSelect}
+                </select>
               </div>
-
               <Button type="submit" className="mt-3 d-block">
                 Submit{" "}
               </Button>
             </Form>
           </ModalBody>
         </Modal>
-
-        <Modal
-          show={this.state.measureReport}
-          onHide={this.measureReportHide}
-          centered
-          size="lg"
-        >
-          <Modal.Title>Measure Summary</Modal.Title>
-          <Modal.Body>{measureReport}</Modal.Body>
-          <Button onClick={this.measureReportHide}>Close</Button>
-        </Modal>
       </Fragment>
     );
   }
 }
-
 MeasureDetails.propTypes = {
   auth: PropTypes.object.isRequired,
   getMeasureDetails: PropTypes.func.isRequired,
@@ -872,7 +817,6 @@ MeasureDetails.propTypes = {
   getMeasureTestReport: PropTypes.func.isRequired,
   addStudentScore: PropTypes.func.isRequired
 };
-
 const MapStateToProps = state => ({
   auth: state.auth,
   cycles: state.cycles,
@@ -880,7 +824,8 @@ const MapStateToProps = state => ({
   measureEvaluators: state.measureEvaluators,
   errors: state.errors,
   measureStudents: state.measureStudents,
-  assignStudents: state.assugnedStudents
+  assignStudents: state.assugnedStudents,
+  evaluator: state.evaluator
 });
 export default connect(
   MapStateToProps,
