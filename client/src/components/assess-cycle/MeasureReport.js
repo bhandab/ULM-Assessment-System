@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {connect} from 'react-redux'
-import { getMeasureReport } from "../../actions/assessmentCycleAction" 
+import { getMeasureRubricReport } from "../../actions/assessmentCycleAction" 
 import {isEmpty} from '../../utils/isEmpty'
 import PropTypes from "prop-types";
 
@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
  class MeasureReport extends Component {
 
     componentDidMount(){
-        this.props.getMeasureReport(this.props.match.params.measureID)
+        this.props.getMeasureRubricReport(this.props.match.params.measureID)
     }
      
   render() {
@@ -143,4 +143,4 @@ const MapStateToProps = state => ({
 
 });
 
-export default connect (MapStateToProps,{getMeasureReport})(MeasureReport)
+export default connect (MapStateToProps,{getMeasureRubricReport})(MeasureReport)

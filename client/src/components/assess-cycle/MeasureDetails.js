@@ -12,7 +12,9 @@ import {
   getStudentsOfMeasure,
   assignStudentsToMeasure,
   uploadTestScores,
-  getMeasureReport
+  getMeasureRubricReport,
+  getMeasureTestReport,
+  addStudentScore
 } from "../../actions/assessmentCycleAction";
 import { getRegisteredEvaluators } from "../../actions/evaluatorAction";
 import {
@@ -24,7 +26,8 @@ import {
   InputGroup,
   ModalBody,
   FormControl,
-  ButtonGroup
+  ButtonGroup,
+  Table
 } from "react-bootstrap";
 import { isEmpty } from "../../utils/isEmpty";
 
@@ -40,6 +43,7 @@ class MeasureDetails extends Component {
     uploadFile: false,
     studAssign: false,
     uploadTest:false,
+    testReport:false
   };
 
   componentDidMount() {
@@ -57,7 +61,21 @@ class MeasureDetails extends Component {
     this.props.getMeasureEvaluators(measureID);
     this.props.getStudentsOfMeasure(measureID);
     this.props.getRegisteredEvaluators();
-    this.props.getMeasureReport(measureID);
+  }
+
+  componentDidUpdate(prevProps){
+    const measureID = this.props.match.params.measureID;
+
+    if(!this.props.cycles.cycleLoading){
+      if(this.props.cycles.measureDetails !== prevProps.cycles.measureDetails){
+        if(this.props.cycles.measureDetails.toolType === 'rubric' ){
+          this.props.getMeasureReport(measureID);
+        }
+        if(this.props.cycles.measureDetails.toolType === 'test' ){
+          this.props.getMeasureTestReport(measureID);
+        }
+      }
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -120,6 +138,14 @@ class MeasureDetails extends Component {
 
   uploadTestHide = () => {
     this.setState({uploadTest:false})
+  }
+
+  testReportShow = () => {
+    this.setState({testReport:true})
+  }
+
+  testReportHide = () => {
+    this.setState({testReport:false})
   }
 
   addEvaluatorHandler = e => {
@@ -204,6 +230,17 @@ class MeasureDetails extends Component {
       config
     );
   };
+
+  scoreSingleStudent = e => {
+    e.preventDefault()
+    const email= e.target.email.value
+    const name = e.target.name.value
+    const score = e.target.score.value
+    const CWID = e.target.CWID.value
+
+    const body = {name,email,CWID,score}
+    this.props.addStudentScore(this.props.match.params.measureID,body)
+  }
 
   assignStudentsHandle = e => {
     e.preventDefault();
@@ -310,7 +347,39 @@ class MeasureDetails extends Component {
       }
 
       if(typeTest){
-
+            if(this.props.cycles.measureReport !== null &&
+              this.props.cycles.measureReport !== undefined){
+                let header = (
+                  <thead key = {"testHeader"}>
+                    <tr>
+                      <th>#</th>
+                      <th>Student</th>
+                      <th>Email</th>
+                      <th>Score</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                )
+                measureReport.push(header)
+                let body = this.props.cycles.measureReport.report.map((student,index) => {
+                  let colour = "text-danger"
+                  if(student.passing){
+                    colour = "text-success"
+                  }
+                  return (
+                      <tr key={student.CWID}>
+                        <td>{index+1}</td>
+                        <td>{student.studentName}</td>
+                        <td>{student.studentEmail}</td>
+                        <td className={colour}>{student.score}</td>
+                        {student.passing ? <td className="text-success">Pass</td> : 
+                        <td className="text-danger">Fail</td>}
+                      </tr>
+                  )
+                })
+                measureReport.push(<tbody key = "testBody">{body}</tbody>)
+                measureReport = (<Table striped bordered hover>{measureReport}</Table>)
+              }
       }
     }
 
@@ -336,28 +405,32 @@ class MeasureDetails extends Component {
           <div>
             <div className="row">
               <div className="btn-group btn-breadcrumb">
-                <a href="#" className="btn btn-primary brdbtn">
+                <li href="#" className="btn btn-primary brdbtn">
                   Admin
-                </a>
-                <a href="#" className="btn btn-primary brdbtn ">
+                </li>
+                <li href="#" className="btn btn-primary brdbtn ">
                   Cycles
-                </a>
-                <a href="#" className="btn btn-primary brdbtn">
+                </li>
+                <li href="#" className="btn btn-primary brdbtn">
                   Outcomes
-                </a>
-                <a href="#" className="btn btn-primary brdbtn">
+                </li>
+                <li href="#" className="btn btn-primary brdbtn">
                   Measures
-                </a>
-                <a href="#" className="btn btn-primary brdbtn">
+                </li>
+                <li className="btn btn-primary brdbtn">
                   Measure Detail
-                </a>
+                </li>
               </div>
             </div>
           </div>
 
           <Jumbotron>
             <p id="measure-title-label">Measure Title</p>
-            <h4 id="measure-title">{measureTitle}</h4>
+            <h4 id="measure-title">{measureTitle} {typeTest? <button 
+            className="float-right" onClick={this.testReportShow}
+            >
+              <i className="fas fa-file-invoice" size="lg"></i>
+            </button>: null}</h4>
             <hr />
 
             {typeRubric ? (
@@ -424,32 +497,32 @@ class MeasureDetails extends Component {
              
 
               <Modal show={this.state.testModal} onHide={this.testModalHide} centered>
-            <Modal.Header><h3>Students</h3></Modal.Header>
+            <Modal.Header closeButton><h3>Students</h3></Modal.Header>
                <Modal.Body className="pt-2 pb-1">
-                   <Form>
+                   <Form onSubmit={this.scoreSingleStudent.bind(this)}>
                      <InputGroup className="row">
                         <InputGroup.Prepend className="col-4">
                                 <InputGroup.Text id="basic-addon10" >Student Name</InputGroup.Text>
                         </InputGroup.Prepend>
-                        <FormControl placeholder='John Doe'/>
+                        <FormControl placeholder='John Doe' name="name"/>
                      </InputGroup>
                      <InputGroup className="row mt-1">
                         <InputGroup.Prepend className="col-4">
                                 <InputGroup.Text id="basic-addon11">Email (@)</InputGroup.Text>
                         </InputGroup.Prepend>
-                        <FormControl type="email"placeholder='example@example.com'/>
+                        <FormControl type="email"placeholder='example@example.com' name="email"/>
                      </InputGroup>
                      <InputGroup className="row mt-1">
                         <InputGroup.Prepend className="col-4">
                                 <InputGroup.Text id="basic-addon12">CWID</InputGroup.Text>
                         </InputGroup.Prepend>
-                        <FormControl placeholder='12345678'/>
+                        <FormControl placeholder='12345678' name="CWID"/>
                      </InputGroup>
                      <InputGroup className="row mt-1">
                         <InputGroup.Prepend className="col-4">
                                 <InputGroup.Text id="basic-addon13">Score</InputGroup.Text>
                         </InputGroup.Prepend>
-                        <FormControl placeholder='85'/>
+                        <FormControl placeholder='85' name="score"/>
                      </InputGroup>
                     
                      <Button type="submit" className="mt-3 mr-3 mb-3 float-right">Submit</Button>
@@ -467,6 +540,12 @@ class MeasureDetails extends Component {
                     <Button className="mt-3 float-right" type="submit">Upload</Button>
                   </Form>
                 </Modal.Body>
+            </Modal>
+
+            <Modal show={this.state.testReport} onHide={this.testReportHide} centered size="lg">
+              <Modal.Header closeButton><h3>Test Summary</h3></Modal.Header>
+              <Modal.Body>{measureReport}</Modal.Body>
+              <Modal.Footer><button className="btn btn-danger" onClick={this.testReportHide}>Close</button></Modal.Footer>
             </Modal>
             </Fragment>
             : null}
@@ -681,9 +760,11 @@ MeasureDetails.propTypes = {
   getStudentsOfMeasure: PropTypes.func.isRequired,
   addStudentToMeasure: PropTypes.func.isRequired,
   assignStudentsToMeasure: PropTypes.func.isRequired,
-  getMeasureReport: PropTypes.func.isRequired,
+  getMeasureRubricReport: PropTypes.func.isRequired,
   getRegisteredEvaluators: PropTypes.func.isRequired,
-  uploadTestScores: PropTypes.func.isRequired
+  uploadTestScores: PropTypes.func.isRequired,
+  getMeasureTestReport: PropTypes.func.isRequired,
+  addStudentScore: PropTypes.func.isRequired
 };
 
 const MapStateToProps = state => ({
@@ -709,6 +790,8 @@ export default connect(
     assignStudentsToMeasure,
     getRegisteredEvaluators,
     uploadTestScores,
-    getMeasureReport
+    getMeasureRubricReport,
+    getMeasureTestReport,
+    addStudentScore
   }
 )(MeasureDetails);

@@ -292,7 +292,7 @@ export const assignStudentsToMeasure = (measureID, body) => dispatch => {
         }*/)
 }
 
-export const getMeasureReport = (measureID) => dispatch => {
+export const getMeasureRubricReport = (measureID) => dispatch => {
     console.log(measureID)
     axios
     .get("/api/cycles/"+measureID+"/measureRubricReport")
@@ -322,6 +322,38 @@ export const uploadTestScores = (measureID,formData, config) => dispatch => {
 
         })
     })
+}
+
+export const addStudentScore = (measureID,body) => dispatch => {
+    axios
+    .post("/api/cycles/"+measureID+"/addStudentScore",body)
+    .catch(err => {
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+
+        })
+    })
+}
+
+export const getMeasureTestReport = (measureID) => dispatch => {
+    console.log(measureID)
+    axios
+    .get("/api/cycles/"+measureID+"/measureTestReport")
+        .then(res =>
+            dispatch({
+                type: GET_MEASURE_REPORT,
+                payload: res.data
+            })
+        )
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            })
+        })
+
 }
 
 export const setLoading = () => {
