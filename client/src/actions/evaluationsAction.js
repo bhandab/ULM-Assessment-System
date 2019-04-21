@@ -2,7 +2,6 @@ import axios from 'axios'
 import { EVALUATION_RUBRICS, EVALUATION_DETAILS, RUBRIC_SCORES, GET_ERRORS} from './types'
 
 export const getEvaluatorDetails = () => dispatch => {
-    console.log("Gets in details")
     axios
         .get("/api/evaluations")
         .then(res => dispatch({
@@ -31,7 +30,6 @@ export const getEvaluationRubrics = () => dispatch => {
 }
 
 export const submitRubricScores = (body) => dispatch => {
-    console.log(body)
     axios
     .post("/api/evaluations/evaluate",body)
     .then(res => dispatch({
@@ -46,15 +44,12 @@ export const submitRubricScores = (body) => dispatch => {
 }
 
 export const updateRubricScores = (body) => dispatch => {
-    
     const newBody = {
-        rubricID:body.rubricID,
+    rubricID:body.rubricID,
      measureID:body.measureID,
      studentID:body.studentID,
      measureEvalID:body.measureEvalID
     }
-
-    console.log(body)
     axios
     .post("/api/evaluations/updateScores",body)
         .catch(err => dispatch({

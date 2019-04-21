@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react'
 import { connect } from "react-redux";
 import PropTypes from 'prop-types';
-import { Route, Switch } from 'react-router-dom';
+import {Route} from 'react-router-dom';
 import EvaluatorLayout from '../layouts/EvaluatorLayout';
 import Evaluate from '../evaluator/Evaluate';
 

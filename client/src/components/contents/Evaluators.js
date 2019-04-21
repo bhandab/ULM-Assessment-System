@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Form, Card, Button, Modal, InputGroup, FormControl } from 'react-bootstrap';
+import { Form, Card, Button, Modal, InputGroup} from 'react-bootstrap';
 import { getRegisteredEvaluators, getInvitedEvaluators, inviteEvaluator} from '../../actions/evaluatorAction';
-import { parse } from 'papaparse'
 
 
 class Evaluators extends Component {
@@ -30,28 +29,11 @@ class Evaluators extends Component {
 
     inviteHandler = (e) => {
         e.preventDefault();
-
-        console.log(e.target.invEmail.value)
-        
-        //IN CASE OF A FILE INPUT
-       /* const file = e.target.myFile.files[0]
-        let invitedList = "cvcv"
-        var reader = new FileReader();
-        reader.onload = function () {
-            invitedList= reader.result;
-            console.log(parse(invitedList))
-        }
-        console.log(invitedList)
-        reader.readAsText(file);*/
-
         this.props.inviteEvaluator({ evaluatorEmail: e.target.invEmail.value})
         this.setState({invite:false})
-
-
     }
 
     render() {
-        console.log(this.props)
 
         let evaluatorsList = null
 

@@ -27,8 +27,7 @@ class Evaluate extends Component {
 
   componentDidUpdate(prevProps){
     if(this.props.rubric.singleRubric !== prevProps.rubric.singleRubric ){
-      const rubricDetails = this.props.rubric.singleRubric.rubricDetails;
-      const table = this.createRubric()
+    this.createRubric()
     }
 
     if(this.props.evaluations.rubricScores !== prevProps.evaluations.rubricScores){
@@ -45,14 +44,7 @@ class Evaluate extends Component {
       const rubricDetails = this.props.rubric.singleRubric.rubricDetails
       let tableHeader = [];
       let table = [];
-      let rubricTitle = null;
-      let averageScore = 0
-      console.log(rubricDetails);
-
-
       const weighted = rubricDetails.structureInfo.weighted;
-
-      rubricTitle = rubricDetails.structureInfo.rubricTitle;
       const cols = rubricDetails.scaleInfo.length
 
       tableHeader.push(
@@ -115,7 +107,6 @@ class Evaluate extends Component {
             </td>
           );
         }
-        const criteriaID = tableCols[0].criteriaID;
         cells.push(<td key={"score" + j + 2} className="rubricScore"></td>)
         cells = <tr key={"row" + (j + 2)}>{cells}</tr>;
         table.push(cells);
@@ -142,8 +133,6 @@ class Evaluate extends Component {
         </div>
       );
       this.setState({table:table})
-
-      return table;
   }
 
   onClickListener = e => {
@@ -176,7 +165,7 @@ class Evaluate extends Component {
       (this.props.evaluations.evaluationDetails !== undefined)
     ) {
       students = this.props.evaluations.evaluationDetails.map(
-        (student, studentIndex) => {
+        (student) => {
           if (name === student.rubricName) {
             return (
               <ListGroup.Item
@@ -243,7 +232,7 @@ scoreClick = e => {
   
   const scaleInfo = this.props.rubric.singleRubric.rubricDetails.scaleInfo.find(
     item => {
-      return item.scaleID == selectedScale;
+      return item.scaleID+"" === selectedScale+"";
     }
   );
   let score = scaleInfo.scaleValue
@@ -274,7 +263,6 @@ rubricHeaderClick = e => {
 
   render() {
     let rubrics = [];
-    console.log(this.state)
 
     if (this.props.evaluations.evaluationRubrics !== null) {
       rubrics = this.props.evaluations.evaluationRubrics.map(
@@ -315,12 +303,9 @@ rubricHeaderClick = e => {
       );
     }
 
-   
-    
-
-    const submitScores = () => {
-      console.log("Congratulations!! You clicked the button.")
-    };
+    // const submitScores = () => {
+    //   console.log("Congratulations!! You clicked the button.")
+    // };
 
     console.log(this.props);
 

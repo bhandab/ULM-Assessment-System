@@ -8,7 +8,7 @@ import {
 } from "../../actions/assessmentCycleAction";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { Spinner, Button, Modal, Form } from "react-bootstrap";
+import { Spinner, Button, Modal, Form} from "react-bootstrap";
 import Delete from "../../utils/Delete";
 
 class AssessmentCycle extends Component {
@@ -128,16 +128,16 @@ class AssessmentCycle extends Component {
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">
-          <div className="row">
+          {/* <div className="row">
             <div className="btn-group btn-breadcrumb">
-              <a href="#" className="btn btn-primary brdbtn">
+              <li  className="btn btn-primary brdbtn">
                 Admin
-              </a>
-              <a href="#" className="btn btn-primary brdbtn">
+              </li>
+              <li className="btn btn-primary brdbtn">
                 Cycles
-              </a>
+              </li>
             </div>
-          </div>
+          </div> */}
 
           <h2>
             <strong>Assessment Cycles</strong>

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import './Login.css';
 import { connect } from 'react-redux';
 import { loginUser } from '../../actions/authActions';
-import {isEmpty} from '../../utils/isEmpty';
 import PropTypes from 'prop-types';
 import {Link} from 'react-router-dom';
 
@@ -34,12 +33,12 @@ class Login extends Component {
 
     componentDidMount() {
         // If logged in and user navigates to Login page, should redirect them to dashboard
-        if (this.props.auth.isAuthenticated && this.props.auth.user==="coordinator") {
+        if (this.props.auth.isAuthenticated && this.props.auth.user.role==="coordinator") {
 
             this.props.history.push("/admin/cycles");
         }
 
-        else if (this.props.auth.isAuthenticated && this.props.auth.user === "evaluator") {
+        else if (this.props.auth.isAuthenticated && this.props.auth.user.role === "evaluator") {
             this.props.history.push("/evaluator")
         }
 
@@ -58,6 +57,9 @@ class Login extends Component {
             }
             else if (nextProps.auth.user.role === "evaluator") {
                 this.props.history.push('/evaluator/evaluate')
+            }
+            else if(nextProps.auth.user.role === "superuser"){
+                this.props.history.push("/superuser")
             }
 
         }

@@ -27,9 +27,10 @@ import {
   ModalBody,
   FormControl,
   ButtonGroup,
-  Table
+  Table,
+  ProgressBar,
+  ListGroup
 } from "react-bootstrap";
-import { isEmpty } from "../../utils/isEmpty";
 
 class MeasureDetails extends Component {
   state = {
@@ -43,7 +44,9 @@ class MeasureDetails extends Component {
     uploadFile: false,
     studAssign: false,
     uploadTest:false,
-    testReport:false
+    testReport:false,
+    toolType:"",
+    statusModal: false
   };
 
   componentDidMount() {
@@ -70,9 +73,11 @@ class MeasureDetails extends Component {
       if(this.props.cycles.measureDetails !== prevProps.cycles.measureDetails){
         if(this.props.cycles.measureDetails.toolType === 'rubric' ){
           this.props.getMeasureRubricReport(measureID);
+          this.setState({toolType:"rubric"})
         }
         if(this.props.cycles.measureDetails.toolType === 'test' ){
           this.props.getMeasureTestReport(measureID);
+          this.setState({toolType:"test"})
         }
       }
     }
@@ -146,6 +151,14 @@ class MeasureDetails extends Component {
 
   testReportHide = () => {
     this.setState({testReport:false})
+  }
+
+  statusModalShow = () => {
+    this.setState({statusModal:true})
+  }
+
+  statusModalHide = () => {
+    this.setState({statusModal:false})
   }
 
   addEvaluatorHandler = e => {
@@ -258,6 +271,9 @@ class MeasureDetails extends Component {
     this.props.assignStudentsToMeasure(this.props.match.params.measureID, body);
   };
 
+
+  
+
   render() {
     console.log(this.props);
     let typeRubric = false;
@@ -269,6 +285,9 @@ class MeasureDetails extends Component {
     let studentSelect = [];
     let measureReport = [];
     let evaluatorOptions = [];
+    let progressBar = null
+    let statusModal= null;
+    let status = null
 
     if (
       this.props.cycles.measureDetails !== null &&
@@ -313,6 +332,7 @@ class MeasureDetails extends Component {
           this.props.cycles.measureStudents !== null &&
           this.props.cycles.measureStudents !== undefined
         ) {
+          let totalStudents = this.props.cycles.measureStudents.students.length
           studentList = this.props.cycles.measureStudents.students.map(
             student => {
               studentSelect.push(
@@ -331,6 +351,87 @@ class MeasureDetails extends Component {
               );
             }
           );
+
+          if(this.state.toolType === "rubric"){
+              if(this.props.cycles.measureReport !== null &&
+                this.props.cycles.measureReport !== undefined){
+                  
+                  let passScore = this.props.cycles.measureReport.threshold
+                  let benchmarkPer = this.props.cycles.measureDetails.projectedStudentNumber
+                  let passingCount = this.props.cycles.measureReport.passingCounts.averageScore
+                  let results = this.props.cycles.measureReport.results
+                  let passPer = (passingCount/totalStudents)*100
+                  let evaluated = []
+                  let passed = []
+                  let failed = []
+                  console.log(passPer)
+                  let failPer = 100 - passPer
+                  console.log(failPer)
+                  if(passPer > benchmarkPer){
+                    status = (<h3>Status: <span className="text-success">Passing</span></h3>)
+                  }
+                  else{
+                    status = (<h3>Status: <span className="text-danger">Failing</span></h3>)
+                  }
+                  progressBar = (
+                    <ProgressBar>
+                        <ProgressBar variant="success" now={passPer} label={`${passPer}%`}  key={1} />
+                        <ProgressBar variant="danger" now={failPer} label={`${failPer}%`}  key={2} />
+                    </ProgressBar>
+                  )
+                    evaluated = results.map((student,index) => {
+                      if(student.averageScore > passScore){
+                        passed.push(
+                        <ListGroup.Item key={"pass"+index} className="statStuds">{student.studentName}</ListGroup.Item>
+                        )
+                      }
+                      else{
+                        failed.push(
+                          <ListGroup.Item key = {"fail"+index} className="statStuds">{student.studentName}</ListGroup.Item>
+                        )
+                      }
+                      return (
+                        <ListGroup.Item key={"eval"+index} className="statStuds">{student.studentName}</ListGroup.Item>
+                      )
+                        
+                    })
+                    statusModal = (
+                      <Modal show={this.state.statusModal} onHide={this.statusModalHide} size="lg" centered>
+                        <Modal.Header closeButton><h3 className="text-secondary">Student Status</h3></Modal.Header>
+                        <Modal.Body className="row">
+                          <Card style={{width:'15rem'}} className="col-4 statCard">
+                            <Card.Header><h4 className="text-info">Evaluated</h4></Card.Header>
+                            <Card.Body>
+                              <ListGroup>
+                                {evaluated}
+                              </ListGroup>
+                            </Card.Body>
+                          </Card>
+                          <Card style={{width:'15rem'}} className="col-4 statCard">
+                            <Card.Header><h4 className="text-success">Passing</h4></Card.Header>
+                            <Card.Body>
+                              <ListGroup>
+                                {passed}
+                              </ListGroup>
+                            </Card.Body>
+                          </Card>
+                          <Card style={{width:'18rem'}} className="col-4 statCard">
+                            <Card.Header><h4 className="text-danger">Failing</h4></Card.Header>
+                            <Card.Body>
+                              <ListGroup>
+                                {failed}
+                              </ListGroup>
+                            </Card.Body>
+                          </Card>
+                        </Modal.Body>
+                        <Modal.Footer>
+                          <Button variant="danger" onClick={this.statusModalHide}>Close</Button>
+                        </Modal.Footer>
+                      </Modal>
+                    )
+                }
+          }
+
         }
 
       if (
@@ -396,12 +497,12 @@ class MeasureDetails extends Component {
       );
       this.setState({ errors: {} });
     }
-
+console.log(this.state)
     return (
       <Fragment>
     
         <section className="panel important">
-          <div>
+          {/* <div>
             <div className="row">
               <div className="btn-group btn-breadcrumb">
                 <li href="#" className="btn btn-primary brdbtn">
@@ -421,19 +522,21 @@ class MeasureDetails extends Component {
                 </li>
               </div>
             </div>
-          </div>
+          </div> */}
 
           <Jumbotron>
             <p id="measure-title-label">Measure Title</p>
-            <h4 id="measure-title">{measureTitle} 
+            <h4 id="measure-title">{measureTitle}
+            
             {typeTest? 
-            <button 
-            className="float-right" onClick={this.testReportShow}>
+              <button  type="button" data-toggle="tooltip" data-placement="right" title="View Measure Report"
+              className="float-right" onClick={this.testReportShow}>
               <i className="fas fa-file-invoice" size="lg"></i>
-            </button>: null}
+            </button>
+          : null}
             {typeRubric ? 
               <Link to={"/admin/measure/"+this.props.match.params.measureID+"/report"}>
-              <button
+              <button type="button" data-toggle="tooltip" data-placement="right" data-html="true" title= "View Measure Report"
                 className="float-right"
                 onClick={this.measureReportShow}
               >
@@ -443,14 +546,19 @@ class MeasureDetails extends Component {
               : null}
             </h4>
             <hr/>
-
+            <div className="container ml-0  mb-2 pl-2 pb-2 border border-info">
+                  <Button variant="outline-default" className="mt-1" onClick={this.statusModalShow}>{status}</Button>
+                  {progressBar}
+                  {statusModal}
+            </div>
+             
             
               <Fragment>
                 <Card
                   style={{ width: "30rem", height: "20rem", float: "left" }}
                 >
                  <Card.Header><h3>Evaluators  
-                 <Button
+                 <Button data-toggle="tooltip" data-placement="right" title="Add Evaluators To Measure"
                       variant="primary"
                       className="float-right"
                       onClick={this.addEvalShow}
@@ -474,7 +582,7 @@ class MeasureDetails extends Component {
                   <Card.Header>
                     <h3>
                     Students
-                    <Button
+                    <Button data-toggle="tooltip" data-placement="right" title="Add Students To Measure"
                       variant="primary"
                       className="float-right"
                       onClick={this.addStudShow}>
@@ -494,11 +602,11 @@ class MeasureDetails extends Component {
             <Fragment>
 
                 <ButtonGroup aria-label="Basic example" className="float-right">
-                <Button size="lg"
+                <Button size="lg" data-toggle="tooltip" data-placement="right" title="View Measure Report"
               onClick={this.testModalShow}>
               <i className="fas fa-users"></i>
               </Button>
-              <Button  size="lg"
+              <Button  size="lg" data-toggle="tooltip" data-placement="right" title="Upload A File"
               onClick={this.uploadTestShow}>
               <i className="fas fa-file-csv"></i>
               </Button>

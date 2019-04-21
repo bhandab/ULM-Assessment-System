@@ -19,7 +19,7 @@ class MeasureReport extends Component {
         this.props.cycles.measureReport !== undefined &&
         isEmpty(this.props.cycles.measureReport) === false
       ) {
-        const passPoint = this.props.cycles.measureReport.benchmark;
+        const passPoint = this.props.cycles.measureReport.threshold;
         const criteriaDesc = this.props.cycles.measureReport.criteriaInfo;
         const criterias = [];
         let colour = "";
@@ -33,24 +33,24 @@ class MeasureReport extends Component {
           });
         };
         const criteriaScores = details => {
-          return criterias.map(criteria => {
+          return criterias.map((criteria,index) => {
             if (details[criteria] < passPoint) {
               colour = "text-danger";
             } else {
               colour = "text-success";
             }
-            return <td className={colour}>{details[criteria]}</td>;
+            return <td key={"critIdx"+index} className={colour}>{details[criteria]}</td>;
           });
         };
 
       const criteriaAvg = details => {
-        return criterias.map(criteria => {
-          return <td>{details[criteria]}</td>;
+        return criterias.map((criteria,index) => {
+          return <td key={"criAvg"+index}>{details[criteria]}</td>;
         });
       };
 
       measureReport.push(
-        <thead>
+        <thead key="tableHead">
           <tr>
             <th>Class</th>
             <th>Student</th>
@@ -65,9 +65,9 @@ class MeasureReport extends Component {
       const reportBody = [];
 
       reportBody.push(
-        this.props.cycles.measureReport.results.map(student => {
+        this.props.cycles.measureReport.results.map((student,index) => {
           return (
-            <tr>
+            <tr key={"studSco"+index}>
               <td>{student.class}</td>
               <td>{student.studentName}</td>
               <td>{student.evalName}</td>
@@ -80,7 +80,7 @@ class MeasureReport extends Component {
       );
       const avgDetails = this.props.cycles.measureReport.classAverage;
       reportBody.push(
-        <tr>
+        <tr key="avgDtl">
           <td colSpan="3">Class avg.</td>
           {criteriaAvg(avgDetails)}
           <td>{avgDetails.averageScore}</td>
@@ -89,7 +89,7 @@ class MeasureReport extends Component {
       );
       const passingCounts = this.props.cycles.measureReport.passingCounts;
       reportBody.push(
-        <tr>
+        <tr key="passCt">
           <td colSpan="3">Number >= {passPoint}</td>
           {criteriaAvg(passingCounts)}
           <td>{passingCounts.rubricScore}</td>
@@ -97,11 +97,11 @@ class MeasureReport extends Component {
         </tr>
       );
       reportBody.push(
-        <tr>
+        <tr key="evalNo">
           <td colSpan="3">Number of Evaluations</td>
-          {criterias.map(() => {
+          {criterias.map((item,idx) => {
             return (
-              <td>{this.props.cycles.measureReport.numberOfEvaluations}</td>
+              <td key={"new"+idx}>{this.props.cycles.measureReport.numberOfEvaluations}</td>
             );
           })}
           <td>{this.props.cycles.measureReport.numberOfEvaluations}</td>
@@ -111,7 +111,7 @@ class MeasureReport extends Component {
       const passingPercentages = this.props.cycles.measureReport
         .passingPercentages;
       reportBody.push(
-        <tr>
+        <tr key="passPer">
           <td colSpan="3">% >= {passPoint}</td>
           {criteriaAvg(passingPercentages)}
           <td>{passingPercentages.rubricScore}</td>
@@ -119,19 +119,27 @@ class MeasureReport extends Component {
         </tr>
       );
 
-      measureReport.push(<tbody>{reportBody}</tbody>);
+      measureReport.push(<tbody key="tableBody">{reportBody}</tbody>);
 
       measureReport = (
-        <table id="measureReport" className="table table-striped">
+        <table id="measureReport" className="table table-striped" key="reportTable">
           {measureReport}
         </table>
       );
     }
-    return <section className="panel important">{measureReport}</section>;
+
+    return <section className="panel important" key="secn">
+    {measureReport}
+    </section>;
   }
 }
 
+MeasureReport.propTypes = {
+  auth: PropTypes.object.isRequired,
+  getMeasureRubricReport: PropTypes.func.isRequired
+}
 const MapStateToProps = state => ({
+  auth: state.auth,
   cycles: state.cycles
 });
 

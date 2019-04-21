@@ -1392,7 +1392,7 @@ router.get(
         return res.status(404).json({ errors });
       }
       let sql1 =
-        "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN STUDENT NATURAL JOIN EVALUATOR_ASSIGN NATURAL LEFT JOIN EVALUATE WHERE measureID=" +
+        "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN STUDENT NATURAL JOIN EVALUATOR_ASSIGN NATURAL LEFT JOIN RUBRIC_SCORE WHERE measureID=" +
         db.escape(measureID);
 
       db.query(sql1, (err, result) => {
@@ -1409,7 +1409,7 @@ router.get(
             evalName: row.evalName,
             measureEvalID: row.measureEvalID
           };
-          if (!row.criteriaScore) {
+          if (!row.rubricScore) {
             assignedStudentsList.push(student);
           } else {
             evaluatedStudentsList.push(student);

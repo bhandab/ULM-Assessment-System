@@ -213,16 +213,16 @@ class OutcomeMeasures extends Component {
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">
-         <div className="container">
+         {/* <div className="container">
                         <div className="row">
                             <div className="btn-group btn-breadcrumb">
-                                <a href="#" className="btn btn-primary">Admin</a>
-                                <a href="#" className="btn btn-primary">Cycles</a>
-                                <a href="#" className="btn btn-primary">Outcomes</a>
-                                <a href="#" className="btn btn-primary">Measures</a>
+                                <li className="btn btn-primary">Admin</li>
+                                <li className="btn btn-primary">Cycles</li>
+                                <li className="btn btn-primary">Outcomes</li>
+                                <li className="btn btn-primary">Measures</li>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
           <h2>{measureTitle}</h2>
           <ol className="list-group">{measures}</ol>
           <button

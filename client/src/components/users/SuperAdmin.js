@@ -13,9 +13,8 @@ class SuperAdmin extends Component {
     }
 
     componentDidMount(){
-        if (this.props.auth.isAuthenticated && !this.props.auth.user.role === "superuser"){
-            // console.log("gets to super user")
-            this.props.history.push("/login")
+      if (!this.props.auth.isAuthenticated || this.props.auth.user.role !== "superuser"){
+          this.props.history.push('/login')
         }
         this.props.getInvitedCoordinators();
         this.props.getRegisteredCoordinators();
@@ -51,7 +50,6 @@ class SuperAdmin extends Component {
     }
 
   render() {
-      console.log(this.props)
 
       let invitedCoordinators = []
       let registeredCoordinators = []
@@ -135,5 +133,5 @@ const MapStateToProps = state => ({
 export default connect(MapStateToProps,
     {inviteCoordinator,
     getInvitedCoordinators,
-    getRegisteredCoordinators})
-    (SuperAdmin);
+    getRegisteredCoordinators
+  })(SuperAdmin);

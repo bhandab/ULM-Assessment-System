@@ -59,7 +59,7 @@ openNav = () => {
         <header id="pageHeader" className="noprint">
         <h1 className = "justify-content-between">
           <button id = "disappear" className="openbtn" onClick={this.openNav}>&#9776; </button>
-           <span className="ml-3">Coordinator</span>
+           <span className="ml-3 mt-5"><strong>Coordinator</strong></span>
         </h1>
           {/* <div id="main">
            <button id = "disappear" class="openbtn" onClick={openNav}>&#9776; </button>
