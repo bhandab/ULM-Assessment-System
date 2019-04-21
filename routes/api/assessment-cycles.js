@@ -515,6 +515,98 @@ router.post(
   }
 );
 
+// @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/Delete"
+// @desc DELETE an  measure of existing assessment Cycle
+// @access Private BIKASH
+router.post(
+  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/Delete",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let cycleID = req.params.cycleIdentifier;
+    let learnID = req.params.outcomeIdentifier;
+    let measureID = req.params.measureIdentifier;
+    console.log(measureID);
+    let adminID = req.user.id;
+
+    let sql0 =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND corId=" +
+      db.escape(adminID);
+
+    db.query(sql0, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors = "Cycle with cycle ID " + cycleID + " Does not Exist!";
+        return res.status(404).json({ errors });
+      }
+
+      let sql1 =
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
+        db.escape(cycleID) +
+        " AND learnID=" +
+        db.escape(learnID) +
+        " AND corId=" +
+        db.escape(adminID);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+
+        if (result.length <= 0) {
+          errors =
+            "The Selected Outcome is not in the current Assessment Cycle";
+          return res.status(404).json({ errors });
+        }
+
+        let sql2 =
+          "SELECT * FROM performance_measure WHERE cycleID=" +
+          db.escape(cycleID) +
+          " AND learnID=" +
+          db.escape(learnID) +
+          " AND corId=" +
+          db.escape(adminID) +
+          " AND  measureID=" +
+          db.escape(measureID);
+
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          if (result.length <= 0) {
+            errors =
+              "The Selected measure is not in the current Assessment Cycle";
+            return res.status(404).json({ errors });
+          }
+          let sql3 =
+            "DELETE FROM performance_measure WHERE cycleID=" +
+            db.escape(cycleID) +
+            " AND learnID=" +
+            db.escape(learnID) +
+            " AND corId=" +
+            db.escape(adminID) +
+            " AND measureID=" +
+            db.escape(measureID);
+
+          let measureDetails = result[0].measureDesc;
+          db.query(sql3, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+
+            res
+              .status(200)
+              .json({ cycleID, learnID, adminID, measureID, measureDetails });
+          });
+        });
+      });
+    });
+  }
+);
+
 // @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/addNewMeasure
 // @desc Adds a new measure within an outcome which in turn to cycle
 // @access Private
@@ -672,7 +764,6 @@ router.post(
               insertIntoMeasure();
             }
             //console.log(toolID);
-
 
             // });
           }
@@ -1450,177 +1541,180 @@ router.get(
         return res.status(404).json(errors);
       }
       let threshold = result[0].projectedResult;
-      //console.log(threshold);
-      let sql1 =
-        "SELECT * FROM EVALUATE NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA NATURAL JOIN EVALUATOR NATURAL JOIN RUBRIC_SCORE NATURAL JOIN STUDENT_AVERAGE_SCORE WHERE measureID=" +
-        db.escape(measureID) +
-        " ORDER BY criteriaID,studentID,measureEvalID";
-      db.query(sql1, (err, result) => {
+      let toolName = result[0].toolName;
+      let sql0 =
+        "SELECT * FROM RUBRIC NATURAL JOIN CRITERIA WHERE toolID=" +
+        db.escape(result[0].toolID) +
+        " ORDER BY criteriaID";
+      db.query(sql0, (err, result) => {
         if (err) {
           return res.status(500).json(err);
+        } else if (result.length <= 0) {
+          errors.nonExistentCriterias = "Criterias does not exist";
+          return res.status(404).json(errors);
         }
+        let weightedRubric = 0;
 
-        let prevCriteria = "";
-        let count = 0;
-        let weighted = 0;
-        result.forEach((row, index) => {
-          if (row.weighted) {
-            weighted = 1;
-          }
-          if (index === 0) {
-            prevCriteria = row.criteriaID;
-          }
-          if (row.criteriaID !== prevCriteria) {
-            return;
-          }
-          count++;
-        });
-
-        //console.log(count);
-        let innerIndex = 0;
-        let classAverage = {};
-        let passingCounts = {};
-        let passingPercentages = {};
+        if (result[0].weighted) {
+          weightedRubric = 1;
+        }
         let criteriaInfo = [];
-        let criteriaSet = new Set();
-        let weightedRubric = "";
-        let toolName = "";
-        let benchmark = "";
-        
-        if(result.length > 0){
-         toolName = result[0].toolName;
-         benchmark = result[0].projectedResult;
-        
-        if(result[0].toolType === 'rubric'){
-        weightedRubric = result[0].weighted
-        }
-      }
-        console.log(result.length);
-        result.forEach((row, index) => {
-          if (!criteriaSet.has(row.criteriaDesc)) {
-            criteriaSet.add(row.criteriaDesc);
-
-            if (weighted) {
-              criteriaInfo.push({
-                criteriaDescription: row.criteriaDesc,
-                criteriaWeight: row.criteriaWeight * 100
-              });
-            } else {
-              criteriaInfo.push({ criteriaDescription: row.criteriaDesc });
-            }
-          }
-          //criteriaSet.add(row.criteriaDesc)
-          if (index < count) {
-            if (index === 0) {
-              classAverage[row.criteriaDesc] = 0;
-              classAverage["rubricScore"] = 0;
-              passingCounts[row.criteriaDesc] = 0;
-              passingCounts["rubricScore"] = 0;
-            }
-            let indResult = new Object();
-            indResult["class"] = row.courseAssociated;
-            indResult["studentName"] = row.studentName;
-            indResult["evalName"] = row.evalName;
-            indResult[row.criteriaDesc] = Math.round(
-              row.criteriaScore / row.criteriaWeight
-            );
-            indResult["rubricScore"] = row.rubricScore;
-            indResult["averageScore"] = row.averageScore;
-            indResult["studentID"] = row.studentID;
-            classAverage[row.criteriaDesc] += Math.round(
-              row.criteriaScore / row.criteriaWeight
-            );
-
-            classAverage["rubricScore"] += row.rubricScore;
-            passingCounts[row.criteriaDesc] =
-              Math.round(row.criteriaScore / row.criteriaWeight) >= threshold
-                ? passingCounts[row.criteriaDesc] + 1
-                : passingCounts[row.criteriaDesc];
-            passingCounts["rubricScore"] =
-              row.rubricScore >= threshold
-                ? passingCounts["rubricScore"] + 1
-                : passingCounts["rubricScore"];
-            results.push(indResult);
+        result.forEach(row => {
+          if (weightedRubric) {
+            criteriaInfo.push({
+              criteriaDescription: row.criteriaDesc,
+              criteriaWeight: row.criteriaWeight * 100
+            });
           } else {
-            if (index % count !== 0) {
-              innerIndex++;
+            criteriaInfo.push({ criteriaDescription: row.criteriaDesc });
+          }
+        });
+        //console.log(threshold);
+        let sql1 =
+          "SELECT * FROM EVALUATE NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA NATURAL JOIN EVALUATOR NATURAL JOIN RUBRIC_SCORE NATURAL JOIN STUDENT_AVERAGE_SCORE WHERE measureID=" +
+          db.escape(measureID) +
+          " ORDER BY criteriaID,studentID,measureEvalID";
+        db.query(sql1, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          let prevCriteria = "";
+          let count = 0;
+
+          result.forEach((row, index) => {
+            if (index === 0) {
+              prevCriteria = row.criteriaID;
+            }
+            if (row.criteriaID !== prevCriteria) {
+              return;
+            }
+            count++;
+          });
+
+          //console.log(count);
+          let innerIndex = 0;
+          let classAverage = {};
+          let passingCounts = {};
+          let passingPercentages = {};
+
+          // console.log(threshold);
+          // console.log(result.length);
+          result.forEach((row, index) => {
+            //criteriaSet.add(row.criteriaDesc)
+            if (index < count) {
+              if (index === 0) {
+                classAverage[row.criteriaDesc] = 0;
+                classAverage["rubricScore"] = 0;
+                passingCounts[row.criteriaDesc] = 0;
+                passingCounts["rubricScore"] = 0;
+              }
+              let indResult = new Object();
+              indResult["class"] = row.courseAssociated;
+              indResult["studentName"] = row.studentName;
+              indResult["evalName"] = row.evalName;
+              indResult[row.criteriaDesc] = Math.round(
+                row.criteriaScore / row.criteriaWeight
+              );
+              indResult["rubricScore"] = row.rubricScore;
+              indResult["averageScore"] = row.averageScore;
+              indResult["studentID"] = row.studentID;
               classAverage[row.criteriaDesc] += Math.round(
                 row.criteriaScore / row.criteriaWeight
               );
 
+              classAverage["rubricScore"] += row.rubricScore;
               passingCounts[row.criteriaDesc] =
                 Math.round(row.criteriaScore / row.criteriaWeight) >= threshold
                   ? passingCounts[row.criteriaDesc] + 1
                   : passingCounts[row.criteriaDesc];
-              results[innerIndex][row.criteriaDesc] = Math.round(
-                row.criteriaScore / row.criteriaWeight
-              );
+              passingCounts["rubricScore"] =
+                row.rubricScore >= threshold
+                  ? passingCounts["rubricScore"] + 1
+                  : passingCounts["rubricScore"];
+              results.push(indResult);
             } else {
-              innerIndex = 0;
-              classAverage[row.criteriaDesc] = Math.round(
-                row.criteriaScore / row.criteriaWeight
-              );
+              if (index % count !== 0) {
+                innerIndex++;
+                classAverage[row.criteriaDesc] += Math.round(
+                  row.criteriaScore / row.criteriaWeight
+                );
 
-              passingCounts[row.criteriaDesc] =
-                Math.round(row.criteriaScore / row.criteriaWeight) >= threshold
-                  ? 1
-                  : 0;
-              results[innerIndex][row.criteriaDesc] = Math.round(
-                row.criteriaScore / row.criteriaWeight
-              );
+                passingCounts[row.criteriaDesc] =
+                  Math.round(row.criteriaScore / row.criteriaWeight) >=
+                  threshold
+                    ? passingCounts[row.criteriaDesc] + 1
+                    : passingCounts[row.criteriaDesc];
+                results[innerIndex][row.criteriaDesc] = Math.round(
+                  row.criteriaScore / row.criteriaWeight
+                );
+              } else {
+                innerIndex = 0;
+                classAverage[row.criteriaDesc] = Math.round(
+                  row.criteriaScore / row.criteriaWeight
+                );
+
+                passingCounts[row.criteriaDesc] =
+                  Math.round(row.criteriaScore / row.criteriaWeight) >=
+                  threshold
+                    ? 1
+                    : 0;
+                results[innerIndex][row.criteriaDesc] = Math.round(
+                  row.criteriaScore / row.criteriaWeight
+                );
+              }
             }
+          });
+          for (let average in classAverage) {
+            classAverage[average] = round(classAverage[average] / count, 2);
           }
-        });
-        for (let average in classAverage) {
-          classAverage[average] = round(classAverage[average] / count, 2);
-        }
-        for (let passingCount in passingCounts) {
-          passingPercentages[passingCount] = round(
-            (passingCounts[passingCount] / count) * 100,
-            2
-          );
-        }
-        let prevStudentID = -1;
-        let avgtotalStudentCount = 0;
-        let avgPassingStudentCount = 0;
-        results.forEach((rslt, index) => {
-          if (index === 0) {
-            prevStudentID = rslt.studentID;
-            avgtotalStudentCount++;
-            if (rslt.averageScore >= threshold) {
-              avgPassingStudentCount++;
-            }
-          } else {
-            if (prevStudentID !== rslt.studentID) {
+          for (let passingCount in passingCounts) {
+            passingPercentages[passingCount] = round(
+              (passingCounts[passingCount] / count) * 100,
+              2
+            );
+          }
+          let prevStudentID = -1;
+          let avgtotalStudentCount = 0;
+          let avgPassingStudentCount = 0;
+          results.forEach((rslt, index) => {
+            if (index === 0) {
               prevStudentID = rslt.studentID;
               avgtotalStudentCount++;
               if (rslt.averageScore >= threshold) {
                 avgPassingStudentCount++;
               }
+            } else {
+              if (prevStudentID !== rslt.studentID) {
+                prevStudentID = rslt.studentID;
+                avgtotalStudentCount++;
+                if (rslt.averageScore >= threshold) {
+                  avgPassingStudentCount++;
+                }
+              }
             }
-          }
-        });
-        classAverage["averageScore"] = classAverage.rubricScore;
-        passingCounts["averageScore"] = avgPassingStudentCount;
-        passingPercentages["averageScore"] = round(
-          (avgPassingStudentCount / avgtotalStudentCount) * 100,
-          2
-        );
-        console.log(classAverage);
-        console.log(passingCounts);
-        console.log(passingPercentages);
-        console.log(results);
-        res.status(200).json({
-          criteriaInfo,
-          results,
-          classAverage,
-          passingCounts,
-          passingPercentages,
-          numberOfEvaluations: count,
-          numberOfUniqueStudents: avgtotalStudentCount,
-          toolName,
-          benchmark,
-          weightedRubric
+          });
+          classAverage["averageScore"] = classAverage.rubricScore;
+
+          passingCounts["averageScore"] =
+            avgtotalStudentCount === 0 ? "" : avgPassingStudentCount;
+          passingPercentages["averageScore"] =
+            avgtotalStudentCount === 0
+              ? ""
+              : round((avgPassingStudentCount / avgtotalStudentCount) * 100, 2);
+
+          res.status(200).json({
+            criteriaInfo,
+            results,
+            classAverage,
+            passingCounts,
+            passingPercentages,
+            numberOfEvaluations: count,
+            numberOfUniqueStudents: avgtotalStudentCount,
+            toolName,
+            threshold,
+            weightedRubric
+          });
         });
       });
     });

@@ -30,7 +30,7 @@ const validateCSVStudentsRow = row => {
     } else {
       row[1] = row[1].trim();
     }
-    if (!isEmpty(row[2].trim())) {
+    if (isEmpty(row[2].trim())) {
       row[2] = "";
     } else {
       row[2] = row[2].trim();
