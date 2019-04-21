@@ -34,8 +34,6 @@ class OutcomeMeasures extends Component {
     e.preventDefault();
     let index = e.target.measures.value;
     const measure = this.props.measures.measures[index];
-    // console.log(e.target.measures.value)
-    // console.log(measure)
     const measureDetails = {
       measureDescription: measure.measureDescription,
       projectedStudentNumber: measure.projectedStudentNumber+"",
@@ -48,9 +46,6 @@ class OutcomeMeasures extends Component {
       studentNumberOperator: measure.studentNumberScale
 
     }
-
-    //console.log(measureDetails);
-
     this.props.linkMeasureToOutcome(this.props.match.params.cycleID, this.props.match.params.outcomeID, measureDetails)
     this.setState({ addMeasuresShow: false})
   };
@@ -101,7 +96,6 @@ class OutcomeMeasures extends Component {
       studentNumberOperator: pt
 
     };
-    // console.log(measureDetails)
     this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
   };
 
@@ -125,7 +119,6 @@ class OutcomeMeasures extends Component {
 
 
   render() {
-    console.log(this.props)
     let measures = <Spinner animation="border" variant="primary" />;
     let measureTitle = null;
     if (this.props.cycles.cycleLoading === false) {
@@ -159,7 +152,6 @@ class OutcomeMeasures extends Component {
 
     let selections = null;
     if (this.props.cycles.cycleLoading !==true) {
-      //console.log(this.props)
       if (this.props.measures.measures !== null && 
         this.props.measures.measures !== undefined && 
         this.props.cycles.outcomeMeasures !== null &&
@@ -169,7 +161,6 @@ class OutcomeMeasures extends Component {
           const measure = outcomeMeasures.find(measure=> {
             return measure.measureName === item.measureDescription
           })
-          // console.log(measure)
           if(measure === undefined){
           return (
             <option key={index} value={index}>
@@ -209,7 +200,6 @@ class OutcomeMeasures extends Component {
     const rubricChangeHandler = (e) => {
     let rubricID = e.target.value.replace(/\D/g, "");
         this.props.getSingleRubric(rubricID, true)
-        // console.log(rubricScoreOptions)
     }
 
     if(isEmpty(this.props.rubric.singleRubric) === false){
@@ -220,7 +210,6 @@ class OutcomeMeasures extends Component {
       })
     }
 
-    // console.log(selections)
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">

@@ -15,7 +15,9 @@ class Evaluate extends Component {
     measureID: "",
     studentID: "",
     measureEvalID: "",
-    table:""
+    table: (<div className="alert alert-info">
+    <h4>Please Select a Evaluation Tool</h4>
+    </div>)
   };
 
   componentDidMount() {
@@ -54,7 +56,7 @@ class Evaluate extends Component {
       const cols = rubricDetails.scaleInfo.length
 
       tableHeader.push(
-        <th key="row1col1">
+        <th key="row1col1" className="rubricHeaders">
           <div>Criteria</div>
         </th>
       );
@@ -62,7 +64,7 @@ class Evaluate extends Component {
       for (let i = 0; i < rubricDetails.scaleInfo.length; i++) {
         
         tableHeader.push(
-          <th key={"row1col" + (i + 2)}>
+          <th key={"row1col" + (i + 2)} className="rubricHeaders">
             <div>{rubricDetails.scaleInfo[i].scaleValue}</div>
           </th>
         );
@@ -70,22 +72,23 @@ class Evaluate extends Component {
       if (weighted === 1) {
         tableHeader.push(
           <th
-            className="weight"
+            className="weight rubricHeaders"
             key={"row1col" + (rubricDetails.scaleInfo.length + 2)}
           >
             <div>Weight</div>
           </th>
         );
       }
-      tableHeader.push(<th key="score" style={{width:'40px'}}><div>Score</div></th>)
-      tableHeader = <tr key={"row" + 1}>{tableHeader}</tr>;
+      tableHeader.push(<th key="score" style={{width:'40px'}} className="rubricHeaders">
+      <div>Score</div></th>)
+      tableHeader = <tr key={"row" + 1} className="headerRow">{tableHeader}</tr>;
       table.push(tableHeader);
 
       const tableRows = this.props.rubric.singleRubric.rubricDetails.table;
       for (let j = 0; j < tableRows.length; j++) {
         let cells = [];
         cells.push(
-          <td key={"row" + (j + 2) + "col1"}>
+          <td className="rubricCriteria" key={"row" + (j + 2) + "col1"}>
            <strong>{rubricDetails.criteriaInfo[j].criteriaDescription}</strong>
           </td>
         );
@@ -98,6 +101,7 @@ class Evaluate extends Component {
               key={"row" + (j + 2) + "col" + (k + 2)}
               data-criteriaid={tableCols[k].criteriaID}
               data-scaleid={tableCols[k].scaleID}
+              className="rubricCells"
             >
               >{tableCols[k].cellDescription}
             </td>
@@ -105,27 +109,31 @@ class Evaluate extends Component {
         }
         if (weighted === 1) {
           cells.push(
-            <td key={"wei" + rubricDetails.criteriaInfo[j].criteriaID}>
+            <td key={"wei" + rubricDetails.criteriaInfo[j].criteriaID}
+            className="rubricCells weightCell">
               <strong>{rubricDetails.criteriaInfo[j].criteriaWeight}%</strong>
             </td>
           );
         }
         const criteriaID = tableCols[0].criteriaID;
-        cells.push(<td key={"score" + j + 2}><strong></strong></td>)
+        cells.push(<td key={"score" + j + 2} className="rubricScore"></td>)
         cells = <tr key={"row" + (j + 2)}>{cells}</tr>;
         table.push(cells);
       }
         table.push(
             <tr key = "avgScore">
-              {weighted ? <td colSpan={cols+2}><strong>Average Score</strong></td> :
-              <td colSpan={cols+1}><strong>Average Score</strong></td>
+              {weighted ? <td colSpan={cols+2} className="avgScore"><strong>Average Score</strong></td> :
+              <td colSpan={cols+1} className="avgScore"><strong>Average Score</strong></td>
             }
-                <td><strong></strong></td>
+                <td className="rubricScore"></td>
             </tr>
         )
       table = (
         <div>
+          <h3>{rubricDetails.structureInfo.rubricTitle}</h3>
+          <h5 id="evaluatedStudent"> </h5>
           <table className="table table-bordered" id="scoreRubricTable">
+          
             <tbody>{table}</tbody>
           </table>
           <Button className="float-right">
@@ -150,15 +158,15 @@ class Evaluate extends Component {
       measureEvalID: measureEvalID
     });
 
+    const student = document.getElementById("evaluatedStudent");
+    student.innerHTML = e.target.dataset.studname
+
     this.props.submitRubricScores({
       rubricID: index,
       measureID: measureID,
       studentID: studentID,
       measureEvalID: measureEvalID,
     });
-
-    
-    // this.props.getSingleRubric(index, true);
   };
 
   getStudents = (index, name) => {
@@ -178,6 +186,7 @@ class Evaluate extends Component {
                 data-measureid={student.measureID}
                 data-studentid={student.studentID}
                 data-measureeval={student.measureEvalID}
+                data-studname={student.studentName}
                 key={student.studentID}
               >
                 {student.studentName}
@@ -242,8 +251,6 @@ scoreClick = e => {
   if(weighted){
     score = scaleInfo.scaleValue * this.getCriteriaWeight(selectedCriteria)/100;
   }
-
- // avgScore += score
   
   const body = {
   rubricID: this.props.rubric.singleRubric.rubricDetails.structureInfo.rubricID,
@@ -255,7 +262,6 @@ scoreClick = e => {
   avgScore: avgScore
   }
   console.log(body)
-  // console.log(avgScore)
   this.props.updateRubricScores(body)
 };
 
@@ -268,9 +274,6 @@ rubricHeaderClick = e => {
 
   render() {
     let rubrics = [];
-    let rubricTable = null;
-    let avgScore = 0;
-
     console.log(this.state)
 
     if (this.props.evaluations.evaluationRubrics !== null) {
@@ -278,7 +281,7 @@ rubricHeaderClick = e => {
         (rubric, index) => {
           return (
             <div className="card" key={index}>
-              <div className="card-header" id={"rubric" + index}>
+              <div className="rubricTitle card-header" id={"rubric" + index}>
                 <h5 className="mb-0">
                   <button
                     className="btn btn-link"
@@ -324,8 +327,8 @@ rubricHeaderClick = e => {
     return (
       <section className="panel important">
         <Card id="rubricStudent">
-          <Card.Header className="row">
-            <h3 className="col-3">Assigned Rubrics</h3>
+          <Card.Header>
+            <h3>Assigned Tools</h3>
           </Card.Header>
           <Card.Body className="row">
             <div className="accordion col-3" id="assignedRubric">

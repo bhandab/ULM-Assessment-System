@@ -35,7 +35,6 @@ import PropTypes from "prop-types";
             );
           });
         };
-        console.log(criterias)
         const criteriaScores = details => {
           return criterias.map(criteria => {
             if (details[criteria] < passPoint) {

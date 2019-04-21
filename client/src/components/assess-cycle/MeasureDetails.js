@@ -58,9 +58,9 @@ class MeasureDetails extends Component {
     const measureID = this.props.match.params.measureID;
 
     this.props.getMeasureDetails(cycleID, outcomeID, measureID);
-    this.props.getMeasureEvaluators(measureID);
-    this.props.getStudentsOfMeasure(measureID);
-    this.props.getRegisteredEvaluators();
+    // this.props.getMeasureEvaluators(measureID);
+    // this.props.getStudentsOfMeasure(measureID);
+    // this.props.getRegisteredEvaluators();
   }
 
   componentDidUpdate(prevProps){
@@ -167,7 +167,6 @@ class MeasureDetails extends Component {
   };
 
   fileChangeHandler = e => {
-    console.log("file changed")
     this.setState({file: e.target.files[0]});
   };
 
@@ -450,36 +449,45 @@ class MeasureDetails extends Component {
                 <Card
                   style={{ width: "30rem", height: "20rem", float: "left" }}
                 >
-                  <Card.Body>
-                    <Card.Header>Evaluators</Card.Header>
-                    <ol className="list-group measureCard">{evaluatorList}</ol>
-                    <Button
+                 <Card.Header><h3>Evaluators  
+                 <Button
                       variant="primary"
-                      className="float-right mt-3"
+                      className="float-right"
                       onClick={this.addEvalShow}
                     >
-                      Add Evaluators
+                      <i className="fas fa-user-plus"></i>
                     </Button>
+                    </h3>
+                
+                    </Card.Header>
+                  <Card.Body className='mb-1 pt-1'>
+                   
+                    <ol className="list-group measureCard">{evaluatorList}</ol>
+
+                    <Button className="mt-2" onClick={this.assignStudShow} size="sm">
+                  Assign Students
+                </Button>
                   </Card.Body>
                 </Card>
 
                 <Card style={{ width: "30rem", height: "20rem" }}>
-                  <Card.Body>
-                    <Card.Header>Students</Card.Header>
-                    <ol className="list-group measureCard">{studentList}</ol>
+                  <Card.Header>
+                    <h3>
+                    Students
                     <Button
                       variant="primary"
-                      className="float-right mt-3"
-                      onClick={this.addStudShow}
-                    >
-                      Add Students
+                      className="float-right"
+                      onClick={this.addStudShow}>
+                      <i className="fas fa-user-graduate">+</i>
                     </Button>
+                    </h3>
+                    </Card.Header>
+                  <Card.Body>
+                    <ol className="list-group measureCard">{studentList}</ol>
                   </Card.Body>
                 </Card>
 
-                <Button className="mt-2" onClick={this.assignStudShow}>
-                  Assign Students
-                </Button>
+               
                 </Fragment>
             
             {typeTest ?
@@ -614,7 +622,7 @@ class MeasureDetails extends Component {
           show={this.state.uploadFile}
           onHide={this.uploadFileHide}
         >
-          <Modal.Title className="ml-3">Upload Students File</Modal.Title>
+          <Modal.Header className="ml-3" closeButton><h3>Upload Students File</h3></Modal.Header>
           <Modal.Body>
             <Form onSubmit={this.uploadStudentsHandler.bind(this)}>
               <InputGroup className="">

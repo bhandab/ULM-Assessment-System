@@ -13,6 +13,8 @@ import {
 }
     from './types';
 
+import {getRegisteredEvaluators} from './evaluatorAction'
+
 export const getAssessmentCycles = () => dispatch => {
     axios
         .get("/api/cycles")
@@ -182,6 +184,9 @@ export const getMeasureDetails = (cycleID, outcomeID, measureID) => dispatch => 
                 payload: res.data
             })
         })
+        .then(dispatch(getMeasureEvaluators(measureID)))
+        .then(dispatch(getStudentsOfMeasure(measureID)))
+        .then(dispatch(getRegisteredEvaluators()))
         .catch(err => {
             dispatch({
                 type: GET_ERRORS,
