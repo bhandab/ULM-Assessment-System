@@ -19,7 +19,7 @@ class MeasureReport extends Component {
       this.props.cycles.measureReport !== undefined &&
       isEmpty(this.props.cycles.measureReport) === false
     ) {
-      const passPoint = this.props.cycles.measureReport.benchmark;
+      const passPoint = this.props.cycles.measureReport.threshold;
       const criteriaDesc = this.props.cycles.measureReport.criteriaInfo;
       const criterias = [];
       let colour = "";
