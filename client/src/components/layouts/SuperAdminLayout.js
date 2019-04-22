@@ -39,13 +39,6 @@ class SuperAdminLayout extends Component {
           </ul>
         </header>
 
-        <nav>
-          <ul className="main">
-            <li className="dashboard">
-              <Link to="/admin/cycles">Dashboard</Link>
-            </li>
-          </ul>
-        </nav>
       </Fragment>
     );
   }

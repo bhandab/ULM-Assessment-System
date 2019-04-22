@@ -8,7 +8,7 @@ import {
 } from "../../actions/assessmentCycleAction";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { Spinner, Button, Modal, Form} from "react-bootstrap";
+import { Spinner, Button, Modal, Form, Card} from "react-bootstrap";
 import Delete from "../../utils/Delete";
 
 class AssessmentCycle extends Component {
@@ -125,6 +125,7 @@ class AssessmentCycle extends Component {
       cyclesList = <Spinner animation="border" variant="primary" />;
     }
 
+    console.log(this.props)
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">
@@ -138,10 +139,13 @@ class AssessmentCycle extends Component {
               </li>
             </div>
           </div> */}
-
+          <Card>
+            <Card.Header>
           <h2>
             <strong>Assessment Cycles</strong>
           </h2>
+          </Card.Header>
+          <Card.Body>
           <ul className="list-group">
             {cyclesList === null ? (
               <li className="list-group-item">No Cycles Present</li>
@@ -152,6 +156,8 @@ class AssessmentCycle extends Component {
           <Button className="ml-3 mr-3 float-right" onClick={this.modalShow}>
             Create New Cycle
           </Button>
+          </Card.Body>
+          </Card>
         </section>
 
         <Modal
@@ -228,7 +234,8 @@ AssessmentCycle.propTypes = {
 
 const mapStateToProps = state => ({
   auth: state.auth,
-  cycles: state.cycles
+  cycles: state.cycles,
+  errors:state.errors
 });
 
 export default connect(

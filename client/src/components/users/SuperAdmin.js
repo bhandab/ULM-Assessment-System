@@ -53,8 +53,10 @@ class SuperAdmin extends Component {
 
       let invitedCoordinators = []
       let registeredCoordinators = []
+      ler programs = []
 
-      if(this.props.coordinators.invitedCoordinators !== null){
+      if(this.props.coordinators.invitedCoordinators !== null &&
+        this.props.coordinators.invitedCoordinators !== undefined){
         invitedCoordinators = this.props.coordinators.invitedCoordinators.invitedCoordinators.map((item,index) => {
             return (
                 <ListGroup.Item key={"inv"+index}>
@@ -67,7 +69,8 @@ class SuperAdmin extends Component {
         })
       }
 
-      if(this.props.coordinators.registeredCoordinators !== null){
+      if(this.props.coordinators.registeredCoordinators !== null &&
+        this.props.coordinators.registeredCoordinators !== undefined){
         registeredCoordinators = this.props.coordinators.registeredCoordinators.registeredCoordinators.map((item,index) => {
             return (
                 <ListGroup.Item key={"reg"+index}>
@@ -88,6 +91,15 @@ class SuperAdmin extends Component {
         <SuperAdminLayout/>
         <main>
           <section className="panel important">
+          <Card>
+            <Card.Header>Programs</Card.Header>
+            <Card.Body>
+              <ListGroup>
+              {programs}
+              </ListGroup>
+              
+            </Card.Body>
+          </Card>
             <Modal show={this.state.coorInvite} onHide={this.coorInviteHide} centered size="md">
               <Modal.Header><h5>Add Coordinators</h5></Modal.Header>
               <Modal.Body>

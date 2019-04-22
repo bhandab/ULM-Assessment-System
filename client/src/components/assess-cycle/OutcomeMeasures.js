@@ -8,7 +8,7 @@ import { getAllRubrics, getSingleRubric } from "../../actions/rubricsAction";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { Form, Button, InputGroup, Modal, Spinner} from "react-bootstrap";
+import { Form, Button, InputGroup, Modal, Spinner, Card} from "react-bootstrap";
 import { isEmpty } from "../../utils/isEmpty";
 
 class OutcomeMeasures extends Component {
@@ -223,8 +223,13 @@ class OutcomeMeasures extends Component {
                             </div>
                         </div>
                     </div> */}
+          <Card>
+            <Card.Header>
           <h2>{measureTitle}</h2>
+          </Card.Header>
+          <Card.Body>
           <ol className="list-group">{measures}</ol>
+          </Card.Body>
           <button
             onClick={this.addMeasuresShow}
             className="btn btn-primary  ml-3 float-right mt-3"
@@ -237,6 +242,7 @@ class OutcomeMeasures extends Component {
           >
             Create Measure
           </button>
+          </Card>
         </section>
 
         <Modal
