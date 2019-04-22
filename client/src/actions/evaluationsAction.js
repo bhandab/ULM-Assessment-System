@@ -39,8 +39,7 @@ export const submitRubricScores = (body) => dispatch => {
      .catch(err => dispatch({
             type: GET_ERRORS,
             payload: err.response.data
-        })
-        )
+    }))
 }
 
 export const updateRubricScores = (body) => dispatch => {
@@ -57,4 +56,8 @@ export const updateRubricScores = (body) => dispatch => {
             payload: err.response.data
         }))
     .then(dispatch(submitRubricScores(newBody)))
+    .catch(err => dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+    }))
 }

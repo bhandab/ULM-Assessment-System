@@ -2,14 +2,19 @@ import React, { Component, Fragment } from "react";
 import SuperAdminLayout from "../layouts/SuperAdminLayout";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { Card, Form, Button, Modal, ListGroup } from "react-bootstrap";
-import {inviteCoordinator,getInvitedCoordinators, getRegisteredCoordinators} from '../../actions/coordinatorAction';
+import { Card, Form, Button, Modal, ListGroup, InputGroup } from "react-bootstrap";
+import {inviteCoordinator,
+  getInvitedCoordinators,
+  getRegisteredCoordinators,
+  getPrograms,
+  createProgram} from '../../actions/coordinatorAction';
 import {isEmpty} from '../../utils/isEmpty'
 
 class SuperAdmin extends Component {
 
     state = {
-        coorInvite : false
+        coorInvite : false,
+        createProgram : false
     }
 
     componentDidMount(){
@@ -18,6 +23,7 @@ class SuperAdmin extends Component {
         }
         this.props.getInvitedCoordinators();
         this.props.getRegisteredCoordinators();
+        this.props.getPrograms();
 
     }
 
@@ -28,6 +34,14 @@ class SuperAdmin extends Component {
     
     coorInviteHide = () => {
         this.setState({coorInvite:false})
+    }
+
+    createProgramShow = () => {
+      this.setState({createProgram:true})
+    }
+
+    createProgramHide = () => {
+      this.setState({createProgram:false})
     }
 
     inviteCoordinator = e => {
@@ -49,11 +63,29 @@ class SuperAdmin extends Component {
         }
     }
 
+    createProgram = e => {
+      e.preventDefault();
+      console.log(e.target.programName.value)
+      const body = {
+        programName:e.target.programName.value
+      }
+      this.props.createProgram(body)
+      this.setState({createProgram:false})
+    }
   render() {
 
       let invitedCoordinators = []
       let registeredCoordinators = []
-      ler programs = []
+      let programs = []
+
+      if (this.props.coordinators.programs !== null && 
+        this.props.coordinators.programs !== undefined){
+          programs = this.props.coordinators.programs.map(program => {
+            return(
+              <ListGroup.Item key={program.programID}>{program.programName}</ListGroup.Item>
+            )
+          })
+        }
 
       if(this.props.coordinators.invitedCoordinators !== null &&
         this.props.coordinators.invitedCoordinators !== undefined){
@@ -84,7 +116,7 @@ class SuperAdmin extends Component {
         })
       }
       
-
+      console.log(this.props)
 
     return (
       <Fragment>
@@ -92,15 +124,35 @@ class SuperAdmin extends Component {
         <main>
           <section className="panel important">
           <Card>
-            <Card.Header>Programs</Card.Header>
+            <Card.Header><h2 style={{textAlign:'center'}}>Programs <button className="float-right"
+            onClick={this.createProgramShow}><i className="far fa-calendar-plus"></i></button></h2></Card.Header>
             <Card.Body>
               <ListGroup>
               {programs}
+              {this.state.createProgram ? 
+              <ListGroup.Item>
+                <Form onSubmit={this.createProgram.bind(this)}>
+                <div className="row">
+                  <InputGroup className="col-8">
+                    <InputGroup.Append>
+                    <InputGroup.Text id="basic-addon15">Program Name</InputGroup.Text>
+                    </InputGroup.Append>
+                    <Form.Control placeholder="eg. CSCI" name="programName"/>
+                  </InputGroup>
+                  <Button type="submit" variant="success"><i className="fas fa-check"></i></Button>
+                  <Button variant="danger" onClick={this.createProgramHide}><i className="fas fa-times"></i></Button>
+
+                  </div>
+                </Form>
+                
+              </ListGroup.Item>
+              :null}
               </ListGroup>
               
             </Card.Body>
-          </Card>
-            <Modal show={this.state.coorInvite} onHide={this.coorInviteHide} centered size="md">
+            </Card>
+          
+            {/* <Modal show={this.state.coorInvite} onHide={this.coorInviteHide} centered size="md">
               <Modal.Header><h5>Add Coordinators</h5></Modal.Header>
               <Modal.Body>
                 <Form onSubmit={this.inviteCoordinator.bind(this)}>
@@ -121,7 +173,7 @@ class SuperAdmin extends Component {
             <Card className="ml-5 mt-5 float-left" style={{width:"40rem"}}>
                 <Card.Header><h3>Registered Coordinators</h3></Card.Header>
                 <Card.Body> <ListGroup>{registeredCoordinators}</ListGroup> </Card.Body>
-            </Card>
+            </Card>  */}
           </section>
         </main>
       </Fragment>
@@ -145,5 +197,7 @@ const MapStateToProps = state => ({
 export default connect(MapStateToProps,
     {inviteCoordinator,
     getInvitedCoordinators,
-    getRegisteredCoordinators
+    getRegisteredCoordinators,
+    getPrograms,
+    createProgram
   })(SuperAdmin);

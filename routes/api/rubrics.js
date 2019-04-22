@@ -231,7 +231,7 @@ router.get(
 
     let sql2 =
       "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE programID=" +
-      db.escape(req.user.id);
+      db.escape(req.user.programID);
 
     db.query(sql2, (err, result) => {
       if (err) {

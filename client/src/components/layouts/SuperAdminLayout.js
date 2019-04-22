@@ -26,10 +26,10 @@ class SuperAdminLayout extends Component {
     return (
       <Fragment>
         <header>
-          <h1>Super Admin</h1>
+          <h1>Admin</h1>
           <ul className="utilities">
             <li className="users">
-              <Link to="#">{this.props.auth.user.name}</Link>
+              <Link to="#">Admin</Link>
             </li>
             <li className="logout warn">
               <Link to="/login" onClick={this.onLogoutClick.bind(this)}>

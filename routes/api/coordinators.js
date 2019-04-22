@@ -14,7 +14,7 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let programs = [];
-    let sql = "SELECT * FROM PROGRAM where superID=" + db.escape(req.user.id);
+    let sql = "SELECT * FROM PROGRAM";
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -25,7 +25,7 @@ router.get(
           programID: row.programID
         });
       });
-      return res.status(200).json({ programs });
+      return res.status(200).json( programs );
     });
   }
 );

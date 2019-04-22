@@ -153,7 +153,7 @@ class AssessmentCycle extends Component {
               cyclesList
             )}
           </ul>
-          <Button className="ml-3 mr-3 float-right" onClick={this.modalShow}>
+          <Button className="mt-3 float-right" onClick={this.modalShow}>
             Create New Cycle
           </Button>
           </Card.Body>

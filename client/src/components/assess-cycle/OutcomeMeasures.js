@@ -229,7 +229,7 @@ class OutcomeMeasures extends Component {
           </Card.Header>
           <Card.Body>
           <ol className="list-group">{measures}</ol>
-          </Card.Body>
+          
           <button
             onClick={this.addMeasuresShow}
             className="btn btn-primary  ml-3 float-right mt-3"
@@ -242,6 +242,7 @@ class OutcomeMeasures extends Component {
           >
             Create Measure
           </button>
+          </Card.Body>
           </Card>
         </section>
 
