@@ -17,7 +17,7 @@ router.get(
   (req, res) => {
     let evaluators = [];
 
-    let sql = "SELECT * FROM EVALUATOR"
+    let sql = "SELECT * FROM EVALUATOR";
 
     db.query(sql, (err, result) => {
       if (err) {
@@ -66,7 +66,9 @@ router.post(
     let evaluatorEmail = req.body.evaluatorEmail;
     let adminID = req.user.id;
     let sql0 =
-      "SELECT * FROM EVALUATOR WHERE evalEmail=" + db.escape(evaluatorEmail);
+      "SELECT * FROM EVALUATOR WHERE evalEmail=" +
+      db.escape(evaluatorEmail) +
+      " AND isActive=true";
     db.query(sql0, (err, result) => {
       if (err) {
         return res.status(500).json();
@@ -95,20 +97,25 @@ router.post(
           ", " +
           db.escape(adminID) +
           ")";
-          invite(req.user.email, req.user.name, evaluatorEmail).then((value)=>{
+        invite(req.user.email, req.user.name, evaluatorEmail)
+          .then(value => {
             db.query(sql2, (err, result) => {
               if (err) {
                 return res.status(500).json(err);
               }
-              
+
               return res
                 .status(200)
                 .json(`An invitation email has been sent to ${evaluatorEmail}`);
             });
-          }).catch((e)=>{
-            return res.status(404).json("There was some problem adding and sending email to the evaluator")
           })
-      
+          .catch(e => {
+            return res
+              .status(404)
+              .json(
+                "There was some problem adding and sending email to the evaluator"
+              );
+          });
       });
     });
   }

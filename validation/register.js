@@ -5,15 +5,19 @@ module.exports = function validateRegisterInput(data) {
   let errors = {};
 
   // Convert empty fields to an empty string so we can use validator functions
-  data.name = !isEmpty(data.name) ? data.name.trim() : "";
+  data.firstName = !isEmpty(data.firstName) ? data.firstName.trim() : "";
+  data.lastName = !isEmpty(data.lastName) ? data.lastName.trim() : "";
   data.email = !isEmpty(data.email) ? data.email.trim() : "";
   data.password = !isEmpty(data.password) ? data.password.trim() : "";
   data.password2 = !isEmpty(data.password2) ? data.password2.trim() : "";
   //data.program = !isEmpty(data.program) ? data.program.trim() : "";
 
   // Name checks
-  if (Validator.isEmpty(data.name)) {
-    errors.name = "Name field is required";
+  if (Validator.isEmpty(data.firstName)) {
+    errors.firstName = "First Name field is required";
+  }
+  if (Validator.isEmpty(data.lastName)) {
+    errors.lastName = "Last Name field is required";
   }
 
   //Program Name Checks

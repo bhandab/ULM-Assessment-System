@@ -25,15 +25,15 @@ router.post(
     let noOfColumns = req.body.columns;
     let rubricTitle = req.body.rubricName;
     let weighted = req.body.weighted;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
 
     let rubricDetails = {};
 
     let sql3 =
       "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE rubricTitle=" +
       db.escape(rubricTitle) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
     db.query(sql3, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -43,8 +43,8 @@ router.post(
         return res.status(404).json(errors);
       }
       let sql5 =
-        "INSERT INTO TOOL (corId, toolType) VALUES (" +
-        db.escape(adminID) +
+        "INSERT INTO TOOL (programID, toolType) VALUES (" +
+        db.escape(programID) +
         ", " +
         db.escape("rubric") +
         ")";
@@ -77,7 +77,7 @@ router.post(
             rubricTitle,
             weighted,
             rubricID,
-            adminID
+            programID
           };
           let scales = [];
           let values = [];
@@ -230,7 +230,7 @@ router.get(
     let rubrics = [];
 
     let sql2 =
-      "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE corId=" +
+      "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE programID=" +
       db.escape(req.user.id);
 
     db.query(sql2, (err, result) => {
@@ -261,7 +261,7 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let rubricID = req.params.rubricIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
 
     let rubricDetails = {};
 
@@ -284,7 +284,7 @@ router.get(
         rubricTitle: result[0].rubricTitle,
         weighted: result[0].weighted,
         rubricID,
-        adminID
+        programID
       };
       let scales = [];
       let sql3 =
@@ -377,7 +377,7 @@ router.post(
   (req, res) => {
     let rubricID = req.params.rubricIdentifier;
     let criteriaID = req.body.criteriaID;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let criteriaDesc = req.body.criteriaDesc;
     if (isEmpty(criteriaDesc)) {
       return res.status(404).json("Criteria Desc Cannot be Empty");
@@ -405,7 +405,7 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        res.status(200).json({ criteriaDesc, adminID, criteriaID, rubricID });
+        res.status(200).json({ criteriaDesc, programID, criteriaID, rubricID });
       });
     });
   }
@@ -420,7 +420,7 @@ router.post(
   (req, res) => {
     let rubricID = req.params.rubricIdentifier;
     let cellID = req.body.cellID;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let levelDesc = req.body.levelDesc;
     let sql1 =
       "SELECT * FROM LEVEL_DESCRIPTION WHERE toolID=" +
@@ -444,7 +444,7 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        res.status(200).json({ levelDesc, adminID, cellID, rubricID });
+        res.status(200).json({ levelDesc, programID, cellID, rubricID });
       });
     });
   }
@@ -458,8 +458,7 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let rubricID = req.params.rubricIdentifier;
-    let criteriaID = req.params.criteriaIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let errors = {};
     let totalWeight = 0;
     for (var i = 0; i < req.body.length; i++) {
@@ -492,10 +491,10 @@ router.post(
             db.escape(value.criteriaID);
           db.query(sql1, (err, result) => {
             if (!err) {
-              console.log("Sucess 1");
+              //console.log("Sucess 1");
               callback();
             } else {
-              console.log("Reaches here");
+              //console.log("Reaches here");
               return callback(err);
             }
           });
@@ -520,7 +519,7 @@ router.post(
   (req, res) => {
     let rubricID = req.params.rubricIdentifier;
     let scaleID = req.body.scaleID;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let scaleDesc = req.body.scaleDescription;
 
     let errors = {};
@@ -551,7 +550,7 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        res.status(200).json({ scaleDesc, adminID, scaleID, rubricID });
+        res.status(200).json({ scaleDesc, programID, scaleID, rubricID });
       });
     });
   }
