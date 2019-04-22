@@ -24,13 +24,13 @@ router.post(
       return res.status(404).json(errors);
     }
 
-    let adminID = db.escape(req.user.id);
+    let programID = db.escape(req.user.programID);
     let cycleName = db.escape(req.body.cycleTitle);
     created = db.escape(new Date());
 
     let sql =
-      "SELECT * FROM ASSESSMENT_CYCLE WHERE corId=" +
-      adminID +
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE programID=" +
+      programID +
       " AND cycleTitle=" +
       cycleName;
 
@@ -43,12 +43,12 @@ router.post(
       }
 
       sql =
-        "INSERT INTO ASSESSMENT_CYCLE (cycleTitle, startDate, corId) VALUES (" +
+        "INSERT INTO ASSESSMENT_CYCLE (cycleTitle, startDate, programID) VALUES (" +
         cycleName +
         ", " +
         created +
         ", " +
-        adminID +
+        programID +
         ")";
       db.query(sql, (err, reslt) => {
         if (err) {
@@ -68,9 +68,9 @@ router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let sql =
-      "SELECT * FROM ASSESSMENT_CYCLE WHERE corId=" + db.escape(adminID);
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE programID=" + db.escape(programID);
 
     let cycles = [];
 
@@ -82,6 +82,7 @@ router.get(
         cycleInfo = {
           cycleName: row.cycleTitle,
           dateCreated: row.startDate,
+          endDate: row.endDate,
           cycleID: row.cycleID
         };
         cycles.push(cycleInfo);
@@ -99,15 +100,15 @@ router.get(
   "/:cycleIdentifier/outcomes",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let cycleIdentifier = req.params.cycleIdentifier;
     let outcomes = [];
 
     let sql =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID = " +
       db.escape(cycleIdentifier) +
-      " AND corId = " +
-      db.escape(adminID);
+      " AND programID = " +
+      db.escape(programID);
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -122,8 +123,8 @@ router.get(
         "SELECT * FROM LEARNING_OUTCOME" +
         " WHERE cycleID=" +
         db.escape(cycleIdentifier) +
-        " AND corId=" +
-        db.escape(adminID);
+        " AND programID=" +
+        db.escape(programID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -155,14 +156,14 @@ router.post(
     }
 
     let cycleID = req.params.cycleIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let outcomeName = req.body.outcomeDescription;
 
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
     db.query(sql0, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -177,8 +178,8 @@ router.post(
         db.escape(cycleID) +
         " AND learnDesc=" +
         db.escape(outcomeName) +
-        " AND corId=" +
-        db.escape(adminID);
+        " AND programID=" +
+        db.escape(programID);
       db.query(sql, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -191,12 +192,12 @@ router.post(
         }
 
         sql =
-          "INSERT INTO LEARNING_OUTCOME (cycleID, learnDesc, corId) VALUES (" +
+          "INSERT INTO LEARNING_OUTCOME (cycleID, learnDesc, programID) VALUES (" +
           db.escape(cycleID) +
           ", " +
           db.escape(outcomeName) +
           ", " +
-          db.escape(adminID) +
+          db.escape(programID) +
           ")";
 
         db.query(sql, (err, result) => {
@@ -204,7 +205,7 @@ router.post(
             return res.status(500).json(err);
           }
           let outcomeID = result.insertId;
-          res.status(200).json({ cycleID, outcomeID, adminID, outcomeName });
+          res.status(200).json({ cycleID, outcomeID, programID, outcomeName });
         });
       });
     });
@@ -221,15 +222,15 @@ router.get(
   (req, res) => {
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
 
     let measures = [];
 
     let sql1 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
     db.query(sql1, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -242,8 +243,8 @@ router.get(
       let sql2 =
         "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
         db.escape(outcomeID) +
-        " AND corId=" +
-        db.escape(adminID);
+        " AND programID=" +
+        db.escape(programID);
       db.query(sql2, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -259,8 +260,8 @@ router.get(
         let sql3 =
           "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
           db.escape(outcomeID) +
-          " AND corId=" +
-          db.escape(adminID);
+          " AND programID=" +
+          db.escape(programID);
 
         db.query(sql3, (err, result) => {
           if (err) {
@@ -299,15 +300,15 @@ router.post(
     }
 
     let cycleID = req.params.cycleIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let cycleName = req.body.cycleTitle;
     created = db.escape(new Date());
 
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
 
     db.query(sql0, (err, result) => {
       if (err) {
@@ -344,13 +345,13 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let cycleID = req.params.cycleIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
 
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
 
     db.query(sql0, (err, result) => {
       if (err) {
@@ -364,8 +365,8 @@ router.post(
       let sql1 =
         "DELETE FROM ASSESSMENT_CYCLE WHERE cycleID=" +
         db.escape(cycleID) +
-        " AND corId=" +
-        db.escape(adminID);
+        " AND programID=" +
+        db.escape(programID);
 
       cycleName = result[0].cycleTitle;
 
@@ -394,14 +395,14 @@ router.post(
 
     let cycleID = req.params.cycleIdentifier;
     let learnID = req.params.outcomeIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let outcomeName = req.body.outcomeDescription;
 
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
 
     db.query(sql0, (err, result) => {
       if (err) {
@@ -417,8 +418,8 @@ router.post(
         db.escape(cycleID) +
         " AND learnID=" +
         db.escape(learnID) +
-        " AND corId=" +
-        db.escape(adminID);
+        " AND programID=" +
+        db.escape(programID);
       db.query(sql, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -436,15 +437,15 @@ router.post(
           db.escape(cycleID) +
           " AND learnID=" +
           db.escape(learnID) +
-          " AND corId=" +
-          db.escape(adminID);
+          " AND programID=" +
+          db.escape(programID);
 
         db.query(sql1, (err, result) => {
           if (err) {
             return res.status(500).json(err);
           }
 
-          res.status(200).json({ cycleID, learnID, adminID, outcomeName });
+          res.status(200).json({ cycleID, learnID, programID, outcomeName });
         });
       });
     });
@@ -460,13 +461,13 @@ router.post(
   (req, res) => {
     let cycleID = req.params.cycleIdentifier;
     let learnID = req.params.outcomeIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
 
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
 
     db.query(sql0, (err, result) => {
       if (err) {
@@ -482,8 +483,8 @@ router.post(
         db.escape(cycleID) +
         " AND learnID=" +
         db.escape(learnID) +
-        " AND corId=" +
-        db.escape(adminID);
+        " AND programID=" +
+        db.escape(programID);
       db.query(sql, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -499,8 +500,8 @@ router.post(
           db.escape(cycleID) +
           " AND learnID=" +
           db.escape(learnID) +
-          " AND corId=" +
-          db.escape(adminID);
+          " AND programID=" +
+          db.escape(programID);
 
         let outcomeName = result[0].learnDesc;
         db.query(sql1, (err, result) => {
@@ -508,7 +509,7 @@ router.post(
             return res.status(500).json(err);
           }
 
-          res.status(200).json({ cycleID, learnID, adminID, outcomeName });
+          res.status(200).json({ cycleID, learnID, programID, outcomeName });
         });
       });
     });
@@ -526,13 +527,13 @@ router.post(
     let learnID = req.params.outcomeIdentifier;
     let measureID = req.params.measureIdentifier;
     console.log(measureID);
-    let adminID = req.user.id;
+    let programID = req.user.programID;
 
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
 
     db.query(sql0, (err, result) => {
       if (err) {
@@ -548,8 +549,8 @@ router.post(
         db.escape(cycleID) +
         " AND learnID=" +
         db.escape(learnID) +
-        " AND corId=" +
-        db.escape(adminID);
+        " AND programID=" +
+        db.escape(programID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -566,8 +567,8 @@ router.post(
           db.escape(cycleID) +
           " AND learnID=" +
           db.escape(learnID) +
-          " AND corId=" +
-          db.escape(adminID) +
+          " AND programID=" +
+          db.escape(programID) +
           " AND  measureID=" +
           db.escape(measureID);
 
@@ -586,8 +587,8 @@ router.post(
             db.escape(cycleID) +
             " AND learnID=" +
             db.escape(learnID) +
-            " AND corId=" +
-            db.escape(adminID) +
+            " AND programID=" +
+            db.escape(programID) +
             " AND measureID=" +
             db.escape(measureID);
 
@@ -599,7 +600,7 @@ router.post(
 
             res
               .status(200)
-              .json({ cycleID, learnID, adminID, measureID, measureDetails });
+              .json({ cycleID, learnID, programID, measureID, measureDetails });
           });
         });
       });
@@ -630,7 +631,7 @@ router.post(
 
     let studentNumberOperator = req.body.studentNumberOperator;
     let valueOperator = req.body.valueOperator;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
 
     let toolID = req.body.toolID;
 
@@ -653,8 +654,8 @@ router.post(
     let sql1 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
     db.query(sql1, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -667,8 +668,8 @@ router.post(
       let sql2 =
         "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
         db.escape(outcomeID) +
-        " AND corId=" +
-        db.escape(adminID);
+        " AND programID=" +
+        db.escape(programID);
       db.query(sql2, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -683,8 +684,8 @@ router.post(
           db.escape(outcomeID) +
           " AND measureDesc=" +
           db.escape(measureName) +
-          " AND corId=" +
-          db.escape(adminID);
+          " AND programID=" +
+          db.escape(programID);
 
         db.query(sql3, (err, result) => {
           if (err) {
@@ -696,7 +697,7 @@ router.post(
           } else {
             let insertIntoMeasure = () => {
               let sql4 =
-                "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolID,toolName, toolType, studentNumberScale,projectedValueScale) VALUES (" +
+                "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, programID, toolID,toolName, toolType, studentNumberScale,projectedValueScale) VALUES (" +
                 db.escape(outcomeID) +
                 ", " +
                 db.escape(cycleID) +
@@ -709,7 +710,7 @@ router.post(
                 ", " +
                 db.escape(course) +
                 ", " +
-                db.escape(adminID) +
+                db.escape(programID) +
                 ", " +
                 db.escape(toolID) +
                 ", " +
@@ -731,7 +732,7 @@ router.post(
                   cycleID,
                   outcomeID,
                   measureID,
-                  adminID,
+                  programID,
                   measureName,
                   projectedValue,
                   projectedStudentNumber,
@@ -746,10 +747,10 @@ router.post(
             };
             if (toolType === "test") {
               let sql0 =
-                "INSERT INTO TOOL (toolType,corId) VALUES (" +
+                "INSERT INTO TOOL (toolType,programID) VALUES (" +
                 db.escape(toolType) +
                 ", " +
-                db.escape(adminID) +
+                db.escape(programID) +
                 ")";
               db.query(sql0, (err, result) => {
                 if (err) {
@@ -793,10 +794,10 @@ router.post(':/cycleIdentifier/:outcomeIdentifier/addExistingMeasure',passport.a
       let projectedValue = result[0].projectedResult
       let projectedStudentNumber = result[0].projectedStudentsValue
       let toolID = result[0].toolID
-      let adminID = req.user.id
+      let programID = req.user.programID
       let course = result[0].courseAssociated
 
-      let sql2 = "INSERT INTO PERFORMANCE_MEASURE(measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, learnID, cycleID, toolID) VALUES ("+db.escape(measureName)+", "+db.escape(projectedValue)+", "+db.escape(projectedStudentNumber)+", "+db.escape(course)+", "+db.escape(adminID)+", "+db.escape(outcomeID)+", "+db.escape(cycleID)+", "+db.escape(toolID)+")"
+      let sql2 = "INSERT INTO PERFORMANCE_MEASURE(measureDesc, projectedResult, projectedStudentsValue, courseAssociated, programID, learnID, cycleID, toolID) VALUES ("+db.escape(measureName)+", "+db.escape(projectedValue)+", "+db.escape(projectedStudentNumber)+", "+db.escape(course)+", "+db.escape(programID)+", "+db.escape(outcomeID)+", "+db.escape(cycleID)+", "+db.escape(toolID)+")"
       db.query(sql2,(err,result)=>{
         if(err){
           return res.status(500).json(err)
@@ -867,7 +868,6 @@ router.post(
       return res.status(404).json(errors);
     }
     let evaluatorEmail = req.body.evaluatorEmail;
-    let adminID = req.user.id;
     let measureID = req.params.measureIdentifier;
 
     let sql1 =
@@ -922,7 +922,6 @@ router.post(
               res.status(200).json({
                 evaluatorEmail,
                 measureID,
-                adminID,
                 evaluatorName,
                 measureEvalID: result.insertId
               });
@@ -1025,7 +1024,6 @@ router.post(
             csv
               .fromPath(req.file.path)
               .on("data", data => {
-                data.push(req.user.id);
                 data.push(measureID);
                 students.push(data);
               })
@@ -1039,11 +1037,11 @@ router.post(
                 var existingStudentsInFile = [];
                 var newArray = students.filter((row, index) => {
                   if (index !== students.length - 1) {
-                    if (existingStudents.has(row[1])) {
-                      existingStudentsInFile.push(row[1]);
+                    if (existingStudents.has(row[2])) {
+                      existingStudentsInFile.push(row[2]);
                       return false;
                     } else {
-                      existingStudents.add(row[1]);
+                      existingStudents.add(row[2]);
                       return true;
                     }
                   }
@@ -1051,7 +1049,7 @@ router.post(
                 //console.log(newArray.length);
                 //console.log("Gets Here");
                 let sql3 =
-                  "INSERT INTO STUDENT (studentName,studentEmail,studentCWID,corId,measureID) VALUES ?";
+                  "INSERT INTO STUDENT (studentFirstName,studentLastName,studentEmail,studentCWID,measureID) VALUES ?";
                 if (newArray.length > 0) {
                   db.query(sql3, [newArray], (err, result) => {
                     if (err) {
@@ -1109,7 +1107,6 @@ router.post(
             csv
               .fromPath(req.file.path)
               .on("data", data => {
-                data.push(req.user.id);
                 data.push(measureID);
                 students.push(data);
               })
@@ -1124,11 +1121,11 @@ router.post(
                 var existingStudentsInFile = [];
                 var newArray = students.filter((row, index) => {
                   if (index !== students.length - 1) {
-                    if (existingStudents.has(row[1])) {
-                      existingStudentsInFile.push(row[1]);
+                    if (existingStudents.has(row[2])) {
+                      existingStudentsInFile.push(row[2]);
                       return false;
                     } else {
-                      existingStudents.add(row[1]);
+                      existingStudents.add(row[2]);
                       return true;
                     }
                   }
@@ -1136,7 +1133,7 @@ router.post(
                 // console.log(newArray.length);
                 // console.log("Gets Here");
                 let sql3 =
-                  "INSERT INTO TEST_SCORE (testStudentName,testStudentEmail,testStudentCWID,testScore,corId,measureID) VALUES ?";
+                  "INSERT INTO TEST_SCORE (testStudentFirstName,testStudentLastName, testStudentEmail,testStudentCWID,testScore,measureID) VALUES ?";
                 if (newArray.length > 0) {
                   db.query(sql3, [newArray], (err, result) => {
                     if (err) {
@@ -1167,7 +1164,12 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let measureID = req.params.measureIdentifier;
-    let students = [req.body.name, req.body.email, req.body.CWID];
+    let students = [
+      req.body.firstName,
+      req.body.lastName,
+      req.body.email,
+      req.body.CWID
+    ];
     let errors = {};
 
     let sql1 =
@@ -1180,13 +1182,13 @@ router.post(
         return res.status(404).json({ errors: "Measure Not Found" });
       } else {
         students.push(measureID);
-        students.push(req.user.id);
         const validationError = validateCSVStudentsRow(students);
         if (validationError) {
           errors.validationError = validationError;
           return res.status(404).json(errors);
         } else {
-          let name = req.body.name;
+          let firstName = req.body.firstName;
+          let lastName = req.body.lastName;
           let email = req.body.email;
           let CWID = req.body.CWID;
           let sql2 =
@@ -1202,24 +1204,29 @@ router.post(
               return res.status(errors);
             } else {
               let sql3 =
-                "INSERT INTO STUDENT (studentName, studentEmail,studentCWID, measureID,corId) VALUES (" +
-                db.escape(name) +
+                "INSERT INTO STUDENT (studentFirstName, studentLastName, studentEmail,studentCWID, measureID) VALUES (" +
+                db.escape(firstName) +
+                ", " +
+                db.escape(lastName) +
                 ", " +
                 db.escape(email) +
                 ", " +
                 db.escape(CWID) +
                 ", " +
                 db.escape(measureID) +
-                ", " +
-                db.escape(req.user.id) +
                 ")";
               db.query(sql3, (err, result) => {
                 if (err) {
                   return res.status(500).json(err);
                 }
-                res
-                  .status(200)
-                  .json({ name, email, CWID, measureID, adminID: req.user.id });
+                res.status(200).json({
+                  name: firstName + " " + lastName,
+                  email,
+                  CWID,
+                  measureID,
+                  adminID: req.user.id,
+                  programID: req.user.programID
+                });
               });
             }
           });
@@ -1239,7 +1246,8 @@ router.post(
   (req, res) => {
     let measureID = req.params.measureIdentifier;
     let students = [
-      req.body.name,
+      req.body.firstName,
+      req.body.lastName,
       req.body.email,
       req.body.CWID,
       req.body.score
@@ -1256,13 +1264,13 @@ router.post(
         return res.status(404).json({ errors: "Measure Not Found" });
       } else {
         students.push(measureID);
-        students.push(req.user.id);
         const validationError = validateCSVStudentsTestRow(students);
         if (validationError) {
           errors.validationError = validationError;
           return res.status(404).json(errors);
         } else {
-          let name = req.body.name;
+          let firstName = req.body.firstName;
+          let lastName = req.body.lastName;
           let email = req.body.email;
           let CWID = req.body.CWID;
           let score = parseFloat(req.body.score);
@@ -1279,8 +1287,10 @@ router.post(
               return res.status(errors);
             } else {
               let sql3 =
-                "INSERT INTO TEST_SCORE (testStudentName, testStudentEmail,testStudentCWID, testScore, measureID,corId) VALUES (" +
-                db.escape(name) +
+                "INSERT INTO TEST_SCORE (testStudentFirstName, testStudentLastName, testStudentEmail,testStudentCWID, testScore, measureID,corId) VALUES (" +
+                db.escape(firstName) +
+                ", " +
+                db.escape(lastName) +
                 ", " +
                 db.escape(email) +
                 ", " +
@@ -1297,7 +1307,7 @@ router.post(
                   return res.status(500).json(err);
                 }
                 res.status(200).json({
-                  name,
+                  name: firstName + " " + lastName,
                   email,
                   CWID,
                   measureID,
@@ -1348,7 +1358,7 @@ router.get(
         }
         result.forEach(row => {
           student = {
-            name: row.studentName,
+            name: row.studentFirstName + " " + row.studentLastName,
             email: row.studentEmail,
             CWID: row.studentCWID,
             studentID: row.studentID
@@ -1401,7 +1411,7 @@ router.get(
         }
         result.forEach(row => {
           student = {
-            name: row.studentName,
+            name: row.studentFirstName + " " + row.studentLastName,
             email: row.studentEmail,
             CWID: row.studentCWID,
             studentID: row.studentID,
@@ -1431,6 +1441,7 @@ router.post(
   (req, res) => {
     let measureID = req.params.measureIdentifier;
     let adminID = req.user.id;
+    let programID = req.user.programID;
     let evalID = req.body.evalID;
     let rubricID = req.body.rubricID;
     alreadyAssignedStudents = [];
@@ -1450,8 +1461,8 @@ router.post(
           req.body.studentIDs,
           (value, key, callback) => {
             let sql1 =
-              "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
-              db.escape(adminID) +
+              "SELECT * FROM EVALUATOR_ASSIGN WHERE programID=" +
+              db.escape(programID) +
               " AND measureEvalID=" +
               db.escape(evalID) +
               " AND studentID=" +
@@ -1477,7 +1488,8 @@ router.post(
                   evalID,
                   value,
                   rubricID,
-                  measureID
+                  measureID,
+                  programID
                 ]);
                 callback();
               }
@@ -1488,7 +1500,7 @@ router.post(
               return res.status(500).json(err);
             } else {
               let sql2 =
-                "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES ?";
+                "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID,programID) VALUES ?";
               if (tobeAssignedStudents.length > 0) {
                 db.query(sql2, [tobeAssignedStudents], (err, result) => {
                   if (err) {
@@ -1522,7 +1534,6 @@ router.get(
       return Number(Math.round(value + "e" + decimals) + "e-" + decimals);
     }
 
-    let adminID = req.user.id;
     let measureID = req.params.measureIdentifier;
 
     let errors = {};
@@ -1611,7 +1622,8 @@ router.get(
               }
               let indResult = new Object();
               indResult["class"] = row.courseAssociated;
-              indResult["studentName"] = row.studentName;
+              indResult["studentName"] =
+                row.studentLastName + ", " + row.studentFirstName;
               indResult["evalName"] = row.evalName;
               indResult[row.criteriaDesc] = Math.round(
                 row.criteriaScore / row.criteriaWeight

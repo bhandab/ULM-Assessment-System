@@ -19,21 +19,26 @@ const validateCSVStudentsRow = row => {
     return "Invalid Row";
   } else {
     if (isEmpty(row[0].trim())) {
-      return "Empty Name Field";
+      return "Empty First Name Field";
     } else {
       row[0] = row[0].trim();
     }
     if (isEmpty(row[1].trim())) {
-      return "Empty Email Field";
-    } else if (!Validator.isEmail(row[1].trim())) {
-      return "Invalid Email Field";
+      return "Empty Last Name Field";
     } else {
       row[1] = row[1].trim();
     }
     if (isEmpty(row[2].trim())) {
-      row[2] = "";
+      return "Empty Email Field";
+    } else if (!Validator.isEmail(row[2].trim())) {
+      return "Invalid Email Field";
     } else {
       row[2] = row[2].trim();
+    }
+    if (isEmpty(row[3].trim())) {
+      row[3] = "";
+    } else {
+      row[3] = row[3].trim();
     }
   }
 
@@ -63,24 +68,29 @@ const validateCSVStudentsTestRow = row => {
       row[0] = row[0].trim();
     }
     if (isEmpty(row[1].trim())) {
-      return "Empty Email Field";
-    } else if (!Validator.isEmail(row[1].trim())) {
-      return "Invalid Email Field";
+      return "Empty Last Name Field";
     } else {
       row[1] = row[1].trim();
     }
     if (isEmpty(row[2].trim())) {
-      row[2] = "";
+      return "Empty Email Field";
+    } else if (!Validator.isEmail(row[2].trim())) {
+      return "Invalid Email Field";
     } else {
       row[2] = row[2].trim();
     }
     if (isEmpty(row[3].trim())) {
+      row[3] = "";
+    } else {
+      row[3] = row[3].trim();
+    }
+    if (isEmpty(row[4].trim())) {
       return "Empty Score Field";
     } else {
-      if (!Validator.isFloat(row[3].trim())) {
+      if (!Validator.isFloat(row[4].trim())) {
         return "Invalid Score Field";
       } else {
-        row[3] = Validator.toFloat(row[3]);
+        row[4] = Validator.toFloat(row[4]);
       }
     }
   }
