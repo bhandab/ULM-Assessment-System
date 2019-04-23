@@ -514,6 +514,12 @@ div.col-4.statCard.card {
 }
 /* button .close  */
 
+/* Profile **/
+#viewMoreProfile:hover{
+  cursor: pointer;
+  margin-top: 5px;
+}
+
 @media screen and (min-width: 600px) {
   html,
   body {

@@ -22,8 +22,8 @@ class Login extends Component {
         e.preventDefault();
 
         const userData = {
-            email: this.state.email,
-            password: this.state.password
+            email: e.target.email.value,
+            password: e.target.password.value
         }
 
         this.props.loginUser(userData)
@@ -35,7 +35,7 @@ class Login extends Component {
         // If logged in and user navigates to Login page, should redirect them to dashboard
         if (this.props.auth.isAuthenticated && this.props.auth.user.role==="coordinator") {
 
-            this.props.history.push("/admin/cycles");
+            this.props.history.push("/admin/dashboard");
         }
 
         else if (this.props.auth.isAuthenticated && this.props.auth.user.role === "evaluator") {
@@ -53,7 +53,7 @@ class Login extends Component {
     componentWillReceiveProps(nextProps) {
         if (nextProps.auth.isAuthenticated) {
             if (nextProps.auth.user.role === "coordinator") {
-                this.props.history.push("/admin");
+                this.props.history.push("/admin/dashboard");
             }
             else if (nextProps.auth.user.role === "evaluator") {
                 this.props.history.push('/evaluator/evaluate')
@@ -76,22 +76,22 @@ class Login extends Component {
     }
 
     render() {
-        
+        console.log(this.props)
         return (
             <div className="wrapper">
-                <form className="form-signin">
+                <form className="form-signin" onSubmit={this.loginUser.bind(this)}>
                     <h2 className="form-signin-heading">Please Login</h2>
 
-                    <input type="text" className="form-control" name="email" placeholder="Username" required="" autoFocus="" value={this.state.email} onChange={this.onChangeHandler.bind(this)} />
+                    <input type="text" className="form-control" name="email" placeholder="Username" required="" autoFocus=""/>
                     <p className="mt-0" style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.email}</p>
 
-                    <input type="password" className="form-control" name="password" placeholder="Password" required="" value={this.state.password} onChange={this.onChangeHandler} />
+                    <input type="password" className="form-control" name="password" placeholder="Password" required=""/>
                     <p className="mt-0" style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.password}</p>
 
                     <label className="checkbox">
                         <input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe" /> Remember Me
                         </label>
-                    <button className="btn btn-lg btn-primary btn-block" type="submit" onClick={this.loginUser} >Log In</button>
+                    <button className="btn btn-lg btn-primary btn-block" type="submit">Log In</button>
                     <Link id = "register" to="/register">Register</Link>
                 </form>
             </div>

@@ -955,7 +955,7 @@ router.get(
         if (row.evalName != "") {
           evalInfo = {
             measureEvalID: row.measureEvalID,
-            name: row.evalName,
+            name: row.evalFirstName+ " "+row.evalLastName,
             email: row.evalEmail
           };
           evaluators.push(evalInfo);

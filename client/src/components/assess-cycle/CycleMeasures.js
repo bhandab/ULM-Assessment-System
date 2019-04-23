@@ -9,7 +9,7 @@ import { getOutcomes } from "../../actions/outcomesAction";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { Spinner, Modal, Form, Button, InputGroup } from "react-bootstrap";
+import { Spinner, Modal, Form, Button, InputGroup, Card } from "react-bootstrap";
 import Delete from "../../utils/Delete";
 
 class CycleMeasures extends Component {
@@ -220,8 +220,12 @@ class CycleMeasures extends Component {
               </div>
             </div>
           </div> */}
+          <Card>
+            <Card.Header>
           <h2>{title}</h2>
           <hr />
+          </Card.Header>
+          <Card.Body>
           <ol className="list-group">{list}</ol>
           <Button
             className="btn mt-3 float-right ml-3"
@@ -236,6 +240,8 @@ class CycleMeasures extends Component {
           >
             Create Outcome
           </Button>
+          </Card.Body>
+          </Card>
         </section>
 
         <Modal

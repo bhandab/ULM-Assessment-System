@@ -6,6 +6,12 @@ import PropTypes from "prop-types";
 
 class MeasureReport extends Component {
   componentDidMount() {
+    if (
+      !this.props.auth.isAuthenticated &&
+      this.props.auth.user.role !== "coordinator"
+    ) {
+      this.props.history.push("/login");
+    }
     this.props.getMeasureRubricReport(this.props.match.params.measureID);
   }
 
@@ -45,6 +51,7 @@ class MeasureReport extends Component {
 
       const criteriaAvg = details => {
         return criterias.map((criteria,index) => {
+          console.log(details[criteria])
           return <td key={"criAvg"+index}>{details[criteria]}</td>;
         });
       };
@@ -83,8 +90,9 @@ class MeasureReport extends Component {
         <tr key="avgDtl">
           <td colSpan="3">Class avg.</td>
           {criteriaAvg(avgDetails)}
-          <td>{avgDetails.averageScore}</td>
           <td>{avgDetails.rubricScore}</td>
+          <td>{avgDetails.averageScore}</td>
+          
         </tr>
       );
       const passingCounts = this.props.cycles.measureReport.passingCounts;

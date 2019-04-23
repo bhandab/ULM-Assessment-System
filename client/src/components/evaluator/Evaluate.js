@@ -31,7 +31,7 @@ class Evaluate extends Component {
     }
 
     if(this.props.evaluations.rubricScores !== prevProps.evaluations.rubricScores){
-    console.log("RUbric Scores Updated")
+    console.log("Rubric Scores Updated")
     this.addScoresToTable()
     }
   }

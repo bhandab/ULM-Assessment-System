@@ -14,9 +14,9 @@ module.exports = function validateAddCoordinateInput(data){
         errors.coordinatorEmail = "Invalid Email"
     }
 
-    if(Validator.isEmpty(data.programName)){
-        errors.programName = "Program Name field cannot be empty"
-    }
+    // if(Validator.isEmpty(data.programName)){
+    //     errors.programName = "Program Name field cannot be empty"
+    // }
     
 
     return{

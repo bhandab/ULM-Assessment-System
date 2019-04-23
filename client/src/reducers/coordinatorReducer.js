@@ -1,8 +1,9 @@
-import {GET_REGISTERED_COORDINATORS, GET_INVITED_COORDINATORS} from '../actions/types'
+import {GET_REGISTERED_COORDINATORS, GET_INVITED_COORDINATORS, GET_PROGRAMS} from '../actions/types'
 
 const initialState = {
     invitedCoordinators: null,
-    registeredCoordinators: null
+    registeredCoordinators: null,
+    programs:null
 } 
 
 export default function (state = initialState, action) {
@@ -19,6 +20,12 @@ export default function (state = initialState, action) {
             ...state,
             registeredCoordinators: action.payload
 
+        }
+
+        case GET_PROGRAMS:
+        return {
+            ...StaticRange,
+            programs: action.payload
         }
 
         default:

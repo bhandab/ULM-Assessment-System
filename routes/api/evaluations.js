@@ -32,7 +32,7 @@ router.get(
           measureEvalID: row.measureEvalID,
           rubricID: row.toolID,
           evalName: row.evalName,
-          studentName: row.studentName,
+          studentName: row.studentFirstName+" "+row.studentLastName,
           studentCWID: row.studentCWID,
           studentEmail: row.studentEmail,
           rubricName: row.rubricTitle
