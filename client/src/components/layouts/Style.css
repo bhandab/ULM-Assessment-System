@@ -522,6 +522,19 @@ div.col-4.statCard.card {
 input[type=checkbox] {
   zoom: 1.5;
 }
+
+@media screen and (min-width: 375px){
+  html,
+  body {
+    height: 100%
+  }
+
+  ul.utilities {
+    margin-top: 0;
+  }
+ 
+}
+
 @media screen and (min-width: 600px) {
   html,
   body {
