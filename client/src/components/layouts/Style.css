@@ -519,7 +519,9 @@ div.col-4.statCard.card {
   cursor: pointer;
   margin-top: 5px;
 }
-
+input[type=checkbox] {
+  zoom: 1.5;
+}
 @media screen and (min-width: 600px) {
   html,
   body {
@@ -613,7 +615,7 @@ div.col-4.statCard.card {
     clear: none;
   }
   .panel.important {
-    width: 96%;
+    width: 100%;
   }
   .panel.secondary {
     width: 23%;
@@ -737,7 +739,7 @@ button:hover{
 /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
 @media screen and (max-height: 450px) {
   .sidebar {padding-top: 15px;}
-  .sidebar a {font-size: 18px;}
+  .sidebar a {font-size: 14px;}
 }
 
 @media print {
