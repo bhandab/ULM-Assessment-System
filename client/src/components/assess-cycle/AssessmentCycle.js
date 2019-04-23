@@ -4,7 +4,8 @@ import {
   getAssessmentCycles,
   createCycle,
   updateCycleName,
-  deleteCycle
+  deleteCycle,
+  cycleMigrate
 } from "../../actions/assessmentCycleAction";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
@@ -33,8 +34,18 @@ class AssessmentCycle extends Component {
 
   submitHandler = e => {
     e.preventDefault();
-    let value = e.target.cycleName.value;
-    this.props.createCycle({ cycleTitle: value }, this.props.history);
+    let name = e.target.cycleName.value;
+    
+    if(e.target.migrateCheck.checked){
+      let oldCycleID = e.target.cycleSelect.value
+      console.log(name)
+      console.log(oldCycleID)
+      this.props.cycleMigrate(name,oldCycleID)
+      this.setState({migrate:false})
+    }
+    else{
+     this.props.createCycle({ cycleTitle: name }, this.props.history);
+    }
   };
 
   saveChangesHandler = e => {
@@ -54,7 +65,7 @@ class AssessmentCycle extends Component {
   };
 
   modalHide = () => {
-    this.setState({ show: false });
+    this.setState({ show: false});
   };
 
   editShow = e => {
@@ -188,17 +199,13 @@ class AssessmentCycle extends Component {
             <Form onSubmit={this.submitHandler.bind(this)}>
               <Form.Control name="cycleName" placeholder="Cycle Name" />
               <Form.Group controlId="formBasicChecbox">
-              <Form.Check type="checkbox" label="Migrate From Previous Cycles" id="custom-checkbox" 
+              <Form.Check type="checkbox" name = "migrateCheck" label="Migrate From Previous Cycles" id="custom-checkbox" 
                 onChange={this.migrateSelect.bind(this)}/>
                 </Form.Group>
                 {this.state.migrate ?
-                <label>Select an Existing Cycle
-                <Form.Group>
-                  <select name = "cycleSelect">
+                  <select id="cycleSelect" name="cycleSelect">
                     {cyclesOptions}
                   </select>
-                </Form.Group>
-                </label> 
                 : null}
               <Button
                 className="mt-3 float-right"
@@ -265,5 +272,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { getAssessmentCycles, createCycle, updateCycleName, deleteCycle }
+  { getAssessmentCycles, createCycle, updateCycleName, deleteCycle, cycleMigrate }
 )(AssessmentCycle);

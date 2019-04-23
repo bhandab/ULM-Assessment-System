@@ -412,7 +412,7 @@ class MeasureDetails extends Component {
                       <Modal show={this.state.statusModal} onHide={this.statusModalHide} size="lg" centered>
                         <Modal.Header closeButton><h3 className="text-secondary">Student Status</h3></Modal.Header>
                         <Modal.Body className="row">
-                          <Card style={{width:'15rem'}} className="col-4 statCard">
+                          <Card style={{width:'15em'}} className="col-4 statCard">
                             <Card.Header><h4 className="text-info">Evaluated</h4></Card.Header>
                             <Card.Body>
                               <ListGroup>
@@ -420,7 +420,7 @@ class MeasureDetails extends Component {
                               </ListGroup>
                             </Card.Body>
                           </Card>
-                          <Card style={{width:'15rem'}} className="col-4 statCard">
+                          <Card style={{width:'15em'}} className="col-4 statCard">
                             <Card.Header><h4 className="text-success">Passing</h4></Card.Header>
                             <Card.Body>
                               <ListGroup>
@@ -428,7 +428,7 @@ class MeasureDetails extends Component {
                               </ListGroup>
                             </Card.Body>
                           </Card>
-                          <Card style={{width:'18rem'}} className="col-4 statCard">
+                          <Card style={{width:'15em'}} className="col-4 statCard">
                             <Card.Header><h4 className="text-danger">Failing</h4></Card.Header>
                             <Card.Body>
                               <ListGroup>
@@ -567,7 +567,7 @@ class MeasureDetails extends Component {
             
               <Fragment>
                 <Card
-                  style={{ width: "30rem", height: "20rem", float: "left" }}
+                  style={{ width: "30%", height: "20em", float: "left" }}
                 >
                  <Card.Header><h3>Evaluators  
                  <Button data-toggle="tooltip" data-placement="right" title="Add Evaluators To Measure"
@@ -590,7 +590,7 @@ class MeasureDetails extends Component {
                   </Card.Body>
                 </Card>
 
-                <Card style={{ width: "30rem", height: "20rem" }}>
+                <Card style={{ width: "30%", height: "20em" }}>
                   <Card.Header>
                     <h3>
                     Students

@@ -42,6 +42,17 @@ export const createCycle = (cycleName) => dispatch => {
             }))
 }
 
+export const cycleMigrate = (cycleName,oldCycleID) => dispatch => {
+    axios
+    .post("/api/cycles/migrate",{cycleName,oldCycleID})
+    .then(() => dispatch(getAssessmentCycles()))
+    .catch(err =>
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+        }))
+}
+
 export const linkOutcomeToCycle = (cycleID, outcome) => dispatch => {
     axios
         .post("/api/cycles/" + cycleID + "/addNewOutcome", outcome)
