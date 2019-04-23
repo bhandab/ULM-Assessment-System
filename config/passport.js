@@ -10,40 +10,35 @@ opts.secretOrKey = keys.secretOrkey;
 module.exports = passport => {
   passport.use(
     new JwtStrategy(opts, (jwt_payload, done) => {
-      
       let sql =
-      "SELECT * from SUPER_USER where superEmail=" +
-      db.escape(jwt_payload.email);
-    db.query(sql, (err, result) => {
-      if (err) return err;
-      else if (result.length > 0) {
-        return done(null, jwt_payload);
-      }
-     else {
-
-      let sql =
-        "SELECT * from COORDINATOR where corEmail=" +
+        "SELECT * from SUPER_USER where superEmail=" +
         db.escape(jwt_payload.email);
       db.query(sql, (err, result) => {
         if (err) return err;
         else if (result.length > 0) {
           return done(null, jwt_payload);
-        }
-        
-        else {
-         let sql =
-            "SELECT * from EVALUATOR where evalEmail=" +
+        } else {
+          let sql =
+            "SELECT * from COORDINATOR where corEmail=" +
             db.escape(jwt_payload.email);
           db.query(sql, (err, result) => {
             if (err) return err;
             else if (result.length > 0) {
               return done(null, jwt_payload);
-            } else return done(null, false);
+            } else {
+              let sql =
+                "SELECT * from EVALUATOR where evalEmail=" +
+                db.escape(jwt_payload.email);
+              db.query(sql, (err, result) => {
+                if (err) return err;
+                else if (result.length > 0) {
+                  return done(null, jwt_payload);
+                } else return done(null, false);
+              });
+            }
           });
         }
       });
-     } 
-   });
-  })
- );
+    })
+  );
 };
