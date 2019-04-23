@@ -16,8 +16,7 @@ class OutcomeMeasures extends Component {
     addMeasuresShow: false,
     createMeasuresShow: false,
     toolTypeVal: "rubric",
-    testType:'scored',
-    hiddenClass: ""
+    testType:'scored'
   };
 
   componentDidMount() {
@@ -118,19 +117,9 @@ class OutcomeMeasures extends Component {
     this.setState({ createMeasuresShow: false });
   };
 
-  testTypeChange = e => {
-    const type = e.target.value
-    if(type === 'pass'){
-    this.setState({testType:"pass/fail", hiddenClass:'d-none'})
-    }
-    else {
-      this.setState({testType:"scored",hiddenClass:''})
-    }
-  }
 
 
   render() {
-    console.log(this.props)
     let measures = <Spinner animation="border" variant="primary" />;
     let measureTitle = null;
     if (this.props.cycles.cycleLoading === false) {
@@ -368,22 +357,11 @@ class OutcomeMeasures extends Component {
                     )}
                 </InputGroup>
                     <InputGroup className = "row mb-3 ml-0">
-                    {this.state.toolTypeVal ==="rubric" ? 
                   <InputGroup.Append>
                     <InputGroup.Text id="basic-addon4">
                       will score
                     </InputGroup.Text>
-                  </InputGroup.Append> :
-                  <>
-                  <InputGroup.Append>
-                  <InputGroup.Text id="basic-addon4">
-                    will
-                  </InputGroup.Text>
-                </InputGroup.Append>
-                <select name="testType" onChange={this.testTypeChange.bind(this)}>
-                  <option value="score">score</option>
-                  <option value="pass">pass</option>
-                </select></> }
+                  </InputGroup.Append>
                     {this.state.toolTypeVal === "rubric" ?
 
                     <select
@@ -394,18 +372,17 @@ class OutcomeMeasures extends Component {
                     {rubricScoreOptions}
                     </select>
                     : <Form.Control
-                      className={`col-md-2 ${this.state.hiddenClass}`}
+                      className="col-md-2"
                       placeholder="Score"
                       name="projectedValue"
                     />}
-                  
                   {(this.state.toolTypeVal==="rubric") ? null :
-                <select name="valueOperator" className={this.state.hiddenClass}>
+                <select name="valueOperator">
                     <option value="%">%</option>
                     <option value="percentile">percentile</option>
                 </select>
                 }
-                  <InputGroup.Append className={this.state.hiddenClass}>
+                  <InputGroup.Append>
                     <InputGroup.Text id="basic-addon4">
                       or greater.
                     </InputGroup.Text>

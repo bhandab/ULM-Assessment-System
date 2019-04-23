@@ -65,13 +65,13 @@ router.post(
 );
 
 router.get(
-  "/invitedCoordinators",
+  "/invitedCoordinators/:programID",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let invitedCoordinators = [];
     let sql =
-      "SELECT * FROM INVITED_COORDINATOR WHERE superID=" +
-      db.escape(req.user.id);
+      "SELECT * FROM INVITED_COORDINATOR WHERE programID=" +
+      db.escape(req.params.programID);
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -79,7 +79,7 @@ router.get(
       result.forEach(row => {
         invitedCoordinators.push(row.invitedCorEmail);
       });
-      return res.status(200).json({ invitedCoordinators });
+      return res.status(200).json(invitedCoordinators);
     });
   }
 );
@@ -88,23 +88,24 @@ router.get(
 //Angel
 
 router.get(
-  "/registeredCoordinators",
+  "/registeredCoordinators/:programID",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let registeredCoordinators = [];
-    let sql = "SELECT * FROM COORDINATOR NATURAL JOIN PROGRAM";
+    let sql = "SELECT * FROM COORDINATOR NATURAL JOIN PROGRAM WHERE programID = "+
+    db.escape(req.params.programID);
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
       }
       result.forEach(row => {
         registeredCoordinators.push({
-          name: row.corName,
+          name: row.corFirstName+" "+row.corLastName,
           email: row.corEmail,
-          program: row.programName
+          program: row.programName,
         });
       });
-      return res.status(200).json({ registeredCoordinators });
+      return res.status(200).json(registeredCoordinators);
     });
   }
 );

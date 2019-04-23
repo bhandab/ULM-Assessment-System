@@ -3,6 +3,9 @@ require("dotenv").config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const invite = (invitorEmail, invitorName, inviteeEmail) => {
+  if(invitorName === undefined){
+    invitorName = Admin
+  }
   const msg = {
     to: inviteeEmail,
     from: invitorEmail,

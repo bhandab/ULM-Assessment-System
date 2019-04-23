@@ -5,6 +5,7 @@ import {GET_REGISTERED_COORDINATORS, GET_INVITED_COORDINATORS, GET_PROGRAMS,GET_
 export const inviteCoordinator = (body) => dispatch =>{
     axios
     .post("/api/coordinators/invite",body)
+    .then(()=> dispatch(getInvitedCoordinators(body.programID)))
     .catch(err =>
         dispatch({
             type: GET_ERRORS,
@@ -13,9 +14,10 @@ export const inviteCoordinator = (body) => dispatch =>{
     );
 }
 
-export const getInvitedCoordinators = () => dispatch => {
+export const getInvitedCoordinators = (programID) => dispatch => {
+    console.log(programID)
     axios
-    .get("/api/coordinators/invitedCoordinators")
+    .get("/api/coordinators/invitedCoordinators/"+programID)
     .then(res => {
         dispatch({
             type: GET_INVITED_COORDINATORS,
@@ -33,9 +35,9 @@ export const getInvitedCoordinators = () => dispatch => {
 
 }
 
-export const getRegisteredCoordinators = () => dispatch => {
+export const getRegisteredCoordinators = (programID) => dispatch => {
     axios
-    .get("/api/coordinators/registeredCoordinators")
+    .get("/api/coordinators/registeredCoordinators/"+programID)
     .then(res => {
         dispatch({
             type: GET_REGISTERED_COORDINATORS,

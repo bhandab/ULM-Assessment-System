@@ -215,7 +215,7 @@ router.post("/login", (req, res) => {
       );
     } else if (result <= 0) {
       let sql =
-        "SELECT * from COORDINATOR WHERE isActive=true AND corEmail=" +
+        "SELECT * from COORDINATOR NATURAL JOIN PROGRAM WHERE isActive=true AND corEmail=" +
         db.escape(email) +
         " and corPWHash=password(" +
         db.escape(password) +
@@ -232,7 +232,8 @@ router.post("/login", (req, res) => {
             name: result[0].corFirstName + " " + result[0].corLastName,
             id: result[0].corId,
             programID: result[0].programID,
-            role: "coordinator"
+            role: "coordinator",
+            programName: result[0].programName
           };
 
           jwt.sign(

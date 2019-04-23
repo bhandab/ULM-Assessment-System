@@ -18,10 +18,8 @@ class Register extends Component {
             email: e.target.email.value,
             password: e.target.password.value,
             password2: e.target.password2.value,
-            fname: e.target.fName.value,
-            lName: e.target.lName.value,
-            program:"none",
-            name: e.target.fName.value + " "+e.target.lName.value
+            firstName: e.target.fName.value,
+            lastName: e.target.lName.value,
         }
         this.props.registerUser(userData,this.props.history)
         console.log(userData)

@@ -66,7 +66,7 @@ openNav = () => {
           </div> */}
           <ul className="utilities">
             <li className="users">
-              <Link to="#">{this.props.auth.user.name}</Link>
+              <Link to="/admin/profile">{this.props.auth.user.name}</Link>
             </li>
             <li className="logout warn">
               <Link to="/login" onClick={this.onLogoutClick.bind(this)}>
