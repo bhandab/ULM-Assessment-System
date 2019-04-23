@@ -657,7 +657,8 @@ router.get(
               projectedStudentNumber: row.projectedStudentsValue,
               courseAssociated: row.courseAssociated,
               toolName: row.toolName,
-              toolID: row.toolID
+              toolID: row.toolID,
+              measureStatus: row.measureStatus
             };
             measures.push(measure);
           });

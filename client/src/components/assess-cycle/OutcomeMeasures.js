@@ -151,8 +151,13 @@ class OutcomeMeasures extends Component {
                 >
                   {measure.measureName}
                 </Link>
-                {measure.measureStatus ? <span className="p-1 bg-success float-right font-italic"><small>Passing</small></span> 
-                : <span className="p-1 bg-danger float-right font-italic rounded"><small>Failing</small></span> }
+                {measure.measureStatus ? 
+                <span className="p-2 bg-success rounded float-right">
+                <small><strong>Passing</strong></small>
+                </span> 
+                : <span className="p-2 bg-danger float-right rounded">
+                <small><strong>Failing</strong></small>
+                </span> }
               </li>
             );
           });
