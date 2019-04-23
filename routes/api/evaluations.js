@@ -32,7 +32,7 @@ router.get(
           measureEvalID: row.measureEvalID,
           rubricID: row.toolID,
           evalName: row.evalName,
-          studentName: row.studentFirstName+" "+row.studentLastName,
+          studentName: row.studentFirstName + " " + row.studentLastName,
           studentCWID: row.studentCWID,
           studentEmail: row.studentEmail,
           rubricName: row.rubricTitle
@@ -254,7 +254,7 @@ router.post(
                 if (err) {
                   return res.status(500).json(err);
                 } else {
-                  updateAverageScore();
+                  updateMeasureStatus();
                 }
               });
             } else {
@@ -303,12 +303,13 @@ router.post(
                         .json({ criteriaID, criteriaScore });
                     });
                   } else {
-                    updateAverageScore();
+                    updateMeasureStatus();
                   }
                 });
               });
             }
-            let updateAverageScore = () => {
+
+            let updateMeasureStatus = () => {
               let sql4 =
                 "SELECT AVG(rubricScore) as averageStudentScore FROM RUBRIC_SCORE WHERE toolID=" +
                 db.escape(rubricID) +
@@ -336,7 +337,47 @@ router.post(
                   if (err) {
                     return res.status(500).json(err);
                   }
-                  return res.status(200).json({ criteriaID, criteriaScore });
+                  let sql9 =
+                    "SELECT * FROM PERFORMANCE_MEASURE NATURAL JOIN STUDENT_AVERAGE_SCORE where measureID=" +
+                    db.escape(req.body.measureID);
+
+                  db.query(sql9, (err, result) => {
+                    if (err) {
+                      return res.status(500).json(err);
+                    }
+
+                    let totalCount = 0;
+                    let passingCount = 0;
+                    var thresholdStudents = -1;
+                    let passing = false;
+                    result.forEach(row => {
+                      thresholdStudents = row.projectedStudentsValue;
+                      totalCount++;
+                      if (row.averageScore >= row.projectedResult) {
+                        passingCount++;
+                      }
+                    });
+                    if (
+                      totalCount !== 0 &&
+                      thresholdStudents !== -1 &&
+                      (passingCount / totalCount) * 100 >= thresholdStudents
+                    ) {
+                      passing = true;
+                    }
+                    let sql10 =
+                      "UPDATE PERFORMANCE_MEASURE SET measureStatus=" +
+                      db.escape(passing) +
+                      " WHERE measureID=" +
+                      db.escape(req.body.measureID);
+                    db.query(sql10, (err, result) => {
+                      if (err) {
+                        return res.status(500).json(err);
+                      }
+                      return res
+                        .status(200)
+                        .json({ criteriaID, criteriaScore });
+                    });
+                  });
                 });
               });
             };
@@ -346,5 +387,51 @@ router.post(
     });
   }
 );
+
+// router.post(
+//   "/updateMeasure",
+//   passport.authenticate("jwt", { session: false }),
+//   (req, res) => {
+//     let sql1 =
+//       "SELECT * FROM PERFORMANCE_MEASURE NATURAL JOIN STUDENT_AVERAGE_SCORE where measureID=" +
+//       db.escape(req.body.measureID);
+
+//     db.query(sql1, (err, result) => {
+//       if (err) {
+//         return res.status(500).json(err);
+//       }
+
+//       let totalCount = 0;
+//       let passingCount = 0;
+//       var thresholdStudents = -1;
+//       let passing = false;
+//       result.forEach(row => {
+//         thresholdStudents = row.projectedStudentsValue;
+//         totalCount++;
+//         if (row.averageScore >= row.projectedResult) {
+//           passingCount++;
+//         }
+//       });
+//       if (
+//         totalCount !== 0 &&
+//         thresholdStudents !== -1 &&
+//         passingCount / totalCount >= thresholdStudents
+//       ) {
+//         passing = true;
+//       }
+//       let sql2 =
+//         "UPDATE PERFORMANCE_MEASURE SET measureStatus=" +
+//         db.escape(passing) +
+//         " WHERE measureID=" +
+//         db.escape(req.body.measureID);
+//       db.query(sql2, (err, result) => {
+//         if (err) {
+//           return res.status(500).json(err);
+//         }
+//         res.status(200).json("Updated Successfully!");
+//       });
+//     });
+//   }
+// );
 
 module.exports = router;
