@@ -1,26 +1,20 @@
-const Validator = require('validator')
-const isEmpty = require('./isEmpty')
+const Validator = require("validator");
+const isEmpty = require("./isEmpty");
 
-module.exports = function validateAddCoordinateInput(data){
-    const errors = {}
-    data.coordinatorEmail = !isEmpty(data.coordinatorEmail) ? data.coordinatorEmail.trim() : ""
-    data.programName = !isEmpty(data.programName ) ? data.programName .trim() : ""
+module.exports = function validateAddCoordinateInput(data) {
+  const errors = {};
+  data.coordinatorEmail = !isEmpty(data.coordinatorEmail)
+    ? data.coordinatorEmail.trim()
+    : "";
 
-    if(Validator.isEmpty(data.coordinatorEmail)){
-        errors.coordinatorEmail = "Coordinator Email field cannot be empty"
-    }
+  if (Validator.isEmpty(data.coordinatorEmail)) {
+    errors.coordinatorEmail = "Coordinator Email field cannot be empty";
+  } else if (!Validator.isEmail(data.coordinatorEmail)) {
+    errors.coordinatorEmail = "Invalid Email";
+  }
 
-    else if(!Validator.isEmail(data.coordinatorEmail)){
-        errors.coordinatorEmail = "Invalid Email"
-    }
-
-    // if(Validator.isEmpty(data.programName)){
-    //     errors.programName = "Program Name field cannot be empty"
-    // }
-    
-
-    return{
-        errors,
-        isValid:isEmpty(errors)
-    }
-}
+  return {
+    errors,
+    isValid: isEmpty(errors)
+  };
+};

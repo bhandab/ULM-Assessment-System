@@ -688,8 +688,6 @@ router.get(
   }
 );
 
-
-
 // @route POST api/cycles/:outcomeIdentifier/addNewCourse
 // @desc Adds a new curriculam mapping to outcome
 // @access Private
