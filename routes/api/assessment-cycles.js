@@ -145,24 +145,10 @@ router.post(
           }
           let outcomes = [];
           result.forEach(row => {
-<<<<<<< HEAD
-            measure = {
-              measureName: row.measureDesc,
-              measureID: row.measureID,
-              projectedResult: row.projectedResult,
-              projectedStudentNumber: row.projectedStudentsValue,
-              courseAssociated: row.courseAssociated,
-              toolName: row.toolName,
-              toolID: row.toolID,
-              measureStatus: row.measureStatus
-            };
-            measures.push(measure);
-=======
             outcomes.push({
               learnDesc: row.learnDesc,
               oldOutcomeID: row.learnID
             });
->>>>>>> 6506f9f3f86f9beec39bbdcd36d06ceae95e40ce
           });
 
           async.forEachOf(
