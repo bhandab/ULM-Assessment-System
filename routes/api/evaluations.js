@@ -360,7 +360,7 @@ router.post(
                     if (
                       totalCount !== 0 &&
                       thresholdStudents !== -1 &&
-                      passingCount / totalCount >= thresholdStudents
+                      (passingCount / totalCount) * 100 >= thresholdStudents
                     ) {
                       passing = true;
                     }
