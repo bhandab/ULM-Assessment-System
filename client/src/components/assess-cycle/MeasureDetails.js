@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import {Link} from 'react-router-dom';
 import { inviteEvaluator } from "../../actions/evaluatorAction";
+import { isEmpty } from '../../utils/isEmpty'
 import {
   getMeasureDetails,
   getMeasureEvaluators,
@@ -79,6 +80,9 @@ class MeasureDetails extends Component {
           this.props.getMeasureTestReport(measureID);
           this.setState({toolType:"test"})
         }
+      }
+      if(this.props.cycles.measureReport !== prevProps.cycles.measureReport){
+        console.log("Call status changing api here")
       }
     }
   }
@@ -191,12 +195,14 @@ class MeasureDetails extends Component {
 
   addStudentsHandler = e => {
     e.preventDefault();
-    const name = e.target.studName.value;
+    const firstName = e.target.fName.value;
+    const lastName = e.target.lName.value
     const email = e.target.studEmail.value;
     const CWID = e.target.studCWID.value;
 
     const body = {
-      name,
+      firstName,
+      lastName,
       email,
       CWID
     };
@@ -360,13 +366,19 @@ class MeasureDetails extends Component {
                   let benchmarkPer = this.props.cycles.measureDetails.projectedStudentNumber
                   let passingCount = this.props.cycles.measureReport.passingCounts.averageScore
                   let results = this.props.cycles.measureReport.results
-                  let passPer = (passingCount/totalStudents)*100
+                  
+                  let passPer = this.props.cycles.measureReport.passingPercentages.averageScore //((passingCount/totalStudents)*100).toFixed(2)
                   let evaluated = []
                   let passed = []
                   let failed = []
-                  console.log(passPer)
+                  // let notAssigned = totalStudents - results.length
+                  // let notAssgPer = ((notAssigned / totalStudents) * 100).toFixed(2)
                   let failPer = 100 - passPer
-                  console.log(failPer)
+                  // if(isEmpty(passingCount)){
+                  //  failPer = 100
+                  //  notAssgPer = 0
+                  //  passPer = 0
+                  // }
                   if(passPer > benchmarkPer){
                     status = (<h3>Status: <span className="text-success">Passing</span></h3>)
                   }
@@ -375,12 +387,13 @@ class MeasureDetails extends Component {
                   }
                   progressBar = (
                     <ProgressBar>
-                        <ProgressBar variant="success" now={passPer} label={`${passPer}%`}  key={1} />
-                        <ProgressBar variant="danger" now={failPer} label={`${failPer}%`}  key={2} />
+                        <ProgressBar variant="success" now={passPer} label={`Passing(${passPer}%)`}  key={1} />
+                        <ProgressBar variant="danger" now={failPer} label={`Failing(${failPer}%)`}  key={2} />
+                        {/* <ProgressBar variant="warning" now={notAssgPer} label={`NA(${notAssgPer}%)`} key={3} /> */}
                     </ProgressBar>
                   )
                     evaluated = results.map((student,index) => {
-                      if(student.averageScore > passScore){
+                      if(student.averageScore >= passScore){
                         passed.push(
                         <ListGroup.Item key={"pass"+index} className="statStuds">{student.studentName}</ListGroup.Item>
                         )
@@ -497,7 +510,6 @@ class MeasureDetails extends Component {
       );
       this.setState({ errors: {} });
     }
-console.log(this.state)
     return (
       <Fragment>
     
@@ -677,9 +689,15 @@ console.log(this.state)
             <Form onSubmit={this.addStudentsHandler.bind(this)}>
               <InputGroup>
                 <InputGroup.Append>
-                  <InputGroup.Text>Name</InputGroup.Text>
+                  <InputGroup.Text>First Name</InputGroup.Text>
                 </InputGroup.Append>
-                <Form.Control name="studName" placeholder="Name" />
+                <Form.Control name="fName" placeholder="eg. John" />
+              </InputGroup>
+              <InputGroup>
+                <InputGroup.Append>
+                  <InputGroup.Text>Last Name</InputGroup.Text>
+                </InputGroup.Append>
+                <Form.Control name="lName" placeholder="eg. Doe" />
               </InputGroup>
               <InputGroup>
                 <InputGroup.Append>

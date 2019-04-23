@@ -8,7 +8,7 @@ import { getAllRubrics, getSingleRubric } from "../../actions/rubricsAction";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { Form, Button, InputGroup, Modal, Spinner, Card} from "react-bootstrap";
+import { Form, Button, InputGroup, Modal, Spinner, Card, Alert} from "react-bootstrap";
 import { isEmpty } from "../../utils/isEmpty";
 
 class OutcomeMeasures extends Component {
@@ -138,8 +138,8 @@ class OutcomeMeasures extends Component {
         if (this.props.cycles.outcomeMeasures.measures.length > 0) {
           measures = this.props.cycles.outcomeMeasures.measures.map(measure => {
             return (
-              <li className="list-group-item" key={measure.measureID}>
-                <Link
+              <li className="list-group-item row" key={measure.measureID}>
+                <Link className='col-9'
                   to={
                     "/admin/cycles/cycle/" +
                     this.props.cycles.outcomeMeasures.cycleID +
@@ -151,6 +151,8 @@ class OutcomeMeasures extends Component {
                 >
                   {measure.measureName}
                 </Link>
+                {measure.measureStatus ? <span className="p-1 bg-success float-right font-italic"><small>Passing</small></span> 
+                : <span className="p-1 bg-danger float-right font-italic rounded"><small>Failing</small></span> }
               </li>
             );
           });

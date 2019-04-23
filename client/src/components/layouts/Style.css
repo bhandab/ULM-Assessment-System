@@ -519,7 +519,9 @@ div.col-4.statCard.card {
   cursor: pointer;
   margin-top: 5px;
 }
-
+input[type=checkbox] {
+  zoom: 1.5;
+}
 @media screen and (min-width: 600px) {
   html,
   body {

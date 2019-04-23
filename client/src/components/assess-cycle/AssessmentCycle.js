@@ -8,7 +8,7 @@ import {
 } from "../../actions/assessmentCycleAction";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { Spinner, Button, Modal, Form, Card} from "react-bootstrap";
+import { Spinner, Button, Modal, Form, Card, FormCheck} from "react-bootstrap";
 import Delete from "../../utils/Delete";
 
 class AssessmentCycle extends Component {
@@ -17,7 +17,8 @@ class AssessmentCycle extends Component {
     editShow: false,
     cycleName: "",
     cycleID: null,
-    deleteShow: false
+    deleteShow: false,
+    migrate:false
   };
 
   componentDidMount() {
@@ -80,8 +81,15 @@ class AssessmentCycle extends Component {
     this.setState({ deleteShow: false });
   };
 
+  migrateSelect = (e) => {
+    console.log(e.target.checked)
+    this.setState({migrate:e.target.checked})
+
+  }
+
   render() {
     let cyclesList = null;
+    let cyclesOptions = []
     if (
       this.props.cycles.cycles !== null &&
       this.props.cycles.cycles !== undefined
@@ -90,7 +98,11 @@ class AssessmentCycle extends Component {
         this.props.cycles.cycles.cycles !== null &&
         this.props.cycles.cycles.cycles !== undefined
       ) {
-        cyclesList = this.props.cycles.cycles.cycles.map(cycle => (
+        cyclesList = this.props.cycles.cycles.cycles.map(cycle => {
+          cyclesOptions.push(
+            <option value={cycle.cycleID} key={"opt"+cycle.cycleID}>{cycle.cycleName}</option>
+          )
+          return (
           <li className="list-group-item" key={cycle.cycleID}>
             <Link
               params={cycle.cycleName}
@@ -116,7 +128,7 @@ class AssessmentCycle extends Component {
               className="delete"
             />
           </li>
-        ));
+        )});
         if (cyclesList.length === 0) {
           cyclesList = <li className="list-group-item">No Cycles Present</li>;
         }
@@ -175,6 +187,19 @@ class AssessmentCycle extends Component {
           <Modal.Body>
             <Form onSubmit={this.submitHandler.bind(this)}>
               <Form.Control name="cycleName" placeholder="Cycle Name" />
+              <Form.Group controlId="formBasicChecbox">
+              <Form.Check type="checkbox" label="Migrate From Previous Cycles" id="custom-checkbox" 
+                onChange={this.migrateSelect.bind(this)}/>
+                </Form.Group>
+                {this.state.migrate ?
+                <label>Select an Existing Cycle
+                <Form.Group>
+                  <select name = "cycleSelect">
+                    {cyclesOptions}
+                  </select>
+                </Form.Group>
+                </label> 
+                : null}
               <Button
                 className="mt-3 float-right"
                 type="submit"

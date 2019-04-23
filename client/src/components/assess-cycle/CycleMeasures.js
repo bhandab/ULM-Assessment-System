@@ -46,7 +46,7 @@ class CycleMeasures extends Component {
   outcomeAddHandler = e => {
     e.preventDefault();
     this.setState({ addOutcomes: !this.state.addOutcomes });
-    this.props.linkOutcomeToCycle(this.props.match.params.id, {
+    this.props.linkOutcomeToCycle(this.props.match.params.cycleID, {
       outcomeDescription: e.target.outcomes.value
     });
   };
@@ -125,6 +125,7 @@ class CycleMeasures extends Component {
   };
 
   render() {
+    console.log(this.props)
     let title = null;
     let list = <Spinner animation="border" variant="primary" />;
     let outcomeArray = null;

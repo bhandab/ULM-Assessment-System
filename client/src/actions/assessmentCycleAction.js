@@ -297,19 +297,14 @@ export const getAssignedStudents = (measureID) => dispatch => {
 export const assignStudentsToMeasure = (measureID, body) => dispatch => {
     axios
         .post("/api/cycles/" + measureID + "/assign",body)
-        // .then(res =>
-        //     dispatch({
-        //         type: GET_ASSIGNED_STUDENTS,
-        //         payload: res.data
-        //     })
-        // )
-        .catch(err => console.log(err) /*{
-            dispatch(console.log(err){
+        .then(() => dispatch(getAssignedStudents(measureID)))
+        .catch(err => {
+            dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
 
-            
-        }*/)
+            })
+        })
 }
 
 export const getMeasureRubricReport = (measureID) => dispatch => {
