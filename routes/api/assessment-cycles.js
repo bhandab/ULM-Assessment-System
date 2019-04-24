@@ -302,7 +302,7 @@ router.post(
   (req, res) => {
     let cycleID = req.params.cycleIdentifier;
     let programID = req.user.programID;
-    let errors = {}
+    let errors = {};
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
@@ -319,34 +319,33 @@ router.post(
       }
 
       let sql1 =
-      "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
-      db.escape(cycleID);
-    db.query(sql1, (err, result) => {
-      if (err) {
-        return res.status(500).json(err);
-      }
-      if (result.length > 0) {
-        errors.outcomeExistingInsideCycle =
-          "One or more outcomes is linked with this cycle. Please delete outcomes linked with the cycle first!";
-        return res.status(404).json(errors);
-      }
-
-      let sql2 =
-        "DELETE FROM ASSESSMENT_CYCLE WHERE cycleID=" +
-        db.escape(cycleID) +
-        " AND programID=" +
-        db.escape(programID);
-
-      cycleName = result[0].cycleTitle;
-
-      db.query(sql2, (err, result) => {
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" + db.escape(cycleID);
+      db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
+        if (result.length > 0) {
+          errors.outcomeExistingInsideCycle =
+            "One or more outcomes is linked with this cycle. Please delete outcomes linked with the cycle first!";
+          return res.status(404).json(errors);
+        }
 
-        return res.status(200).json({ cycleID, cycleName });
+        let sql2 =
+          "DELETE FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+          db.escape(cycleID) +
+          " AND programID=" +
+          db.escape(programID);
+
+        cycleName = result[0].cycleTitle;
+
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          return res.status(200).json({ cycleID, cycleName });
+        });
       });
-    })
     });
   }
 );
