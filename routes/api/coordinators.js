@@ -25,7 +25,7 @@ router.get(
           programID: row.programID
         });
       });
-      return res.status(200).json( programs );
+      return res.status(200).json(programs);
     });
   }
 );
@@ -92,17 +92,18 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let registeredCoordinators = [];
-    let sql = "SELECT * FROM COORDINATOR NATURAL JOIN PROGRAM WHERE programID = "+
-    db.escape(req.params.programID);
+    let sql =
+      "SELECT * FROM COORDINATOR NATURAL JOIN PROGRAM WHERE programID = " +
+      db.escape(req.params.programID);
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
       }
       result.forEach(row => {
         registeredCoordinators.push({
-          name: row.corFirstName+" "+row.corLastName,
+          name: row.corFirstName + " " + row.corLastName,
           email: row.corEmail,
-          program: row.programName,
+          program: row.programName
         });
       });
       return res.status(200).json(registeredCoordinators);
@@ -181,6 +182,25 @@ router.post(
             });
         }
       });
+    });
+  }
+);
+
+//Deletes Coordinator
+router.post(
+  "/deleteCoordinator",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let deleteUser = req.body.cordID;
+
+    let sql =
+      "UPDATE COORDINATOR SET isActive=false WHERE corId=" +
+      db.escape(deleteUser);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      res.status(200).json("Successfully Deleted!");
     });
   }
 );

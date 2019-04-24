@@ -121,4 +121,23 @@ router.post(
   }
 );
 
+//Deletes Evaluator
+router.post(
+  "/deleteEvaluator",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let deleteUser = req.body.evalID;
+
+    let sql =
+      "UPDATE EVALUATOR SET isActive=false WHERE corId=" +
+      db.escape(deleteUser);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      res.status(200).json("Successfully Deleted!");
+    });
+  }
+);
+
 module.exports = router;
