@@ -8,14 +8,14 @@ import { getAllRubrics, getSingleRubric } from "../../actions/rubricsAction";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { Form, Button, InputGroup, Modal, Spinner, Card, Alert} from "react-bootstrap";
+import { Form, Button, InputGroup, Modal, Spinner, Card} from "react-bootstrap";
 import { isEmpty } from "../../utils/isEmpty";
 
 class OutcomeMeasures extends Component {
   state = {
     addMeasuresShow: false,
     createMeasuresShow: false,
-    toolTypeVal: "rubric",
+    toolTypeVal: "",
     testType:'scored',
     hiddenClass: ""
   };
@@ -115,7 +115,7 @@ class OutcomeMeasures extends Component {
   };
 
   createMeasureHide = () => {
-    this.setState({ createMeasuresShow: false });
+    this.setState({ createMeasuresShow: false,  });
   };
 
   testTypeChange = e => {
@@ -152,11 +152,11 @@ class OutcomeMeasures extends Component {
                   {measure.measureName}
                 </Link>
                 {measure.measureStatus ? 
-                <span className="p-2 bg-success rounded float-right">
-                <small><strong>Passing</strong></small>
+                <span className="p-2 text-success rounded float-right">
+                <strong><i className="fas fa-check-circle"></i></strong>
                 </span> 
-                : <span className="p-2 bg-danger float-right rounded">
-                <small><strong>Failing</strong></small>
+                : <span className="p-2 text-danger float-right rounded">
+                <strong><i className="fas fa-times-circle"></i></strong>
                 </span> }
               </li>
             );
@@ -244,7 +244,7 @@ class OutcomeMeasures extends Component {
                     </div> */}
           <Card>
             <Card.Header>
-          <h2>{measureTitle}</h2>
+          <h2>{measureTitle}<Button size="lg" variant="outline-primary" className="float-right"><i className="fas fa-book"></i></Button></h2>
           </Card.Header>
           <Card.Body>
           <ol className="list-group">{measures}</ol>
@@ -357,7 +357,9 @@ class OutcomeMeasures extends Component {
                     name="toolType"
                     className="custom-select col-sm-2"
                     id="toolType"
-                  >
+                    defaultValue='null'
+                  > 
+                    <option default disabled value="null">Select a Tool</option> 
                     <option value="rubric">rubric</option>
                     <option value="test">test</option>
                   </select>
