@@ -556,4 +556,47 @@ router.post(
   }
 );
 
+// @route POST api/rubrics/delete
+// @desc Deletes a Rubric
+// @access Private
+router.post(
+  "/delete",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let programID = req.user.programID;
+    let rubricID = req.body.rubricID;
+    let errors = {};
+
+    let sql = "SELECT * FROM RUBRIC WHERE toolID=" + db.escape(rubricID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.rubricNotFound = "Rubric Does not Exist!";
+        return res.status(404).json(errors);
+      }
+
+      let sql1 =
+        "SELECT * FROM PERFORMANCE_MEASURE WHERE toolID=" + db.escape(rubricID);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length > 0) {
+          errors.rubricAssociatedWithMeasure =
+            "Rubric has been linked to a Measure!";
+          return res.status(404).json(errors);
+        }
+        let sql2 = "DELETE FROM TOOL WHERE toolID=" + db.escape(rubricID);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Deleted Successfully!");
+        });
+      });
+    });
+  }
+);
 module.exports = router;

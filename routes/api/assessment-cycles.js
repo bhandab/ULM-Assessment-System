@@ -302,7 +302,7 @@ router.post(
   (req, res) => {
     let cycleID = req.params.cycleIdentifier;
     let programID = req.user.programID;
-
+    let errors = {};
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
@@ -319,19 +319,32 @@ router.post(
       }
 
       let sql1 =
-        "DELETE FROM ASSESSMENT_CYCLE WHERE cycleID=" +
-        db.escape(cycleID) +
-        " AND programID=" +
-        db.escape(programID);
-
-      cycleName = result[0].cycleTitle;
-
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" + db.escape(cycleID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
+        if (result.length > 0) {
+          errors.outcomeExistingInsideCycle =
+            "One or more outcomes is linked with this cycle. Please delete outcomes linked with the cycle first!";
+          return res.status(404).json(errors);
+        }
 
-        return res.status(200).json({ cycleID, cycleName });
+        let sql2 =
+          "DELETE FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+          db.escape(cycleID) +
+          " AND programID=" +
+          db.escape(programID);
+
+        cycleName = result[0].cycleTitle;
+
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          return res.status(200).json({ cycleID, cycleName });
+        });
       });
     });
   }
@@ -506,7 +519,8 @@ router.post(
             "The Selected Outcome is not in the current Assessment Cycle";
           return res.status(404).json({ errors });
         }
-        let sql1 =
+
+        let sql2 =
           "UPDATE LEARNING_OUTCOME SET learnDesc=" +
           db.escape(outcomeName) +
           "WHERE cycleID=" +
@@ -516,7 +530,7 @@ router.post(
           " AND programID=" +
           db.escape(programID);
 
-        db.query(sql1, (err, result) => {
+        db.query(sql2, (err, result) => {
           if (err) {
             return res.status(500).json(err);
           }
@@ -538,6 +552,7 @@ router.post(
     let cycleID = req.params.cycleIdentifier;
     let learnID = req.params.outcomeIdentifier;
     let programID = req.user.programID;
+    let errors = {};
 
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
@@ -572,20 +587,33 @@ router.post(
           return res.status(404).json({ errors });
         }
         let sql1 =
-          "DELETE FROM LEARNING_OUTCOME WHERE cycleID=" +
-          db.escape(cycleID) +
-          " AND learnID=" +
-          db.escape(learnID) +
-          " AND programID=" +
-          db.escape(programID);
-
-        let outcomeName = result[0].learnDesc;
+          "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
+          db.escape(learnID);
         db.query(sql1, (err, result) => {
           if (err) {
             return res.status(500).json(err);
           }
+          if (result.length > 0) {
+            errors.measureExistingInsideOutcome =
+              "One or more measures is linked with this this outcome. Please delete measures linked with the outcome first!";
+            return res.status(404).json(errors);
+          }
+          let sql2 =
+            "DELETE FROM LEARNING_OUTCOME WHERE cycleID=" +
+            db.escape(cycleID) +
+            " AND learnID=" +
+            db.escape(learnID) +
+            " AND programID=" +
+            db.escape(programID);
 
-          res.status(200).json({ cycleID, learnID, programID, outcomeName });
+          let outcomeName = result[0].learnDesc;
+          db.query(sql2, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+
+            res.status(200).json({ cycleID, learnID, programID, outcomeName });
+          });
         });
       });
     });
@@ -919,7 +947,7 @@ router.post(
     let cycleID = req.params.cycleIdentifier;
     let learnID = req.params.outcomeIdentifier;
     let measureID = req.params.measureIdentifier;
-    console.log(measureID);
+    //console.log(measureID);
     let programID = req.user.programID;
 
     let sql0 =
@@ -1107,7 +1135,8 @@ router.post(
         return res.status(404).json("Measure with the given ID not found");
       }
       let sql2 =
-        "SELECT * FROM EVALUATOR WHERE evalEmail=" + db.escape(evaluatorEmail);
+        "SELECT * FROM EVALUATOR WHERE isActive=true AND evalEmail=" +
+        db.escape(evaluatorEmail);
       db.query(sql2, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -1297,6 +1326,44 @@ router.post(
     return res.status(400).json({ errors: error.message });
   }
 );
+
+// // @route GET api/cycles/downloadStudentsHeaderFile
+// // @desc Downloads csv file containing headers for students file upload
+// // @access Private
+// router.get(
+//   "/downloadStudentsHeaderFile",
+//   passport.authenticate("jwt", { session: false }),
+//   (req, res) => {
+//     const ws = fs.createWriteStream("students.csv");
+//     csv
+//       .write([["First Name", "Last Name", "Email", "CWID"]], { headers: true })
+//       .pipe(ws);
+//     // console.log(__dirname);
+//     // csv
+//     //   .writeToPath("/my.csv", [["a", "b"], ["a1", "b1"], ["a2", "b2"]], {
+//     //     headers: true
+//     //   })
+//     //   .on("finish", function() {
+//     //     res.status(200).download("/my.csv");
+//     //   });
+//   }
+// );
+
+// // @route GET api/cycles/downloadTestsHeaderFile
+// // @desc Downloads csv file containing headers for students test scores file upload
+// // @access Private
+// router.get(
+//   "/downloadTestsHeaderFile",
+//   passport.authenticate("jwt", { session: false }),
+//   (req, res) => {
+//     const ws = fs.createWriteStream("testScores.csv");
+//     csv
+//       .write([["First Name", "Last Name", "Email", "CWID", "Score"]], {
+//         headers: true
+//       })
+//       .pipe(ws);
+//   }
+// );
 
 // @route POST api/cycles/:measureIdentifier/uploadTestScores
 // @desc Uploads test scores and student details using file upload
