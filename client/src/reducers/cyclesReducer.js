@@ -63,7 +63,6 @@ export default function (state = initialState, action) {
         }
 
         case GET_ASSIGNED_STUDENTS:
-        console.log(action.payload) 
         return {
             ...state,
             assignedStudents: action.payload,
@@ -79,6 +78,7 @@ export default function (state = initialState, action) {
          
         case CYCLE_LOADING:
         return{
+            ...state,
             cycleLoading:true
         }
         default:

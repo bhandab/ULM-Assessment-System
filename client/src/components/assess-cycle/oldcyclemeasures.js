@@ -3,24 +3,21 @@ import {
   getCycleMeasures,
   linkOutcomeToCycle,
   updateOutcomeName,
-  deleteOutcome,
-  getOutcomesMeasures
+  deleteOutcome
 } from "../../actions/assessmentCycleAction";
 import { getOutcomes } from "../../actions/outcomesAction";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import {
-  Spinner,
-  Modal,
-  Form,
-  Button,
-  InputGroup,
-  Card,
-  ListGroup
-} from "react-bootstrap";
+import { Spinner,
+   Modal,
+    Form,
+     Button,
+      InputGroup, 
+      Card,
+      ListGroup
+     } from "react-bootstrap";
 import Delete from "../../utils/Delete";
-import OutcomeMeasures from "./OutcomeMeasures";
 
 class CycleMeasures extends Component {
   state = {
@@ -84,7 +81,7 @@ class CycleMeasures extends Component {
 
   addOutcomeShow = () => {
     this.props.getOutcomes();
-    this.setState({ addOutcome: true, createOutcome:false });
+    this.setState({ addOutcome: true });
   };
 
   addOutcomeHide = () => {
@@ -126,13 +123,6 @@ class CycleMeasures extends Component {
     this.setState({ outcomeName: "", outcomeID: null, editShow: false });
   };
 
-  outcomeClick = e => {
-    console.log(e.target.value);
-    const cycleID = this.props.match.params.cycleID;
-    const outcomeID = e.target.value;
-    this.props.getOutcomesMeasures(cycleID, outcomeID);
-  };
-
   outcomeDeleteHandler = () => {
     this.props.deleteOutcome(
       this.props.match.params.cycleID,
@@ -142,12 +132,12 @@ class CycleMeasures extends Component {
   };
 
   render() {
-    console.log(this.props);
+    console.log(this.props)
     let title = null;
     let list = <Spinner animation="border" variant="primary" />;
     let outcomeArray = null;
 
-    if (true) {
+    if (this.props.cycles.cycleLoading !== true) {
       let cycleID = this.props.match.params.cycleID;
 
       if (
@@ -158,24 +148,18 @@ class CycleMeasures extends Component {
           outcomeArray = this.props.cycles.cycleMeasures.outcomes;
           list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
             return (
-              <Card key={outcome.outcomeID}>
-                <Card.Header
-                  id={"outcome" + outcome.outcomeID}
+              <ListGroup.Item key={outcome.outcomeID}>
+                <Link
+                  to={
+                    "/admin/cycles/cycle/" +
+                    cycleID +
+                    "/outcomes/" +
+                    outcome.outcomeID
+                  }
                 >
-                  <h3 className="mb-0">
-                    <button
-                      className="outcome btn btn-link"
-                      type="button"
-                      data-toggle="collapse"
-                      data-target={"#collapse" + outcome.outcomeID}
-                      aria-expanded="true"
-                      aria-controls={"collapse" + outcome.outcomeID}
-                      value={outcome.outcomeID}
-                      onClick={this.outcomeClick.bind(this)}
-                    >
-                      {outcome.outcomeName}
-                    </button>
-                    <button
+                  {outcome.outcomeName}
+                </Link>
+                <button
                   style={{ border: "none", background: "none" }}
                   name={outcome.outcomeID}
                   value={outcome.outcomeName}
@@ -189,49 +173,7 @@ class CycleMeasures extends Component {
                   onClick={this.deleteShow.bind(this)}
                   className="delete"
                 />
-                  </h3>
-                </Card.Header>
-                <div
-                  id={"collapse" + outcome.outcomeID}
-                  className="collapse"
-                  aria-labelledby={"heading" + outcome.outcomeID}
-                  data-parent="#assignedRubric"
-                >
-                  <div className="card-body">
-                    <OutcomeMeasures
-                      cycleid={this.props.match.params.cycleID}
-                      outcomeid={outcome.outcomeID}
-                    />
-                  </div>
-                </div>
-              </Card>
-
-              // <ListGroup.Item key={outcome.outcomeID}>
-              //   <Link
-              //     to={
-              //       "/admin/cycles/cycle/" +
-              //       cycleID +
-              //       "/outcomes/" +
-              //       outcome.outcomeID
-              //     }
-              //   >
-              //     {outcome.outcomeName}
-              //   </Link>
-              //   <button
-              //     style={{ border: "none", background: "none" }}
-              //     name={outcome.outcomeID}
-              //     value={outcome.outcomeName}
-              //     onClick={this.editShow.bind(this)}
-              //     className="outcome-edit ml-2"
-              //   />
-              //   <button
-              //     style={{ border: "none", background: "none" }}
-              //     name={outcome.outcomeID}
-              //     value={outcome.outcomeName}
-              //     onClick={this.deleteShow.bind(this)}
-              //     className="delete"
-              //   />
-              // </ListGroup.Item>
+              </ListGroup.Item>
             );
           });
         } else {
@@ -288,31 +230,25 @@ class CycleMeasures extends Component {
           </div> */}
           <Card>
             <Card.Header>
-              <h2>{title}
-              <Button variant="primary" className="mr-3 float-right" size="lg"
-              onClick={this.createOutcomeShow}
-              ><i className="far fa-plus-square"></i></Button>
-              </h2>
-              <hr />
-            </Card.Header>
-            <Card.Body>
-              <div className="accordion" id="assignedRubric">
-                {list}
-              </div>
-              {/* <Button
-                className="btn mt-3 float-right ml-3"
-                onClick={this.addOutcomeShow}
-              >
-                Add Outcome
-              </Button>
+          <h2>{title}</h2>
+          <hr />
+          </Card.Header>
+          <Card.Body>
+          <ListGroup>{list}</ListGroup>
+          <Button
+            className="btn mt-3 float-right ml-3"
+            onClick={this.addOutcomeShow}
+          >
+            Add Outcome
+          </Button>
 
-              <Button
-                className="btn mt-3 float-right"
-                onClick={this.createOutcomeShow}
-              >
-                Create Outcome
-              </Button> */}
-            </Card.Body>
+          <Button
+            className="btn mt-3 float-right"
+            onClick={this.createOutcomeShow}
+          >
+            Create Outcome
+          </Button>
+          </Card.Body>
           </Card>
         </section>
 
@@ -321,7 +257,6 @@ class CycleMeasures extends Component {
           onHide={this.createOutcomeHide}
           aria-labelledby="contained-modal-title-vcenter"
           centered
-          size="lg"
         >
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
@@ -330,26 +265,15 @@ class CycleMeasures extends Component {
           </Modal.Header>
           <Modal.Body>
             <Form onSubmit={this.outcomeCreateHandler.bind(this)}>
-              <InputGroup>
-              <InputGroup.Prepend>
-                  <InputGroup.Text id="basic-addon17" className="text-bold">
-                    Outcome Name
-                  </InputGroup.Text>
-              </InputGroup.Prepend>
               <Form.Control
                 name="newOutcome"
-                placeholder="Outcome Name"
                 defaultValue={this.state.outcomeName}
               />
-              </InputGroup>
               <Button className="mt-3 float-right" type="submit">
                 Save Changes
               </Button>
             </Form>
-            <Button variant="info" className="mt-3 float-left"
-            onClick={this.addOutcomeShow}> Add Existing</Button>
           </Modal.Body>
-          
         </Modal>
 
         <Modal
@@ -430,7 +354,6 @@ CycleMeasures.propTypes = {
 
 const MapStateToProps = state => ({
   cycleMeasures: state.cycleMeasures,
-  outcomeMeasures: state.outcomeMeasures,
   cycles: state.cycles,
   outcomes: state.outcomes,
   errors: state.errors,
@@ -444,7 +367,6 @@ export default connect(
     linkOutcomeToCycle,
     getCycleMeasures,
     updateOutcomeName,
-    deleteOutcome,
-    getOutcomesMeasures
+    deleteOutcome
   }
 )(CycleMeasures);

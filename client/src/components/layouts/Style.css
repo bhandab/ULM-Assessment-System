@@ -135,7 +135,9 @@ nav .rubrics a:before {
 nav .assess-cycle a:before {
   content: "\f1da";
 }
-
+section.panel.important {
+  margin-left: 10px;
+}
 /* current nav item */
 .dashboard .dashboard a,
 .perf-measures .perf-measures a,
@@ -407,7 +409,10 @@ button.btn-primary {
   background-color: maroon !important;
 }
 
-
+button.outcome.btn.btn-link{
+  font-size: 2rem;
+  color: #400;
+} 
 
 
 /* Evaluate CSS**/

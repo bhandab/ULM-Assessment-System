@@ -25,8 +25,8 @@ class OutcomeMeasures extends Component {
       this.props.history.push('/login')
     }
 
-    const cycleID = this.props.cycleid//.match.params.cycleID;
-    const outcomeID = this.props.outcomeid//match.params.outcomeID;
+    const cycleID = this.props.match.params.cycleID;
+    const outcomeID = this.props.match.params.outcomeID;
     this.props.getOutcomesMeasures(cycleID, outcomeID);
     this.props.getAllRubrics(cycleID, outcomeID);
     this.props.getMeasures();
@@ -48,15 +48,15 @@ class OutcomeMeasures extends Component {
       studentNumberOperator: measure.studentNumberScale
 
     }
-    this.props.linkMeasureToOutcome(this.props.cycleid,this.props.outcomeid)//match.params.cycleID, this.props.match.params.outcomeID, measureDetails)
+    this.props.linkMeasureToOutcome(this.match.params.cycleID, this.props.match.params.outcomeID, measureDetails)
     this.setState({ addMeasuresShow: false})
   };
 
   measureCreateHandler = e => {
     e.preventDefault();
 
-    const cycleID = this.props.cycleid//match.params.cycleID;
-    const outcomeID = this.props.outcomeid//match.params.outcomeID;
+    const cycleID = this.props.match.params.cycleID;
+    const outcomeID = this.props.match.params.outcomeID;
 
 
     let pjsn = e.target.projectedStudentNumber.value;
@@ -242,9 +242,9 @@ class OutcomeMeasures extends Component {
                         </div>
                     </div> */}
           <Card>
-            {/* <Card.Header>
+            <Card.Header>
           <h2>{measureTitle}<Button size="lg" variant="outline-primary" className="float-right"><i className="fas fa-book"></i></Button></h2>
-          </Card.Header> */}
+          </Card.Header>
           <Card.Body>
           <ListGroup>{measures}</ListGroup>
           
