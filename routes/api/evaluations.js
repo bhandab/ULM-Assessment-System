@@ -194,10 +194,10 @@ router.post(
             if (err) {
               return res.status(500).json(err);
             }
-            let succesCount = 0;
+            let successCount = 0;
             result.forEach(row => {
               if (row.testScoreStatus) {
-                succesCount++;
+                successCount++;
               }
             });
             let measureStatus =
