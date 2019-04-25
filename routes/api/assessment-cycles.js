@@ -1933,11 +1933,11 @@ router.get(
             studentName: row.testStudentName,
             studentEmail: row.testStudentEmail,
             CWID: row.testStudentCWID,
-            score: row.testScore,
-            passing: row.testScore >= threshold ? true : false
+            score: row.testScore ? row.testScore : "N/A",
+            passing: row.testScoreStatus ? true : false
           };
           report.push(result);
-          if (row.testScore >= threshold) {
+          if (row.testScoreStatus) {
             passingCounts++;
           }
         });
@@ -1946,6 +1946,8 @@ router.get(
           passingPercentage = Number(
             Math.round((passingCounts / totalStudents) * 100 + "e2") + "e-2"
           );
+        } else {
+          passingPercentage = 0;
         }
         res
           .status(200)
