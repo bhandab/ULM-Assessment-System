@@ -138,7 +138,6 @@ class MeasureReport extends Component {
               {measureReport}
             </Card.Body>
           </Card>
-          
         </Table>
       );
     }

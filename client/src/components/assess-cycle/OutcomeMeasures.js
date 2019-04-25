@@ -25,8 +25,8 @@ class OutcomeMeasures extends Component {
       this.props.history.push('/login')
     }
 
-    const cycleID = this.props.cycleid//.match.params.cycleID;
-    const outcomeID = this.props.outcomeid//match.params.outcomeID;
+    const cycleID = this.props.match.params.cycleID;
+    const outcomeID = this.props.match.params.outcomeID;
     this.props.getOutcomesMeasures(cycleID, outcomeID);
     this.props.getAllRubrics(cycleID, outcomeID);
     this.props.getMeasures();
@@ -48,62 +48,46 @@ class OutcomeMeasures extends Component {
       studentNumberOperator: measure.studentNumberScale
 
     }
-    this.props.linkMeasureToOutcome(this.props.cycleid,this.props.outcomeid)//match.params.cycleID, this.props.match.params.outcomeID, measureDetails)
+    this.props.linkMeasureToOutcome(this.match.params.cycleID, this.props.match.params.outcomeID, measureDetails)
     this.setState({ addMeasuresShow: false})
   };
 
   measureCreateHandler = e => {
     e.preventDefault();
 
-    const cycleID = this.props.cycleid//match.params.cycleID;
-    const outcomeID = this.props.outcomeid//match.params.outcomeID;
+    const cycleID = this.props.match.params.cycleID;
+    const outcomeID = this.props.match.params.outcomeID;
 
 
     let pjsn = e.target.projectedStudentNumber.value;
-    let pv = ""//null;
+    let pv = e.target.projectedValue.value;
     let crs = e.target.course.value;
-    let tt = ""
+    let tt = e.target.tool.value.replace(/[0-9]/g, "");
     
     let ty = e.target.toolType.value;
-    let tid = ""//null
-    if (ty === 'rubric'){
-      const selected = e.target.tool.options[e.target.tool.selectedIndex]
-      console.log(selected)
-      tid = selected.dataset.id
-      pv = e.target.projectedValue.value
-      tt = selected.dataset.name
-    }
+    let tid = ""
+    if (ty === 'rubric'){tid = e.target.tool.value.replace(/\D/g, "");}
     let pt = e.target.projType.value;
     let vo = ""
-
-    let testType = ""//null
-    console.log(testType)
-
     if(ty === 'test'){
-      tt = e.target.tool.value
-      testType = e.target.testType.value
-      if( testType === 'score'){
       vo = e.target.valueOperator.value
-      pv = e.target.projectedValue.value
-      }
     }
-    
-    // const measureDescr =
-    //   "At least " +
-    //   pjsn +
-    //   pt +
-    //   " of students completing " +
-    //   crs +
-    //   " will score " +
-    //   pv +""+ vo +
-    //   " or greater in " +
-    //   ty +
-    //   " " +
-    //   "'"+tt+"'"+ + 
-    //   "."
+    const measureDescr =
+      "At least " +
+      pjsn +
+      pt +
+      " of students completing " +
+      crs +
+      " will score " +
+      pv +""+ vo +
+      " or greater in " +
+      ty +
+      " " +
+      "'"+tt+"'"+ + 
+      "."
 
     const measureDetails = {
-      // measureDescription: measureDescr,
+      measureDescription: measureDescr,
       projectedStudentNumber: pjsn,
       projectedValue: pv,
       course: crs,
@@ -111,11 +95,9 @@ class OutcomeMeasures extends Component {
       toolID: tid,
       toolType : ty,
       valueOperator: vo,
-      studentNumberOperator: pt,
-      scoreOrPass: testType
+      studentNumberOperator: pt
 
     };
-    console.log(measureDetails)
     this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
   };
 
@@ -148,7 +130,7 @@ class OutcomeMeasures extends Component {
 
 
   render() {
-    // console.log(this.props)
+    console.log(this.props)
     let measures = <Spinner animation="border" variant="primary" />;
     let measureTitle = null;
     if (this.props.cycles.cycleLoading === false) {
@@ -225,8 +207,7 @@ class OutcomeMeasures extends Component {
         return (
           <option
             key={rubric.rubricID}
-            data-name={rubric.rubricTitle}
-            data-id={rubric.rubricID}
+            value={rubric.rubricTitle + rubric.rubricID}
           >
             {rubric.rubricTitle}
           </option>
@@ -236,10 +217,7 @@ class OutcomeMeasures extends Component {
 
     let rubricScoreOptions = null
     const rubricChangeHandler = (e) => {
-      const selected = e.target.options[e.target.selectedIndex]
-
-      console.log(selected)
-    let rubricID = selected.dataset.id;
+    let rubricID = e.target.value.replace(/\D/g, "");
         this.props.getSingleRubric(rubricID, true)
     }
 
@@ -264,9 +242,9 @@ class OutcomeMeasures extends Component {
                         </div>
                     </div> */}
           <Card>
-            {/* <Card.Header>
+            <Card.Header>
           <h2>{measureTitle}<Button size="lg" variant="outline-primary" className="float-right"><i className="fas fa-book"></i></Button></h2>
-          </Card.Header> */}
+          </Card.Header>
           <Card.Body>
           <ListGroup>{measures}</ListGroup>
           

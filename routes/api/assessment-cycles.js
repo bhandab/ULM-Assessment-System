@@ -1921,7 +1921,7 @@ router.get(
       }
       let threshold = result[0].projectedResult;
       let sql1 =
-        "SELECT * FROM TEST_SCORE WHERE measureID=" + db.escape(measureID);
+        "SELECT * FROM TEST_SCORE NATURAL JOIN STUDENT WHERE measureID=" + db.escape(measureID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -1930,9 +1930,9 @@ router.get(
         let passingCounts = 0;
         result.forEach(row => {
           result = {
-            studentName: row.testStudentName,
-            studentEmail: row.testStudentEmail,
-            CWID: row.testStudentCWID,
+            studentName: row.studentLastName+ ", "+ row.studentFirstName,
+            studentEmail: row.studentEmail,
+            CWID: row.studentCWID,
             score: row.testScore ? row.testScore : "N/A",
             passing: row.testScoreStatus ? true : false
           };
