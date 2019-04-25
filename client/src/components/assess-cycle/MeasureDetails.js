@@ -34,6 +34,8 @@ import {
   Spinner
 } from "react-bootstrap";
 
+import CSVFormat from '../../assets/CSVformat'
+
 class MeasureDetails extends Component {
   state = {
     addEval: false,
@@ -531,6 +533,18 @@ class MeasureDetails extends Component {
                 })
                 measureReport.push(<tbody key = "testBody">{body}</tbody>)
                 measureReport = (<Table striped bordered hover>{measureReport}</Table>)
+                let passPer = this.props.cycles.measureReport.passingPercentage
+                let failPer = 100 - passPer
+                if(passPer > this.props.cycles.measureDetails.projectedStudentNumber){
+                  status = (<h3>Status: <span className="text-success">Passing</span></h3>)
+                }
+                else{
+                  status = (<h3>Status: <span className="text-danger">Failing</span></h3>)
+                }
+              progressBar = <ProgressBar>
+                          <ProgressBar now = {passPer} variant="success" label={`${passPer}%`}></ProgressBar>
+                          <ProgressBar now = {failPer} variant="danger" label={`${failPer}%`}></ProgressBar>
+                      </ProgressBar>
               }
       }
     }
@@ -619,7 +633,7 @@ class MeasureDetails extends Component {
                       <i className="fas fa-user-plus"></i>
                     </Button>
                     </h3>
-                
+                    
                     </Card.Header>
                   <Card.Body className='mb-1 pt-1'>
                    
@@ -717,6 +731,8 @@ class MeasureDetails extends Component {
                     <Form.Control type="file" onChange={this.fileChangeHandler.bind(this)}/>
                     <Button className="mt-3 float-right" type="submit">Upload</Button>
                   </Form>
+                  <CSVFormat/>
+
                 </Modal.Body>
             </Modal>
 
@@ -821,6 +837,8 @@ class MeasureDetails extends Component {
                 Add
               </Button>
             </Form>
+            <CSVFormat className="mt-3"/>
+
           </Modal.Body>
         </Modal>
 
