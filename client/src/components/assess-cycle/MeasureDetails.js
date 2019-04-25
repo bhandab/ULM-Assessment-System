@@ -287,14 +287,14 @@ class MeasureDetails extends Component {
 
   updateTestScore = e => {
     const measureID = this.props.match.params.measureID
-    const testType = this.props.cycles.measureDetails.testType
+    const testType = this.props.cycles.measureDetails.projectedResult
     const studentID = e.target.dataset.id
     let testScore = null
     let scoreStatus = null
-    if(testType === "score"){
+    if(testType !== null){
       testScore = e.target.value
     }
-    if(testType === "pass"){
+    else{
       scoreStatus = e.target.value
     }
     const body ={studentID,scoreStatus,testScore}

@@ -892,8 +892,6 @@ router.post(
                 db.escape(studentNumberOperator) +
                 ", " +
                 db.escape(valueOperator) +
-                ", " +
-                db.escape(scoreOrPass) +
                 ")";
 
               db.query(sql4, (err, result) => {
