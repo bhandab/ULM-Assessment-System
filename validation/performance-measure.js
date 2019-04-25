@@ -14,7 +14,9 @@ module.exports = function validateMeasureInput(data) {
   data.course = !isEmpty(data.course) ? data.course.trim() : "";
 
   data.scoreOrPass = !isEmpty(data.scoreOrPass) ? data.scoreOrPass.trim() : "";
-  data.toolType = !isEmpty(data.toolType) ? data.toolType.trim() : "";
+  data.toolType = !isEmpty(data.toolType)
+    ? data.toolType.toLowerCase().trim()
+    : "";
   data.toolTitle = !isEmpty(data.toolTitle) ? data.toolTitle.trim() : "";
 
   if (Validator.isEmpty(data.studentNumberOperator)) {
