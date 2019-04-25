@@ -149,6 +149,7 @@ router.post(
         return res.status(404).json(errors);
       }
       let projectedResult = result[0].projectedResult;
+      let projectedStudentsValue = result[0].projectedStudentsValue;
       if (!isEmpty(projectedResult)) {
         if (isEmpty(testScore)) {
           return res.status(404).json("Test Score Field Cannot Be Empty");
@@ -171,7 +172,9 @@ router.post(
         let measureEvalID = result[0].measureEvalID;
         let sql2 = !isEmpty(projectedResult)
           ? "UPDATE TEST_SCORE SET testScore=" +
-            db.escape(parseFloat(testScore))
+            db.escape(parseFloat(testScore)) +
+            ",testScoreStatus=" +
+            db.escape(parseFloat(testScore) >= projectedResult)
           : "UPDATE TEST_SCORE SET testScoreStatus=" + db.escape(scoreStatus);
 
         sql2 =
@@ -184,7 +187,36 @@ router.post(
           if (err) {
             return res.status(500).json(err);
           }
-          res.status(200).json("Updated Successfully!");
+          let sql3 =
+            "SELECT * FROM TEST_SCORE NATURAL JOIN EVALUATOR_ASSIGN WHERE measureID=" +
+            db.escape(measureID);
+          db.query(sql3, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            let succesCount = 0;
+            result.forEach(row => {
+              if (row.testScoreStatus) {
+                succesCount++;
+              }
+            });
+            let measureStatus =
+              result.length === 0 ||
+              (successCount / result.length) * 100 < projectedStudentsValue
+                ? false
+                : true;
+            let sql5 =
+              "UPDATE PERFORMANCE_MEASURE SET measureStatus=" +
+              db.escape(measureStatus) +
+              " WHERE measureID=" +
+              db.escape(measureID);
+            db.query(sql5, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+            });
+            res.status(200).json("Updated Successfully!");
+          });
         });
       });
     });
