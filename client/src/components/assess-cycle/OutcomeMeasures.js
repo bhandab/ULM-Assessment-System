@@ -60,34 +60,50 @@ class OutcomeMeasures extends Component {
 
 
     let pjsn = e.target.projectedStudentNumber.value;
-    let pv = e.target.projectedValue.value;
+    let pv = null;
     let crs = e.target.course.value;
-    let tt = e.target.tool.value.replace(/[0-9]/g, "");
+    let tt = ""
     
     let ty = e.target.toolType.value;
-    let tid = ""
-    if (ty === 'rubric'){tid = e.target.tool.value.replace(/\D/g, "");}
+    let tid = null
+    if (ty === 'rubric'){
+      const selected = e.target.tool.options[e.target.tool.selectedIndex]
+      console.log(selected)
+      tid = selected.dataset.id
+      pv = e.target.projectedValue.value
+      tt = selected.dataset.name
+    }
     let pt = e.target.projType.value;
     let vo = ""
+
+    let testType = null
+    console.log(testType)
+
     if(ty === 'test'){
+      tt = e.target.tool.value
+      testType = e.target.testType.value
+      if( testType === 'score'){
       vo = e.target.valueOperator.value
+      pv = e.target.projectedValue.value
+      }
     }
-    const measureDescr =
-      "At least " +
-      pjsn +
-      pt +
-      " of students completing " +
-      crs +
-      " will score " +
-      pv +""+ vo +
-      " or greater in " +
-      ty +
-      " " +
-      "'"+tt+"'"+ + 
-      "."
+    
+    // const measureDescr =
+    //   "At least " +
+    //   pjsn +
+    //   pt +
+    //   " of students completing " +
+    //   crs +
+    //   " will score " +
+    //   pv +""+ vo +
+    //   " or greater in " +
+    //   ty +
+    //   " " +
+    //   "'"+tt+"'"+ + 
+    //   "."
 
     const measureDetails = {
-      measureDescription: measureDescr,
+      // measureDescription: measureDescr,
       projectedStudentNumber: pjsn,
       projectedValue: pv,
       course: crs,
@@ -95,9 +111,11 @@ class OutcomeMeasures extends Component {
       toolID: tid,
       toolType : ty,
       valueOperator: vo,
-      studentNumberOperator: pt
+      studentNumberOperator: pt,
+      scoreOrPass: testType
 
     };
+    console.log(measureDetails)
     this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
   };
 
@@ -130,7 +148,7 @@ class OutcomeMeasures extends Component {
 
 
   render() {
-    console.log(this.props)
+    // console.log(this.props)
     let measures = <Spinner animation="border" variant="primary" />;
     let measureTitle = null;
     if (this.props.cycles.cycleLoading === false) {
@@ -207,7 +225,8 @@ class OutcomeMeasures extends Component {
         return (
           <option
             key={rubric.rubricID}
-            value={rubric.rubricTitle + rubric.rubricID}
+            data-name={rubric.rubricTitle}
+            data-id={rubric.rubricID}
           >
             {rubric.rubricTitle}
           </option>
@@ -217,7 +236,10 @@ class OutcomeMeasures extends Component {
 
     let rubricScoreOptions = null
     const rubricChangeHandler = (e) => {
-    let rubricID = e.target.value.replace(/\D/g, "");
+      const selected = e.target.options[e.target.selectedIndex]
+
+      console.log(selected)
+    let rubricID = selected.dataset.id;
         this.props.getSingleRubric(rubricID, true)
     }
 

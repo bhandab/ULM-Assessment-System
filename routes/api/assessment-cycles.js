@@ -802,7 +802,7 @@ router.post(
       "At least " + projectedStudentNumber + " " + studentNumberOperator;
 
     measureName =
-      course === "" ? measureName + " in Class Will " + course : measureName;
+      course !== "" ? measureName + " in Class " + course + " will " : measureName + " will ";
     measureName =
       scoreOrPass.toLowerCase() !== "pass"
         ? measureName +
