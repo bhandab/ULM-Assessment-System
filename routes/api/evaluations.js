@@ -3,7 +3,7 @@ const passport = require("passport");
 const async = require("async");
 
 const db = require("../../config/dbconnection");
-
+const isEmpty = require("../../validation/isEmpty");
 const router = express.Router();
 
 router.get(
@@ -57,7 +57,7 @@ router.get(
     let testsSet = new Set();
 
     let sql =
-      "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN TOOL WHERE evalID=" +
+      "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN TOOL NATURAL JOIN PERFORMANCE_MEASURE WHERE evalID=" +
       db.escape(evalID);
     db.query(sql, (err, result) => {
       if (err) {
@@ -90,7 +90,7 @@ router.get(
   }
 );
 
-router.get(
+router.post(
   "/testScores",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
@@ -112,6 +112,7 @@ router.get(
           name: row.studentFirstName + " " + row.studentLastName,
           email: row.studentEmail,
           CWID: row.studentCWID,
+          studentID: row.studentID,
           measureID: row.measureID,
           projectedResult: row.projectedResult,
           testScore: row.testScore,
@@ -147,11 +148,18 @@ router.post(
         errors.identifierError = "Measure ID not found";
         return res.status(404).json(errors);
       }
+      let projectedResult = result[0].projectedResult;
+      if (!isEmpty(projectedResult)) {
+        if (isEmpty(testScore)) {
+          return res.status(404).json("Test Score Field Cannot Be Empty");
+        }
+      }
       let sql1 =
         "SELECT * FROM STUDENT NATURAL JOIN MEASURE_EVALUATOR WHERE studentID=" +
         db.escape(studentID) +
         "AND evalID=" +
         db.escape(req.user.id);
+
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -161,11 +169,13 @@ router.post(
           return res.status(404).json(errors);
         }
         let measureEvalID = result[0].measureEvalID;
-        let sql2 =
-          "UPDATE TEST_SCORE SET testScore=" +
-          db.escape(parseFloat(testScore)) +
-          ", testScoreStatus=" +
-          db.escape(scoreStatus) +
+        let sql2 = !isEmpty(projectedResult)
+          ? "UPDATE TEST_SCORE SET testScore=" +
+            db.escape(parseFloat(testScore))
+          : "UPDATE TEST_SCORE SET testScoreStatus=" + db.escape(scoreStatus);
+
+        sql2 =
+          sql2 +
           " WHERE studentID=" +
           db.escape(studentID) +
           " AND measureEvalID=" +
