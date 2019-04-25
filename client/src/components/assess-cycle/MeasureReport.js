@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { getMeasureRubricReport } from "../../actions/assessmentCycleAction";
 import { isEmpty } from "../../utils/isEmpty";
 import PropTypes from "prop-types";
+import {Card, Table} from 'react-bootstrap'
 
 class MeasureReport extends Component {
   componentDidMount() {
@@ -130,9 +131,15 @@ class MeasureReport extends Component {
       measureReport.push(<tbody key="tableBody">{reportBody}</tbody>);
 
       measureReport = (
-        <table id="measureReport" className="table table-striped" key="reportTable">
-          {measureReport}
-        </table>
+        <Table id="measureReport" striped bordered key="reportTable">
+          <Card>
+            <Card.Header><h5>Measure Report</h5></Card.Header>
+            <Card.Body>
+              {measureReport}
+            </Card.Body>
+          </Card>
+          
+        </Table>
       );
     }
 

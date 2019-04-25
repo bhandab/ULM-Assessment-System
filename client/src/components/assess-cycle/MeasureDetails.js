@@ -15,7 +15,8 @@ import {
   uploadTestScores,
   getMeasureRubricReport,
   getMeasureTestReport,
-  addStudentScore
+  addStudentScore,
+  updateTestScores
 } from "../../actions/assessmentCycleAction";
 import { getRegisteredEvaluators } from "../../actions/evaluatorAction";
 import {
@@ -298,6 +299,7 @@ class MeasureDetails extends Component {
     }
     const body ={studentID,scoreStatus,testScore}
     console.log(body)
+    // this.props.updateTestScores(measureID,body) //action call
   }
 
   assignStudentsHandle = e => {
@@ -1247,6 +1249,7 @@ export default connect(
     uploadTestScores,
     getMeasureRubricReport,
     getMeasureTestReport,
-    addStudentScore
+    addStudentScore,
+    updateTestScores
   }
 )(MeasureDetails);
