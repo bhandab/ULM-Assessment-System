@@ -45,28 +45,138 @@ router.get(
 );
 
 router.get(
-  "/evaluationRubrics",
+  "/evaluationTools",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let evalID = req.user.id;
     let errors = {};
+
     let rubrics = [];
+    let tests = [];
     let rubricsSet = new Set();
+    let testsSet = new Set();
 
     let sql =
-      "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN RUBRIC WHERE evalID=" +
+      "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN TOOL WHERE evalID=" +
       db.escape(evalID);
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
       }
       result.forEach(row => {
-        if (!rubricsSet.has(row.rubricTitle)) {
-          rubricsSet.add(row.rubricTitle);
-          rubrics.push({ rubricName: row.rubricTitle, rubricID: row.toolID });
+        if (row.toolType.toLowerCase() === "rubric") {
+          if (!rubricsSet.has(row.toolName)) {
+            rubricsSet.add(row.toolName);
+            rubrics.push({
+              rubricName: row.toolName,
+              rubricID: row.toolID,
+              measureID: row.measureID
+            });
+          }
+        } else if (row.toolType.toLowerCase() === "test") {
+          if (!testsSet.has(row.toolName)) {
+            testsSet.add(row.toolName);
+            tests.push({
+              testName: row.toolName,
+              testID: row.toolID,
+              measureID: row.measureID
+            });
+          }
         }
       });
-      res.status(200).json(rubrics);
+
+      res.status(200).json({ rubrics, tests });
+    });
+  }
+);
+
+router.get(
+  "/testScores",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let evalID = req.user.id;
+    let testID = req.body.testID;
+    let scores = [];
+    let errors = {};
+    let sql =
+      "SELECT * FROM TEST_SCORE NATURAL JOIN EVALUATOR_ASSIGN NATURAL JOIN STUDENT NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE WHERE evalID=" +
+      db.escape(evalID) +
+      " AND toolID=" +
+      db.escape(testID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      result.forEach(row => {
+        scores.push({
+          name: row.studentFirstName + " " + row.studentLastName,
+          email: row.studentEmail,
+          CWID: row.studentCWID,
+          measureID: row.measureID,
+          projectedResult: row.projectedResult,
+          testScore: row.testScore,
+          testScoreStatus: row.testScoreStatus
+        });
+      });
+      res.status(200).json({ scores, evalID, testID });
+    });
+  }
+);
+
+// @route POST api/evaluations/updateTestScore
+// @desc Updates student score
+// @access Private
+router.post(
+  "/updateTestScore",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+
+    let measureID = req.body.measureID;
+    let studentID = req.body.studentID;
+    let scoreStatus = req.body.scoreStatus;
+    let testScore = req.body.testScore;
+
+    let sql =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        errors.identifierError = "Measure ID not found";
+        return res.status(404).json(errors);
+      }
+      let sql1 =
+        "SELECT * FROM STUDENT NATURAL JOIN MEASURE_EVALUATOR WHERE studentID=" +
+        db.escape(studentID) +
+        "AND evalID=" +
+        db.escape(req.user.id);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length <= 0) {
+          errors.studentNotFound = "Student Does not Exist!";
+          return res.status(404).json(errors);
+        }
+        let measureEvalID = result[0].measureEvalID;
+        let sql2 =
+          "UPDATE TEST_SCORE SET testScore=" +
+          db.escape(parseFloat(testScore)) +
+          ", testScoreStatus=" +
+          db.escape(scoreStatus) +
+          " WHERE studentID=" +
+          db.escape(studentID) +
+          " AND measureEvalID=" +
+          db.escape(measureEvalID);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Updated Successfully!");
+        });
+      });
     });
   }
 );
