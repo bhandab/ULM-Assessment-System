@@ -14,6 +14,19 @@ export const inviteCoordinator = (body) => dispatch =>{
     );
 }
 
+export const deleteCoordinator = (body,programID) => dispatch => {
+    console.log("gets here")
+    axios
+    .post ("/api/coordinators/deleteCoordinator",body)
+    .then (()=> dispatch(getRegisteredCoordinators(programID)))
+    .catch(err =>
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+        })
+    );
+}
+
 export const getInvitedCoordinators = (programID) => dispatch => {
     console.log(programID)
     axios

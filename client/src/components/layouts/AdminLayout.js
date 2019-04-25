@@ -84,12 +84,12 @@ openNav = () => {
             <li className="assess-cycle">
               <NavLink to="/admin/cycles">Assessment Cycle</NavLink>
             </li>
-            <li className="outcomes">
+            {/* <li className="outcomes">
               <NavLink to="/admin/outcomes">Outcomes</NavLink>
             </li>
             <li className="perf-measures">
               <NavLink to="/admin/measures">Performance Measures</NavLink>
-            </li>
+            </li> */}
             <li className="rubrics">
               <NavLink to="/admin/rubrics">Rubrics</NavLink>
             </li>

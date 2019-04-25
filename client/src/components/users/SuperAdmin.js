@@ -76,8 +76,8 @@ class SuperAdmin extends Component {
     return (
       <Fragment>
         <SuperAdminLayout/>
-        <main>
-          <section className="panel important">
+        <main id="main" className="m-5">
+          <section className="panel important m-5">
           <Card>
             <Card.Header><h2 style={{textAlign:'center'}}>Programs <button className="float-right"
             onClick={this.createProgramShow}><i className="far fa-calendar-plus"></i></button></h2></Card.Header>

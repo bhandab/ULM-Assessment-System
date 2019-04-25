@@ -1,15 +1,23 @@
 import React, { Component } from 'react'
 import {connect} from 'react-redux'
 import AdminLayout from '../layouts/SuperAdminLayout'
-import {getInvitedCoordinators, getRegisteredCoordinators, inviteCoordinator} from '../../actions/coordinatorAction'
+import {getInvitedCoordinators,
+   getRegisteredCoordinators, 
+   inviteCoordinator,
+  deleteCoordinator  
+  } from '../../actions/coordinatorAction'
 import {ListGroup, Card, Modal, Form, Button, InputGroup} from 'react-bootstrap'
 import {isEmpty} from '../../utils/isEmpty'
+import Delete from "../../utils/Delete";
+
 
 class ProgramCoordinators extends Component {
   
   state = {
     coorInvite : false,
-    createProgram : false
+    createProgram : false,
+    corName:"",
+    corID:""
 }
   componentDidMount(){
     console.log("component did mount")
@@ -46,6 +54,24 @@ coorInviteHide = () => {
   this.setState({coorInvite:false})
 }
 
+deleteShow = e => {
+  console.log(e.target.name)
+  this.setState({
+    corName: e.target.value,
+    corID: e.target.name,
+    deleteShow: true
+  });
+};
+
+deleteHide = () => {
+  this.setState({ deleteShow: false });
+};
+
+corDeleteHandler = () => {
+  console.log(this.state)
+  this.props.deleteCoordinator({cordID:this.state.corID},this.props.match.params.programID)
+}
+
   
     render() {
       console.log(this.props)
@@ -62,6 +88,13 @@ coorInviteHide = () => {
                 <ol className="pl-0">
                   <li className="pl-0">
                   Name: {coordinator.name}
+                  <button
+                  style={{ border: "none", background: "none" }}
+                  name={coordinator.corID}
+                  value={coordinator.name}
+                  onClick={this.deleteShow.bind(this)}
+                  className="delete float-right"
+                />
                   </li>
                 <li className="pl-0">
                 Email:{coordinator.email}
@@ -160,6 +193,13 @@ coorInviteHide = () => {
                 </Form>
               </Modal.Body>
       </Modal>
+      <Delete
+          hide={this.deleteHide}
+          show={this.state.deleteShow}
+          value="Program Coordinator"
+          name={this.state.corName}
+          delete={this.corDeleteHandler}
+        />
      </main>
      </>
     )
@@ -176,5 +216,6 @@ export default connect (MapStateToProps,
   {
     getInvitedCoordinators,
     getRegisteredCoordinators,
-    inviteCoordinator
+    inviteCoordinator,
+    deleteCoordinator
   })(ProgramCoordinators)

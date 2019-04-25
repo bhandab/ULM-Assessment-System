@@ -141,6 +141,15 @@ class CycleMeasures extends Component {
     this.setState({ outcomeName: "", outcomeID: null, deleteShow: false });
   };
 
+  getMeasures = (cycleID,outcomeID) => {
+    return (
+      <OutcomeMeasures
+      cycleid={cycleID}
+      outcomeid={outcomeID}
+    />
+    )
+  }
+
   render() {
     console.log(this.props);
     let title = null;
@@ -198,10 +207,11 @@ class CycleMeasures extends Component {
                   data-parent="#assignedRubric"
                 >
                   <div className="card-body">
-                    <OutcomeMeasures
+                    {/* <OutcomeMeasures
                       cycleid={this.props.match.params.cycleID}
                       outcomeid={outcome.outcomeID}
-                    />
+                    /> */}
+                    {this.getMeasures(this.props.match.params.cycleID,outcome.outcomeID)}
                   </div>
                 </div>
               </Card>
@@ -291,7 +301,7 @@ class CycleMeasures extends Component {
               <h2>{title}
               <Button variant="primary" className="mr-3 float-right" size="lg"
               onClick={this.createOutcomeShow}
-              ><i className="far fa-plus-square"></i></Button>
+              ><i className="fas fa-plus"></i></Button>
               </h2>
               <hr />
             </Card.Header>

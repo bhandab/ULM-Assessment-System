@@ -317,7 +317,7 @@ router.post(
         errors = "The given cycle doesn't with cycleID " + cycleID + " exists";
         return res.status(404).json({ errors });
       }
-
+      cycleName = result[0].cycleTitle;
       let sql1 =
         "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" + db.escape(cycleID);
       db.query(sql1, (err, result) => {
@@ -336,7 +336,6 @@ router.post(
           " AND programID=" +
           db.escape(programID);
 
-        cycleName = result[0].cycleTitle;
 
         db.query(sql2, (err, result) => {
           if (err) {
@@ -586,6 +585,7 @@ router.post(
             "The Selected Outcome is not in the current Assessment Cycle";
           return res.status(404).json({ errors });
         }
+        let outcomeName = result[0].learnDesc;
         let sql1 =
           "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
           db.escape(learnID);
@@ -606,7 +606,6 @@ router.post(
             " AND programID=" +
             db.escape(programID);
 
-          let outcomeName = result[0].learnDesc;
           db.query(sql2, (err, result) => {
             if (err) {
               return res.status(500).json(err);

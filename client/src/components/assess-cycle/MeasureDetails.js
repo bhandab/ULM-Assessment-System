@@ -30,7 +30,8 @@ import {
   ButtonGroup,
   Table,
   ProgressBar,
-  ListGroup
+  ListGroup,
+  Spinner
 } from "react-bootstrap";
 
 class MeasureDetails extends Component {
@@ -47,7 +48,8 @@ class MeasureDetails extends Component {
     uploadTest:false,
     testReport:false,
     toolType:"",
-    statusModal: false
+    statusModal: false,
+    stats:false
   };
 
   componentDidMount() {
@@ -165,6 +167,14 @@ class MeasureDetails extends Component {
     this.setState({statusModal:false})
   }
 
+  statsShow = () => {
+    this.setState({stats:true})
+  }
+
+  statsHide = () => {
+    this.setState({stats:false})
+  }
+
   addEvaluatorHandler = e => {
     e.preventDefault();
     this.props.addEvaluator(this.props.match.params.measureID, {
@@ -252,11 +262,12 @@ class MeasureDetails extends Component {
   scoreSingleStudent = e => {
     e.preventDefault()
     const email= e.target.email.value
-    const name = e.target.name.value
+    const firstName = e.target.fName.value
+    const lastName = e.target.lName.value
     const score = e.target.score.value
     const CWID = e.target.CWID.value
 
-    const body = {name,email,CWID,score}
+    const body = {firstName,lastName,email,CWID,score}
     this.props.addStudentScore(this.props.match.params.measureID,body)
   }
 
@@ -291,9 +302,16 @@ class MeasureDetails extends Component {
     let studentSelect = [];
     let measureReport = [];
     let evaluatorOptions = [];
-    let progressBar = null
+    let progressBar = ( < Fragment>
+                          <Spinner animation="grow" variant="primary" />
+                          <Spinner animation="grow" variant="secondary" />
+                          <Spinner animation="grow" variant="success" />
+                          </Fragment>
+  )
     let statusModal= null;
-    let status = null
+    let status = null;
+    let statusBtn = null;
+    let stats = null;
 
     if (
       this.props.cycles.measureDetails !== null &&
@@ -339,6 +357,7 @@ class MeasureDetails extends Component {
           this.props.cycles.measureStudents !== undefined
         ) {
           let totalStudents = this.props.cycles.measureStudents.students.length
+          
           studentList = this.props.cycles.measureStudents.students.map(
             student => {
               studentSelect.push(
@@ -347,11 +366,11 @@ class MeasureDetails extends Component {
                 </option>
               );
               return (
-                <li key={student.studentID} className="list-group-item">
+                <li key={student.studentID} className="list-group-item p-0 pl-2">
                   <ol>
-                    <li>Name: {student.name}</li>{" "}
-                    <li>Email: ({student.email})</li>{" "}
-                    <li>CWID: {student.CWID}</li>
+                    <li className="p-0">{student.name}</li>{" "}
+                    {/* <li>Email: ({student.email})</li>{" "}
+                    <li>CWID: {student.CWID}</li> */}
                   </ol>
                 </li>
               );
@@ -385,6 +404,12 @@ class MeasureDetails extends Component {
                   else{
                     status = (<h3>Status: <span className="text-danger">Failing</span></h3>)
                   }
+                  statusBtn = <Button variant="outline-info" 
+                  className="float-right mt-2 mb-2"
+                  onClick={this.statsShow}>
+                  <i className="fas fa-ellipsis-v"></i>
+                  </Button>
+
                   progressBar = (
                     <ProgressBar>
                         <ProgressBar variant="success" now={passPer} label={`Passing(${passPer}%)`}  key={1} />
@@ -445,6 +470,18 @@ class MeasureDetails extends Component {
                 }
           }
 
+          stats = (
+            <Modal size = "lg" show={this.state.stats} onHide={this.statsHide} centered>
+              <Modal.Header closeButton><h3>Measure Status <br/><small>Total Students: {totalStudents}</small></h3></Modal.Header>
+              <Modal.Body className="row">
+                <Card className="col-4">
+                    <Card.Header><h5>Not Assigned</h5></Card.Header>
+                    <Card.Body>body here</Card.Body>
+                </Card>
+              </Modal.Body>
+            </Modal>
+          ) 
+
         }
 
       if (
@@ -461,7 +498,9 @@ class MeasureDetails extends Component {
 
       if(typeTest){
             if(this.props.cycles.measureReport !== null &&
-              this.props.cycles.measureReport !== undefined){
+              this.props.cycles.measureReport !== undefined &&
+              this.props.cycles.measureReport.report !== null &&
+              this.props.cycles.measureReport.report !== undefined){
                 let header = (
                   <thead key = {"testHeader"}>
                     <tr>
@@ -560,8 +599,10 @@ class MeasureDetails extends Component {
             <hr/>
             <div className="container ml-0  mb-2 pl-2 pb-2 border border-info">
                   <Button variant="outline-default" className="mt-1" onClick={this.statusModalShow}>{status}</Button>
+                  {statusBtn}
                   {progressBar}
                   {statusModal}
+                  {stats}
             </div>
              
             
@@ -631,26 +672,32 @@ class MeasureDetails extends Component {
             <Modal.Header closeButton><h3>Students</h3></Modal.Header>
                <Modal.Body className="pt-2 pb-1">
                    <Form onSubmit={this.scoreSingleStudent.bind(this)}>
-                     <InputGroup className="row">
-                        <InputGroup.Prepend className="col-4">
-                                <InputGroup.Text id="basic-addon10" >Student Name</InputGroup.Text>
+                     <InputGroup>
+                        <InputGroup.Prepend>
+                                <InputGroup.Text id="basic-addon110" >First Name</InputGroup.Text>
                         </InputGroup.Prepend>
-                        <FormControl placeholder='John Doe' name="name"/>
+                        <FormControl placeholder='John' name="fName"/>
                      </InputGroup>
-                     <InputGroup className="row mt-1">
-                        <InputGroup.Prepend className="col-4">
+                     <InputGroup>
+                        <InputGroup.Prepend>
+                                <InputGroup.Text id="basic-addon101" >Last Name</InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <FormControl placeholder='John' name="lName"/>
+                     </InputGroup>
+                     <InputGroup>
+                        <InputGroup.Prepend>
                                 <InputGroup.Text id="basic-addon11">Email (@)</InputGroup.Text>
                         </InputGroup.Prepend>
                         <FormControl type="email"placeholder='example@example.com' name="email"/>
                      </InputGroup>
-                     <InputGroup className="row mt-1">
-                        <InputGroup.Prepend className="col-4">
+                     <InputGroup>
+                        <InputGroup.Prepend>
                                 <InputGroup.Text id="basic-addon12">CWID</InputGroup.Text>
                         </InputGroup.Prepend>
                         <FormControl placeholder='12345678' name="CWID"/>
                      </InputGroup>
-                     <InputGroup className="row mt-1">
-                        <InputGroup.Prepend className="col-4">
+                     <InputGroup>
+                        <InputGroup.Prepend>
                                 <InputGroup.Text id="basic-addon13">Score</InputGroup.Text>
                         </InputGroup.Prepend>
                         <FormControl placeholder='85' name="score"/>

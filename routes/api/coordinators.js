@@ -94,7 +94,8 @@ router.get(
     let registeredCoordinators = [];
     let sql =
       "SELECT * FROM COORDINATOR NATURAL JOIN PROGRAM WHERE programID = " +
-      db.escape(req.params.programID);
+      db.escape(req.params.programID) +
+      "AND isActive = 1";
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -103,7 +104,8 @@ router.get(
         registeredCoordinators.push({
           name: row.corFirstName + " " + row.corLastName,
           email: row.corEmail,
-          program: row.programName
+          program: row.programName,
+          corID : row.corId
         });
       });
       return res.status(200).json(registeredCoordinators);
@@ -192,7 +194,7 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let deleteUser = req.body.cordID;
-
+    console.log(deleteUser)
     let sql =
       "UPDATE COORDINATOR SET isActive=false WHERE corId=" +
       db.escape(deleteUser);

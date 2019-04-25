@@ -633,7 +633,7 @@ input[type=checkbox] {
     clear: none;
   }
   .panel.important {
-    width: 100%;
+    width: 96%;
   }
   .panel.secondary {
     width: 23%;
