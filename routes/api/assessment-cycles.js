@@ -1039,7 +1039,6 @@ router.post(
   }
 );
 
-
 // @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/measureDetails
 // @desc Provides details of a  measure within an outcome which in turn to cycle
 // @access Private
@@ -1303,7 +1302,6 @@ router.post(
   }
 );
 
-
 // @route POST api/cycles/:measureIdentifier/addStudent
 // @desc Adds student to be evaluated from form
 // @access Private
@@ -1384,7 +1382,6 @@ router.post(
     });
   }
 );
-
 
 // @route GET api/cycles/:measureIdentifier/notAssignedstudentsList
 // @desc Lists students associated with the measure but not assigned as well as the total list of students
