@@ -60,12 +60,12 @@ class OutcomeMeasures extends Component {
 
 
     let pjsn = e.target.projectedStudentNumber.value;
-    let pv = null;
+    let pv = ""//null;
     let crs = e.target.course.value;
     let tt = ""
     
     let ty = e.target.toolType.value;
-    let tid = null
+    let tid = ""//null
     if (ty === 'rubric'){
       const selected = e.target.tool.options[e.target.tool.selectedIndex]
       console.log(selected)
@@ -76,7 +76,7 @@ class OutcomeMeasures extends Component {
     let pt = e.target.projType.value;
     let vo = ""
 
-    let testType = null
+    let testType = ""//null
     console.log(testType)
 
     if(ty === 'test'){

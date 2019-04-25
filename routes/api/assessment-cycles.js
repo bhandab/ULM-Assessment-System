@@ -860,7 +860,7 @@ router.post(
           } else {
             let insertIntoMeasure = () => {
               let sql4 =
-                "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, programID, toolID,toolName, toolType, studentNumberScale,projectedValueScale) VALUES (" +
+                "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, programID, toolID,toolName, toolType, studentNumberScale,projectedValueScale,testType) VALUES (" +
                 db.escape(outcomeID) +
                 ", " +
                 db.escape(cycleID) +
@@ -884,6 +884,8 @@ router.post(
                 db.escape(studentNumberOperator) +
                 ", " +
                 db.escape(valueOperator) +
+                ", " +
+                db.escape(scoreOrPass) +
                 ")";
 
               db.query(sql4, (err, result) => {
@@ -1103,7 +1105,8 @@ router.get(
         course: result[0].courseAssociated,
         toolName: result[0].toolName,
         toolType: result[0].toolType,
-        toolID: result[0].toolID
+        toolID: result[0].toolID,
+        testType:result[0].testType
       });
     });
   }
@@ -1660,6 +1663,8 @@ router.get(
         result.forEach(row => {
           student = {
             name: row.studentFirstName + " " + row.studentLastName,
+            lastName: row.studentLastName,
+            firstName: row.studentFirstName ,
             email: row.studentEmail,
             CWID: row.studentCWID,
             studentID: row.studentID

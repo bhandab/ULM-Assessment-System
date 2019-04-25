@@ -337,6 +337,8 @@ export const getMeasureRubricReport = (measureID) => dispatch => {
 
 }
 
+/***Need to change the following two actions */
+
 export const uploadTestScores = (measureID,formData, config) => dispatch => {
     axios
     .post("/api/cycles/"+measureID+"/uploadTestScores",formData,config)
@@ -361,6 +363,17 @@ export const addStudentScore = (measureID,body) => dispatch => {
     })
 }
 
+export const updateTestScores = (measureID,body) => dispatch =>{
+    axios
+    .post("/api/cycles/"+measureID+"/updateTestScores",body)
+    .catch(err => {
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+
+        })
+    })
+}
 export const getMeasureTestReport = (measureID) => dispatch => {
     axios
     .get("/api/cycles/"+measureID+"/measureTestReport")
