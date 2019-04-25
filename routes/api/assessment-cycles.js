@@ -1326,127 +1326,89 @@ router.post(
   }
 );
 
-// // @route GET api/cycles/downloadStudentsHeaderFile
-// // @desc Downloads csv file containing headers for students file upload
-// // @access Private
-// router.get(
-//   "/downloadStudentsHeaderFile",
-//   passport.authenticate("jwt", { session: false }),
-//   (req, res) => {
-//     const ws = fs.createWriteStream("students.csv");
-//     csv
-//       .write([["First Name", "Last Name", "Email", "CWID"]], { headers: true })
-//       .pipe(ws);
-//     // console.log(__dirname);
-//     // csv
-//     //   .writeToPath("/my.csv", [["a", "b"], ["a1", "b1"], ["a2", "b2"]], {
-//     //     headers: true
-//     //   })
-//     //   .on("finish", function() {
-//     //     res.status(200).download("/my.csv");
-//     //   });
-//   }
-// );
+// @route POST api/cycles/:measureIdentifier/uploadTestScores
+// @desc Uploads test scores and student details using file upload
+// @access Private
 
-// // @route GET api/cycles/downloadTestsHeaderFile
-// // @desc Downloads csv file containing headers for students test scores file upload
-// // @access Private
-// router.get(
-//   "/downloadTestsHeaderFile",
-//   passport.authenticate("jwt", { session: false }),
-//   (req, res) => {
-//     const ws = fs.createWriteStream("testScores.csv");
-//     csv
-//       .write([["First Name", "Last Name", "Email", "CWID", "Score"]], {
-//         headers: true
-//       })
-//       .pipe(ws);
-//   }
-// );
+router.post(
+  "/:measureIdentifier/uploadTestScores",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("file"),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
 
-// // @route POST api/cycles/:measureIdentifier/uploadTestScores
-// // @desc Uploads test scores and student details using file upload
-// // @access Private
+    let existingStudents = new Set();
+    let students = [];
 
-// router.post(
-//   "/:measureIdentifier/uploadTestScores",
-//   passport.authenticate("jwt", { session: false }),
-//   upload.single("file"),
-//   (req, res) => {
-//     let measureID = req.params.measureIdentifier;
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res.status(404).json({ errors: "Measure Not Found" });
+      } else {
+        let sql2 =
+          "SELECT * FROM TEST_SCORE WHERE measureID=" + db.escape(measureID);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          } else {
+            result.forEach(row => {
+              existingStudents.add(row.testStudentEmail);
+            });
 
-//     let existingStudents = new Set();
-//     let students = [];
+            csv
+              .fromPath(req.file.path)
+              .on("data", data => {
+                data.push(measureID);
+                students.push(data);
+              })
+              .on("end", () => {
+                fs.unlinkSync(req.file.path);
 
-//     let sql1 =
-//       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
-//       db.escape(measureID);
-//     db.query(sql1, (err, result) => {
-//       if (err) {
-//         return res.status(500).json(err);
-//       } else if (result.length <= 0) {
-//         return res.status(404).json({ errors: "Measure Not Found" });
-//       } else {
-//         let sql2 =
-//           "SELECT * FROM TEST_SCORE WHERE measureID=" + db.escape(measureID);
-//         db.query(sql2, (err, result) => {
-//           if (err) {
-//             return res.status(500).json(err);
-//           } else {
-//             result.forEach(row => {
-//               existingStudents.add(row.testStudentEmail);
-//             });
+                const validationError = validateCSVStudents(students);
 
-//             csv
-//               .fromPath(req.file.path)
-//               .on("data", data => {
-//                 data.push(measureID);
-//                 students.push(data);
-//               })
-//               .on("end", () => {
-//                 fs.unlinkSync(req.file.path);
-
-//                 const validationError = validateCSVTestStudents(students);
-
-//                 if (validationError) {
-//                   return res.status(404).json({ errors: validationError });
-//                 }
-//                 var existingStudentsInFile = [];
-//                 var newArray = students.filter((row, index) => {
-//                   if (index !== students.length - 1) {
-//                     if (existingStudents.has(row[2])) {
-//                       existingStudentsInFile.push(row[2]);
-//                       return false;
-//                     } else {
-//                       existingStudents.add(row[2]);
-//                       return true;
-//                     }
-//                   }
-//                 });
-//                 // console.log(newArray.length);
-//                 // console.log("Gets Here");
-//                 let sql3 =
-//                   "INSERT INTO TEST_SCORE (testStudentFirstName,testStudentLastName, testStudentEmail,testStudentCWID,testScore,measureID) VALUES ?";
-//                 if (newArray.length > 0) {
-//                   db.query(sql3, [newArray], (err, result) => {
-//                     if (err) {
-//                       return res.status(500).json(err);
-//                     }
-//                   });
-//                   return res.status(200).json({ existingStudentsInFile });
-//                 } else {
-//                   return res.status(200).json({ existingStudentsInFile });
-//                 }
-//               });
-//           }
-//         });
-//       }
-//     });
-//   },
-//   (error, req, res, next) => {
-//     return res.status(400).json({ errors: error.message });
-//   }
-// );
+                if (validationError) {
+                  return res.status(404).json({ errors: validationError });
+                }
+                var existingStudentsInFile = [];
+                var newArray = students.filter((row, index) => {
+                  if (index !== students.length - 1) {
+                    if (existingStudents.has(row[2])) {
+                      existingStudentsInFile.push(row[2]);
+                      return false;
+                    } else {
+                      existingStudents.add(row[2]);
+                      return true;
+                    }
+                  }
+                });
+                // console.log(newArray.length);
+                // console.log("Gets Here");
+                let sql3 =
+                  "INSERT INTO TEST_SCORE (testStudentFirstName,testStudentLastName, testStudentEmail,testStudentCWID,measureID) VALUES ?";
+                if (newArray.length > 0) {
+                  db.query(sql3, [newArray], (err, result) => {
+                    if (err) {
+                      return res.status(500).json(err);
+                    }
+                  });
+                  return res.status(200).json({ existingStudentsInFile });
+                } else {
+                  return res.status(200).json({ existingStudentsInFile });
+                }
+              });
+          }
+        });
+      }
+    });
+  },
+  (error, req, res, next) => {
+    return res.status(400).json({ errors: error.message });
+  }
+);
 
 // @route POST api/cycles/:measureIdentifier/addStudent
 // @desc Adds student to be evaluated from form
@@ -1529,92 +1491,138 @@ router.post(
   }
 );
 
-// // @route POST api/cycles/:measureIdentifier/addStudentScore
-// // @desc Adds student and score from form
-// // @access Private
+// @route POST api/cycles/:measureIdentifier/addStudentScore
+// @desc Adds student from form for Test Measure
+// @access Private
 
-// router.post(
-//   "/:measureIdentifier/addStudentScore",
-//   passport.authenticate("jwt", { session: false }),
-//   (req, res) => {
-//     let measureID = req.params.measureIdentifier;
-//     let students = [
-//       req.body.firstName,
-//       req.body.lastName,
-//       req.body.email,
-//       req.body.CWID,
-//       req.body.score
-//     ];
-//     let errors = {};
+router.post(
+  "/:measureIdentifier/addStudentScore",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
+    let students = [
+      req.body.firstName,
+      req.body.lastName,
+      req.body.email,
+      req.body.CWID
+    ];
+    let errors = {};
 
-//     let sql1 =
-//       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
-//       db.escape(measureID);
-//     db.query(sql1, (err, result) => {
-//       if (err) {
-//         return res.status(500).json(err);
-//       } else if (result.length <= 0) {
-//         return res.status(404).json({ errors: "Measure Not Found" });
-//       } else {
-//         students.push(measureID);
-//         const validationError = validateCSVStudentsTestRow(students);
-//         if (validationError) {
-//           errors.validationError = validationError;
-//           return res.status(404).json(errors);
-//         } else {
-//           let firstName = req.body.firstName;
-//           let lastName = req.body.lastName;
-//           let email = req.body.email;
-//           let CWID = req.body.CWID;
-//           let score = parseFloat(req.body.score);
-//           let sql2 =
-//             "SELECT * FROM  TEST_SCORE WHERE measureID=" +
-//             db.escape(measureID) +
-//             " AND testStudentEmail=" +
-//             db.escape(email);
-//           db.query(sql2, (err, result) => {
-//             if (err) {
-//               return res.status(500).json(err);
-//             } else if (result.length > 0) {
-//               errors.studentError = "Student Already Exists";
-//               return res.status(errors);
-//             } else {
-//               let sql3 =
-//                 "INSERT INTO TEST_SCORE (testStudentFirstName, testStudentLastName, testStudentEmail,testStudentCWID, testScore, measureID,corId) VALUES (" +
-//                 db.escape(firstName) +
-//                 ", " +
-//                 db.escape(lastName) +
-//                 ", " +
-//                 db.escape(email) +
-//                 ", " +
-//                 db.escape(CWID) +
-//                 ", " +
-//                 db.escape(score) +
-//                 ", " +
-//                 db.escape(measureID) +
-//                 ", " +
-//                 db.escape(req.user.id) +
-//                 ")";
-//               db.query(sql3, (err, result) => {
-//                 if (err) {
-//                   return res.status(500).json(err);
-//                 }
-//                 res.status(200).json({
-//                   name: firstName + " " + lastName,
-//                   email,
-//                   CWID,
-//                   measureID,
-//                   adminID: req.user.id,
-//                   score
-//                 });
-//               });
-//             }
-//           });
-//         }
-//       }
-//     });
-//   }
-// );
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res.status(404).json({ errors: "Measure Not Found" });
+      } else {
+        students.push(measureID);
+        const validationError = validateCSVStudentsRow(students);
+        if (validationError) {
+          errors.validationError = validationError;
+          return res.status(404).json(errors);
+        } else {
+          let firstName = req.body.firstName;
+          let lastName = req.body.lastName;
+          let email = req.body.email;
+          let CWID = req.body.CWID;
+          //let score = parseFloat(req.body.score);
+          let sql2 =
+            "SELECT * FROM  TEST_SCORE WHERE measureID=" +
+            db.escape(measureID) +
+            " AND testStudentEmail=" +
+            db.escape(email);
+          db.query(sql2, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            } else if (result.length > 0) {
+              errors.studentError = "Student Already Exists";
+              return res.status(errors);
+            } else {
+              let sql3 =
+                "INSERT INTO TEST_SCORE (testStudentFirstName, testStudentLastName, testStudentEmail,testStudentCWID, measureID) VALUES (" +
+                db.escape(firstName) +
+                ", " +
+                db.escape(lastName) +
+                ", " +
+                db.escape(email) +
+                ", " +
+                db.escape(CWID) +
+                ", " +
+                db.escape(measureID) +
+                ")";
+              db.query(sql3, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
+                res.status(200).json({
+                  name: firstName + " " + lastName,
+                  email,
+                  CWID,
+                  measureID,
+                  adminID: req.user.id
+                });
+              });
+            }
+          });
+        }
+      }
+    });
+  }
+);
+
+// @route POST api/cycles/:measureIdentifier/updateTestScore
+// @desc Updates student score
+// @access Private
+router.post(
+  "/:measureIdentifier/updateTestScore",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+
+    let measureID = req.params.measureIdentifier;
+    let studentID = req.body.studentID;
+    let scoreStatus = req.body.scoreStatus;
+    let testScore = req.body.testScore;
+
+    let sql =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        errors.identifierError = "Measure ID not found";
+        return res.status(404).json(errors);
+      }
+      let sql1 =
+        "SELECT * FROM TEST_SCORE WHERE testStudentID=" + db.escape(studentID);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length <= 0) {
+          errors.studentNotFound = "Student Does not Exist!";
+          return res.status(404).json(errors);
+        }
+        let sql2 =
+          "UPDATE TEST_SCORE SET testScore=" +
+          db.escape(parseFloat(testScore)) +
+          ", testScoreStatus=" +
+          db.escape(scoreStatus) +
+          " WHERE testStudentID=" +
+          db.escape(studentID);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Updated Successfully!");
+        });
+      });
+    });
+  }
+);
 
 // @route GET api/cycles/:measureIdentifier/notAssignedstudentsList
 // @desc Lists students associated with the measure but not assigned as well as the total list of students
