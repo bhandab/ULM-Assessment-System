@@ -155,11 +155,7 @@ router.post(
           return res.status(404).json("Test Score Field Cannot Be Empty");
         }
       }
-      let sql1 =
-        "SELECT * FROM STUDENT NATURAL JOIN MEASURE_EVALUATOR WHERE studentID=" +
-        db.escape(studentID) +
-        "AND evalID=" +
-        db.escape(req.user.id);
+      let sql1 = "SELECT * TEST_SCORE WHERE studentID=" + db.escape(studentID);
 
       db.query(sql1, (err, result) => {
         if (err) {
@@ -169,7 +165,7 @@ router.post(
           errors.studentNotFound = "Student Does not Exist!";
           return res.status(404).json(errors);
         }
-        let measureEvalID = result[0].measureEvalID;
+        //let measureEvalID = result[0].measureEvalID;
         let sql2 = !isEmpty(projectedResult)
           ? "UPDATE TEST_SCORE SET testScore=" +
             db.escape(parseFloat(testScore)) +
@@ -181,15 +177,16 @@ router.post(
           sql2 +
           " WHERE studentID=" +
           db.escape(studentID) +
-          " AND measureEvalID=" +
-          db.escape(measureEvalID);
+          " AND evalID=" +
+          db.escape(req.user.id) +
+          " AND measureID=" +
+          db.escape(measureID);
         db.query(sql2, (err, result) => {
           if (err) {
             return res.status(500).json(err);
           }
           let sql3 =
-            "SELECT * FROM TEST_SCORE NATURAL JOIN EVALUATOR_ASSIGN WHERE measureID=" +
-            db.escape(measureID);
+            "SELECT * FROM TEST_SCORE WHERE measureID=" + db.escape(measureID);
           db.query(sql3, (err, result) => {
             if (err) {
               return res.status(500).json(err);
@@ -248,8 +245,10 @@ router.post(
         db.escape(rubricID) +
         " AND studentID=" +
         db.escape(studentID) +
-        " AND measureEvalID=" +
-        db.escape(measureEvalID);
+        " AND evalID=" +
+        db.escape(evalID) +
+        " AND measureID=" +
+        db.escape(measureID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -291,7 +290,7 @@ router.post(
                 measureID,
                 score.criteriaID,
                 studentID,
-                measureEvalID,
+                evalID,
                 cScore
               ];
               evaluatedScores.push(criteriaScore);
@@ -304,7 +303,7 @@ router.post(
             });
 
             let sql3 =
-              "INSERT INTO EVALUATE (toolID,measureID,criteriaID,studentID,measureEvalID,criteriaScore) VALUES ?";
+              "INSERT INTO EVALUATE (toolID,measureID,criteriaID,studentID,evalID,criteriaScore) VALUES ?";
             db.query(sql3, [evaluatedScores], (err, result) => {
               if (err) {
                 return res.status(500).json(err);
@@ -349,8 +348,8 @@ router.post(
         db.escape(criteriaID) +
         " AND studentID=" +
         db.escape(studentID) +
-        " AND measureEvalID=" +
-        db.escape(measureEvalID);
+        " AND evalID=" +
+        db.escape(req.user.id);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -363,8 +362,8 @@ router.post(
           db.escape(measureID) +
           " AND studentID=" +
           db.escape(studentID) +
-          " AND measureEvalID=" +
-          db.escape(measureEvalID);
+          " AND evalID=" +
+          db.escape(req.user.id);
         db.query(sql9, (err, result) => {
           if (err) {
             return res.status(500).json(err);
@@ -387,8 +386,8 @@ router.post(
             db.escape(rubricID) +
             " AND studentID=" +
             db.escape(studentID) +
-            " AND measureEvalID=" +
-            db.escape(measureEvalID);
+            " AND evalID=" +
+            db.escape(req.user.id);
           db.query(sql2, (err, result) => {
             if (err) {
               return res.status(500).json(err);
@@ -400,8 +399,8 @@ router.post(
                 db.escape(rubricID) +
                 " AND studentID=" +
                 db.escape(studentID) +
-                " AND measureEvalID=" +
-                db.escape(measureEvalID);
+                " AND evalID=" +
+                db.escape(req.user.id);
               db.query(sql3, (err, result) => {
                 if (err) {
                   return res.status(500).json(err);
@@ -411,12 +410,12 @@ router.post(
               });
             } else {
               let sql5 =
-                "INSERT INTO RUBRIC_SCORE (toolID,studentID,measureEvalID,rubricScore) VALUES (" +
+                "INSERT INTO RUBRIC_SCORE (toolID,studentID,evalID,rubricScore) VALUES (" +
                 db.escape(rubricID) +
                 ", " +
                 db.escape(studentID) +
                 ", " +
-                db.escape(measureEvalID) +
+                db.escape(req.user.id) +
                 ", " +
                 db.escape(avgScore) +
                 ")";

@@ -2,6 +2,7 @@ const express = require("express");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const async = require("async");
+const Validator = require("validator");
 
 const db = require("../../config/dbconnection");
 const validateCycleInput = require("../../validation/assessment-cycle");
@@ -335,7 +336,6 @@ router.post(
           db.escape(cycleID) +
           " AND programID=" +
           db.escape(programID);
-
 
         db.query(sql2, (err, result) => {
           if (err) {
@@ -810,7 +810,9 @@ router.post(
       " Of Students ";
 
     measureName =
-      course !== "" ? measureName + " in Class " + course + " will " : measureName + " will ";
+      course !== ""
+        ? measureName + " in Class " + course + " will "
+        : measureName + " will ";
     measureName =
       scoreOrPass.toLowerCase() !== "pass"
         ? measureName +
@@ -944,6 +946,70 @@ router.post(
     });
   }
 );
+
+// @route POST api/cycles/:measureIdentifier/Update
+// @desc Updates a measure of existing assessment Cycle
+// @access Private
+router.post(
+  "/:measureIdentifier/update",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+    let measureID = req.params.measureIdentifier;
+    if (isEmpty(req.body.projectedStudentNumber)) {
+      errors.emptyThresholdStudentNumber =
+        "Student Threshold number cannot be empty";
+      return res.status(404).json(errors);
+    } else if (
+      !Validator.isFloat(req.body.projectedStudentNumber, { min: 0, max: 100 })
+    ) {
+      errors.StudentThresholdNotANumber =
+        "Student Threhold value should be a number between 0 and 100";
+      return res.status(404).json(errors);
+    }
+
+    let projectedStudentNumber = parseFloat(req.body.projectedStudentNumber);
+    let projectedResult = req.body.projectedResult;
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.measureNotFound = "Measure with the ID not found!";
+        return res.status(404).json(errors);
+      }
+      if (result[0].projectedResult) {
+        if (isEmpty(projectedResult)) {
+          errors.emptyProjectedScore = "Projected Score Cannot be Empty";
+          return res.status(404).json(errors);
+        } else if (!Validator.isFloat(projectedResult, { min: 0, max: 100 })) {
+          errors.thresholdScoreNotANumber =
+            "Threshold score value should be a number between 0 and 100";
+          return res.status(404).json(errors);
+        }
+        projectedResult = parseFloat(projectedResult);
+        let sql2 = !isEmpty(result[0].projectedResult)
+          ? "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
+            db.escape(projectedStudentNumber) +
+            ", projectedResult=" +
+            db.escape(projectedResult)
+          : "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
+            db.escape(projectedStudentNumber);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json();
+          }
+          res.status(200).json("Updated Successfully!");
+        });
+      }
+    });
+  }
+);
+
 // @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/Delete"
 // @desc DELETE a measure of existing assessment Cycle
 // @access Private BIKASH
@@ -1077,7 +1143,7 @@ router.get(
         toolName: result[0].toolName,
         toolType: result[0].toolType,
         toolID: result[0].toolID,
-        testType:result[0].testType
+        testType: result[0].testType
       });
     });
   }
@@ -1173,7 +1239,7 @@ router.get(
     let evaluators = [];
 
     let sql =
-      "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR WHERE measureID=" +
+      "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR WHERE isActive=true AND measureID=" +
       db.escape(measureID);
 
     db.query(sql, (err, result) => {
@@ -1184,6 +1250,7 @@ router.get(
         if (row.evalName != "") {
           evalInfo = {
             measureEvalID: row.measureEvalID,
+            evalID: row.evalID,
             name: row.evalFirstName + " " + row.evalLastName,
             email: row.evalEmail
           };
@@ -1195,6 +1262,53 @@ router.get(
   }
 );
 
+// @route POST api/cycles/:measureIdentifier/deleteMeasureEvaluator
+// @desc Deletes Measure Evaluator
+// @access Private
+router.post(
+  ":/measureIdentifier/deleteMeasureEvaluator",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+    let measureID = req.params.measureIdentifier;
+    let measureEvalID = req.body.measureEvalID;
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.measureNotFound = "Measure with the id not found!";
+        return res.status(404).json(errors);
+      }
+
+      let sql2 =
+        "SELECT * FROM MEASURE_EVALUATOR WHERE measureEvalID=" +
+        db.escape(measureEvalID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length <= 0) {
+          errors.evaluatorNotFound = "Evaluator Does not Exist!";
+          return res.status(404).json(errors);
+        }
+        let sql3 =
+          "DELETE FROM MEASURE_EVALUATOR WHERE measureEvalID=" +
+          db.escape(measureEvalID);
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Deleted Successfully!");
+        });
+      });
+    });
+  }
+);
 // @route POST api/cycles/:measureIdentifier/uploadStudents
 // @desc Uploads students to be evaluated using file upload
 // @access Private
@@ -1418,7 +1532,7 @@ router.get(
           student = {
             name: row.studentFirstName + " " + row.studentLastName,
             lastName: row.studentLastName,
-            firstName: row.studentFirstName ,
+            firstName: row.studentFirstName,
             email: row.studentEmail,
             CWID: row.studentCWID,
             studentID: row.studentID
@@ -1432,6 +1546,51 @@ router.get(
           }
         });
         res.status(200).json({ notAssignedStudents, students });
+      });
+    });
+  }
+);
+
+// @route POST api/cycles/:measureIdentifier/deleteStudent
+// @desc Deletes Student
+// @access Private
+router.post(
+  ":/measureIdentifier/deleteStudent",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+    let measureID = req.params.measureIdentifier;
+    let deleteStudentID = req.body.studentID;
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.measureNotFound = "Measure with the id not found!";
+        return res.status(404).json(errors);
+      }
+      let sql2 =
+        "SELECT * FROM STUDENT WHERE studentID=" + db.escape(deleteStudentID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length <= 0) {
+          errors.studentNotFound = "Selected Student Does Not Exist";
+          return res.status(404).json(errors);
+        }
+        let sql3 =
+          "DELETE FROM STUDENT WHERE studentID=" + db.escape(deleteStudentID);
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Deleted Successfully!");
+        });
       });
     });
   }
@@ -1486,6 +1645,67 @@ router.get(
           }
         });
         res.status(200).json({ assignedStudentsList, evaluatedStudentsList });
+      });
+    });
+  }
+);
+
+// @route POST api/cycles/:measureIdentifier/deleteAssignedStudent
+// @desc Deletes Assigned Student
+// @access Private
+router.post(
+  ":/measureIdentifier/deleteAssignedStudent",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+    let measureID = req.params.measureIdentifier;
+    let deleteStudentID = req.body.studentID;
+    let measureEvalID = req.body.measureEvalID;
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.measureNotFound = "Measure with the id not found!";
+        return res.status(404).json(errors);
+      }
+      let sql2 =
+        "SELECT * FROM STUDENT WHERE studentID=" + db.escape(deleteStudentID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length <= 0) {
+          errors.studentNotFound = "Selected Student Does Not Exist";
+          return res.status(404).json(errors);
+        }
+        let sql3 =
+          "SELECT * FROM MEASURE_EVALUATOR WHERE measureEvalID=" +
+          db.escape(measureEvalID);
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          if (result.length <= 0) {
+            errors.evaluatorNotFound = "Evaluator Does not Exist!";
+            return res.status(404).json(errors);
+          }
+          let sql4 =
+            "DELETE FROM EVALUATOR_ASSIGN WHERE studentID=" +
+            db.escape(deleteStudentID) +
+            " AND measureEvalID=" +
+            db.escape(measureEvalID);
+          db.query(sql4, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            res.status(200).json("Deleted Successfully!");
+          });
+        });
       });
     });
   }
@@ -1594,6 +1814,7 @@ router.post(
     let measureID = req.params.measureIdentifier;
     let adminID = req.user.id;
     let programID = req.user.programID;
+    let measureEvalID = req.body.measureEvalID;
     let evalID = req.body.evalID;
     let testID = req.body.testID;
     console.log(testID);
@@ -1617,7 +1838,7 @@ router.post(
               "SELECT * FROM EVALUATOR_ASSIGN WHERE programID=" +
               db.escape(programID) +
               " AND measureEvalID=" +
-              db.escape(evalID) +
+              db.escape(measureEvalID) +
               " AND studentID=" +
               db.escape(value) +
               " AND toolID=" +
@@ -1631,14 +1852,14 @@ router.post(
               } else if (result.length > 0) {
                 alreadyAssignedStudents.push({
                   studentID: value,
-                  evalID,
+                  measureEvalID,
                   testID
                 });
                 callback();
               } else {
                 tobeAssignedStudents.push([
                   adminID,
-                  evalID,
+                  measureEvalID,
                   value,
                   testID,
                   measureID,
@@ -1661,10 +1882,10 @@ router.post(
                   }
                   let testScores = [];
                   tobeAssignedStudents.forEach(student => {
-                    testScores.push([student[2], evalID]);
+                    testScores.push([student[2], evalID, measureID]);
                   });
                   let sql3 =
-                    "INSERT INTO TEST_SCORE (studentID, measureEvalID) VALUES ?";
+                    "INSERT INTO TEST_SCORE (studentID, evalID, measureID) VALUES ?";
                   db.query(sql3, [testScores], (err, result) => {
                     if (err) {
                       return res.status(500).json(err);
@@ -1746,7 +1967,7 @@ router.get(
         });
         //console.log(threshold);
         let sql1 =
-          "SELECT * FROM EVALUATE NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA NATURAL JOIN EVALUATOR NATURAL JOIN RUBRIC_SCORE NATURAL JOIN STUDENT_AVERAGE_SCORE WHERE measureID=" +
+          "SELECT * FROM EVALUATE NATURAL JOIN EVALUATOR  NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA  NATURAL JOIN RUBRIC_SCORE NATURAL JOIN STUDENT_AVERAGE_SCORE WHERE measureID=" +
           db.escape(measureID) +
           " ORDER BY criteriaID,studentID,measureEvalID";
         db.query(sql1, (err, result) => {
@@ -1921,7 +2142,8 @@ router.get(
       }
       let threshold = result[0].projectedResult;
       let sql1 =
-        "SELECT * FROM TEST_SCORE NATURAL JOIN STUDENT WHERE measureID=" + db.escape(measureID);
+        "SELECT * FROM TEST_SCORE NATURAL JOIN STUDENT WHERE measureID=" +
+        db.escape(measureID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -1930,7 +2152,7 @@ router.get(
         let passingCounts = 0;
         result.forEach(row => {
           result = {
-            studentName: row.studentLastName+ ", "+ row.studentFirstName,
+            studentName: row.studentLastName + ", " + row.studentFirstName,
             studentEmail: row.studentEmail,
             CWID: row.studentCWID,
             score: row.testScore ? row.testScore : "N/A",

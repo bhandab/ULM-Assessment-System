@@ -17,7 +17,7 @@ router.get(
   (req, res) => {
     let evaluators = [];
 
-    let sql = "SELECT * FROM EVALUATOR";
+    let sql = "SELECT * FROM EVALUATOR WHERE isActive=true";
 
     db.query(sql, (err, result) => {
       if (err) {
