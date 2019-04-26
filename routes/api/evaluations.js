@@ -79,7 +79,8 @@ router.get(
             tests.push({
               testName: row.toolName,
               testID: row.toolID,
-              measureID: row.measureID
+              measureID: row.measureID,
+              projectedResult : row.projectedResult
             });
           }
         }
@@ -99,7 +100,7 @@ router.post(
     let scores = [];
     let errors = {};
     let sql =
-      "SELECT * FROM TEST_SCORE NATURAL JOIN EVALUATOR_ASSIGN NATURAL JOIN STUDENT NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE WHERE evalID=" +
+      "SELECT * FROM TEST_SCORE EVALUATOR_ASSIGN NATURAL JOIN STUDENT NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN PERFORMANCE_MEASURE WHERE evalID=" +
       db.escape(evalID) +
       " AND toolID=" +
       db.escape(testID);
@@ -109,7 +110,8 @@ router.post(
       }
       result.forEach(row => {
         scores.push({
-          name: row.studentFirstName + " " + row.studentLastName,
+          firstName: row.studentFirstName,
+          lastName: row.studentLastName,
           email: row.studentEmail,
           CWID: row.studentCWID,
           studentID: row.studentID,
@@ -155,7 +157,7 @@ router.post(
           return res.status(404).json("Test Score Field Cannot Be Empty");
         }
       }
-      let sql1 = "SELECT * TEST_SCORE WHERE studentID=" + db.escape(studentID);
+      let sql1 = "SELECT * FROM TEST_SCORE WHERE studentID=" + db.escape(studentID);
 
       db.query(sql1, (err, result) => {
         if (err) {

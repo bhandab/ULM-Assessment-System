@@ -74,3 +74,16 @@ export const testScores = (body) => dispatch =>{
         payload: err.response.data
     }))
 }
+
+export const updateTestScores = (testID,body) => dispatch =>{
+    axios
+    .post("/api/evaluations/updateTestScore",body)
+    .then(dispatch(testScores({testID})))
+    .catch(err => {
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+
+        })
+    })
+}

@@ -1,21 +1,23 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import {
   getEvaluationRubrics,
   getEvaluatorDetails,
   submitRubricScores,
   updateRubricScores,
-  testScores
+  testScores,
+  updateTestScores
 } from "../../actions/evaluationsAction";
 import { getSingleRubric } from "../../actions/rubricsAction";
 import PropTypes from "prop-types";
-import { ListGroup, Card, Button, Table } from "react-bootstrap";
+import { ListGroup, Card, Button, Table, Alert, Spinner } from "react-bootstrap";
 
 class Evaluate extends Component {
   state = {
     measureID: "",
     studentID: "",
     measureEvalID: "",
+    testName: "",
     table: (
       <div className="alert alert-info">
         <h4>Please Select a Evaluation Tool</h4>
@@ -39,6 +41,11 @@ class Evaluate extends Component {
       console.log("Rubric Scores Updated");
       this.addScoresToTable();
     }
+
+      if (this.props.evaluations.testScores !== prevProps.evaluations.testScores) {
+         console.log(this.props.evaluations.testScores)
+         this.createScoreTable();
+      }
   }
 
   checkOut = () => {
@@ -205,12 +212,8 @@ class Evaluate extends Component {
   };
 
   getTestStudents = () => {
-    return (
-      <ListGroup.Item>
-        Item 1
-      </ListGroup.Item>
-    )
-  }
+    return <ListGroup.Item>Item 1</ListGroup.Item>;
+  };
 
   getCriteriaWeight = criteria => {
     console.log(typeof criteria);
@@ -282,10 +285,134 @@ class Evaluate extends Component {
   };
 
   testTitleClick = e => {
-    const testID = e.target.value
-    console.log(e.target.dataset.measure)
-    this.props.testScores({testID})
+    const testID = e.target.value;
+    const spinner = (
+      <Fragment>
+      <Spinner animation="grow" variant="primary" />
+      <Spinner animation="grow" variant="secondary" />
+      <Spinner animation="grow" variant="success" />
+    </Fragment>
+    )
+    this.setState({ testName: e.target.name, table:spinner });
+    this.props.testScores({ testID });
+  };
+
+  toScoreList() {
+    const scores = this.props.evaluations.testScores.scores;
+    if (scores.length < 1) {
+      return (
+        <tr>
+          <td colSpan="4" className="mt-3">
+            <Alert variant="warning">No Students Assigned</Alert>
+          </td>
+        </tr>
+      );
+    }
+    return scores.map((student, index) => {
+      let initScore = student.testScore;
+      let initStatus = student.testScoreStatus;
+      // console.log(initStatus)
+      let initValue = 0
+      if (student.projectedResult !== null) {
+        if (initScore === null) {
+          initScore = 0;
+        }
+      } else {
+        if (initStatus === null) {
+          initStatus = "fail"
+        }
+        else {
+          if(initStatus === 1){
+            initStatus = "pass"
+          }
+          else {
+            initStatus = "fail"
+          }
+
+        }
+      }
+
+      return (
+        <tr key={"scr" + index}>
+          <td className="rubricCells">{index + 1}</td>
+          <td className="rubricCells">{student.lastName}</td>
+          <td className="rubricCells">{student.firstName}</td>
+          {student.projectedResult !== null ? (
+            <td className="rubricCells">
+              <input
+                type="number"
+                data-measureid={student.measureID}
+                data-testtype="scored"
+                data-studid={student.studentID}
+                onChange={this.testScoreUpdate.bind(this)}
+                defaultValue={initScore}
+              />
+            </td>
+          ) : (
+            <td className="rubricCells">
+              <select
+                type="number"
+                data-measureid={student.measureID}
+                data-testtype="pass"
+                data-studid={student.studentID}
+                onChange={this.testScoreUpdate.bind(this)}
+                defaultValue={student.testScoreStatus === null ? 0 : student.testScoreStatus}
+              >
+                <option value={1}>pass</option>
+                <option value={0}>fail</option>
+              </select>
+            </td>
+          )}
+        </tr>
+      );
+    });
   }
+
+  testScoreUpdate = e => {
+    const measureID = e.target.dataset.measureid;
+    const studentID = e.target.dataset.studid;
+    let scoreStatus = null;
+    let testScore = null;
+    if (e.target.dataset.testtype === "scored") {
+      testScore = e.target.value;
+    } else {
+      scoreStatus = e.target.value;
+    }
+    const body = {
+      measureID,
+      studentID,
+      scoreStatus,
+      testScore
+    };
+    console.log(body);
+    this.props.updateTestScores(this.props.evaluations.testScores.testID,body);
+    this.createScoreTable()
+  };
+
+  createScoreTable = () => {
+    const scores = this.props.evaluations.testScores.scores;
+    const scoreTable = (
+      <Card>
+        <Card.Header>
+          <h3 style={{ textAlign: "center" }}>{this.state.testName}</h3>
+        </Card.Header>
+        <Card.Body>
+          <Table bordered hover>
+            <thead>
+              <tr className="headerRow">
+                <th>#</th>
+                <th>Last Name</th>
+                <th>First Name</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>{this.toScoreList()}</tbody>
+          </Table>
+        </Card.Body>
+      </Card>
+    );
+    this.setState({ table: scoreTable });
+  };
 
   render() {
     let rubrics = [];
@@ -301,7 +428,7 @@ class Evaluate extends Component {
         rubrics = this.props.evaluations.evaluationRubrics.rubrics.map(
           (rubric, index) => {
             return (
-              <Card key={"rubr"+index}>
+              <Card key={"rubr" + index}>
                 <Card.Header className="rubricTitle" id={"rubric" + index}>
                   <h5 className="mb-0">
                     <button
@@ -312,6 +439,7 @@ class Evaluate extends Component {
                       aria-expanded="true"
                       aria-controls={"rubricCollapse" + index}
                       value={rubric.rubricID}
+                      name={rubric.rubricName}
                       onClick={this.rubricHeaderClick.bind(this)}
                     >
                       {rubric.rubricName}
@@ -340,59 +468,28 @@ class Evaluate extends Component {
         this.props.evaluations.evaluationRubrics.tests !== null &&
         this.props.evaluations.evaluationRubrics.tests !== undefined
       ) {
-        tests = this.props.evaluations.evaluationRubrics.tests.map ((test,index) => {
-          return (
-            <Card key={"tests"+index}>
-            <Card.Header className="testTitle" id={"test" + index}>
-              <h5 className="mb-0">
-                <button
-                  className="btn btn-link"
-                  type="button"
-                  data-toggle="collapse"
-                  data-target={"#testCollapse" + index}
-                  aria-expanded="true"
-                  aria-controls={"testCollapse" + index}
-                  data-measure={test.measureID}
-                  value={test.testID}
-                  onClick={this.testTitleClick.bind(this)}
-                >
-                  {test.testName}
-                </button>
-              </h5>
-            </Card.Header>
-            <div
-              id={"testCollapse" + index}
-              className="collapse"
-              aria-labelledby={"heading" + index}
-              data-parent="#assignedRubric"
-            >
-              <div className="card-body">
-                <ListGroup>
-                  {this.getTestStudents()}
-                </ListGroup>
-              </div>
-            </div>
-          </Card>
-          )
-        })
-
-        let scoreCard = 
-        <Card>
-        <Card.Header closeButton ><h3 style={{textAlign:'center'}}>Score Students</h3></Card.Header>
-        <Card.Body>
-          <Table bordered hover>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Last Name</th>
-                <th>First Name</th>
-                <th>Score</th>
-              </tr>
-              </thead>
-              <tbody>toScoreList</tbody>
-          </Table>
-        </Card.Body>
-      </Card>
+        tests = this.props.evaluations.evaluationRubrics.tests.map(
+          (test, index) => {
+            return (
+              <Card key={"tests" + index}>
+                <Card.Header className="rubricTitle" id={"test" + index}>
+                  <h5 className="mb-0">
+                    <button
+                      className="btn btn-link"
+                      type="button"
+                      data-measure={test.measureID}
+                      name={test.testName}
+                      value={test.testID}
+                      onClick={this.testTitleClick.bind(this)}
+                    >
+                      {test.testName}
+                    </button>
+                  </h5>
+                </Card.Header>
+              </Card>
+            );
+          }
+        );
       }
     }
 
@@ -400,7 +497,7 @@ class Evaluate extends Component {
     //   console.log("Congratulations!! You clicked the button.")
     // };
 
-    console.log(this.props);
+    // console.log(this.props);
 
     return (
       <section className="panel important">
@@ -408,14 +505,76 @@ class Evaluate extends Component {
           <Card.Header>
             <h3>Assigned Tools</h3>
           </Card.Header>
-          <Card.Body className="row">
-            <div className="accordion col-3" id="assignedRubric">
-              {rubrics}
-              {tests}
+
+          <Card.Body id="assignedTools" className="row">
+          <div className= "col-3">
+            <Card>
+              <Card.Header className="rubricTitle" id="scoreRubric">
+                <h5 className="mb-0">
+                  <button
+                    className="btn btn-link"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#scoreRubricCollapse"
+                    aria-expanded="true"
+                    aria-controls="scoreRubricCollapse"
+                  >
+                    Rubrics
+                  </button>
+                </h5>
+              </Card.Header>
+              <div
+                id="scoreRubricCollapse"
+                className="collapse"
+                aria-labelledby="headingRubric"
+                data-parent="#assignedTools"
+              >
+                <div className="card-body">
+                  <ListGroup>
+                    <div className="accordion" id="assignedRubric">
+                      {rubrics}
+                    </div>
+                  </ListGroup>
+                </div>
+              </div>
+            </Card>
+
+            <Card>
+              <Card.Header className="rubricTitle" id="scoretest">
+                <h4 className="mb-0">
+                  <button
+                    className="btn btn-link"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#scoretestCollapse"
+                    aria-expanded="true"
+                    aria-controls="scoretestCollapse"
+                  >
+                    Tests
+                  </button>
+                </h4>
+              </Card.Header>
+              <div
+                id="scoretestCollapse"
+                className="collapse"
+                aria-labelledby="headingtest"
+                data-parent="#assignedTools"
+              >
+                <div className="card-body">
+                  <ListGroup>
+                    <div className="accordion" id="assignedtest">
+                      {tests}
+                    </div>
+                  </ListGroup>
+                </div>
+              </div>
+            </Card>
             </div>
             <div className="col-9">{this.state.table}</div>
           </Card.Body>
+          
         </Card>
+        
       </section>
     );
   }
@@ -447,6 +606,7 @@ export default connect(
     getSingleRubric,
     submitRubricScores,
     updateRubricScores,
-    testScores
+    testScores,
+    updateTestScores
   }
 )(Evaluate);

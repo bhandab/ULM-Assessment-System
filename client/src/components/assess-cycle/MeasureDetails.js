@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { inviteEvaluator } from "../../actions/evaluatorAction";
 import { isEmpty } from "../../utils/isEmpty";
+import Delete from "../../utils/Delete";
+
 import {
   getMeasureDetails,
   getMeasureEvaluators,
@@ -16,8 +18,10 @@ import {
   getMeasureRubricReport,
   getMeasureTestReport,
   addStudentScore,
-  updateTestScores
+  assignStudentsToTest,
+  deleteMeasure
 } from "../../actions/assessmentCycleAction";
+import {updateTestScores} from '../../actions/evaluationsAction';
 import { getRegisteredEvaluators } from "../../actions/evaluatorAction";
 import {
   Jumbotron,
@@ -53,7 +57,8 @@ class MeasureDetails extends Component {
     toolType: "",
     statusModal: false,
     stats: false,
-    scoreStudents: false
+    scoreStudents: false,
+    deleteShow: false
   };
 
   componentDidMount() {
@@ -99,6 +104,16 @@ class MeasureDetails extends Component {
     if (this.props.errors !== nextProps.errors) {
       this.setState({ errors: nextProps.errors });
     }
+  }
+
+  deleteMeasureHandler = () => {
+    const cycleID = this.props.match.params.cycleID
+    const learnID = this.props.match.params.outcomeID
+    const measureID = this.props.match.params.measureID
+
+    this.props.deleteMeasure(cycleID,learnID,measureID)
+    
+
   }
 
   addEvalShow = () => {
@@ -187,6 +202,15 @@ class MeasureDetails extends Component {
 
   scoreStudentsHide = () => {
     this.setState({ scoreStudents: false });
+  };
+
+  deleteShow = () => {
+    this.setState({deleteShow: true
+    });
+  };
+
+  deleteHide = () => {
+    this.setState({ deleteShow: false });
   };
 
   addEvaluatorHandler = e => {
@@ -304,19 +328,36 @@ class MeasureDetails extends Component {
 
   assignStudentsHandle = e => {
     e.preventDefault();
+    let body = {}
     let studentIDs = [];
-    let evalID = e.target.evaluator.value;
+    let evalID = e.target.evaluator.dataset.evalid;
+    let measureEvalID = e.target.evaluator.dataset.measureevalid
     let optionList = e.target.assignedStudents.selectedOptions;
+    let toolType = this.props.cycles.measureDetails.toolType
+    let measureID = this.props.match.params.measureID
     for (let student of optionList) {
       studentIDs.push(student.value);
     }
     let rubricID = this.props.cycles.measureDetails.toolID;
-    const body = {
+    if(toolType === "rubric"){
+    body = {
       studentIDs,
       rubricID,
-      evalID
+      measureEvalID
     };
-    this.props.assignStudentsToMeasure(this.props.match.params.measureID, body);
+    this.props.assignStudentsToMeasure(measureID, body);
+  }
+  if(toolType === "test"){
+    body = {
+
+      measureEvalID,
+      evalID,
+      testID:rubricID,
+      studentIDs
+    }
+    this.props.assignStudentsToTest(measureID, body);
+    console.log(body)
+  }
   };
 
   render() {
@@ -364,7 +405,8 @@ class MeasureDetails extends Component {
                 <input
                   type="radio"
                   name="evaluator"
-                  value={evaluator.measureEvalID}
+                  data-measureevalid={evaluator.measureEvalID}
+                  data-evalid={evaluator.evalID}
                 />{" "}
                 <label>
                   <h5>{evaluator.name}</h5>
@@ -411,7 +453,8 @@ class MeasureDetails extends Component {
         ) {
           if (
             this.props.cycles.measureReport !== null &&
-            this.props.cycles.measureReport !== undefined
+            this.props.cycles.measureReport !== undefined &&
+            this.props.cycles.measureReport.results !== undefined
           ) {
             let passScore = this.props.cycles.measureReport.threshold;
             let benchmarkPer = this.props.cycles.measureDetails
@@ -419,9 +462,10 @@ class MeasureDetails extends Component {
             let passingCount = this.props.cycles.measureReport.passingCounts
               .averageScore;
             let results = this.props.cycles.measureReport.results;
-
-            let passPer = this.props.cycles.measureReport.passingPercentages
-              .averageScore;
+            let passPer = 0
+            if(this.props.cycles.measureReport.passingPercentages !== undefined){
+             passPer = this.props.cycles.measureReport.passingPercentages.averageScore;
+            }
             let evaluated = [];
             let passed = [];
             let failed = [];
@@ -501,12 +545,17 @@ class MeasureDetails extends Component {
                 centered
               >
                 <Modal.Header closeButton>
-                  <h3 className="text-secondary">Student Status</h3>
+                <h3 className="text-secondary">Student Status<br/>
+                  <small className="text-info">Total:{this.props.cycles.measureStudents.students.length}</small></h3>
+
+                  
                 </Modal.Header>
                 <Modal.Body className="row">
                   <Card style={{ width: "15em" }} className="col-4 statCard">
                     <Card.Header>
                       <h4 className="text-info">Evaluated</h4>
+                      <h6 className="text-info">Count:{evaluated.length}</h6>
+
                     </Card.Header>
                     <Card.Body>
                       <ListGroup>{evaluated}</ListGroup>
@@ -515,6 +564,8 @@ class MeasureDetails extends Component {
                   <Card style={{ width: "15em" }} className="col-4 statCard">
                     <Card.Header>
                       <h4 className="text-success">Passing</h4>
+                      <h6 className="text-info">Count:{failed.length}</h6>
+
                     </Card.Header>
                     <Card.Body>
                       <ListGroup>{passed}</ListGroup>
@@ -523,6 +574,8 @@ class MeasureDetails extends Component {
                   <Card style={{ width: "15em" }} className="col-4 statCard">
                     <Card.Header>
                       <h4 className="text-danger">Failing</h4>
+                      <h6 className="text-info">Count:{failed.length}</h6>
+
                     </Card.Header>
                     <Card.Body>
                       <ListGroup>{failed}</ListGroup>
@@ -651,6 +704,110 @@ class MeasureDetails extends Component {
                 />
               </ProgressBar>
             );
+
+            let evaluated = []
+            let passed = []
+            let failed = []
+            let passScore = ''
+            let testType = ''
+            if(this.props.cycles.measureDetails.projectedResult !== null){
+              testType = 'scored'
+              passScore = this.props.cycles.measureDetails.projectedResult
+            }
+            else {
+              testType = 'pass'
+            }
+
+            let results = this.props.cycles.measureReport.report
+            evaluated = results.map((student, index) => {
+              if(testType === 'scored'){
+              if (student.score >= passScore) {
+                passed.push(
+                  <ListGroup.Item key={"pass" + index} className="statStuds">
+                    {student.studentName}
+                  </ListGroup.Item>
+                );
+              } else {
+                failed.push(
+                  <ListGroup.Item key={"fail" + index} className="statStuds">
+                    {student.studentName}
+                  </ListGroup.Item>
+                );
+              }
+            }
+            else{
+              if (student.passing) {
+                passed.push(
+                  <ListGroup.Item key={"pass" + index} className="statStuds">
+                    {student.studentName}
+                  </ListGroup.Item>
+                );
+              } else {
+                failed.push(
+                  <ListGroup.Item key={"fail" + index} className="statStuds">
+                    {student.studentName}
+                  </ListGroup.Item>
+                );
+              }
+            }
+              return (
+                <ListGroup.Item key={"eval" + index} className="statStuds">
+                  {student.studentName}
+                </ListGroup.Item>
+              );
+            })
+
+
+            statusModal = (
+              <Modal
+                show={this.state.statusModal}
+                onHide={this.statusModalHide}
+                size="lg"
+                centered
+              >
+                <Modal.Header closeButton>
+                  <h3 className="text-secondary">Student Status<br/>
+                  <small className="text-info">Total:{this.props.cycles.measureStudents.students.length}</small></h3>
+
+                </Modal.Header>
+                <Modal.Body className="row">
+                  <Card style={{ width: "15em" }} className="col-4 statCard">
+                    <Card.Header>
+                      <h4 className="text-info">Evaluated</h4>
+                      <h6 className="text-info">Count:{evaluated.length}</h6>
+                    </Card.Header>
+                    <Card.Body>
+                      <ListGroup>{evaluated}</ListGroup>
+                    </Card.Body>
+                  </Card>
+                  <Card style={{ width: "15em" }} className="col-4 statCard">
+                    <Card.Header>
+                      <h4 className="text-success">Passing</h4>
+                      <h6 className="text-info">Count: {passed.length}</h6>
+                    </Card.Header>
+                    <Card.Body>
+                      <ListGroup>{passed}</ListGroup>
+                    </Card.Body>
+                  </Card>
+                  <Card style={{ width: "15em" }} className="col-4 statCard">
+                    <Card.Header>
+                      <h4 className="text-danger">Failing</h4>
+                      <h6 className="text-info">Count: {failed.length}</h6>
+                    </Card.Header>
+                    <Card.Body>
+                      <ListGroup>{failed}</ListGroup>
+                    </Card.Body>
+                  </Card>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="danger" onClick={this.statusModalHide}>
+                    Close
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+            )
+
+            
           }
 
           let testType = this.props.cycles.measureDetails.testType;
@@ -752,7 +909,20 @@ class MeasureDetails extends Component {
             <p id="measure-title-label">Measure Title</p>
             <h4 id="measure-title">
               {measureTitle}
-
+              <button
+              style={{ border: "none", background: "none" }}
+              name={this.props.match.params.measureID}
+              // value={this.props.match.params.measureID}
+             // onClick={this.editShow.bind(this)}
+              className="outcome-edit ml-2"
+            />
+            <button
+              style={{ border: "none", background: "none" }}
+              name={this.props.match.params.measureID}
+              // value={cycle.cycleName}
+              onClick={this.deleteShow.bind(this)}
+              className="delete"
+            />
               {typeTest ? (
                 <button
                   type="button"
@@ -1202,6 +1372,13 @@ class MeasureDetails extends Component {
           </ModalBody>
         </Modal>
         {scoreModal}
+        <Delete
+          hide={this.deleteHide}
+          show={this.state.deleteShow}
+          value="Performance Measure"
+          name={measureTitle}
+          delete={this.deleteMeasureHandler}
+        />
       </Fragment>
     );
   }
@@ -1232,7 +1409,8 @@ const MapStateToProps = state => ({
   errors: state.errors,
   measureStudents: state.measureStudents,
   assignStudents: state.assugnedStudents,
-  evaluator: state.evaluator
+  evaluator: state.evaluator,
+  evaluations:state.eveluations
 });
 export default connect(
   MapStateToProps,
@@ -1250,6 +1428,8 @@ export default connect(
     getMeasureRubricReport,
     getMeasureTestReport,
     addStudentScore,
-    updateTestScores
+    updateTestScores,
+    assignStudentsToTest,
+    deleteMeasure
   }
 )(MeasureDetails);

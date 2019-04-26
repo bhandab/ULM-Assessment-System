@@ -1057,7 +1057,7 @@ router.post(
         }
 
         let sql2 =
-          "SELECT * FROM performance_measure WHERE cycleID=" +
+          "SELECT * FROM PERFORMANCE_MEASURE WHERE cycleID=" +
           db.escape(cycleID) +
           " AND learnID=" +
           db.escape(learnID) +
@@ -1077,7 +1077,7 @@ router.post(
             return res.status(404).json({ errors });
           }
           let sql3 =
-            "DELETE FROM performance_measure WHERE cycleID=" +
+            "DELETE FROM PERFORMANCE_MEASURE WHERE cycleID=" +
             db.escape(cycleID) +
             " AND learnID=" +
             db.escape(learnID) +
@@ -1722,7 +1722,7 @@ router.post(
     let measureID = req.params.measureIdentifier;
     let adminID = req.user.id;
     let programID = req.user.programID;
-    let evalID = req.body.evalID;
+    let evalID = req.body.measureEvalID;
     let rubricID = req.body.rubricID;
     alreadyAssignedStudents = [];
     tobeAssignedStudents = [];
@@ -1969,7 +1969,7 @@ router.get(
         let sql1 =
           "SELECT * FROM EVALUATE NATURAL JOIN EVALUATOR  NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA  NATURAL JOIN RUBRIC_SCORE NATURAL JOIN STUDENT_AVERAGE_SCORE WHERE measureID=" +
           db.escape(measureID) +
-          " ORDER BY criteriaID,studentID,measureEvalID";
+          " ORDER BY criteriaID,studentID"; //,measureEvalID";
         db.query(sql1, (err, result) => {
           if (err) {
             return res.status(500).json(err);

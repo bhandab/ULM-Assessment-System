@@ -19,6 +19,15 @@ class MeasureReport extends Component {
   render() {
     console.log(this.props);
 
+    const cellStyle = {
+        fontSize:'1.5em',
+        textAlign:'center'
+    }
+
+    const headerStyle = {
+        fontSize:'1.6em'
+    }
+
     let measureReport = [];
 
       if (
@@ -35,7 +44,7 @@ class MeasureReport extends Component {
           return criteriaDesc.map((criteria, index) => {
             criterias.push(criteria.criteriaDescription);
             return (
-              <th key={"criteria" + index}>{criteria.criteriaDescription}  {weighted ?  `(${criteria.criteriaWeight}%)` :null } </th>
+              <th style = {headerStyle} key={"criteria" + index}>{criteria.criteriaDescription}  {weighted ?  `(${criteria.criteriaWeight}%)` :null } </th>
             );
           });
         };
@@ -46,26 +55,26 @@ class MeasureReport extends Component {
             } else {
               colour = "text-success";
             }
-            return <td key={"critIdx"+index} className={colour}>{details[criteria]}</td>;
+            return <td style = {cellStyle} key={"critIdx"+index} className={colour}>{details[criteria]}</td>;
           });
         };
 
       const criteriaAvg = details => {
         return criterias.map((criteria,index) => {
           console.log(details[criteria])
-          return <td key={"criAvg"+index}>{details[criteria]}</td>;
+          return <td style = {cellStyle} key={"criAvg"+index}>{details[criteria]}</td>;
         });
       };
 
       measureReport.push(
         <thead key="tableHead">
           <tr>
-            <th>Class</th>
-            <th>Student</th>
-            <th>Evaluator</th>
+            <th style = {headerStyle}>Class</th>
+            <th style = {headerStyle}>Student</th>
+            <th style = {headerStyle}>Evaluator</th>
             {rubricCriterias()}
-            <th>Overall Score</th>
-            <th>Average Score</th>
+            <th style = {headerStyle}>Overall Score</th>
+            <th style = {headerStyle}>Average Score</th>
           </tr>
         </thead>
       );
@@ -76,12 +85,12 @@ class MeasureReport extends Component {
         this.props.cycles.measureReport.results.map((student,index) => {
           return (
             <tr key={"studSco"+index}>
-              <td>{student.class}</td>
-              <td>{student.studentName}</td>
-              <td>{student.evalName}</td>
+              <td style = {cellStyle}>{student.class}</td>
+              <td style = {cellStyle}>{student.studentName}</td>
+              <td style = {cellStyle}>{student.evalName}</td>
               {criteriaScores(student)}
-              <td>{student.rubricScore}</td>
-              <td>{student.averageScore}</td>
+              <td style = {cellStyle}>{student.rubricScore}</td>
+              <td style = {cellStyle}>{student.averageScore}</td>
             </tr>
           );
         })
@@ -89,56 +98,58 @@ class MeasureReport extends Component {
       const avgDetails = this.props.cycles.measureReport.classAverage;
       reportBody.push(
         <tr key="avgDtl">
-          <td colSpan="3">Class avg.</td>
+          <td style = {cellStyle} colSpan="3">Class avg.</td>
           {criteriaAvg(avgDetails)}
-          <td>{avgDetails.rubricScore}</td>
-          <td>{avgDetails.averageScore}</td>
+          <td style = {cellStyle}>{avgDetails.rubricScore}</td>
+          <td style = {cellStyle}>{avgDetails.averageScore}</td>
           
         </tr>
       );
       const passingCounts = this.props.cycles.measureReport.passingCounts;
       reportBody.push(
         <tr key="passCt">
-          <td colSpan="3">Number >= {passPoint}</td>
+          <td style = {cellStyle} colSpan="3">Number >= {passPoint}</td>
           {criteriaAvg(passingCounts)}
-          <td>{passingCounts.rubricScore}</td>
-          <td>{passingCounts.averageScore}</td>
+          <td style = {cellStyle}>{passingCounts.rubricScore}</td>
+          <td style = {cellStyle}>{passingCounts.averageScore}</td>
         </tr>
       );
       reportBody.push(
         <tr key="evalNo">
-          <td colSpan="3">Number of Evaluations</td>
+          <td style = {cellStyle} colSpan="3">Number of Evaluations</td>
           {criterias.map((item,idx) => {
             return (
-              <td key={"new"+idx}>{this.props.cycles.measureReport.numberOfEvaluations}</td>
+              <td style = {cellStyle} key={"new"+idx}>{this.props.cycles.measureReport.numberOfEvaluations}</td>
             );
           })}
-          <td>{this.props.cycles.measureReport.numberOfEvaluations}</td>
-          <td>{this.props.cycles.measureReport.numberOfUniqueStudents}</td>
+          <td style = {cellStyle}>{this.props.cycles.measureReport.numberOfEvaluations}</td>
+          <td style = {cellStyle}>{this.props.cycles.measureReport.numberOfUniqueStudents}</td>
         </tr>
       );
       const passingPercentages = this.props.cycles.measureReport
         .passingPercentages;
       reportBody.push(
         <tr key="passPer">
-          <td colSpan="3">% >= {passPoint}</td>
+          <td style = {cellStyle} colSpan="3">% >= {passPoint}</td>
           {criteriaAvg(passingPercentages)}
-          <td>{passingPercentages.rubricScore}</td>
-          <td>{passingPercentages.averageScore}</td>
+          <td style = {cellStyle}>{passingPercentages.rubricScore}</td>
+          <td style = {cellStyle}>{passingPercentages.averageScore}</td>
         </tr>
       );
 
       measureReport.push(<tbody key="tableBody">{reportBody}</tbody>);
 
       measureReport = (
-        <Table id="measureReport" striped bordered key="reportTable">
+        
           <Card>
-            <Card.Header><h5>Measure Report</h5></Card.Header>
+            <Card.Header style={{textAlign:'center'}}><h3>Measure Report</h3></Card.Header>
             <Card.Body>
+            <Table id="measureReport" striped bordered key="reportTable">
               {measureReport}
+              </Table>
+
             </Card.Body>
           </Card>
-        </Table>
       );
     }
 

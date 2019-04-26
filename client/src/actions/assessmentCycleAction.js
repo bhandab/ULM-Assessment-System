@@ -80,6 +80,17 @@ export const linkMeasureToOutcome = (cycleID, outcomeID, details) => dispatch =>
             }))
 }
 
+export const deleteMeasure = (cycleID, learnID, measureID) => dispatch => {
+    axios
+    .post(`/api/cycles/${cycleID}/${learnID}/${measureID}/delete`)
+    .then( ()=> window.location.assign(`/admin/cycles/cycle/${cycleID}/outcomes/${learnID}`))
+    .catch(err =>
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+        }))
+}
+
 export const getCycleMeasures = (cycleID) => dispatch => { //outcomes of a cycle
     //dispatch(setLoading())
     axios
@@ -318,6 +329,19 @@ export const assignStudentsToMeasure = (measureID, body) => dispatch => {
         })
 }
 
+export const assignStudentsToTest = (measureID, body) => dispatch => {
+    axios
+        .post("/api/cycles/" + measureID + "/testAssign",body)
+        .then(() => dispatch(getAssignedStudents(measureID)))
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            })
+        })
+}
+
 export const getMeasureRubricReport = (measureID) => dispatch => {
     axios
     .get("/api/cycles/"+measureID+"/measureRubricReport")
@@ -363,17 +387,6 @@ export const addStudentScore = (measureID,body) => dispatch => {
     })
 }
 
-export const updateTestScores = (measureID,body) => dispatch =>{
-    axios
-    .post("/api/cycles/"+measureID+"/updateTestScores",body)
-    .catch(err => {
-        dispatch({
-            type: GET_ERRORS,
-            payload: err.response.data
-
-        })
-    })
-}
 export const getMeasureTestReport = (measureID) => dispatch => {
     axios
     .get("/api/cycles/"+measureID+"/measureTestReport")
