@@ -620,7 +620,7 @@ router.post(
 );
 
 // @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier
-// @desc Retrieves all measures associated with the given cycle and outcome
+// @desc Retrieves all measures and curriculam associated with the given cycle and outcome
 // @access Private
 
 router.get(
@@ -685,7 +685,9 @@ router.get(
               courseAssociated: row.courseAssociated,
               toolName: row.toolName,
               toolID: row.toolID,
-              measureStatus: row.measureStatus
+              measureStatus: row.measureStatus,
+              evalCount: row.evalCount,
+              successCount: row.successCount
             };
             measures.push(measure);
           });
@@ -2041,7 +2043,7 @@ router.get(
         let sql1 =
           "SELECT * FROM EVALUATE NATURAL JOIN EVALUATOR  NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA  NATURAL JOIN RUBRIC_SCORE NATURAL JOIN STUDENT_AVERAGE_SCORE WHERE measureID=" +
           db.escape(measureID) +
-          " ORDER BY criteriaID,studentID"; //,measureEvalID";
+          " ORDER BY criteriaID,studentID,evalID";
         db.query(sql1, (err, result) => {
           if (err) {
             return res.status(500).json(err);
@@ -2246,6 +2248,86 @@ router.get(
         res
           .status(200)
           .json({ report, totalStudents, passingCounts, passingPercentage });
+      });
+    });
+  }
+);
+
+router.get(
+  "/:cycleIdentifier/cycleSummaryReport",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let cycleID = req.params.cycleIdentifier;
+    let errors = {};
+    let cycleReport = {};
+
+    let sql1 =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" + db.escape(cycleID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+
+      if (result.length <= 0) {
+        errors.cycleNotFound = "Assessment Cycle Does not Exist";
+        return res.status(404).json(errors);
+      }
+      cycleReport.cycleName = result[0].cycleTitle;
+
+      let sql2 =
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" + db.escape(cycleID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        async.forEachOf(
+          result,
+          (value, key, callback) => {
+            let outcomeName = value.learnDesc;
+            cycleReport[outcomeName] = {};
+            cycleReport[outcomeName]["measureDetails"] = [];
+
+            let outcomeCourses = [];
+            let sql3 =
+              "SELECT * FROM OUTCOME_COURSE WHERE learnID=" +
+              db.escape(value.learnID);
+            db.query(sql3, (err, result) => {
+              if (err) {
+                return callback(err);
+              }
+              result.forEach(row => {
+                outcomeCourses.push(row.courseCode);
+              });
+              cycleReport[outcomeName].outcomeCourses = outcomeCourses;
+              let sql4 =
+                "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
+                db.escape(value.learnID);
+              db.query(sql4, (err, result) => {
+                if (err) {
+                  return callback(err);
+                }
+                result.forEach(row => {
+                  cycleReport[outcomeName].measureDetails.push({
+                    measureDesc: row.measureDesc,
+                    evalCount: row.evalCount,
+                    successCount: row.successCount,
+                    threshold: row.projectedResult
+                      ? row.projectedResult + row.projectedValueScale
+                      : "pass",
+                    measureStatus: row.measureStatus
+                  });
+                });
+                callback();
+              });
+            });
+          },
+          err => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            res.status(200).json(cycleReport);
+          }
+        );
       });
     });
   }
