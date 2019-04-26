@@ -19,7 +19,10 @@ import {
   getMeasureTestReport,
   addStudentScore,
   assignStudentsToTest,
-  deleteMeasure
+  deleteMeasure,
+  updateMeasure,
+  deleteEvaluator,
+  deleteStudent
 } from "../../actions/assessmentCycleAction";
 import {updateTestScores} from '../../actions/evaluationsAction';
 import { getRegisteredEvaluators } from "../../actions/evaluatorAction";
@@ -58,7 +61,8 @@ class MeasureDetails extends Component {
     statusModal: false,
     stats: false,
     scoreStudents: false,
-    deleteShow: false
+    deleteShow: false,
+    editShow:false
   };
 
   componentDidMount() {
@@ -360,6 +364,36 @@ class MeasureDetails extends Component {
   }
   };
 
+  updateMeasure = e => {
+    e.preventDefault()
+    const cycleID = this.props.match.params.cycleID;
+    const outcomeID = this.props.match.params.outcomeID;
+    const measureID = this.props.match.params.measureID;
+
+    const projectedStudentNumber = (e.target.pjsn.value)
+    const projectedResult = (e.target.score.value)
+    const body = {
+      projectedStudentNumber, projectedResult
+    }
+    this.props.updateMeasure(cycleID,outcomeID,measureID,body)
+  }
+
+  deleteEvaluator = e => {
+    const measureID = this.props.match.params.measureID;
+    const measureEvalID = e.target.value
+    console.log(e.target.value)
+    this.props.deleteEvaluator(measureID,measureEvalID)
+  }
+
+  deleteStudent = e => {
+    const measureID = this.props.match.params.measureID;
+    const studentID = e.target.value+""
+    console.log(studentID)
+
+    this.props.deleteStudent(measureID,studentID)
+
+  }
+
   render() {
     console.log(this.props);
     let typeRubric = false;
@@ -415,7 +449,14 @@ class MeasureDetails extends Component {
             );
             return (
               <li key={evaluator.measureEvalID} className="list-group-item">
-                {evaluator.name} ({evaluator.email})
+                {evaluator.name} 
+                <button
+                value = {evaluator.measureEvalID}
+              style={{ border: "none", background: "none" }}
+              onClick={this.deleteEvaluator.bind(this)}
+              className="delete float-right"
+            />
+             ({evaluator.email})
               </li>
             );
           }
@@ -438,9 +479,16 @@ class MeasureDetails extends Component {
             return (
               <li key={student.studentID} className="list-group-item p-0 pl-2">
                 <ol>
-                  <li className="p-0">{student.name}</li>{" "}
+                  <li className="p-0">{student.name}{" "}
                   {/* <li>Email: ({student.email})</li>{" "}
                     <li>CWID: {student.CWID}</li> */}
+                     <button
+                value = {student.studentID}
+              style={{ border: "none", background: "none" }}
+              onClick={this.deleteStudent.bind(this)}
+              className="delete float-right"
+            />
+            </li>
                 </ol>
               </li>
             );
@@ -905,21 +953,18 @@ class MeasureDetails extends Component {
             </div>
           </div> */}
 
-          <Jumbotron>
+          <Jumbotron className="noprint">
             <p id="measure-title-label">Measure Title</p>
             <h4 id="measure-title">
               {measureTitle}
               <button
               style={{ border: "none", background: "none" }}
-              name={this.props.match.params.measureID}
-              // value={this.props.match.params.measureID}
-             // onClick={this.editShow.bind(this)}
+              onClick={()=>this.setState({editShow:true})}
               className="outcome-edit ml-2"
             />
             <button
               style={{ border: "none", background: "none" }}
               name={this.props.match.params.measureID}
-              // value={cycle.cycleName}
               onClick={this.deleteShow.bind(this)}
               className="delete"
             />
@@ -957,6 +1002,32 @@ class MeasureDetails extends Component {
                 </Link>
               ) : null}
             </h4>
+            {this.state.editShow ?  
+            <Form onSubmit={this.updateMeasure.bind(this)}>
+              <InputGroup className="row">
+              <InputGroup className="col-4" >
+                  <InputGroup.Prepend>
+                    <InputGroup.Text>
+                      Projected Student Number
+                    </InputGroup.Text>
+                  </InputGroup.Prepend>
+                  <Form.Control type="number" name="pjsn" placeholder="% of passing Students" required />
+                  </InputGroup>
+                  <InputGroup className="col-4">
+                  <InputGroup.Prepend>
+                    <InputGroup.Text>
+                      Projected Result
+                    </InputGroup.Text>
+                  </InputGroup.Prepend>
+                  <Form.Control type="number" name="score" placeholder="passing score" required />
+
+                  </InputGroup>
+              </InputGroup>
+              <Button type="submit" variant="outline-light" className="mt-2 ml-3"><i className="fas fa-check text-success"></i></Button>
+              <Button variant="outline-light" className="mt-2" onClick={()=>this.setState({editShow:false})}><i className="fas fa-times text-danger"></i></Button>
+              </Form>
+              :null}
+
             <hr />
             <div className="container ml-0  mb-2 pl-2 pb-2 border border-info">
               <Button
@@ -1430,6 +1501,9 @@ export default connect(
     addStudentScore,
     updateTestScores,
     assignStudentsToTest,
-    deleteMeasure
+    deleteMeasure,
+    updateMeasure,
+    deleteEvaluator,
+    deleteStudent
   }
 )(MeasureDetails);

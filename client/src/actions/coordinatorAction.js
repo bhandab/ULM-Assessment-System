@@ -1,10 +1,14 @@
 import axios from 'axios'
 import {GET_REGISTERED_COORDINATORS, GET_INVITED_COORDINATORS, GET_PROGRAMS,GET_ERRORS} from './types'
-
+import {toastr} from 'react-redux-toastr'
 
 export const inviteCoordinator = (body) => dispatch =>{
     axios
     .post("/api/coordinators/invite",body)
+    .then(() => toastr.success(
+        "Coordinator Invited!",
+        "Program Coordinator Successfully Invited!"
+    ))
     .then(()=> dispatch(getInvitedCoordinators(body.programID)))
     .catch(err =>
         dispatch({
@@ -15,9 +19,12 @@ export const inviteCoordinator = (body) => dispatch =>{
 }
 
 export const deleteCoordinator = (body,programID) => dispatch => {
-    console.log("gets here")
     axios
     .post ("/api/coordinators/deleteCoordinator",body)
+    .then(() => toastr.success(
+        "Coordinator Deleted!",
+        "Program Coordinator Successfully Deleted!"
+    ))
     .then (()=> dispatch(getRegisteredCoordinators(programID)))
     .catch(err =>
         dispatch({
@@ -90,6 +97,10 @@ export const getPrograms = () => dispatch => {
 export const createProgram = (progName) => dispatch => {
     axios
     .post("/api/coordinators/createProgram",progName)
+    .then(() => toastr.success(
+        "Program Created!",
+        "New Assessment Program Successfully Deleted!"
+    ))
     .then(()=> dispatch(getPrograms()))
     .catch(err => {
         dispatch({

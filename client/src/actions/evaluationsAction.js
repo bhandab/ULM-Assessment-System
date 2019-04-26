@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { EVALUATION_RUBRICS, EVALUATION_DETAILS, RUBRIC_SCORES, GET_ERRORS,TEST_SCORES} from './types'
+import {toastr} from 'react-redux-toastr'
 
 export const getEvaluatorDetails = () => dispatch => {
     axios
@@ -51,15 +52,16 @@ export const updateRubricScores = (body) => dispatch => {
     }
     axios
     .post("/api/evaluations/updateScores",body)
+    .then(() => toastr.success(
+        "Score Updated!",
+        ""
+    ))
+    .then(dispatch(submitRubricScores(newBody)))
         .catch(err => dispatch({
             type: GET_ERRORS,
             payload: err.response.data
         }))
-    .then(dispatch(submitRubricScores(newBody)))
-    .catch(err => dispatch({
-        type: GET_ERRORS,
-        payload: err.response.data
-    }))
+    
 }
 
 export const testScores = (body) => dispatch =>{
@@ -78,6 +80,10 @@ export const testScores = (body) => dispatch =>{
 export const updateTestScores = (testID,body) => dispatch =>{
     axios
     .post("/api/evaluations/updateTestScore",body)
+    .then(() => toastr.success(
+        "Score Updated!",
+        ""
+    ))
     .then(dispatch(testScores({testID})))
     .catch(err => {
         dispatch({

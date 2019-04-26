@@ -7,6 +7,8 @@ import { setCurrentUser, logoutUser } from './actions/authActions';
 import { Provider } from 'react-redux';
 import store from './store';
 
+import ReduxToastr from 'react-redux-toastr'
+
 import Login from './components/auth/Login'
 import Admin from './components/users/Admin'
 import Evaluator from './components/users/Evaluator'
@@ -59,6 +61,15 @@ class App extends Component {
             </Switch>
           </div>
         </Router>
+        <ReduxToastr
+      timeOut={4000}
+      newestOnTop={false}
+      preventDuplicates
+      position="top-right"
+      transitionIn="fadeIn"
+      transitionOut="fadeOut"
+      progressBar
+      closeOnToastrClick/>
       </Provider>
 
     );

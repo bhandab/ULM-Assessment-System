@@ -1,22 +1,26 @@
 import axios from 'axios';
 import {GET_ERRORS, GET_RUBRICS, GET_SINGLE_RUBRIC, LOADING} from './types';
+import {toastr} from 'react-redux-toastr'
+
 
 export const createRubric = (rubricDetails,history) => dispatch => {
 
     axios
         .post("/api/rubrics/createRubric", rubricDetails)
+        
         .then(res => 
             dispatch(history.push("/admin/rubrics/"+res.data.rubricDetails.strutureInfo.rubricID))
         )
+        .then(() => toastr.success(
+            "Rubric Created!",
+            `${rubricDetails.rubricName} Successfully Created!!`
+        ))
         .then(()=>
             dispatch(getAllRubrics())
         )
 
-        .catch(err=> //{
-            //dispatch(//{
-                // type: GET_ERRORS,
-                // payload: err.response.data
-            console.log(err)//)// })
+        .catch(err=> 
+            console.log(err)
         )
 }
 

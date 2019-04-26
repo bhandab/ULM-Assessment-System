@@ -951,7 +951,7 @@ router.post(
 // @desc Updates a measure of existing assessment Cycle
 // @access Private
 router.post(
-  "/:measureIdentifier/update",
+  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/update",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let errors = {};
@@ -1266,7 +1266,7 @@ router.get(
 // @desc Deletes Measure Evaluator
 // @access Private
 router.post(
-  ":/measureIdentifier/deleteMeasureEvaluator",
+  "/:measureIdentifier/deleteMeasureEvaluator",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let errors = {};
@@ -1627,7 +1627,7 @@ router.post(
 // @desc Deletes Student
 // @access Private
 router.post(
-  ":/measureIdentifier/deleteStudent",
+  "/:measureIdentifier/deleteStudent",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let errors = {};
