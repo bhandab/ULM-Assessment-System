@@ -80,7 +80,7 @@ router.get(
               testName: row.toolName,
               testID: row.toolID,
               measureID: row.measureID,
-              projectedResult : row.projectedResult
+              projectedResult: row.projectedResult
             });
           }
         }
@@ -157,7 +157,8 @@ router.post(
           return res.status(404).json("Test Score Field Cannot Be Empty");
         }
       }
-      let sql1 = "SELECT * FROM TEST_SCORE WHERE studentID=" + db.escape(studentID);
+      let sql1 =
+        "SELECT * FROM TEST_SCORE WHERE studentID=" + db.escape(studentID);
 
       db.query(sql1, (err, result) => {
         if (err) {
@@ -207,6 +208,10 @@ router.post(
             let sql5 =
               "UPDATE PERFORMANCE_MEASURE SET measureStatus=" +
               db.escape(measureStatus) +
+              ", evalCount=" +
+              db.escape(result.length) +
+              ", successCount=" +
+              db.escape(successCount) +
               " WHERE measureID=" +
               db.escape(measureID);
             db.query(sql5, (err, result) => {
@@ -520,6 +525,10 @@ router.post(
                     let sql10 =
                       "UPDATE PERFORMANCE_MEASURE SET measureStatus=" +
                       db.escape(passing) +
+                      ", evalCount=" +
+                      db.escape(result.length) +
+                      ", successCount=" +
+                      db.escape(passingCount) +
                       " WHERE measureID=" +
                       db.escape(req.body.measureID);
                     db.query(sql10, (err, result) => {
