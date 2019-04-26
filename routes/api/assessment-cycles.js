@@ -1551,6 +1551,78 @@ router.get(
   }
 );
 
+// @route POST api/cycles/:measureIdentifier/updateStudent
+// @desc Updates Student Info
+// @access Private
+
+router.post(
+  ":/measureIdentifier/updateStudent",
+  passport.authenticate("jwt", { sesion: false }),
+  (req, res) => {
+    let errors = {};
+    let measureID = req.params.measureIdentifier;
+    let studentID = req.body.studentID;
+    let CWID = "";
+    if (isEmpty(req.body.firstName)) {
+      errors.emptyFirstName = "First Name field cannot be Empty";
+    }
+    if (isEmpty(req.body.lastName)) {
+      errors.lastName = "Last Name field cannot be Empty";
+    }
+
+    if (isEmpty(req.body.studentEmail)) {
+      errors.studentEmail = "Email field cannot be empty";
+    }
+    if (!isEmpty(req.body.studentCWID)) {
+      CWID = req.body.studentCWID;
+    }
+    if (!isEmpty(errors)) {
+      return res.status(404).json(errors);
+    }
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.measureNotExisiting = "Measure Does not Exist!";
+        return res.status(404).json(errors);
+      }
+      let sql2 =
+        "SELECT * FROM STUDENT WHERE studentID=" + db.escape(studentID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length <= 0) {
+          errors.nonExistingStudent = "Student Does not Exist!";
+          return res.status(404).json(errors);
+        }
+        let sql3 =
+          "UPDATE STUDENT SET studentFirstName=" +
+          db.escape(req.body.firstName) +
+          ", studentLastName=" +
+          db.escape(lastName) +
+          ", studentEmail=" +
+          db.escape(studentEmail) +
+          ", studentCWID=" +
+          db.escape(CWID) +
+          " WHERE studentID=" +
+          db.escape(studentID);
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Updated Successfully!");
+        });
+      });
+    });
+  }
+);
+
 // @route POST api/cycles/:measureIdentifier/deleteStudent
 // @desc Deletes Student
 // @access Private
