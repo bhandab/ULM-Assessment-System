@@ -868,7 +868,7 @@ router.post(
           } else {
             let insertIntoMeasure = () => {
               let sql4 =
-                "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, programID, toolID,toolName, toolType, studentNumberScale,projectedValueScale,testType) VALUES (" +
+                "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, programID, toolID,toolName, toolType, studentNumberScale,projectedValueScale) VALUES (" +
                 db.escape(outcomeID) +
                 ", " +
                 db.escape(cycleID) +

@@ -1,9 +1,10 @@
-import { EVALUATION_RUBRICS, EVALUATION_DETAILS, RUBRIC_SCORES } from '../actions/types' 
+import { EVALUATION_RUBRICS, EVALUATION_DETAILS, RUBRIC_SCORES,TEST_SCORES } from '../actions/types' 
 
 const initialState = {
     evaluationRubrics: null,
     evaluationDetails: null,
-    rubricScores:null
+    rubricScores:null,
+    testScores:null
 }
 
 export default function (state = initialState, action) {
@@ -25,7 +26,13 @@ export default function (state = initialState, action) {
                 ...state,
                 rubricScores: action.payload
             }
+            case TEST_SCORES:
+            return {
+                ...state,
+                testScores:action.payload
+            }
         default:
             return state;
+
     }
 }

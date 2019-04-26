@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { EVALUATION_RUBRICS, EVALUATION_DETAILS, RUBRIC_SCORES, GET_ERRORS} from './types'
+import { EVALUATION_RUBRICS, EVALUATION_DETAILS, RUBRIC_SCORES, GET_ERRORS,TEST_SCORES} from './types'
 
 export const getEvaluatorDetails = () => dispatch => {
     axios
@@ -17,7 +17,7 @@ export const getEvaluatorDetails = () => dispatch => {
 
 export const getEvaluationRubrics = () => dispatch => {
     axios
-    .get("/api/evaluations/evaluationRubrics")
+    .get("/api/evaluations/evaluationTools")
     .then(res => dispatch({
         type: EVALUATION_RUBRICS,
         payload: res.data
@@ -56,6 +56,19 @@ export const updateRubricScores = (body) => dispatch => {
             payload: err.response.data
         }))
     .then(dispatch(submitRubricScores(newBody)))
+    .catch(err => dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+    }))
+}
+
+export const testScores = (body) => dispatch =>{
+    axios
+    .post("/api/evaluations/testScores",body)
+    .then(res => dispatch({
+        type: TEST_SCORES,
+        payload: res.data
+    })) 
     .catch(err => dispatch({
         type: GET_ERRORS,
         payload: err.response.data
