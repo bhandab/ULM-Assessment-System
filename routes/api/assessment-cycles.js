@@ -1647,6 +1647,9 @@ router.post(
         errors.measureNotFound = "Measure with the id not found!";
         return res.status(404).json(errors);
       }
+      let projectedResult = result[0].projectedResult;
+      let thresholdStudents = result[0].projectedStudentsValue;
+      let toolType = result[0].toolType;
       let sql2 =
         "SELECT * FROM STUDENT WHERE studentID=" + db.escape(deleteStudentID);
       db.query(sql2, (err, result) => {
@@ -1663,7 +1666,62 @@ router.post(
           if (err) {
             return res.status(500).json(err);
           }
-          res.status(200).json("Deleted Successfully!");
+
+          let sql9 = "SELECT * FROM ";
+          sql9 =
+            toolType.toLowerCase() === "rubric"
+              ? sql9 +
+                "STUDENT_AVERAGE_SCORE where measureID=" +
+                db.escape(measureID)
+              : sql9 + "TEST_SCORE where measureID=" + db.escape(measureID);
+
+          db.query(sql9, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            let totalCount = 0;
+            let passingCount = 0;
+            let passing = false;
+
+            result.forEach(row => {
+              totalCount++;
+              if (toolType.toLowerCase() === "rubric") {
+                if (row.averageScore >= projectedResult) {
+                  passingCount++;
+                }
+              } else {
+                if (row.testScoreStatus) {
+                  passingCount++;
+                }
+              }
+            });
+            if (
+              totalCount !== 0 &&
+              thresholdStudents !== -1 &&
+              (passingCount / totalCount) * 100 >= thresholdStudents
+            ) {
+              passing = true;
+            }
+            console.log(passingCount);
+            console.log(totalCount);
+            let sql10 =
+              "UPDATE PERFORMANCE_MEASURE SET measureStatus=" +
+              db.escape(passing) +
+              ", evalCount=" +
+              db.escape(result.length) +
+              ", successCount=" +
+              db.escape(passingCount) +
+              " WHERE measureID=" +
+              db.escape(measureID);
+            db.query(sql10, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              return res.status(200).json("Deleted Successfully!");
+            });
+          });
+
+          //res.status(200).json("Deleted Successfully!");
         });
       });
     });
