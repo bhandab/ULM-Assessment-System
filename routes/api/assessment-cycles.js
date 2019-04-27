@@ -1009,6 +1009,26 @@ router.post(
             "Threshold score value should be a number between 0 and 100";
           return res.status(404).json(errors);
         }
+        let measureName =
+          "At least " +
+          projectedStudentNumber +
+          " " +
+          result[0].studentNumberScale +
+          " Of Students ";
+
+        measureName = result[0].courseAssociated
+          ? measureName + " in Class " + result[0].courseAssociated + " will "
+          : measureName + " will ";
+        measureName = result[0].projectedResult
+          ? measureName +
+            " Score " +
+            projectedResult +
+            " " +
+            result[0].projectedValueScale +
+            " Or Greater In "
+          : measureName + " Pass In ";
+        measureName =
+          measureName + result[0].toolName + " " + result[0].toolType;
         projectedResult = parseFloat(projectedResult);
         let sql2 = !isEmpty(result[0].projectedResult)
           ? "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
@@ -1017,6 +1037,12 @@ router.post(
             db.escape(projectedResult)
           : "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
             db.escape(projectedStudentNumber);
+        sql2 =
+          sql2 +
+          ", measureDesc=" +
+          db.escape(measureName) +
+          " WHERE measureID=" +
+          db.escape(measureID);
         db.query(sql2, (err, result) => {
           if (err) {
             return res.status(500).json();
