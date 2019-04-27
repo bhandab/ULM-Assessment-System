@@ -3,6 +3,7 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const async = require("async");
 const Validator = require("validator");
+const moment = require("moment");
 
 const db = require("../../config/dbconnection");
 const validateCycleInput = require("../../validation/assessment-cycle");
@@ -28,7 +29,7 @@ router.post(
 
     let programID = db.escape(req.user.programID);
     let cycleName = db.escape(req.body.cycleTitle);
-    created = db.escape(new Date());
+    //created = db.escape(new Date());
 
     let sql =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE programID=" +
@@ -47,8 +48,8 @@ router.post(
       sql =
         "INSERT INTO ASSESSMENT_CYCLE (cycleTitle, startDate, programID) VALUES (" +
         cycleName +
-        ", " +
-        created +
+        ", now(4)" +
+        //created +
         ", " +
         programID +
         ")";
@@ -56,7 +57,7 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        return res.status(200).json({ cycleName, created });
+        return res.status(200).json({ cycleName });
       });
     });
   }
@@ -72,8 +73,9 @@ router.get(
   (req, res) => {
     let programID = req.user.programID;
     let sql =
-      "SELECT * FROM ASSESSMENT_CYCLE WHERE programID=" + db.escape(programID) + " ORDER BY cycleID";
-
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE programID=" +
+      db.escape(programID) +
+      " ORDER BY startDate DESC";
     let cycles = [];
 
     db.query(sql, (err, result) => {
@@ -125,8 +127,8 @@ router.post(
       sql0 =
         "INSERT INTO ASSESSMENT_CYCLE (cycleTitle, startDate, programID) VALUES (" +
         db.escape(cycleName) +
-        ", " +
-        db.escape(new Date()) +
+        ", now(4)" +
+        // db.escape(new Date()) +
         ", " +
         db.escape(req.user.programID) +
         ")";
@@ -156,13 +158,15 @@ router.post(
             outcomes,
             (value, key, callback) => {
               let sql1 =
-                "INSERT INTO LEARNING_OUTCOME (learnDesc, programID, cycleID) VALUES (" +
+                "INSERT INTO LEARNING_OUTCOME (learnDesc, programID, cycleID, learnCreatedTime) VALUES (" +
                 db.escape(value.learnDesc) +
                 ", " +
                 db.escape(programID) +
                 ", " +
                 db.escape(newCycleID) +
-                ")";
+                ", " +
+                //db.escape(moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")) +
+                "now(4))";
               db.query(sql1, (err, result) => {
                 if (err) {
                   return callback(err);
@@ -190,7 +194,8 @@ router.post(
                         programID,
                         outcomeID,
                         newCycleID,
-                        row.toolID
+                        row.toolID,
+                        Date.now()
                       ]);
                     });
                     let sql3 =
@@ -205,7 +210,7 @@ router.post(
                       });
 
                       let sql4 =
-                        "INSERT INTO PERFORMANCE_MEASURE (measureDesc,projectedResult,projectedStudentsValue,courseAssociated,studentNumberScale,projectedValueScale,toolType,toolName,programID,learnID,cycleID,toolID) VALUES ?";
+                        "INSERT INTO PERFORMANCE_MEASURE (measureDesc,projectedResult,projectedStudentsValue,courseAssociated,studentNumberScale,projectedValueScale,toolType,toolName,programID,learnID,cycleID,toolID,measureCreatedTime) VALUES ?";
                       if (measures.length > 0) {
                         db.query(sql4, [measures], (err, result) => {
                           if (err) {
@@ -381,16 +386,20 @@ router.get(
         " WHERE cycleID=" +
         db.escape(cycleIdentifier) +
         " AND programID=" +
-        db.escape(programID);
+        db.escape(programID) +
+        " ORDER BY learnCreatedTime";
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
+        let indexCount = 1;
         result.forEach(row => {
           outcome = {
             outcomeName: row.learnDesc,
-            outcomeID: row.learnID
+            outcomeID: row.learnID,
+            displayIndex: indexCount
           };
+          indexCount++;
           outcomes.push(outcome);
         });
         res.status(200).json({ outcomes, cycleIdentifier, cycleName });
@@ -449,13 +458,15 @@ router.post(
         }
 
         sql =
-          "INSERT INTO LEARNING_OUTCOME (cycleID, learnDesc, programID) VALUES (" +
+          "INSERT INTO LEARNING_OUTCOME (cycleID, learnDesc, programID,learnCreatedTime) VALUES (" +
           db.escape(cycleID) +
           ", " +
           db.escape(outcomeName) +
           ", " +
           db.escape(programID) +
-          ")";
+          ", " +
+          //+ //db.escape(moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")) +
+          "now(4))";
 
         db.query(sql, (err, result) => {
           if (err) {
@@ -669,13 +680,14 @@ router.get(
           "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
           db.escape(outcomeID) +
           " AND programID=" +
-          db.escape(programID);
+          db.escape(programID) +
+          " ORDER BY measureCreatedTime";
 
         db.query(sql3, (err, result) => {
           if (err) {
             return res.status(500).json(err);
           }
-
+          let indexCount = 1;
           result.forEach(row => {
             measure = {
               measureName: row.measureDesc,
@@ -687,8 +699,10 @@ router.get(
               toolID: row.toolID,
               measureStatus: row.measureStatus,
               evalCount: row.evalCount,
-              successCount: row.successCount
+              successCount: row.successCount,
+              displayIndex: indexCount
             };
+            indexCount++;
             measures.push(measure);
           });
           let sql4 =
@@ -872,7 +886,7 @@ router.post(
           } else {
             let insertIntoMeasure = () => {
               let sql4 =
-                "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, programID, toolID,toolName, toolType, studentNumberScale,projectedValueScale) VALUES (" +
+                "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, programID, toolID,toolName, toolType, studentNumberScale,projectedValueScale,measureCreatedTime) VALUES (" +
                 db.escape(outcomeID) +
                 ", " +
                 db.escape(cycleID) +
@@ -896,7 +910,9 @@ router.post(
                 db.escape(studentNumberOperator) +
                 ", " +
                 db.escape(valueOperator) +
-                ")";
+                ", " +
+                //db.escape(moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")) +
+                "now(4))";
 
               db.query(sql4, (err, result) => {
                 if (err) {
@@ -993,6 +1009,26 @@ router.post(
             "Threshold score value should be a number between 0 and 100";
           return res.status(404).json(errors);
         }
+        let measureName =
+          "At least " +
+          projectedStudentNumber +
+          " " +
+          result[0].studentNumberScale +
+          " Of Students ";
+
+        measureName = result[0].courseAssociated
+          ? measureName + " in Class " + result[0].courseAssociated + " will "
+          : measureName + " will ";
+        measureName = result[0].projectedResult
+          ? measureName +
+            " Score " +
+            projectedResult +
+            " " +
+            result[0].projectedValueScale +
+            " Or Greater In "
+          : measureName + " Pass In ";
+        measureName =
+          measureName + result[0].toolName + " " + result[0].toolType;
         projectedResult = parseFloat(projectedResult);
         let sql2 = !isEmpty(result[0].projectedResult)
           ? "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
@@ -1001,6 +1037,12 @@ router.post(
             db.escape(projectedResult)
           : "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
             db.escape(projectedStudentNumber);
+        sql2 =
+          sql2 +
+          ", measureDesc=" +
+          db.escape(measureName) +
+          " WHERE measureID=" +
+          db.escape(measureID);
         db.query(sql2, (err, result) => {
           if (err) {
             return res.status(500).json();
@@ -1702,8 +1744,6 @@ router.post(
             ) {
               passing = true;
             }
-            console.log(passingCount);
-            console.log(totalCount);
             let sql10 =
               "UPDATE PERFORMANCE_MEASURE SET measureStatus=" +
               db.escape(passing) +
@@ -2333,15 +2373,18 @@ router.get(
       cycleReport.cycleName = result[0].cycleTitle;
 
       let sql2 =
-        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" + db.escape(cycleID);
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
+        db.escape(cycleID) +
+        " ORDER BY learnCreatedTime";
       db.query(sql2, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
+
         async.forEachOf(
           result,
           (value, key, callback) => {
-            let outcomeName = value.learnDesc;
+            let outcomeName = key + 1 + ". " + value.learnDesc;
             cycleReport[outcomeName] = {};
             cycleReport[outcomeName]["measureDetails"] = [];
 
@@ -2359,14 +2402,16 @@ router.get(
               cycleReport[outcomeName].outcomeCourses = outcomeCourses;
               let sql4 =
                 "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
-                db.escape(value.learnID);
+                db.escape(value.learnID) +
+                " ORDER BY measureCreatedTime";
               db.query(sql4, (err, result) => {
                 if (err) {
                   return callback(err);
                 }
-                result.forEach(row => {
+                result.forEach((row, indx) => {
                   cycleReport[outcomeName].measureDetails.push({
                     measureDesc: row.measureDesc,
+                    measureDisplayID: key + 1 + "." + (indx + 1),
                     evalCount: row.evalCount,
                     successCount: row.successCount,
                     threshold: row.projectedResult
