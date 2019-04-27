@@ -113,6 +113,7 @@ export const deleteMeasure = (cycleID, learnID, measureID) => dispatch => {
 }
 
 export const updateMeasure = (cycleID,outcomeID,measureID, body) => dispatch => {
+    console.log(body)
     axios
     .post(`/api/cycles/${cycleID}/${outcomeID}/${measureID}/update`,body)
     .then(() => toastr.success(

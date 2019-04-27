@@ -972,9 +972,9 @@ router.post(
 
     let projectedStudentNumber = parseFloat(req.body.projectedStudentNumber);
     let projectedResult = req.body.projectedResult;
-
+    console.log(req.body)
     let sql1 =
-      "SELECT * FROM PERFORMANCE MEASURE WHERE measureID=" +
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
       db.escape(measureID);
     db.query(sql1, (err, result) => {
       if (err) {

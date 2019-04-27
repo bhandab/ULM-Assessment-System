@@ -39,7 +39,9 @@ import {
   Table,
   ProgressBar,
   ListGroup,
-  Spinner
+  Spinner,
+  CardGroup,
+  Alert
 } from "react-bootstrap";
 
 import CSVFormat from "../../assets/CSVformat";
@@ -58,6 +60,7 @@ class MeasureDetails extends Component {
     uploadTest: false,
     testReport: false,
     toolType: "",
+    scored:false,
     statusModal: false,
     stats: false,
     scoreStudents: false,
@@ -91,11 +94,15 @@ class MeasureDetails extends Component {
       ) {
         if (this.props.cycles.measureDetails.toolType === "rubric") {
           this.props.getMeasureRubricReport(measureID);
-          this.setState({ toolType: "rubric" });
+          this.setState({ toolType: "rubric", scored:true });
         }
         if (this.props.cycles.measureDetails.toolType === "test") {
+
           this.props.getMeasureTestReport(measureID);
           this.setState({ toolType: "test" });
+          if(this.props.cycles.measureDetails.projectedResult !== null){
+            this.setState({ scored:false })
+          }
         }
       }
       if (this.props.cycles.measureReport !== prevProps.cycles.measureReport) {
@@ -369,9 +376,11 @@ class MeasureDetails extends Component {
     const cycleID = this.props.match.params.cycleID;
     const outcomeID = this.props.match.params.outcomeID;
     const measureID = this.props.match.params.measureID;
-
+    let projectedResult = null
     const projectedStudentNumber = (e.target.pjsn.value)
-    const projectedResult = (e.target.score.value)
+    if(this.state.scored){
+     projectedResult = (e.target.score.value)
+    }
     const body = {
       projectedStudentNumber, projectedResult
     }
@@ -527,14 +536,18 @@ class MeasureDetails extends Component {
             // }
             if (passPer > benchmarkPer) {
               status = (
+                <>
                 <h3>
-                  Status: <span className="text-success">Passing</span>
+                  Status: <span className="text-success">Passing
+                  <span style={{fontSize:'.5em'}} className=" ml-5 boder rounded p-1 float-right text-dark bg-warning">Click on 'Status' to see details</span></span>
                 </h3>
+                
+                </>
               );
             } else {
               status = (
                 <h3>
-                  Status: <span className="text-danger">Failing</span>
+                  Status: <span className="text-danger">Failing <Alert variant="info">Click on status to see details</Alert></span>
                 </h3>
               );
             }
@@ -1003,9 +1016,9 @@ class MeasureDetails extends Component {
               ) : null}
             </h4>
             {this.state.editShow ?  
-            <Form onSubmit={this.updateMeasure.bind(this)}>
+            <Form className="ml-2" onSubmit={this.updateMeasure.bind(this)}>
               <InputGroup className="row">
-              <InputGroup className="col-4" >
+              <InputGroup className="col-5" >
                   <InputGroup.Prepend>
                     <InputGroup.Text>
                       Projected Student Number
@@ -1013,7 +1026,8 @@ class MeasureDetails extends Component {
                   </InputGroup.Prepend>
                   <Form.Control type="number" name="pjsn" placeholder="% of passing Students" required />
                   </InputGroup>
-                  <InputGroup className="col-4">
+                  { this.state.scored ? 
+                  <InputGroup className="col-5">
                   <InputGroup.Prepend>
                     <InputGroup.Text>
                       Projected Result
@@ -1022,6 +1036,7 @@ class MeasureDetails extends Component {
                   <Form.Control type="number" name="score" placeholder="passing score" required />
 
                   </InputGroup>
+                  : null}
               </InputGroup>
               <Button type="submit" variant="outline-light" className="mt-2 ml-3"><i className="fas fa-check text-success"></i></Button>
               <Button variant="outline-light" className="mt-2" onClick={()=>this.setState({editShow:false})}><i className="fas fa-times text-danger"></i></Button>
@@ -1044,6 +1059,7 @@ class MeasureDetails extends Component {
             </div>
 
             <Fragment>
+              <CardGroup>
               <Card style={{ width: "30%", height: "20em", float: "left" }}>
                 <Card.Header>
                   <h3>
@@ -1105,11 +1121,12 @@ class MeasureDetails extends Component {
                   ) : null}
                 </Card.Body>
               </Card>
+              </CardGroup>
             </Fragment>
 
             {typeTest ? (
               <Fragment>
-                <ButtonGroup aria-label="Basic example" className="float-right">
+                {/* <ButtonGroup aria-label="Basic example" className="float-right">
                   <Button
                     size="lg"
                     data-toggle="tooltip"
@@ -1128,7 +1145,7 @@ class MeasureDetails extends Component {
                   >
                     <i className="fas fa-file-csv" />
                   </Button>
-                </ButtonGroup>
+                </ButtonGroup> */}
 
                 <Modal
                   show={this.state.testModal}
@@ -1414,7 +1431,7 @@ class MeasureDetails extends Component {
           centered
           size="lg"
         >
-          <Modal.Title className="ml-3">
+          <Modal.Title className="ml-3" id="assgStudToEval">
             Assign Students to Evaluator
           </Modal.Title>
           <ModalBody>
@@ -1424,7 +1441,7 @@ class MeasureDetails extends Component {
             >
               <div
                 className="d-inline-block mr-5 border p-3"
-                style={{ width: "300px" }}
+                style={{ width: "250px" }}
               >
                 <h3>Evaluator List</h3>
                 {evaluatorSelect}

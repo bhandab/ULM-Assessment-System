@@ -178,7 +178,7 @@ class OutcomeMeasures extends Component {
                   <Card.Header className="measureTitle" id={"measure" + index}>
                     <h5 className="mb-0">
                       <button
-                        className="btn"
+                        className="btn btn-link"
                         type="button"
                         data-toggle="collapse"
                         data-target={"#measureCollapse" + index}
