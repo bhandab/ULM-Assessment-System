@@ -1,14 +1,23 @@
 import React, { Component, Fragment } from "react";
 import {
   getOutcomesMeasures,
-  linkMeasureToOutcome
+  linkMeasureToOutcome,
+  getStudentsOfMeasure
 } from "../../actions/assessmentCycleAction";
 import { getMeasures } from "../../actions/measuresAction";
 import { getAllRubrics, getSingleRubric } from "../../actions/rubricsAction";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { Form, Button, InputGroup, Modal, Spinner, Card, ListGroup} from "react-bootstrap";
+import {
+  Form,
+  Button,
+  InputGroup,
+  Modal,
+  Spinner,
+  Card,
+  ListGroup
+} from "react-bootstrap";
 import { isEmpty } from "../../utils/isEmpty";
 
 class OutcomeMeasures extends Component {
@@ -16,13 +25,16 @@ class OutcomeMeasures extends Component {
     addMeasuresShow: false,
     createMeasuresShow: false,
     toolTypeVal: "",
-    testType:'scored',
+    testType: "scored",
     hiddenClass: ""
   };
 
   componentDidMount() {
-    if (!this.props.auth.isAuthenticated && this.props.auth.user.role !== "coordinator") {
-      this.props.history.push('/login')
+    if (
+      !this.props.auth.isAuthenticated &&
+      this.props.auth.user.role !== "coordinator"
+    ) {
+      this.props.history.push("/login");
     }
 
     const cycleID = this.props.match.params.cycleID;
@@ -38,18 +50,21 @@ class OutcomeMeasures extends Component {
     const measure = this.props.measures.measures[index];
     const measureDetails = {
       measureDescription: measure.measureDescription,
-      projectedStudentNumber: measure.projectedStudentNumber+"",
-      projectedValue: measure.projectedResult+"",
+      projectedStudentNumber: measure.projectedStudentNumber + "",
+      projectedValue: measure.projectedResult + "",
       course: measure.course,
       toolTitle: measure.toolName,
-      toolID: measure.toolID+"",
+      toolID: measure.toolID + "",
       toolType: measure.toolType,
       valueOperator: measure.resultScale,
       studentNumberOperator: measure.studentNumberScale
-
-    }
-    this.props.linkMeasureToOutcome(this.propsmatch.params.cycleID, this.props.match.params.outcomeID, measureDetails)
-    this.setState({ addMeasuresShow: false})
+    };
+    this.props.linkMeasureToOutcome(
+      this.propsmatch.params.cycleID,
+      this.props.match.params.outcomeID,
+      measureDetails
+    );
+    this.setState({ addMeasuresShow: false });
   };
 
   measureCreateHandler = e => {
@@ -58,68 +73,49 @@ class OutcomeMeasures extends Component {
     const cycleID = this.props.match.params.cycleID;
     const outcomeID = this.props.match.params.outcomeID;
 
-
     let pjsn = e.target.projectedStudentNumber.value;
-    let pv = ""//null;
+    let pv = ""; //null;
     let crs = e.target.course.value;
-    let tt = ""
-    
+    let tt = "";
+
     let ty = e.target.toolType.value;
-    let tid = ""//null
-    if (ty === 'rubric'){
-      const selected = e.target.tool.options[e.target.tool.selectedIndex]
-      console.log(selected)
-      tid = selected.dataset.id
-      pv = e.target.projectedValue.value
-      tt = selected.dataset.name
+    let tid = ""; //null
+    if (ty === "rubric") {
+      const selected = e.target.tool.options[e.target.tool.selectedIndex];
+      console.log(selected);
+      tid = selected.dataset.id;
+      pv = e.target.projectedValue.value;
+      tt = selected.dataset.name;
     }
     let pt = e.target.projType.value;
-    let vo = ""
+    let vo = "";
 
-    let testType = ""//null
-    console.log(testType)
+    let testType = ""; //null
+    console.log(testType);
 
-    if(ty === 'test'){
-      tt = e.target.tool.value
-      testType = e.target.testType.value
-      if( testType === 'score'){
-      vo = e.target.valueOperator.value
-      pv = e.target.projectedValue.value
+    if (ty === "test") {
+      tt = e.target.tool.value;
+      testType = e.target.testType.value;
+      if (testType === "score") {
+        vo = e.target.valueOperator.value;
+        pv = e.target.projectedValue.value;
       }
     }
-    
-    // const measureDescr =
-    //   "At least " +
-    //   pjsn +
-    //   pt +
-    //   " of students completing " +
-    //   crs +
-    //   " will score " +
-    //   pv +""+ vo +
-    //   " or greater in " +
-    //   ty +
-    //   " " +
-    //   "'"+tt+"'"+ + 
-    //   "."
-
     const measureDetails = {
-      // measureDescription: measureDescr,
       projectedStudentNumber: pjsn,
       projectedValue: pv,
       course: crs,
       toolTitle: tt,
       toolID: tid,
-      toolType : ty,
+      toolType: ty,
       valueOperator: vo,
       studentNumberOperator: pt,
       scoreOrPass: testType
-
     };
-    console.log(measureDetails)
-    this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails)
+    // console.log(measureDetails)
+    this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails);
   };
 
-  
   addMeasuresShow = () => {
     this.setState({ addMeasuresShow: true });
   };
@@ -133,84 +129,203 @@ class OutcomeMeasures extends Component {
   };
 
   createMeasureHide = () => {
-    this.setState({ createMeasuresShow: false, testType:"scored"});
+    this.setState({ createMeasuresShow: false, testType: "scored" });
   };
 
   testTypeChange = e => {
-    const type = e.target.value
-    if(type === 'pass'){
-    this.setState({testType:"pass/fail", hiddenClass:'d-none'})
+    const type = e.target.value;
+    if (type === "pass") {
+      this.setState({ testType: "pass/fail", hiddenClass: "d-none" });
+    } else {
+      this.setState({ testType: "scored", hiddenClass: "" });
     }
-    else {
-      this.setState({testType:"scored", hiddenClass:''})
+  };
+  measureTitleClick = e => {
+    console.log(e.target.dataset);
+    this.props.getStudentsOfMeasure(e.target.value);
+  };
+  passingPer = (part, total) => {
+    if (total === 0 || part === 0) {
+      return "0%";
     }
-  }
-
+    const per = ((part / total) * 100).toFixed(1);
+    return per + "%";
+  };
 
   render() {
     // console.log(this.props)
+    let totalStudents = 0;
     let measures = <Spinner animation="border" variant="primary" />;
     let measureTitle = null;
+
+    if (
+      this.props.cycles.measureStudents !== null &&
+      this.props.cycles.cycleLoading === false
+    ) {
+      totalStudents = this.props.cycles.measureStudents.students.length;
+    }
+
     if (this.props.cycles.cycleLoading === false) {
-      if (this.props.cycles.outcomeMeasures !== null && this.props.cycles.outcomeMeasures !== undefined) {
+      if (
+        this.props.cycles.outcomeMeasures !== null &&
+        this.props.cycles.outcomeMeasures !== undefined
+      ) {
         if (this.props.cycles.outcomeMeasures.measures.length > 0) {
-          measures = this.props.cycles.outcomeMeasures.measures.map(measure => {
-            return (
-              <ListGroup.Item key={measure.measureID}>
-                <Link className='col-9'
-                  to={
-                    "/admin/cycles/cycle/" +
-                    this.props.cycles.outcomeMeasures.cycleID +
-                    "/outcomes/" +
-                    this.props.cycles.outcomeMeasures.outcomeID +
-                    "/measures/" +
-                    measure.measureID
-                  }
-                >
-                  {measure.measureName}
-                </Link>
-                {measure.measureStatus ? 
-                <span className="p-2 text-success rounded float-right">
-                <strong><i className="fas fa-check-circle"></i></strong>
-                </span> 
-                : <span className="p-2 text-danger float-right rounded">
-                <strong><i className="fas fa-times-circle"></i></strong>
-                </span> }
-              </ListGroup.Item>
-            );
-          });
+          measures = this.props.cycles.outcomeMeasures.measures.map(
+            (measure, index) => {
+              return (
+                <Card key={"measure" + index}>
+                  <Card.Header className="measureTitle" id={"measure" + index}>
+                    <h5 className="mb-0">
+                      <button
+                        className="btn"
+                        type="button"
+                        data-toggle="collapse"
+                        data-target={"#measureCollapse" + index}
+                        aria-expanded="true"
+                        aria-controls={"measureCollapse" + index}
+                        data-id={measure.measureID}
+                        value={measure.measureID}
+                        onClick={this.measureTitleClick.bind(this)}
+                        style={{ fontSize: "1.2em", color: "#800000" }}
+                      >
+                        {measure.measureName}
+                      </button>
+                      {measure.measureStatus ? (
+                        <Link
+                        to={
+                          "/admin/cycles/cycle/" +
+                          this.props.cycles.outcomeMeasures.cycleID +
+                          "/outcomes/" +
+                          this.props.cycles.outcomeMeasures.outcomeID +
+                          "/measures/" +
+                          measure.measureID
+                        }
+                      >
+                         <Button
+                          size="sm"
+                          variant="success"
+                          className="p-2 rounded float-right"
+                        >
+                          <strong>passing</strong>
+                        </Button>
+                      </Link>
+                       
+                      ) : (
+                        <Link
+                        to={
+                          "/admin/cycles/cycle/" +
+                          this.props.cycles.outcomeMeasures.cycleID +
+                          "/outcomes/" +
+                          this.props.cycles.outcomeMeasures.outcomeID +
+                          "/measures/" +
+                          measure.measureID
+                        }
+                      >
+                          <Button
+                          size="sm"
+                          variant="danger"
+                          className="p-2 float-right rounded"
+                        >
+                          <strong>failing&nbsp;</strong>
+                        </Button>
+                      </Link>
+                       
+                      )}
+                    </h5>
+                  </Card.Header>
+                  <div
+                    id={"measureCollapse" + index}
+                    className="collapse"
+                    aria-labelledby={"heading" + index}
+                    data-parent="#assignedMeasure"
+                  >
+                    <div className="card-body">
+                      <Card>
+                        <Card.Body>
+                          <ListGroup>
+                            <ListGroup.Item>
+                              Total Students: {totalStudents}
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                              Total Evaluated: {measure.evalCount}
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                              Passing Count: {measure.successCount} (
+                              {this.passingPer(
+                                measure.successCount,
+                                measure.evalCount
+                              )}
+                              )
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                              Failing Count:{" "}
+                              {measure.evalCount - measure.successCount}
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                              Pending Evaluation:{" "}
+                              {totalStudents - measure.evalCount}
+                            </ListGroup.Item>
+                          </ListGroup>
+                          <Link
+                            to={
+                              "/admin/cycles/cycle/" +
+                              this.props.cycles.outcomeMeasures.cycleID +
+                              "/outcomes/" +
+                              this.props.cycles.outcomeMeasures.outcomeID +
+                              "/measures/" +
+                              measure.measureID
+                            }
+                          >
+                            <Button className="mt-2 float-right">
+                              Go Into Details
+                            </Button>
+                          </Link>
+                        </Card.Body>
+                      </Card>
+                    </div>
+                  </div>
+                </Card>
+              );
+            }
+          );
           measureTitle = this.props.cycles.outcomeMeasures.outcomeName;
         } else {
-          measures = <li className="list-group-item">No measures present for this outcome</li>;
+          measures = (
+            <li className="list-group-item">
+              No measures present for this outcome
+            </li>
+          );
         }
         measureTitle = this.props.cycles.outcomeMeasures.outcomeName;
       }
     }
 
     let selections = null;
-    if (this.props.cycles.cycleLoading !==true) {
-      if (this.props.measures.measures !== null && 
-        this.props.measures.measures !== undefined && 
+    if (this.props.cycles.cycleLoading !== true) {
+      if (
+        this.props.measures.measures !== null &&
+        this.props.measures.measures !== undefined &&
         this.props.cycles.outcomeMeasures !== null &&
-        this.props.cycles.outcomeMeasures !== undefined) {
-
-        let outcomeMeasures = this.props.cycles.outcomeMeasures.measures
+        this.props.cycles.outcomeMeasures !== undefined
+      ) {
+        let outcomeMeasures = this.props.cycles.outcomeMeasures.measures;
         selections = this.props.measures.measures.map((item, index) => {
-          const measure = outcomeMeasures.find(measure=> {
-            return measure.measureName === item.measureDescription
-          })
-          if(measure === undefined){
-          return (
-            <option key={index} value={index}>
-              {item.measureDescription}
-            </option>
-          );}
-          else{
-            return null
+          const measure = outcomeMeasures.find(measure => {
+            return measure.measureName === item.measureDescription;
+          });
+          if (measure === undefined) {
+            return (
+              <option key={index} value={index}>
+                {item.measureDescription}
+              </option>
+            );
+          } else {
+            return null;
           }
         });
         if (selections.length === 0) {
-          selections = <option disabled>No Measures Present</option>
+          selections = <option disabled>No Measures Present</option>;
         }
       }
     }
@@ -218,7 +333,6 @@ class OutcomeMeasures extends Component {
     let toolType = e => {
       this.setState({ toolTypeVal: e.target.value });
     };
-
 
     let rubricOptions = null;
     if (isEmpty(this.props.rubric.rubrics) === false) {
@@ -235,26 +349,30 @@ class OutcomeMeasures extends Component {
       });
     }
 
-    let rubricScoreOptions = null
-    const rubricChangeHandler = (e) => {
-      const selected = e.target.options[e.target.selectedIndex]
+    let rubricScoreOptions = null;
+    const rubricChangeHandler = e => {
+      const selected = e.target.options[e.target.selectedIndex];
 
-      console.log(selected)
-    let rubricID = selected.dataset.id;
-        this.props.getSingleRubric(rubricID, true)
-    }
+      console.log(selected);
+      let rubricID = selected.dataset.id;
+      this.props.getSingleRubric(rubricID, true);
+    };
 
-    if(isEmpty(this.props.rubric.singleRubric) === false){
-      rubricScoreOptions = this.props.rubric.singleRubric.rubricDetails.scaleInfo.map(scale => {
-        return (
-          <option key = {"scale"+scale.scaleID} value = {scale.scaleValue}>{scale.scaleDescription}</option>
-        )
-      })
+    if (isEmpty(this.props.rubric.singleRubric) === false) {
+      rubricScoreOptions = this.props.rubric.singleRubric.rubricDetails.scaleInfo.map(
+        scale => {
+          return (
+            <option key={"scale" + scale.scaleID} value={scale.scaleValue}>
+              {scale.scaleDescription}
+            </option>
+          );
+        }
+      );
     }
-    console.log(this.props)
+    console.log(this.props);
     return (
       <Fragment>
-         {/* <div className="container">
+        {/* <div className="container">
                         <div className="row">
                             <div className="btn-group btn-breadcrumb">
                                 <li className="btn btn-primary">Admin</li>
@@ -264,36 +382,43 @@ class OutcomeMeasures extends Component {
                             </div>
                         </div>
                     </div> */}
-          <Card>
+        <Card>
           <Card.Header>
-          <h2>{measureTitle}
-          {/* <Button size="lg" variant="outline-primary" className="float-right">
-          <i className="fas fa-book"></i>
-          </Button> */}
-          <Link to={`/admin/cycles/cycle/${this.props.match.params.cycleID}/outcome/${this.props.match.params.outcomeID}/report`}>
-          <button size="lg" variant="outline-primary" className="float-right">
-          <i className="fas fa-file-invoice"></i>
-          </button>
-          </Link>
-          </h2>
-          </Card.Header> 
+            <h2>
+              {measureTitle}
+              <Link
+                to={`/admin/cycles/cycle/${
+                  this.props.match.params.cycleID
+                }/outcome/${this.props.match.params.outcomeID}/report`}
+              >
+                <button
+                  size="lg"
+                  variant="outline-primary"
+                  className="float-right"
+                >
+                  <i className="fas fa-file-invoice" />
+                </button>
+              </Link>
+            </h2>
+          </Card.Header>
           <Card.Body>
-          <ListGroup>{measures}</ListGroup>
-          
-          <button
-            onClick={this.addMeasuresShow}
-            className="btn btn-primary  ml-3 float-right mt-3"
-          >
-            Add Measure
-          </button>
-          <button
-            onClick={this.createMeasuresShow}
-            className="btn btn-primary float-right mt-3"
-          >
-            Create Measure
-          </button>
+            <div className="accordion" id="assignedMeasure">
+              {measures}
+            </div>
+            <button
+              onClick={this.addMeasuresShow}
+              className="btn btn-primary  ml-3 float-right mt-3"
+            >
+              Add Measure
+            </button>
+            <button
+              onClick={this.createMeasuresShow}
+              className="btn btn-primary float-right mt-3"
+            >
+              Create Measure
+            </button>
           </Card.Body>
-          </Card>
+        </Card>
 
         <Modal
           aria-labelledby="contained-modal-title-vcenter"
@@ -326,7 +451,6 @@ class OutcomeMeasures extends Component {
         </Modal>
 
         <section className="panel important">
-
           <Modal
             size="lg"
             centered
@@ -358,9 +482,11 @@ class OutcomeMeasures extends Component {
                     name="projType"
                     className="custom-select col-sm-2"
                     id="basic-addon1"
-                    defaultValue = {'null'}
+                    defaultValue={"null"}
                   >
-                    <option value='null' disabled>Select</option>
+                    <option value="null" disabled>
+                      Select
+                    </option>
                     <option value="%">%</option>
                     <option value="p">percentile</option>
                   </select>
@@ -387,71 +513,95 @@ class OutcomeMeasures extends Component {
                     name="toolType"
                     className="custom-select col-sm-2"
                     id="toolType"
-                    defaultValue='null'
-                  > 
-                    <option default disabled value="null">Select a Tool</option> 
+                    defaultValue="null"
+                  >
+                    <option default disabled value="null">
+                      Select a Tool
+                    </option>
                     <option value="rubric">rubric</option>
                     <option value="test">test</option>
                   </select>
 
                   {this.state.toolTypeVal === "rubric" ? (
-                    <select name="tool" className="custom-select col-sm-4"
-                    defaultValue={'null'}
-                    onChange={(e)=>rubricChangeHandler(e)}
+                    <select
+                      name="tool"
+                      className="custom-select col-sm-4"
+                      defaultValue={"null"}
+                      onChange={e => rubricChangeHandler(e)}
                     >
-                      <option disabled value="null">Select A Rubric</option>
+                      <option disabled value="null">
+                        Select A Rubric
+                      </option>
                       {rubricOptions}
                     </select>
                   ) : (
-                      <input name="tool" defaultValue={''} className="custom-select col-sm-4" placeholder="Test Name"/>
-                    )}
+                    <input
+                      name="tool"
+                      defaultValue={""}
+                      className="custom-select col-sm-4"
+                      placeholder="Test Name"
+                    />
+                  )}
                 </InputGroup>
-                    <InputGroup className = "row mb-3 ml-0">
-                    {this.state.toolTypeVal ==="rubric" ? 
-                  <InputGroup.Append>
-                    <InputGroup.Text id="basic-addon4">
-                      will score
-                    </InputGroup.Text>
-                  </InputGroup.Append> :
-                  <>
-                  <InputGroup.Append>
-                  <InputGroup.Text id="basic-addon4">
-                    will
-                  </InputGroup.Text>
-                </InputGroup.Append>
-                <select defaultValue="" name="testType" onChange={this.testTypeChange.bind(this)}>
-                  <option default value="" disabled>Score/Pass</option>
-                  <option value="score">score</option>
-                  <option value="pass">pass</option>
-                </select></> }
-                    {this.state.toolTypeVal === "rubric" ?
-
+                <InputGroup className="row mb-3 ml-0">
+                  {this.state.toolTypeVal === "rubric" ? (
+                    <InputGroup.Append>
+                      <InputGroup.Text id="basic-addon4">
+                        will score
+                      </InputGroup.Text>
+                    </InputGroup.Append>
+                  ) : (
+                    <>
+                      <InputGroup.Append>
+                        <InputGroup.Text id="basic-addon4">
+                          will
+                        </InputGroup.Text>
+                      </InputGroup.Append>
+                      <select
+                        defaultValue=""
+                        name="testType"
+                        onChange={this.testTypeChange.bind(this)}
+                      >
+                        <option default value="" disabled>
+                          Score/Pass
+                        </option>
+                        <option value="score">score</option>
+                        <option value="pass">pass</option>
+                      </select>
+                    </>
+                  )}
+                  {this.state.toolTypeVal === "rubric" ? (
                     <select
                       className="col-md-2"
                       placeholder="Rubric Score"
                       name="projectedValue"
                     >
-                    {rubricScoreOptions}
+                      {rubricScoreOptions}
                     </select>
-                    : <Form.Control
+                  ) : (
+                    <Form.Control
                       className={`col-md-2 ${this.state.hiddenClass}`}
                       placeholder="Score"
                       name="projectedValue"
-                    />}
-                  
-                  {(this.state.toolTypeVal==="rubric") ? null :
-                <select name="valueOperator" className={this.state.hiddenClass}>
-                    <option value="%">%</option>
-                    <option value="percentile">percentile</option>
-                </select>
-                }
+                    />
+                  )}
+
+                  {this.state.toolTypeVal === "rubric" ? null : (
+                    <select
+                      name="valueOperator"
+                      className={this.state.hiddenClass}
+                    >
+                      <option value="%">%</option>
+                      <option value="percentile">percentile</option>
+                    </select>
+                  )}
                   <InputGroup.Append className={this.state.hiddenClass}>
                     <InputGroup.Text id="basic-addon4">
                       or greater.
                     </InputGroup.Text>
                   </InputGroup.Append>
                 </InputGroup>
-               
+
                 <Button
                   className="float-right btn btn-primary"
                   variant="primary"
@@ -464,8 +614,6 @@ class OutcomeMeasures extends Component {
             </Modal.Body>
           </Modal>
         </section>
-
-        
       </Fragment>
     );
   }
@@ -486,7 +634,8 @@ const MapStateToProps = state => ({
   measures: state.measures,
   errors: state.errors,
   auth: state.auth,
-  rubric: state.rubric
+  rubric: state.rubric,
+  measureDetails: state.measureDetails
 });
 
 export default connect(
@@ -496,6 +645,7 @@ export default connect(
     getMeasures,
     linkMeasureToOutcome,
     getAllRubrics,
-    getSingleRubric
+    getSingleRubric,
+    getStudentsOfMeasure
   }
 )(OutcomeMeasures);

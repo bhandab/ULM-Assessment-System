@@ -72,7 +72,7 @@ router.get(
   (req, res) => {
     let programID = req.user.programID;
     let sql =
-      "SELECT * FROM ASSESSMENT_CYCLE WHERE programID=" + db.escape(programID);
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE programID=" + db.escape(programID) + " ORDER BY cycleID";
 
     let cycles = [];
 

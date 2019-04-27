@@ -612,7 +612,7 @@ class MeasureDetails extends Component {
                   <Card style={{ width: "15em" }} className="col-4 statCard">
                     <Card.Header>
                       <h4 className="text-success">Passing</h4>
-                      <h6 className="text-info">Count:{failed.length}</h6>
+                      <h6 className="text-info">Count:{passed.length}</h6>
 
                     </Card.Header>
                     <Card.Body>

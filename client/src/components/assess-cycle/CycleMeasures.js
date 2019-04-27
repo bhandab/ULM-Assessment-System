@@ -173,6 +173,7 @@ class CycleMeasures extends Component {
                   onClick={this.deleteShow.bind(this)}
                   className="delete"
                 />
+                
               </ListGroup.Item>
             );
           });
