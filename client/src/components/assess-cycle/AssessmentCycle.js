@@ -9,7 +9,7 @@ import {
 } from "../../actions/assessmentCycleAction";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { Spinner, Button, Modal, Form, Card, FormCheck} from "react-bootstrap";
+import { Spinner, Button, Modal, Form, Card, Breadcrumb} from "react-bootstrap";
 import Delete from "../../utils/Delete";
 
 class AssessmentCycle extends Component {
@@ -152,7 +152,8 @@ class AssessmentCycle extends Component {
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">
-          {/* <div className="row">
+{/*         
+          <div className="row">
             <div className="btn-group btn-breadcrumb">
               <li  className="btn btn-primary brdbtn">
                 Admin
@@ -162,6 +163,12 @@ class AssessmentCycle extends Component {
               </li>
             </div>
           </div> */}
+
+{/* <ol class="breadcrumb v1">
+	<li class="breadcrumb-level"><a href="">Level 1</a></li>
+	<li class="breadcrumb-level"><a href="">Level 2</a></li>
+	<li class="breadcrumb-level"><a>Level 3</a></li>
+</ol> */}
           <Card>
             <Card.Header>
           <h2>
@@ -197,7 +204,7 @@ class AssessmentCycle extends Component {
           </Modal.Header>
           <Modal.Body>
             <Form onSubmit={this.submitHandler.bind(this)}>
-              <Form.Control name="cycleName" placeholder="Cycle Name" />
+              <Form.Control name="cycleName" placeholder="Cycle Name" required/>
               <Form.Group controlId="formBasicChecbox">
               <Form.Check type="checkbox" name = "migrateCheck" label="Migrate From Previous Cycles" id="custom-checkbox" 
                 onChange={this.migrateSelect.bind(this)}/>

@@ -1,9 +1,9 @@
-import {CYCLE_REPORT, OUTCOME_REPORT,GET_ERRORS} from './types'
+import {CYCLE_REPORT, GET_ERRORS} from './types'
 import axios from 'axios'
 
-export const getCycleReport = () => dispatch => {
+export const getCycleReport = (cycleID) => dispatch => {
     axios
-        .get("")
+        .get("/api/cycles/"+cycleID+"/cycleSummaryReport")
         .then(res => {
             dispatch({
                 type: CYCLE_REPORT,
@@ -17,18 +17,3 @@ export const getCycleReport = () => dispatch => {
         }))
 }
 
-export const getOutcomeReport = () => dispatch => {
-    axios
-    .get("")
-    .then(res => {
-        dispatch({
-            type: OUTCOME_REPORT,
-            payload: res.data
-        })
-    })
-
-    .catch(err => dispatch({
-        type: GET_ERRORS,
-        payload: err.response.data
-    }))
-}

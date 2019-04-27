@@ -80,7 +80,7 @@ class SuperAdmin extends Component {
           <section className="panel important m-5">
           <Card>
             <Card.Header><h2 style={{textAlign:'center'}}>Programs <button className="float-right"
-            onClick={this.createProgramShow}><i className="far fa-calendar-plus"></i></button></h2></Card.Header>
+            onClick={this.createProgramShow}><i className="far fa-plus"></i></button></h2></Card.Header>
             <Card.Body>
               <ListGroup>
               {programs}

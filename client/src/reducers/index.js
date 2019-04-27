@@ -8,6 +8,7 @@ import rubricsReducer from "./rubricsReducer";
 import evaluatorReducer from "./evaluatorReducer";
 import evaluationsReducer from "./evaluationsReducer";
 import coordinatorReducer from './coordinatorReducer';
+import reportsReducer from './reportsReducer';
 import {reducer as toastrReducer} from 'react-redux-toastr';
 
 export default combineReducers({
@@ -20,5 +21,6 @@ export default combineReducers({
     evaluator: evaluatorReducer,
     evaluations: evaluationsReducer,
     coordinators: coordinatorReducer,
-    toastr: toastrReducer
+    toastr: toastrReducer,
+    reports: reportsReducer
 });

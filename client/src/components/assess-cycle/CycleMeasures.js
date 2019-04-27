@@ -230,8 +230,13 @@ class CycleMeasures extends Component {
           </div> */}
           <Card>
             <Card.Header>
-          <h2>{title}</h2>
-          <hr />
+          <h2>{title}
+          <Link to={`/admin/cycles/cycle/${this.props.match.params.cycleID}/report`}>
+          <button size="lg" variant="outline-primary" className="float-right">
+          <i className="fas fa-file-invoice"></i>
+          </button>
+          </Link>
+          </h2>
           </Card.Header>
           <Card.Body>
           <ListGroup>{list}</ListGroup>

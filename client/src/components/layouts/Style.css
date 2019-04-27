@@ -316,6 +316,74 @@ main ol li ol {
 }
 
 
+/**New Bread Crumb*/
+
+/* .breadcrumb {
+  list-style-type: none;
+}
+
+.v1 .breadcrumb-level::before, .v1 .breadcrumb-level::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  height: 50%;
+  width: 100%;
+  background: #ff661a;
+  z-index: -1;
+}
+.v1 .breadcrumb-level::before {
+  top: 0;
+  -webkit-transform: skew(20deg);
+          transform: skew(20deg);
+}
+.v1 .breadcrumb-level::after {
+  bottom: 0;
+  -webkit-transform: skew(-20deg);
+          transform: skew(-20deg);
+}
+
+.breadcrumb-level {
+  display: inline-block;
+  position: relative;
+}
+.breadcrumb-level:last-child a {
+  cursor: default;
+}
+.breadcrumb-level:last-child::before, .breadcrumb-level:last-child::after {
+  background: #ff884d;
+}
+.breadcrumb-level:not(:last-child):hover::before, .breadcrumb-level:not(:last-child):hover::after {
+  background: #e64c00;
+}
+
+.breadcrumb-level a {
+  display: inline-block;
+  position: relative;
+  line-height: 2.5;
+  padding: 0 20px;
+  color: #fff;
+  text-decoration: none;
+}
+
+html {
+  height: 100%;
+  
+  align-items: center;
+  justify-content: center;
+  background: white;
+  font-family: sans-serif;
+}
+
+.breadcrumb.v1 {
+  margin-bottom: 50px;
+} */
+
+
+/***/
+
+
+
+
 /**Bread crumbs CSS*/
 
 .btn-breadcrumb {
@@ -324,7 +392,6 @@ main ol li ol {
 }
 
 .btn-breadcrumb .btn:not(:last-child):after {
-  content: " ";
   display: block;
   width: 0;
   height: 0;
@@ -338,7 +405,6 @@ main ol li ol {
   z-index: 3;
 }
 .btn-breadcrumb .btn:not(:last-child):before {
-  content: " ";
   display: block;
   width: 0;
   height: 0;
@@ -527,6 +593,25 @@ div.col-4.statCard.card {
 input[type=checkbox] {
   zoom: 1.5;
 }
+
+/**CycleReport*/
+#cycleReport.table td {
+  font-size: 1.5em;
+  text-align: center;
+}
+
+#cycleReport.table th {
+  font-size: 1.6em;
+  text-align: center;
+}
+
+#cycleReport.table #cycRepOutcome{
+  font-size: 1.6em;
+}
+
+
+
+
 
 @media screen and (min-width: 375px){
   html,

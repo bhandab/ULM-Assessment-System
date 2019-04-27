@@ -193,6 +193,7 @@ class OutcomeMeasures extends Component {
         this.props.measures.measures !== undefined && 
         this.props.cycles.outcomeMeasures !== null &&
         this.props.cycles.outcomeMeasures !== undefined) {
+
         let outcomeMeasures = this.props.cycles.outcomeMeasures.measures
         selections = this.props.measures.measures.map((item, index) => {
           const measure = outcomeMeasures.find(measure=> {
@@ -265,7 +266,16 @@ class OutcomeMeasures extends Component {
                     </div> */}
           <Card>
           <Card.Header>
-          <h2>{measureTitle}<Button size="lg" variant="outline-primary" className="float-right"><i className="fas fa-book"></i></Button></h2>
+          <h2>{measureTitle}
+          {/* <Button size="lg" variant="outline-primary" className="float-right">
+          <i className="fas fa-book"></i>
+          </Button> */}
+          <Link to={`/admin/cycles/cycle/${this.props.match.params.cycleID}/outcome/${this.props.match.params.outcomeID}/report`}>
+          <button size="lg" variant="outline-primary" className="float-right">
+          <i className="fas fa-file-invoice"></i>
+          </button>
+          </Link>
+          </h2>
           </Card.Header> 
           <Card.Body>
           <ListGroup>{measures}</ListGroup>
