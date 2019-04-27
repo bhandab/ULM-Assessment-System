@@ -12,10 +12,11 @@ import CreateRubric from '../rubrics/CreateRubric';
 import AllRubrics from '../rubrics/AllRubrics';
 import MeasureDetails from '../assess-cycle/MeasureDetails';
 import Evaluators from '../contents/Evaluators';
-import MeasureReport from '../assess-cycle/MeasureReport';
+// import MeasureReport from '../assess-cycle/MeasureReport';
 import CoordinatorProfile from '../profiles/CoordinatorProfile';
 import OutcomeReport from '../reports/OutcomeReport';
 import CycleReport from '../reports/CycleReport';
+import RubricReport from '../reports/RubricReport';
 
 class Admin extends Component {
 
@@ -36,7 +37,7 @@ class Admin extends Component {
                     <Switch>
                         <Route exact path='/admin/cycles/cycle/:cycleID(\d+)/report' component={CycleReport} />
                         <Route exact path="/admin/cycles/cycle/:cycleID(\d+)/outcome/:outcomeID(\d+)/report" component={OutcomeReport}/>
-                        <Route exact path="/admin/measure/:measureID(\d+)/report" component={MeasureReport}/>
+                        <Route exact path="/admin/measure/:measureID(\d+)/report" component={RubricReport}/>
                         <Route exact path='/admin/rubrics' component={AllRubrics} />
                         <Route exact path='/admin/outcomes' component={Outcomes} />
                         <Route exact path='/admin/measures' component={Measures} />

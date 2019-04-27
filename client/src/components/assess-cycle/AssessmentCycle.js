@@ -9,7 +9,7 @@ import {
 } from "../../actions/assessmentCycleAction";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { Spinner, Button, Modal, Form, Card, Breadcrumb} from "react-bootstrap";
+import { Spinner, Button, Modal, Form, Card, Breadcrumb, ListGroup} from "react-bootstrap";
 import Delete from "../../utils/Delete";
 
 class AssessmentCycle extends Component {
@@ -114,7 +114,7 @@ class AssessmentCycle extends Component {
             <option value={cycle.cycleID} key={"opt"+cycle.cycleID}>{cycle.cycleName}</option>
           )
           return (
-          <li className="list-group-item" key={cycle.cycleID}>
+          <ListGroup.Item key={cycle.cycleID}>
             <Link
               params={cycle.cycleName}
               name={cycle.cycleID}
@@ -138,10 +138,10 @@ class AssessmentCycle extends Component {
               onClick={this.deleteShow.bind(this)}
               className="delete"
             />
-          </li>
+          </ListGroup.Item>
         )});
         if (cyclesList.length === 0) {
-          cyclesList = <li className="list-group-item">No Cycles Present</li>;
+          cyclesList = <ListGroup.Item>No Cycles Present</ListGroup.Item>;
         }
       }
     } else {
