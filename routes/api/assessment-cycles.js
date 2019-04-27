@@ -816,6 +816,8 @@ router.post(
       valueOperator = req.body.valueOperator;
     }
 
+    console.log(req.body);
+
     let toolID = req.body.toolID;
 
     let measureName =
@@ -1000,6 +1002,7 @@ router.post(
         errors.measureNotFound = "Measure with the ID not found!";
         return res.status(404).json(errors);
       }
+      console.log(result)
       if (result[0].projectedResult) {
         if (isEmpty(projectedResult)) {
           errors.emptyProjectedScore = "Projected Score Cannot be Empty";
@@ -1009,6 +1012,8 @@ router.post(
             "Threshold score value should be a number between 0 and 100";
           return res.status(404).json(errors);
         }
+      }
+      
         let measureName =
           "At least " +
           projectedStudentNumber +
@@ -1049,7 +1054,7 @@ router.post(
           }
           res.status(200).json("Updated Successfully!");
         });
-      }
+      //}
     });
   }
 );

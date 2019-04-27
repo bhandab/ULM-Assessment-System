@@ -74,7 +74,7 @@ class OutcomeMeasures extends Component {
     const outcomeID = this.props.match.params.outcomeID;
 
     let pjsn = e.target.projectedStudentNumber.value;
-    let pv = ""; //null;
+    let pv =  null;
     let crs = e.target.course.value;
     let tt = "";
 
@@ -112,7 +112,7 @@ class OutcomeMeasures extends Component {
       studentNumberOperator: pt,
       scoreOrPass: testType
     };
-    // console.log(measureDetails)
+    console.log(measureDetails)
     this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails);
   };
 
