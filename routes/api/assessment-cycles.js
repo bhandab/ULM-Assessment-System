@@ -693,7 +693,7 @@ router.get(
           errors: "Cycle with ID " + cycleID + " Does not Exist!"
         });
       }
-      let isclosed = result[0].endDate ? true : false;
+      let isClosed = result[0].endDate ? true : false;
 
       let sql2 =
         "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
@@ -1198,35 +1198,67 @@ router.get(
     let measureID = req.params.measureIdentifier;
 
     let sql1 =
-      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
-      db.escape(measureID) +
-      " AND learnID=" +
-      db.escape(outcomeID) +
-      " AND cycleID=" +
-      db.escape(cycleID);
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND programID=" +
+      db.escape(programID);
     db.query(sql1, (err, result) => {
       if (err) {
         return res.status(500).json(err);
       } else if (result.length <= 0) {
-        return res
-          .status(404)
-          .json({ errors: "Measure Details could not be retrieved" });
+        return res.status(404).json({
+          errors: "Cycle with ID " + cycleID + " Does not Exist!"
+        });
       }
+      let isClosed = result[0].endDate ? true : false;
 
-      res.status(200).json({
-        cycleID,
-        outcomeID,
-        measureID,
-        measureDescription: result[0].measureDesc,
-        projectedResult: result[0].projectedResult,
-        resultScale: result[0].projectedValueScale,
-        projectedStudentNumber: result[0].projectedStudentsValue,
-        studentNumberScale: result[0].studentNumberScale,
-        course: result[0].courseAssociated,
-        toolName: result[0].toolName,
-        toolType: result[0].toolType,
-        toolID: result[0].toolID,
-        testType: result[0].testType
+      let sql2 =
+        "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
+        db.escape(outcomeID) +
+        " AND programID=" +
+        db.escape(programID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        } else if (result.length <= 0) {
+          return res.status(404).json({
+            errors:
+              "Learning Outcome with the ID " + outcomeID + " Does not Exist!"
+          });
+        }
+        let sql3 =
+          "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+          db.escape(measureID) +
+          " AND learnID=" +
+          db.escape(outcomeID) +
+          " AND cycleID=" +
+          db.escape(cycleID);
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          } else if (result.length <= 0) {
+            return res
+              .status(404)
+              .json({ errors: "Measure Details could not be retrieved" });
+          }
+
+          res.status(200).json({
+            cycleID,
+            outcomeID,
+            measureID,
+            measureDescription: result[0].measureDesc,
+            projectedResult: result[0].projectedResult,
+            resultScale: result[0].projectedValueScale,
+            projectedStudentNumber: result[0].projectedStudentsValue,
+            studentNumberScale: result[0].studentNumberScale,
+            course: result[0].courseAssociated,
+            toolName: result[0].toolName,
+            toolType: result[0].toolType,
+            toolID: result[0].toolID,
+            testType: result[0].testType,
+            isClosed
+          });
+        });
       });
     });
   }
