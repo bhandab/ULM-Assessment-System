@@ -316,6 +316,14 @@ main ol li ol {
   background: rgba(233, 236, 239,1);
 }
 
+.accordion>.card .card-header {
+  margin-bottom: 0px;
+}
+div .card-body {
+  border-bottom: 1px solid lavender;
+}
+
+
 
 /**New Bread Crumb*/
 
@@ -560,7 +568,31 @@ th.rubricHeaders {
   cursor: pointer;
 }
 
+/**Score Test Table*/
+ #evalScoreTable {
+   min-height : 250px;
+   font-size: 1.5em;
+ }
 
+ #evalScoreTable {
+   height: 100%;
+ }
+
+#evalScoreTable td input {
+  width: 100%;
+  height: 100% !important;
+  margin: 0;
+  padding: 5px;
+  border: none;
+  position:relative;
+}
+td#evalTestScore.rubricCells {
+  padding: 0 !important;
+  margin: 0;
+}
+th#scoreHeader {
+width: 70px !important;
+}
 
 /**End*/
 
@@ -572,6 +604,18 @@ li {
 /* Measure Report **/
 #measureReport {
   min-height: 100%;
+}
+
+/* Measure Test Report */
+table#measureTestReport td{
+  font-size: 1.5em;
+  text-align: center;
+  line-height: 2em;
+}
+
+table#measureTestReport th{
+  font-size: 1.6em;
+
 }
 
 #measureReport .table td{
@@ -886,4 +930,13 @@ button:hover{
   .noprint {
     display: none !important;
   }
+}
+
+/* Eval Name Click*/
+#evalName:hover{
+  cursor: pointer;
+  background: #dde;
+  margin-top: 2px;
+  padding: 5px;
+  border-radius: 3%;
 }

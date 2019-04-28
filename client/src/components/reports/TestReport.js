@@ -22,7 +22,8 @@ import {Card, Table, Button} from 'react-bootstrap'
       console.log(this.props)
       let measureReport = []
 
-      if(!this.props.cycles.cycleLoading){
+      if(!this.props.cycles.cycleLoading &&
+        this.props.cycles.measureReport.report !== undefined){
         let header = (
             <thead key={"testHeader"}>
               <tr>
@@ -67,7 +68,7 @@ import {Card, Table, Button} from 'react-bootstrap'
     return (
       <section className="panel important">
         <Card>
-            <Card.Header><h2>Measure Report<Button className="float-right noprint" onClick={()=> this.props.history.goBack()}>
+            <Card.Header style={{textAlign:'center'}}><h2>Measure Report<Button className="float-right noprint" onClick={()=> this.props.history.goBack()}>
             <i className="fas fa-times"></i>
             </Button></h2>
 </Card.Header>

@@ -35,7 +35,6 @@ import {
   InputGroup,
   ModalBody,
   FormControl,
-  ButtonGroup,
   Table,
   ProgressBar,
   ListGroup,
@@ -64,7 +63,10 @@ class MeasureDetails extends Component {
     stats: false,
     scoreStudents: false,
     deleteShow: false,
-    editShow:false
+    editShow:false,
+    evalStudents:false,
+    evalAssgStudents: [],
+    notAssgd: false
   };
 
   componentDidMount() {
@@ -212,6 +214,14 @@ class MeasureDetails extends Component {
     this.setState({ deleteShow: false });
   };
 
+  evalStudentsShow = () => {
+    this.setState({evalStudents:true})
+  }
+
+  evalStudentsHide = () => {
+    this.setState({evalStudents:false})
+  }
+
   addEvaluatorHandler = e => {
     e.preventDefault();
     this.props.addEvaluator(this.props.match.params.measureID, {
@@ -254,7 +264,7 @@ class MeasureDetails extends Component {
       CWID
     };
     this.props.addStudentToMeasure(this.props.match.params.measureID, body);
-    this.setState({ addStudHide: false });
+    this.setState({ addStud: false });
   };
 
   fileUpload = file => {
@@ -357,6 +367,7 @@ class MeasureDetails extends Component {
     this.props.assignStudentsToTest(measureID, body);
     console.log(body)
   }
+  this.setState({studAssign:false})
   };
 
   updateMeasure = e => {
@@ -400,6 +411,7 @@ class MeasureDetails extends Component {
     let studentList = [];
     let evaluatorSelect = [];
     let studentSelect = [];
+    let notAssignOption = []
     let measureReport = [];
     let evaluatorOptions = [];
     let progressBar = (
@@ -414,6 +426,7 @@ class MeasureDetails extends Component {
     let statusBtn = null;
     let stats = null;
     let scoreModal = null;
+    let evalStudents = []
 
     if (
       this.props.cycles.measureDetails !== null &&
@@ -448,7 +461,7 @@ class MeasureDetails extends Component {
             );
             return (
               <li key={evaluator.measureEvalID} className="list-group-item">
-                {evaluator.name}
+                <span id="evalName" data-val={evaluator.measureEvalID} value={evaluator.measureEvalID} onClick={(e)=>evalStudentsHandler(e)}>{evaluator.name}</span>
                 {true ?
                 <button
                 value = {evaluator.measureEvalID}
@@ -472,6 +485,15 @@ class MeasureDetails extends Component {
         this.props.cycles.measureStudents !== undefined
       ) {
         let totalStudents = this.props.cycles.measureStudents.students.length;
+
+        notAssignOption = this.props.cycles.measureStudents.notAssignedStudents.map((student,index) => {
+          return (
+              <option key={"notAssgd"+ index} value={student.studentID}>
+                {student.name}
+              </option>
+          )
+        })
+        console.log(notAssignOption)
 
         if(totalStudents > 0){
         studentList = this.props.cycles.measureStudents.students.map(
@@ -947,6 +969,23 @@ class MeasureDetails extends Component {
       );
       this.setState({ errors: {} });
     }
+    const evalStudentsHandler = e => {
+      
+      const assignedStuds = this.props.cycles.assignedStudents.assignedStudentsList.concat(this.props.cycles.assignedStudents.evaluatedStudentsList)
+      const evalID = e.target.dataset.val
+      assignedStuds.forEach((student,index) => {
+        if(student.measureEvalID+"" === evalID){
+            evalStudents.push(
+              <ListGroup.Item key={"evlStd"+index}>
+              {student.name}
+              </ListGroup.Item>
+            )
+        }
+      })
+      console.log(evalStudents)
+      this.setState({evalAssgStudents:evalStudents,evalStudents:true})
+      
+    }
     return (
       <Fragment>
         <section className="panel important">
@@ -1077,7 +1116,8 @@ class MeasureDetails extends Component {
               <Card style={{ width: "30%", height: "20em", float: "left" }}>
                 <Card.Header>
                   <h3>
-                    Evaluators
+                    Evaluators 
+                    <span style={{fontSize:'.5em'}} className=" ml-5 boder rounded p-1 text-dark bg-warning">Click on name to view students</span>
                     { true ? 
                     <Button
                       data-toggle="tooltip"
@@ -1467,27 +1507,22 @@ class MeasureDetails extends Component {
                
                 </Card.Header>
                 <Card.Body className="m-0 p-2">
-                {studentSelect.length > 0 ? 
+                <span><input onChange={()=>this.setState({notAssgd:!this.state.notAssgd})}type="checkbox"/>Unassigned Students</span>
+                {!this.state.notAssgd ? 
+                (studentSelect.length > 0 ? 
                 <select id="studSelect" name="assignedStudents" multiple>
                   {studentSelect}
                 </select>
-                : <Alert variant="danger"> No Students Present</Alert>}
+                : <Alert variant="danger"> No Students Present</Alert>)
+                : 
+                (notAssignOption.length > 0 ? 
+                  <select id="studSelect" name="assignedStudents" multiple>
+                    {notAssignOption}
+                  </select>
+                  : <Alert variant="danger"> No Students Present</Alert>)}
                 </Card.Body>
               </Card>
             </CardGroup>
-              {/* <div
-                className="d-inline-block mr-5 border p-3"
-                style={{ width: "250px" }}
-              >
-                <h3>Evaluator List</h3>
-                {evaluatorSelect}
-              </div>
-              <div className="d-inline-block border  p-3" >
-                <h3>Student List</h3>
-                <select name="assignedStudents" multiple >
-                  {studentSelect}
-                </select>
-              </div> */}
 
               <Button type="submit" className="mt-3 d-block float-right">
                 Assign{" "}
@@ -1495,6 +1530,23 @@ class MeasureDetails extends Component {
             </Form>
           </ModalBody>
         </Modal>
+
+        {/* Evaluator Students */}
+              <Modal show={this.state.evalStudents} onHide={this.evalStudentsHide} centered
+              >
+                <Modal.Header closeButton>
+                    <h3>Assigned Students</h3>
+                </Modal.Header>
+                <Modal.Body>
+                  <ListGroup>
+                    {this.state.evalAssgStudents}
+                  </ListGroup>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="danger" className="float-right">Close</Button>
+                </Modal.Footer>
+              </Modal>
+
         {scoreModal}
         <Delete
           hide={this.deleteHide}

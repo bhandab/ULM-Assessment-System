@@ -59,6 +59,11 @@ class CycleReport extends Component {
                         <td>{measure.successCount}</td>
                         <td className = {measure.measureStatus ? "text-success" : "bg-warning"}>{this.getPercentages(measure.successCount,measure.evalCount)}</td>
                         <td className = {measure.measureStatus ? "text-success" : "bg-warning"}>{measure.measureStatus ? "Satisfied" : "Not Satisfied"}</td>
+                        {span ? 
+                        <td className="cycRepOutcome" rowSpan={measures.length}>
+                           <strong>related courses</strong>
+                        </td>
+                        : null}
                     </tr>
                     )
                     span = false
@@ -88,6 +93,7 @@ class CycleReport extends Component {
               <th>Number Meeting Criteria</th>
               <th>% Meeting Criteria</th>
               <th>Result</th>
+              <th>Related Courses</th>
             </tr>
           </thead>
           <tbody key="tbod">

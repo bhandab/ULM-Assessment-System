@@ -146,14 +146,20 @@ class Evaluate extends Component {
       </tr>
     );
     table = (
-      <div>
+      <Card>
+        <Card.Header>
         <h3>{rubricDetails.structureInfo.rubricTitle}</h3>
         <h5 id="evaluatedStudent"> </h5>
+        </Card.Header>
+        <Card.Body>
         <table className="table table-bordered" id="scoreRubricTable">
           <tbody>{table}</tbody>
         </table>
+        </Card.Body>
+        <Card.Footer>
         <Button className="float-right">Submit Score</Button>
-      </div>
+        </Card.Footer>
+      </Card>
     );
     this.setState({ table: table });
   };
@@ -337,8 +343,9 @@ class Evaluate extends Component {
           <td className="rubricCells">{index + 1}</td>
           <td className="rubricCells">{student.lastName}</td>
           <td className="rubricCells">{student.firstName}</td>
+          <td className="rubricCells">{student.email}</td>
           {student.projectedResult !== null ? (
-            <td className="rubricCells">
+            <td className="rubricCells" id="evalTestScore">
               <input
                 type="number"
                 data-measureid={student.measureID}
@@ -349,7 +356,7 @@ class Evaluate extends Component {
               />
             </td>
           ) : (
-            <td className="rubricCells">
+            <td className="rubricCells" id="evalTestScore">
               <select
                 type="number"
                 data-measureid={student.measureID}
@@ -397,13 +404,14 @@ class Evaluate extends Component {
           <h3 style={{ textAlign: "center" }}>{this.state.testName}</h3>
         </Card.Header>
         <Card.Body>
-          <Table bordered hover>
+          <Table bordered hover id="evalScoreTable">
             <thead>
               <tr className="headerRow">
                 <th>#</th>
                 <th>Last Name</th>
                 <th>First Name</th>
-                <th>Score</th>
+                <th>Email</th>
+                <th id="scoreHeader">Score</th>
               </tr>
             </thead>
             <tbody>{this.toScoreList()}</tbody>
@@ -503,14 +511,14 @@ class Evaluate extends Component {
       <section className="panel important">
         <Card id="rubricStudent">
           <Card.Header>
-            <h3>Assigned Tools</h3>
+            <h2><strong>Assigned Tools</strong></h2>
           </Card.Header>
 
           <Card.Body id="assignedTools" className="row">
           <div className= "col-3">
             <Card>
               <Card.Header className="rubricTitle" id="scoreRubric">
-                <h5 className="mb-0">
+                <h4 className="mb-0">
                   <button
                     className="btn btn-link"
                     type="button"
@@ -521,7 +529,7 @@ class Evaluate extends Component {
                   >
                     Rubrics
                   </button>
-                </h5>
+                </h4>
               </Card.Header>
               <div
                 id="scoreRubricCollapse"
