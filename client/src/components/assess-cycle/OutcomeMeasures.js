@@ -16,7 +16,9 @@ import {
   Modal,
   Spinner,
   Card,
-  ListGroup
+  Badge,
+  Row,
+  Col
 } from "react-bootstrap";
 import { isEmpty } from "../../utils/isEmpty";
 
@@ -224,11 +226,11 @@ class OutcomeMeasures extends Component {
                         }
                       >
                           <Button
-                          size="sm"
-                          variant="danger"
-                          className="p-2 float-right rounded"
+                          size="lg"
+                          variant="outline-light"
+                          className="float-right rounded"
                         >
-                          <strong>failing&nbsp;</strong>
+                          <Badge pill variant="danger">failing</Badge>
                         </Button>
                       </Link>
                        
@@ -244,30 +246,22 @@ class OutcomeMeasures extends Component {
                     <div className="card-body">
                       <Card>
                         <Card.Body>
-                          <ListGroup>
-                            <ListGroup.Item>
-                              Total Students: {totalStudents}
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                              Total Evaluated: {measure.evalCount}
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                              Passing Count: {measure.successCount} (
+
+                            <Row style={{fontSize:'1.7em'}}>
+                              <Col><Badge>Total Students: {totalStudents}</Badge></Col>
+                              <Col><Badge> Total Evaluated: {measure.evalCount}</Badge></Col>
+                              <Col><Badge> Pending Evaluation:{" "}
+                              {totalStudents - measure.evalCount}</Badge></Col>
+                              <Col><Badge> Passing Count: {measure.successCount} (
                               {this.passingPer(
                                 measure.successCount,
                                 measure.evalCount
                               )}
-                              )
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                              Failing Count:{" "}
-                              {measure.evalCount - measure.successCount}
-                            </ListGroup.Item>
-                            <ListGroup.Item>
-                              Pending Evaluation:{" "}
-                              {totalStudents - measure.evalCount}
-                            </ListGroup.Item>
-                          </ListGroup>
+                              )</Badge></Col>
+                              <Col><Badge> Failing Count:{" "}
+                              {measure.evalCount - measure.successCount} </Badge></Col>
+                            </Row>
+                          
                           <Link
                             to={
                               "/admin/cycles/cycle/" +

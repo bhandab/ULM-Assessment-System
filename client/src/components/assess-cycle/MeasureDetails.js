@@ -40,7 +40,9 @@ import {
   Spinner,
   CardGroup,
   Alert,
-  Badge
+  Badge,
+  Row,
+  Col
 } from "react-bootstrap";
 
 import CSVFormat from "../../assets/CSVformat";
@@ -1210,13 +1212,16 @@ class MeasureDetails extends Component {
               <Card className="mt-2">
                 <Card.Header style= {{textAlign:"center"}}><h4>Measure Statistics</h4></Card.Header>
                 <Card.Body style={{fontSize:'1.4em'}}>
-                  <Badge variant="light">Total Students: {totalStudentNumber}</Badge>
-                  <Badge variant="light" className="ml-2">Total Assigned Students: {totalAssignedStudents}</Badge>
-                  <Badge variant="light" className="ml-2">Total Unassigned Students: {totalUnassignedStudents}</Badge>
-                  <Badge variant="light" className="ml-2">Total Evaluated Students: {totalEvaluated}</Badge>
-                  <Badge variant="light" className="ml-2">Total Students Passing Meaure: {totalPassing}</Badge>
-                  <Badge variant="light" className="ml-2">Total Students Failing Measure: {totalFailing}</Badge>
-                  
+                  <Row>
+                  <Col><Badge variant="light">Total Students: {totalStudentNumber}</Badge></Col>
+                  <Col><Badge variant="light">Total Assigned Students: {totalAssignedStudents}</Badge></Col>
+                  <Col><Badge variant="light">Total Unassigned Students: {totalUnassignedStudents}</Badge></Col>
+                  </Row>
+                  <Row>
+                  <Col><Badge variant="light">Total Evaluated Students: {totalEvaluated}</Badge></Col>
+                  <Col><Badge variant="light">Total Students Passing Meaure: {totalPassing}</Badge></Col>
+                  <Col><Badge variant="light">Total Students Failing Measure: {totalFailing}</Badge></Col>
+                  </Row>
                 </Card.Body>
               </Card>
             </Fragment>

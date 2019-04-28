@@ -16,13 +16,16 @@ class Evaluate extends Component {
   state = {
     measureID: "",
     studentID: "",
+    rubricID:'',
     measureEvalID: "",
     testName: "",
     table: (
       <div className="alert alert-info">
         <h4>Please Select a Evaluation Tool</h4>
       </div>
-    )
+    ),
+    scoreMap : new Map(),
+    scoreObject: []
   };
 
   componentDidMount() {
@@ -30,7 +33,7 @@ class Evaluate extends Component {
     this.props.getEvaluationRubrics();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps,prevState) {
     if (this.props.rubric.singleRubric !== prevProps.rubric.singleRubric) {
       this.createRubric();
     }
@@ -38,13 +41,29 @@ class Evaluate extends Component {
     if (
       this.props.evaluations.rubricScores !== prevProps.evaluations.rubricScores
     ) {
-      console.log("Rubric Scores Updated");
-      this.addScoresToTable();
+      let scoreMap = new Map();
+      this.props.evaluations.rubricScores.forEach((criteria => {
+          scoreMap.set(criteria.criteriaID, criteria.criteriaScore)
+      }))
+      const scoreObject = []
+      scoreMap.forEach((value,key) => {
+      scoreObject.push(
+        {
+          criteriaID: key,
+          criteriaScore: value
+        }
+      )
+    })
+    console.log(scoreObject)
+      this.setState({scoreMap:scoreMap, scoreObject:scoreObject})
     }
 
       if (this.props.evaluations.testScores !== prevProps.evaluations.testScores) {
          console.log(this.props.evaluations.testScores)
          this.createScoreTable();
+      }
+      if(this.state.scoreObject !== prevState.scoreObject){
+        this.addScoresToTable();
       }
   }
 
@@ -157,7 +176,7 @@ class Evaluate extends Component {
         </table>
         </Card.Body>
         <Card.Footer>
-        <Button className="float-right">Submit Score</Button>
+        <Button className="float-right" onClick={this.submitScores}>Submit Score</Button>
         </Card.Footer>
       </Card>
     );
@@ -173,7 +192,8 @@ class Evaluate extends Component {
     this.setState({
       measureID: measureID,
       studentID: studentID,
-      measureEvalID: measureEvalID
+      measureEvalID: measureEvalID,
+      rubricID: index
     });
 
     const student = document.getElementById("evaluatedStudent");
@@ -237,24 +257,23 @@ class Evaluate extends Component {
     let sum = 0;
     const tableRows = document.getElementById("scoreRubricTable").rows;
     const rowLength = tableRows.length;
-    console.log(rowLength);
-    this.props.evaluations.rubricScores.forEach((criteria, index) => {
+     console.log(this.state.scoreObject);
+    this.state.scoreObject.forEach((criteria, index) => {
       const cells = tableRows[index + 1].cells;
       const cellLength = cells.length;
       const lastCell = cells[cellLength - 1];
-      console.log(lastCell);
+      // console.log(lastCell);
       lastCell.innerHTML = criteria.criteriaScore;
       sum += criteria.criteriaScore;
     });
     if (!this.props.rubric.singleRubric.rubricDetails.structureInfo.weighted) {
-      sum = sum / this.props.evaluations.rubricScores.length;
+      sum = sum / this.state.scoreObject.length;
     }
     tableRows[rowLength - 1].cells[1].innerHTML = parseFloat(sum.toFixed(2));
   };
 
   scoreClick = e => {
-    let avgScore = 0;
-    const selectedCriteria = e.target.dataset.criteriaid;
+    let selectedCriteria = e.target.dataset.criteriaid;
     const selectedScale = e.target.dataset.scaleid;
     const rubric = this.props.rubric.singleRubric.rubricDetails.structureInfo;
     const weighted = rubric.weighted;
@@ -270,19 +289,20 @@ class Evaluate extends Component {
       score =
         (scaleInfo.scaleValue * this.getCriteriaWeight(selectedCriteria)) / 100;
     }
-
-    const body = {
-      rubricID: this.props.rubric.singleRubric.rubricDetails.structureInfo
-        .rubricID,
-      measureID: this.state.measureID + "",
-      studentID: this.state.studentID + "",
-      measureEvalID: this.state.measureEvalID,
-      criteriaID: selectedCriteria,
-      criteriaScore: score,
-      avgScore: avgScore
-    };
-    console.log(body);
-    this.props.updateRubricScores(body);
+    const scoreMap = new Map(this.state.scoreMap)
+    selectedCriteria = parseInt(selectedCriteria)
+    scoreMap.set(selectedCriteria, score)
+    const scoreObject = []
+    scoreMap.forEach((value,key) => {
+    scoreObject.push(
+      {
+        criteriaID: key,
+        criteriaScore: value
+      }
+    )
+  })
+    this.setState({scoreMap:scoreMap, scoreObject:scoreObject})
+    // this.props.updateRubricScores();
   };
 
   rubricHeaderClick = e => {
@@ -336,7 +356,7 @@ class Evaluate extends Component {
 
         }
       }
-
+      
       return (
         <tr key={"scr" + index}>
           <td className="rubricCells">{index + 1}</td>
@@ -420,7 +440,33 @@ class Evaluate extends Component {
     this.setState({ table: scoreTable });
   };
 
+  submitScores = () => {
+    console.log(this.state.scoreMap)
+    const scoreMap = new Map(this.state.scoreMap)
+    const scoreKeys = scoreMap.keys()
+    console.log(scoreKeys)
+    const scoreObject = []
+    scoreMap.forEach((value,key) => {
+      scoreObject.push(
+        {
+          criteriaID: key,
+          criteriaScore: value
+        }
+      )
+    })
+    const body = {
+      rubricID: this.state.rubricID,
+      measureID: this.state.measureID,
+      studentID: this.state.studentID,
+      criteriaInfo: scoreObject
+    }
+    this.props.updateRubricScores(body)
+  };
+
+
   render() {
+    console.log(this.props)
+    console.log(this.state)
     let rubrics = [];
     let tests = [];
     if (
@@ -498,10 +544,6 @@ class Evaluate extends Component {
         );
       }
     }
-
-    // const submitScores = () => {
-    //   console.log("Congratulations!! You clicked the button.")
-    // };
 
     // console.log(this.props);
 
