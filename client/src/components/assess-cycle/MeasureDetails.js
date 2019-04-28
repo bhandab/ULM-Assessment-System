@@ -973,8 +973,8 @@ class MeasureDetails extends Component {
       );
       this.setState({ errors: {} });
     }
+    
     const evalStudentsHandler = e => {
-      
       const assignedStuds = this.props.cycles.assignedStudents.assignedStudentsList.concat(this.props.cycles.assignedStudents.evaluatedStudentsList)
       const evalID = e.target.dataset.val
       assignedStuds.forEach((student,index) => {
@@ -988,8 +988,13 @@ class MeasureDetails extends Component {
       })
       console.log(evalStudents)
       this.setState({evalAssgStudents:evalStudents,evalStudents:true})
-      
     }
+
+    const notAssignHandler = e => {
+        console.log("Not assgd here")
+    }
+
+
     return (
       <Fragment>
         <section className="panel important">
