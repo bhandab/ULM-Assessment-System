@@ -87,6 +87,7 @@ router.get(
           cycleName: row.cycleTitle,
           dateCreated: row.startDate,
           endDate: row.endDate,
+          isClosed: row.endDate ? true : false,
           cycleID: row.cycleID
         };
         cycles.push(cycleInfo);
@@ -354,6 +355,38 @@ router.post(
   }
 );
 
+// @route POST api/cycles/closeCycle
+// @desc Close a cycle
+// @access Private
+router.post(
+  "/closeCycle",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let cycleID = req.body.cycleID;
+    let errors = {};
+    let sql =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" + db.escape(cycleID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.message = "Cycle Does not Exist";
+        return res.status(404).json(errors);
+      }
+      let sql1 =
+        "UPDATE ASSESSMENT_CYCLE SET endDate=now(4) WHERE cycleID=" +
+        db.escape(cycleID);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        res.status.json("Cycle Successfully Closed!");
+      });
+    });
+  }
+);
+
 // @route GET api/cycles/:cycleIdentifier/outcomes
 // @desc Retrieves outcomes associated with the current cycle
 // @access Private
@@ -380,7 +413,7 @@ router.get(
         });
       }
       let cycleName = result[0].cycleTitle;
-
+      let isClosed = result[0].endDate ? true : false;
       let sql1 =
         "SELECT * FROM LEARNING_OUTCOME" +
         " WHERE cycleID=" +
@@ -402,7 +435,9 @@ router.get(
           indexCount++;
           outcomes.push(outcome);
         });
-        res.status(200).json({ outcomes, cycleIdentifier, cycleName });
+        res
+          .status(200)
+          .json({ outcomes, cycleIdentifier, cycleName, isClosed });
       });
     });
   }
@@ -658,6 +693,7 @@ router.get(
           errors: "Cycle with ID " + cycleID + " Does not Exist!"
         });
       }
+      let isclosed = result[0].endDate ? true : false;
 
       let sql2 =
         "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
@@ -723,7 +759,8 @@ router.get(
               outcomeCourses,
               cycleID,
               outcomeID,
-              outcomeName
+              outcomeName,
+              isClosed
             });
           });
         });
