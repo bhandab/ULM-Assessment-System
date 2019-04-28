@@ -990,7 +990,7 @@ router.post(
 
     let projectedStudentNumber = parseFloat(req.body.projectedStudentNumber);
     let projectedResult = req.body.projectedResult;
-    console.log(req.body)
+
     let sql1 =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
       db.escape(measureID);
@@ -1002,7 +1002,7 @@ router.post(
         errors.measureNotFound = "Measure with the ID not found!";
         return res.status(404).json(errors);
       }
-      console.log(result)
+
       if (result[0].projectedResult) {
         if (isEmpty(projectedResult)) {
           errors.emptyProjectedScore = "Projected Score Cannot be Empty";
@@ -1013,47 +1013,46 @@ router.post(
           return res.status(404).json(errors);
         }
       }
-      
-        let measureName =
-          "At least " +
-          projectedStudentNumber +
-          " " +
-          result[0].studentNumberScale +
-          " Of Students ";
 
-        measureName = result[0].courseAssociated
-          ? measureName + " in Class " + result[0].courseAssociated + " will "
-          : measureName + " will ";
-        measureName = result[0].projectedResult
-          ? measureName +
-            " Score " +
-            projectedResult +
-            " " +
-            result[0].projectedValueScale +
-            " Or Greater In "
-          : measureName + " Pass In ";
-        measureName =
-          measureName + result[0].toolName + " " + result[0].toolType;
-        projectedResult = parseFloat(projectedResult);
-        let sql2 = !isEmpty(result[0].projectedResult)
-          ? "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
-            db.escape(projectedStudentNumber) +
-            ", projectedResult=" +
-            db.escape(projectedResult)
-          : "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
-            db.escape(projectedStudentNumber);
-        sql2 =
-          sql2 +
-          ", measureDesc=" +
-          db.escape(measureName) +
-          " WHERE measureID=" +
-          db.escape(measureID);
-        db.query(sql2, (err, result) => {
-          if (err) {
-            return res.status(500).json();
-          }
-          res.status(200).json("Updated Successfully!");
-        });
+      let measureName =
+        "At least " +
+        projectedStudentNumber +
+        " " +
+        result[0].studentNumberScale +
+        " Of Students ";
+
+      measureName = result[0].courseAssociated
+        ? measureName + " in Class " + result[0].courseAssociated + " will "
+        : measureName + " will ";
+      measureName = result[0].projectedResult
+        ? measureName +
+          " Score " +
+          projectedResult +
+          " " +
+          result[0].projectedValueScale +
+          " Or Greater In "
+        : measureName + " Pass In ";
+      measureName = measureName + result[0].toolName + " " + result[0].toolType;
+      projectedResult = parseFloat(projectedResult);
+      let sql2 = !isEmpty(result[0].projectedResult)
+        ? "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
+          db.escape(projectedStudentNumber) +
+          ", projectedResult=" +
+          db.escape(projectedResult)
+        : "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
+          db.escape(projectedStudentNumber);
+      sql2 =
+        sql2 +
+        ", measureDesc=" +
+        db.escape(measureName) +
+        " WHERE measureID=" +
+        db.escape(measureID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json();
+        }
+        res.status(200).json("Updated Successfully!");
+      });
       //}
     });
   }
@@ -1797,10 +1796,17 @@ router.get(
         errors.identifierError = "Measure ID not found";
         return res.status(404).json({ errors });
       }
+      let toolType = result[0].toolType;
       let sql1 =
-        "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN STUDENT NATURAL JOIN EVALUATOR_ASSIGN NATURAL LEFT JOIN RUBRIC_SCORE WHERE measureID=" +
-        db.escape(measureID);
-
+        "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN STUDENT NATURAL JOIN EVALUATOR_ASSIGN ";
+      sql1 =
+        result[0].toolType.toLowerCase() === "rubric"
+          ? sql1 +
+            "NATURAL LEFT JOIN RUBRIC_SCORE WHERE measureID=" +
+            db.escape(measureID)
+          : sql1 +
+            "NATURAL JOIN TEST_SCORE WHERE measureID=" +
+            db.escape(measureID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -1815,10 +1821,18 @@ router.get(
             evalName: row.evalName,
             measureEvalID: row.measureEvalID
           };
-          if (!row.rubricScore) {
-            assignedStudentsList.push(student);
-          } else {
-            evaluatedStudentsList.push(student);
+          if (toolType.toLowerCase() === "rubric") {
+            if (!row.rubricScore) {
+              assignedStudentsList.push(student);
+            } else {
+              evaluatedStudentsList.push(student);
+            }
+          } else if (toolType.toLowerCase() === "test") {
+            if (!row.testScoreStatus) {
+              assignedStudentsList.push(student);
+            } else {
+              evaluatedStudentsList.push(student);
+            }
           }
         });
         res.status(200).json({ assignedStudentsList, evaluatedStudentsList });
@@ -1850,6 +1864,7 @@ router.post(
         errors.measureNotFound = "Measure with the id not found!";
         return res.status(404).json(errors);
       }
+      let toolType = result[0].toolType;
       let sql2 =
         "SELECT * FROM STUDENT WHERE studentID=" + db.escape(deleteStudentID);
       db.query(sql2, (err, result) => {
@@ -1871,6 +1886,7 @@ router.post(
             errors.evaluatorNotFound = "Evaluator Does not Exist!";
             return res.status(404).json(errors);
           }
+          evalID = result[0].evalID;
           let sql4 =
             "DELETE FROM EVALUATOR_ASSIGN WHERE studentID=" +
             db.escape(deleteStudentID) +
@@ -1880,7 +1896,72 @@ router.post(
             if (err) {
               return res.status(500).json(err);
             }
-            res.status(200).json("Deleted Successfully!");
+
+            if (toolType.toLowerCase() === "rubric") {
+              let sql5 =
+                "SELECT * FROM EVALUATE NATURAL LEFT JOIN RUBRIC_SCORE WHERE evalID=" +
+                db.escape(evalID) +
+                " AND studentID=" +
+                db.escape(deleteStudentID);
+              db.query(sql5, (err, result) => {
+                if (err) {
+                  return res.status(500).json();
+                }
+                let del = false;
+                result.forEach(row => {
+                  if (!row.rubricScore) {
+                    del = true;
+                    return;
+                  }
+                });
+                if (del) {
+                  let sql6 =
+                    "DELETE FROM EVALUATE WHERE evalID=" +
+                    db.escape(evalID) +
+                    " AND studentID=" +
+                    db.escape(deleteStudentID);
+                  db.query(sql6, (err, result) => {
+                    if (err) {
+                      return res.status(500).json(err);
+                    }
+                    return res.status(200).json("Deleted Successfully!");
+                  });
+                } else {
+                  return res.status(200).json("Deleted Successfully!");
+                }
+              });
+            } else {
+              let sql5 =
+                "SELECT * FROM TEST_SCORE WHERE studentID=" +
+                db.escape(deleteStudentID) +
+                " AND evalID=" +
+                db.escape(evalID);
+              db.query(sql5, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
+
+                if (result.length > 0) {
+                  if (!result[0].testScoreStatus) {
+                    let sql6 =
+                      "DELETE FROM TEST_SCORE WHERE studentID=" +
+                      db.escape(deleteStudentID) +
+                      "evalID=" +
+                      db.escape(evalID);
+                    db.query(sql6, (err, result) => {
+                      if (err) {
+                        return res.status(500).json(err);
+                      }
+                      return res.status(200).json("Deleted Successfully!");
+                    });
+                  } else {
+                    return res.status.json("Deleted Successfully!");
+                  }
+                } else {
+                  return res.status(200).json("Deleted Successfully!");
+                }
+              });
+            }
           });
         });
       });
