@@ -65,7 +65,8 @@ class MeasureDetails extends Component {
     editShow:false,
     evalStudents:false,
     evalAssgStudents: [],
-    notAssgd: false
+    notAssgd: false,
+    notAssignOption:[]
   };
 
   componentDidMount() {
@@ -456,6 +457,7 @@ class MeasureDetails extends Component {
                   name="evaluator"
                   data-measureevalid={evaluator.measureEvalID}
                   data-evalid={evaluator.evalID}
+                  onChange = {(e)=>notAssignHandler(e) }
                 />{" "}
                 <label>
                   <h5>{evaluator.name}</h5>
@@ -991,7 +993,23 @@ class MeasureDetails extends Component {
     }
 
     const notAssignHandler = e => {
+      notAssignOption = []
+      const assignedStuds = this.props.cycles.assignedStudents.assignedStudentsList.concat(this.props.cycles.assignedStudents.evaluatedStudentsList)
         console.log("Not assgd here")
+        const evalID = e.target.dataset.measureevalid
+        assignedStuds.forEach((student,index) => {
+          if(student.measureEvalID+"" !== evalID){
+             notAssignOption.push(
+              <option key={"notAssgd"+ index} value={student.studentID}>
+              {student.name}
+            </option>
+              )
+          }
+        })
+        const box = document.getElementById('assgdCheckBox').checked = false;
+        console.log(box)
+        console.log(notAssignOption)
+        this.setState({notAssignOption:notAssignOption})
     }
 
 
@@ -1205,27 +1223,6 @@ class MeasureDetails extends Component {
 
             {typeTest ? (
               <Fragment>
-                {/* <ButtonGroup aria-label="Basic example" className="float-right">
-                  <Button
-                    size="lg"
-                    data-toggle="tooltip"
-                    data-placement="right"
-                    title="View Measure Report"
-                    onClick={this.testModalShow}
-                  >
-                    <i className="fas fa-users" />
-                  </Button>
-                  <Button
-                    size="lg"
-                    data-toggle="tooltip"
-                    data-placement="right"
-                    title="Upload A File"
-                    onClick={this.uploadTestShow}
-                  >
-                    <i className="fas fa-file-csv" />
-                  </Button>
-                </ButtonGroup> */}
-
                 <Modal
                   show={this.state.testModal}
                   onHide={this.testModalHide}
@@ -1527,7 +1524,7 @@ class MeasureDetails extends Component {
                
                 </Card.Header>
                 <Card.Body className="m-0 p-2">
-                <span><input onChange={()=>this.setState({notAssgd:!this.state.notAssgd})}type="checkbox"/>Unassigned Students</span>
+                <span><input onChange={()=>this.setState({notAssgd:!this.state.notAssgd})}type="checkbox" id="assgdCheckBox"/>Unassigned Students</span>
                 {!this.state.notAssgd ? 
                 (studentSelect.length > 0 ? 
                 <select id="studSelect" name="assignedStudents" multiple>
@@ -1535,9 +1532,9 @@ class MeasureDetails extends Component {
                 </select>
                 : <Alert variant="danger"> No Students Present</Alert>)
                 : 
-                (notAssignOption.length > 0 ? 
+                (this.state.notAssignOption.length > 0 ? 
                   <select id="studSelect" name="assignedStudents" multiple>
-                    {notAssignOption}
+                    {this.state.notAssignOption}
                   </select>
                   : <Alert variant="danger"> No Students Present</Alert>)}
                 </Card.Body>
