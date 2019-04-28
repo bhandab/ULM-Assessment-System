@@ -816,8 +816,6 @@ router.post(
       valueOperator = req.body.valueOperator;
     }
 
-    console.log(req.body);
-
     let toolID = req.body.toolID;
 
     let measureName =
@@ -2267,7 +2265,8 @@ router.get(
               indResult["class"] = row.courseAssociated;
               indResult["studentName"] =
                 row.studentLastName + ", " + row.studentFirstName;
-              indResult["evalName"] = row.evalLastName+", "+ row.evalFirstName;
+              indResult["evalName"] =
+                row.evalLastName + ", " + row.evalFirstName;
               indResult[row.criteriaDesc] = Math.round(
                 row.criteriaScore / row.criteriaWeight
               );
@@ -2416,9 +2415,11 @@ router.get(
             score: row.testScore ? row.testScore : "N/A",
             passing: row.testScoreStatus ? true : false
           };
-          report.push(result);
-          if (row.testScoreStatus) {
-            passingCounts++;
+          if (row.testScoreStatus !== null) {
+            report.push(result);
+            if (row.testScoreStatus === true) {
+              passingCounts++;
+            }
           }
         });
         let passingPercentage = 0;
