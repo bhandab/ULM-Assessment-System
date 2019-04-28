@@ -140,4 +140,37 @@ router.post(
   }
 );
 
+//Deletes Invited Evaluator
+router.post(
+  "/deleteInvitedEvaluator",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let deleteEmail = req.body.evalEmail;
+    let errors = {};
+    let sql =
+      "SELECT * FROM INVITED_EVALUATOR WHERE invitedEvalEmail=" +
+      db.escape(deleteEmail);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.message = "The evaluator is not in the invitee list";
+        return res.status(404).json(errors);
+      }
+      let sql1 =
+        "DELETE FROM INVITED_EVALUATOR WHERE invitedEvalEmail=" +
+        db.escape(deleteEmail) +
+        " AND corId=" +
+        db.escape(req.user.id);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        res.status(200).json("Deleted Successfully!");
+      });
+    });
+  }
+);
+
 module.exports = router;
