@@ -150,15 +150,18 @@ class CycleMeasures extends Component {
             return (
               <ListGroup.Item key={outcome.outcomeID}>
                 <Link
-                  to={
-                    "/admin/cycles/cycle/" +
+                  to={{
+                    pathname: "/admin/cycles/cycle/" +
                     cycleID +
                     "/outcomes/" +
-                    outcome.outcomeID
-                  }
+                    outcome.outcomeID,
+                    hash: (outcome.displayIndex).toString()
+                  }}
                 >
-                  {outcome.outcomeName}
+                 {outcome.displayIndex}. {outcome.outcomeName}
                 </Link>
+                { true ?
+                <> 
                 <button
                   style={{ border: "none", background: "none" }}
                   name={outcome.outcomeID}
@@ -173,6 +176,8 @@ class CycleMeasures extends Component {
                   onClick={this.deleteShow.bind(this)}
                   className="delete"
                 />
+                </>
+                : null }
                 
               </ListGroup.Item>
             );
@@ -241,6 +246,8 @@ class CycleMeasures extends Component {
           </Card.Header>
           <Card.Body>
           <ListGroup>{list}</ListGroup>
+          {true ? 
+          <>
           <Button
             className="btn mt-3 float-right ml-3"
             onClick={this.addOutcomeShow}
@@ -254,6 +261,8 @@ class CycleMeasures extends Component {
           >
             Create Outcome
           </Button>
+          </>
+          :null }
           </Card.Body>
           </Card>
         </section>

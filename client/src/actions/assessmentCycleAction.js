@@ -242,7 +242,10 @@ export const deleteOutcome = (cycleID, outcomeID) => dispatch => {
         ))
         .then(() => dispatch(getCycleMeasures(cycleID)))
         .catch(err => {
-            // console.log(err)
+            const message = (err.response.data.measureExistingInsideOutcome)
+            toastr.error(
+                "Delete Fail!",
+                message)
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
@@ -304,6 +307,10 @@ export const addEvaluator = (measureID, body) => dispatch => {
         ))
         .then(() => dispatch(getMeasureEvaluators(measureID)))
         .catch(err => {
+            const message = err.response.data.evaluatorEmail
+            toastr.error(
+                "Error!",
+                message)
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
@@ -423,6 +430,7 @@ export const assignStudentsToMeasure = (measureID, body) => dispatch => {
     axios
         .post("/api/cycles/" + measureID + "/assign",body)
         .then(() => dispatch(getAssignedStudents(measureID)))
+        .then(()=> dispatch(getStudentsOfMeasure(measureID)))
         .catch(err => {
             dispatch({
                 type: GET_ERRORS,

@@ -17,6 +17,9 @@ import CoordinatorProfile from '../profiles/CoordinatorProfile';
 import OutcomeReport from '../reports/OutcomeReport';
 import CycleReport from '../reports/CycleReport';
 import RubricReport from '../reports/RubricReport';
+import TestReport from '../reports/TestReport';
+import PastCycles from '../contents/PastCycles';
+
 
 class Admin extends Component {
 
@@ -38,6 +41,7 @@ class Admin extends Component {
                         <Route exact path='/admin/cycles/cycle/:cycleID(\d+)/report' component={CycleReport} />
                         <Route exact path="/admin/cycles/cycle/:cycleID(\d+)/outcome/:outcomeID(\d+)/report" component={OutcomeReport}/>
                         <Route exact path="/admin/measure/:measureID(\d+)/report" component={RubricReport}/>
+                        <Route exact path="/admin/measure/:measureID(\d+)/testReport" component={TestReport}/>
                         <Route exact path='/admin/rubrics' component={AllRubrics} />
                         <Route exact path='/admin/outcomes' component={Outcomes} />
                         <Route exact path='/admin/measures' component={Measures} />
@@ -49,6 +53,7 @@ class Admin extends Component {
                         <Route exact path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)' component={OutcomeMeasures} />
                         <Route exact path='/admin/cycles/cycle/:cycleID(\d+)' component={CycleMeasures} />
                         <Route exact path='/admin/cycles' component={AssessmentCycle} />
+                        <Route exact path='/admin/pastCycles' component={PastCycles} />
                     </Switch>
 
                 </main>

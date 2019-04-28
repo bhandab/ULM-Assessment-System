@@ -2,7 +2,7 @@ import React, { Component, Fragment } from "react";
 import SuperAdminLayout from "../layouts/SuperAdminLayout";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { Card, Form, Button, Modal, ListGroup, InputGroup } from "react-bootstrap";
+import { Card, Form, Button, ListGroup, InputGroup } from "react-bootstrap";
 import {Link} from 'react-router-dom'
 import {getPrograms,
   createProgram} from '../../actions/coordinatorAction';

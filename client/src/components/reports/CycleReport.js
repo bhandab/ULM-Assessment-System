@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { getCycleReport } from "../../actions/reportsAction";
-import { Card,Table } from "react-bootstrap";
+import { Card,Table, Button } from "react-bootstrap";
 
 class CycleReport extends Component {
   componentDidMount() {
@@ -51,14 +51,19 @@ class CycleReport extends Component {
                     <tr key={"measr"+mIndex}>
                         {span ? 
                         <td className="cycRepOutcome" rowSpan={measures.length}>
-                           <strong> {oIndex+1}. {key}</strong>
+                           <strong>{key}</strong>
                         </td>
                         : null}
-                        <td>{oIndex+1}.{mIndex+1}</td>
+                        <td>{measure.measureDisplayID}</td>
                         <td>{measure.evalCount}</td>
                         <td>{measure.successCount}</td>
                         <td className = {measure.measureStatus ? "text-success" : "bg-warning"}>{this.getPercentages(measure.successCount,measure.evalCount)}</td>
                         <td className = {measure.measureStatus ? "text-success" : "bg-warning"}>{measure.measureStatus ? "Satisfied" : "Not Satisfied"}</td>
+                        {span ? 
+                        <td className="cycRepOutcome" rowSpan={measures.length}>
+                           <strong>related courses</strong>
+                        </td>
+                        : null}
                     </tr>
                     )
                     span = false
@@ -72,7 +77,11 @@ class CycleReport extends Component {
 
         <Card>
         <Card.Header>
-        <h2 style={{ textAlign: "center" }}>{cycleName}</h2>
+        <h2 style={{ textAlign: "center" }}>{cycleName}
+        <Button className="float-right noprint" onClick={()=> this.props.history.goBack()}>
+            <i className="fas fa-times"></i>
+            </Button>
+        </h2>
         </Card.Header>
         <Card.Body>
         <Table bordered hover id="cycleReport">
@@ -84,9 +93,10 @@ class CycleReport extends Component {
               <th>Number Meeting Criteria</th>
               <th>% Meeting Criteria</th>
               <th>Result</th>
+              <th>Related Courses</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody key="tbod">
               {tableBody}
           </tbody>
         </Table>
