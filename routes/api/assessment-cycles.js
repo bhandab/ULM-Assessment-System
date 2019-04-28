@@ -381,7 +381,7 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        res.status.json("Cycle Successfully Closed!");
+        res.status(200).json("Cycle Successfully Closed!");
       });
     });
   }
@@ -693,7 +693,7 @@ router.get(
           errors: "Cycle with ID " + cycleID + " Does not Exist!"
         });
       }
-      let isclosed = result[0].endDate ? true : false;
+      let isClosed = result[0].endDate ? true : false;
 
       let sql2 =
         "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +

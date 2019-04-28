@@ -26,7 +26,8 @@ class CycleMeasures extends Component {
     editShow: false,
     deleteShow: false,
     outcomeName: "",
-    outcomeID: null
+    outcomeID: null,
+    isActive: true
   };
 
   componentDidMount() {
@@ -39,6 +40,14 @@ class CycleMeasures extends Component {
 
     let id = this.props.match.params.cycleID;
     this.props.getCycleMeasures(id);
+  }
+
+  componentDidUpdate(prevProps){
+    if(!this.props.cycles.cycleLoading){
+      if(this.props.cycles.cycleMeasures !== prevProps.cycles.cycleMeasures){
+        this.setState({isActive : this.props.cycles.cycleMeasures.isClosed})
+      }
+    }
   }
 
   clickHandler = e => {
@@ -160,7 +169,7 @@ class CycleMeasures extends Component {
                 >
                  {outcome.displayIndex}. {outcome.outcomeName}
                 </Link>
-                { true ?
+                { !this.state.isActive ?
                 <> 
                 <button
                   style={{ border: "none", background: "none" }}
@@ -246,7 +255,7 @@ class CycleMeasures extends Component {
           </Card.Header>
           <Card.Body>
           <ListGroup>{list}</ListGroup>
-          {true ? 
+          {!this.state.isActive? 
           <>
           <Button
             className="btn mt-3 float-right ml-3"

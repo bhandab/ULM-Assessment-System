@@ -28,7 +28,8 @@ class OutcomeMeasures extends Component {
     createMeasuresShow: false,
     toolTypeVal: "",
     testType: "scored",
-    hiddenClass: ""
+    hiddenClass: "",
+    isActive : true
   };
 
   componentDidMount() {
@@ -44,6 +45,14 @@ class OutcomeMeasures extends Component {
     this.props.getOutcomesMeasures(cycleID, outcomeID);
     this.props.getAllRubrics(cycleID, outcomeID);
     this.props.getMeasures();
+  }
+
+  componentDidUpdate(prevProps){
+    if(!this.props.cycles.cycleLoading){
+      if(this.props.cycles.outcomeMeasures !== prevProps.cycles.outcomeMeasures){
+        this.setState({isActive : !this.props.cycles.outcomeMeasures.isClosed})
+      }
+    }
   }
 
   measureAddHandler = e => {
@@ -206,11 +215,11 @@ class OutcomeMeasures extends Component {
                         }
                       >
                          <Button
-                          size="sm"
-                          variant="success"
-                          className="p-2 rounded float-right"
+                          size="lg"
+                          variant="outline-light"
+                          className="rounded float-right"
                         >
-                          <strong>passing</strong>
+                          <Badge pill variant="success">PASSING</Badge>
                         </Button>
                       </Link>
                        
@@ -230,7 +239,7 @@ class OutcomeMeasures extends Component {
                           variant="outline-light"
                           className="float-right rounded"
                         >
-                          <Badge pill variant="danger">failing</Badge>
+                          <Badge pill variant="danger">FAILING&nbsp;</Badge>
                         </Button>
                       </Link>
                        
@@ -403,7 +412,7 @@ class OutcomeMeasures extends Component {
             <div className="accordion" id="assignedMeasure">
               {measures}
             </div>
-            { true ?
+            { this.state.isActive ?
             <> 
             <button
               onClick={this.addMeasuresShow}

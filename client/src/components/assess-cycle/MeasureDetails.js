@@ -92,6 +92,8 @@ class MeasureDetails extends Component {
       if (
         this.props.cycles.measureDetails !== prevProps.cycles.measureDetails
       ) {
+
+
         if (this.props.cycles.measureDetails.toolType === "rubric") {
           this.props.getMeasureRubricReport(measureID);
           this.setState({ toolType: "rubric", scored:true });
@@ -1214,13 +1216,13 @@ class MeasureDetails extends Component {
                 <Card.Body style={{fontSize:'1.4em'}}>
                   <Row>
                   <Col><Badge variant="light">Total Students: {totalStudentNumber}</Badge></Col>
-                  <Col><Badge variant="light">Total Assigned Students: {totalAssignedStudents}</Badge></Col>
-                  <Col><Badge variant="light">Total Unassigned Students: {totalUnassignedStudents}</Badge></Col>
+                  <Col><Badge variant="light">Total Assigned: {totalAssignedStudents}</Badge></Col>
+                  <Col><Badge variant="light">Total Unassigned: {totalUnassignedStudents}</Badge></Col>
                   </Row>
                   <Row>
-                  <Col><Badge variant="light">Total Evaluated Students: {totalEvaluated}</Badge></Col>
-                  <Col><Badge variant="light">Total Students Passing Meaure: {totalPassing}</Badge></Col>
-                  <Col><Badge variant="light">Total Students Failing Measure: {totalFailing}</Badge></Col>
+                  <Col><Badge variant="light">Total Evaluated: {totalEvaluated}</Badge></Col>
+                  <Col><Badge variant="light">Passing Meaure Count: {totalPassing}</Badge></Col>
+                  <Col><Badge variant="light">Failing Measure Count: {totalFailing}</Badge></Col>
                   </Row>
                 </Card.Body>
               </Card>

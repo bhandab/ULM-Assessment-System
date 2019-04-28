@@ -62,6 +62,21 @@ export const cycleMigrate = (cycleName,oldCycleID) => dispatch => {
         }))
 }
 
+export const closeCycle = (cycleID) => dispatch => {
+    axios
+    .post("/api/cycles/closeCycle",{cycleID})
+    .then(() => toastr.success(
+        "Cycle Closed!",
+        "Assessment Cycle Successfully Closed!"
+    ))
+    .then(() => dispatch(getAssessmentCycles()))
+    .catch(err =>
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+        }))
+}
+
 export const linkOutcomeToCycle = (cycleID, outcome) => dispatch => {
     axios
         .post("/api/cycles/" + cycleID + "/addNewOutcome", outcome)
