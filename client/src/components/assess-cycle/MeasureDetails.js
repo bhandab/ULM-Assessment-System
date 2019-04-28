@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { inviteEvaluator } from "../../actions/evaluatorAction";
-import { isEmpty } from "../../utils/isEmpty";
 import Delete from "../../utils/Delete";
 
 import {
@@ -40,7 +39,8 @@ import {
   ListGroup,
   Spinner,
   CardGroup,
-  Alert
+  Alert,
+  Badge
 } from "react-bootstrap";
 
 import CSVFormat from "../../assets/CSVformat";
@@ -60,7 +60,6 @@ class MeasureDetails extends Component {
     toolType: "",
     scored:false,
     statusModal: false,
-    stats: false,
     scoreStudents: false,
     deleteShow: false,
     editShow:false,
@@ -189,13 +188,13 @@ class MeasureDetails extends Component {
     this.setState({ statusModal: false });
   };
 
-  statsShow = () => {
-    this.setState({ stats: true });
-  };
+  // statsShow = () => {
+  //   this.setState({ stats: true });
+  // };
 
-  statsHide = () => {
-    this.setState({ stats: false });
-  };
+  // statsHide = () => {
+  //   this.setState({ stats: false });
+  // };
 
   scoreStudentsShow = () => {
     this.setState({ scoreStudents: true });
@@ -319,7 +318,6 @@ class MeasureDetails extends Component {
   };
 
   updateTestScore = e => {
-    const measureID = this.props.match.params.measureID
     const testType = this.props.cycles.measureDetails.projectedResult
     const studentID = e.target.dataset.id
     let testScore = null
@@ -414,6 +412,17 @@ class MeasureDetails extends Component {
     let notAssignOption = []
     let measureReport = [];
     let evaluatorOptions = [];
+    let statusModal = null;
+    let status = null;
+    let stats = null;
+    let scoreModal = null;
+    let evalStudents = []
+    let totalStudentNumber = 0;
+    let totalAssignedStudents = 0;
+    let totalUnassignedStudents = 0;
+    let totalEvaluated = 0;
+    let totalPassing = 0;
+    let totalFailing = 0;
     let progressBar = (
       <Fragment>
         <Spinner animation="grow" variant="primary" />
@@ -421,12 +430,6 @@ class MeasureDetails extends Component {
         <Spinner animation="grow" variant="success" />
       </Fragment>
     );
-    let statusModal = null;
-    let status = null;
-    let statusBtn = null;
-    let stats = null;
-    let scoreModal = null;
-    let evalStudents = []
 
     if (
       this.props.cycles.measureDetails !== null &&
@@ -486,6 +489,10 @@ class MeasureDetails extends Component {
       ) {
         let totalStudents = this.props.cycles.measureStudents.students.length;
 
+        totalStudentNumber = totalStudents
+        totalUnassignedStudents = this.props.cycles.measureStudents.notAssignedStudents.length
+        totalAssignedStudents = totalStudentNumber - totalUnassignedStudents
+
         notAssignOption = this.props.cycles.measureStudents.notAssignedStudents.map((student,index) => {
           return (
               <option key={"notAssgd"+ index} value={student.studentID}>
@@ -536,11 +543,11 @@ class MeasureDetails extends Component {
             this.props.cycles.measureReport !== undefined &&
             this.props.cycles.measureReport.results !== undefined
           ) {
+
+            totalEvaluated = this.props.cycles.measureReport.results.length
+
             let passScore = this.props.cycles.measureReport.threshold;
-            let benchmarkPer = this.props.cycles.measureDetails
-              .projectedStudentNumber;
-            let passingCount = this.props.cycles.measureReport.passingCounts
-              .averageScore;
+            let benchmarkPer = this.props.cycles.measureDetails.projectedStudentNumber;
             let results = this.props.cycles.measureReport.results;
             let passPer = 0
             if(this.props.cycles.measureReport.passingPercentages !== undefined){
@@ -575,15 +582,6 @@ class MeasureDetails extends Component {
                 </h3>
               );
             }
-            statusBtn = (
-              <Button
-                variant="outline-info"
-                className="float-right mt-2 mb-2"
-                onClick={this.statsShow}
-              >
-                <i className="fas fa-ellipsis-v" />
-              </Button>
-            );
 
             progressBar = (
               <ProgressBar>
@@ -674,6 +672,8 @@ class MeasureDetails extends Component {
                 </Modal.Footer>
               </Modal>
             );
+            totalPassing = passed.length
+            totalFailing = failed.length
           }
         }
 
@@ -845,6 +845,10 @@ class MeasureDetails extends Component {
                 </ListGroup.Item>
               );
             })
+
+            totalEvaluated = evaluated.length
+            totalPassing = passed.length
+            totalFailing = failed.length
 
 
             statusModal = (
@@ -1105,7 +1109,6 @@ class MeasureDetails extends Component {
               >
                 {status}
               </Button>
-              {statusBtn}
               {progressBar}
               {statusModal}
               {stats}
@@ -1113,7 +1116,7 @@ class MeasureDetails extends Component {
 
             <Fragment>
               <CardGroup>
-              <Card style={{ width: "30%", height: "20em", float: "left" }}>
+              <Card>
                 <Card.Header>
                   <h3>
                     Evaluators 
@@ -1146,7 +1149,7 @@ class MeasureDetails extends Component {
                 </Card.Body>
               </Card>
 
-              <Card style={{ width: "30%", height: "20em" }}>
+              <Card>
                 <Card.Header>
                   <h3>
                     Students
@@ -1181,6 +1184,18 @@ class MeasureDetails extends Component {
                 </Card.Body>
               </Card>
               </CardGroup>
+              <Card className="mt-2">
+                <Card.Header style= {{textAlign:"center"}}><h4>Measure Statistics</h4></Card.Header>
+                <Card.Body style={{fontSize:'1.4em'}}>
+                  <Badge variant="light">Total Students: {totalStudentNumber}</Badge>
+                  <Badge variant="light" className="ml-2">Total Assigned Students: {totalAssignedStudents}</Badge>
+                  <Badge variant="light" className="ml-2">Total Unassigned Students: {totalUnassignedStudents}</Badge>
+                  <Badge variant="light" className="ml-2">Total Evaluated Students: {totalEvaluated}</Badge>
+                  <Badge variant="light" className="ml-2">Total Students Passing Meaure: {totalPassing}</Badge>
+                  <Badge variant="light" className="ml-2">Total Students Failing Measure: {totalFailing}</Badge>
+                  
+                </Card.Body>
+              </Card>
             </Fragment>
 
             {typeTest ? (

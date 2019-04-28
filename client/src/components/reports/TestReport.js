@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux";
 import { getMeasureTestReport } from "../../actions/assessmentCycleAction";
-import { isEmpty } from "../../utils/isEmpty";
 import PropTypes from "prop-types";
 import {Card, Table, Button} from 'react-bootstrap'
 
@@ -57,6 +56,9 @@ import {Card, Table, Button} from 'react-bootstrap'
               );
             }
           );
+          body.push(<tr key="testPassing"><td colSpan="5" >Passing Count: {this.props.cycles.measureReport.passingCounts}</td></tr>)
+          body.push(<tr  key="passPer"><td  colSpan="5">Passing Percentage: {this.props.cycles.measureReport.passingPercentage}%</td></tr>)
+
           measureReport.push(<tbody key="testBody">{body}</tbody>);
           measureReport = (
             <Table id = "measureTestReport" striped bordered hover>

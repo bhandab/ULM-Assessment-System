@@ -318,7 +318,6 @@ class Evaluate extends Component {
       let initScore = student.testScore;
       let initStatus = student.testScoreStatus;
       // console.log(initStatus)
-      let initValue = 0
       if (student.projectedResult !== null) {
         if (initScore === null) {
           initScore = 0;
@@ -397,7 +396,6 @@ class Evaluate extends Component {
   };
 
   createScoreTable = () => {
-    const scores = this.props.evaluations.testScores.scores;
     const scoreTable = (
       <Card>
         <Card.Header>
