@@ -242,7 +242,10 @@ export const deleteOutcome = (cycleID, outcomeID) => dispatch => {
         ))
         .then(() => dispatch(getCycleMeasures(cycleID)))
         .catch(err => {
-            // console.log(err)
+            const message = (err.response.data.measureExistingInsideOutcome)
+            toastr.error(
+                "Delete Fail!",
+                message)
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data

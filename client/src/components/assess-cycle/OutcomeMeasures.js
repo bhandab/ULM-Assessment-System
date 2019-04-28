@@ -154,6 +154,7 @@ class OutcomeMeasures extends Component {
 
   render() {
     // console.log(this.props)
+    console.log(window.location.hash.substr(1))
     let totalStudents = 0;
     let measures = <Spinner animation="border" variant="primary" />;
     let measureTitle = null;
@@ -189,7 +190,7 @@ class OutcomeMeasures extends Component {
                         onClick={this.measureTitleClick.bind(this)}
                         style={{ fontSize: "1.2em", color: "#800000" }}
                       >
-                        {measure.measureName}
+                       {measure.displayIndex}. {measure.measureName}
                       </button>
                       {measure.measureStatus ? (
                         <Link
@@ -387,9 +388,12 @@ class OutcomeMeasures extends Component {
             <h2>
               {measureTitle}
               <Link
-                to={`/admin/cycles/cycle/${
+                to={{
+                  pathname: `/admin/cycles/cycle/${
                   this.props.match.params.cycleID
-                }/outcome/${this.props.match.params.outcomeID}/report`}
+                }/outcome/${this.props.match.params.outcomeID}/report`,
+                hash: window.location.hash
+              }}
               >
                 <button
                   size="lg"
@@ -405,6 +409,8 @@ class OutcomeMeasures extends Component {
             <div className="accordion" id="assignedMeasure">
               {measures}
             </div>
+            { true ?
+            <> 
             <button
               onClick={this.addMeasuresShow}
               className="btn btn-primary  ml-3 float-right mt-3"
@@ -417,6 +423,8 @@ class OutcomeMeasures extends Component {
             >
               Create Measure
             </button>
+            </>
+            : null}
           </Card.Body>
         </Card>
 

@@ -304,15 +304,16 @@ main ol li ol {
 }
 
 #gotoUpload{
-  border: 1px solid rgb(233, 236, 239);
-  padding: 2px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  padding: 3px;
   border-radius: 5%;
   background: rgba(233, 236, 239,.5);
 }
 
+
 #gotoUpload:hover{
   cursor: pointer;
-  background: rgba(233, 236, 239,1)
+  background: rgba(233, 236, 239,1);
 }
 
 
@@ -480,6 +481,9 @@ button.outcome.btn.btn-link{
   color: #400;
 } 
 
+input[type=radio]{
+  zoom: 1.4;
+}
 
 /* Evaluate CSS**/
 #assignedRubric{
@@ -609,8 +613,41 @@ input[type=checkbox] {
   font-size: 1.6em;
 }
 
+/** Assign student to eval modal*/
+#assgStudToEval.modal-header h4 {
+  font-size: 1.5em;
+  margin-left: 25% !important;
+  font-weight: bold;
+  color: #600;
 
+}
 
+#assgStudToEval.modal-header{
+  background: rgba(0, 0, 0, 0.03);
+  margin-left: 0 !important;
+}
+
+#studSelect {
+  width: 100%;
+  min-height: 150px;
+  font-size: 1.3em;
+  max-height: 200px;
+  overflow: auto;
+  
+}
+
+#evalSelect {
+  max-height: 200px;
+  overflow: auto;
+} 
+
+#addEval.card-header h3 {
+  color: #600;
+}
+
+.ml-3 .mt-2 .modal-title.h4{
+  color: #600;
+}
 
 
 @media screen and (min-width: 375px){

@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { getMeasureRubricReport } from "../../actions/assessmentCycleAction";
 import { isEmpty } from "../../utils/isEmpty";
 import PropTypes from "prop-types";
-import {Card, Table} from 'react-bootstrap'
+import {Card, Table, Button} from 'react-bootstrap'
 
 class MeasureReport extends Component {
   componentDidMount() {
@@ -142,7 +142,11 @@ class MeasureReport extends Component {
       measureReport = (
         
           <Card>
-            <Card.Header style={{textAlign:'center'}}><h3>Measure Report</h3></Card.Header>
+            <Card.Header style={{textAlign:'center'}}><h2>Measure Report
+            <Button className="float-right noprint" onClick={()=> this.props.history.goBack()}>
+            <i className="fas fa-times"></i>
+            </Button>
+            </h2></Card.Header>
             <Card.Body>
             <Table id="measureReport" striped bordered key="reportTable">
               {measureReport}

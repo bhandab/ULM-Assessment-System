@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {getOutcomesMeasures} from '../../actions/assessmentCycleAction';
-import {CardGroup, Card, ListGroup} from 'react-bootstrap'
+import {Card, Button} from 'react-bootstrap'
 
  class OutcomeReport extends Component {
 
@@ -28,9 +28,11 @@ import {CardGroup, Card, ListGroup} from 'react-bootstrap'
 
   render() {
 
+    console.log(this.props)
     let outcomeTitle = null
     let measures = null
     let courseSet = []
+    let disIndex = window.location.hash.substr(1)
 
 
     if(!this.props.cycles.cycleLoading){
@@ -46,7 +48,7 @@ import {CardGroup, Card, ListGroup} from 'react-bootstrap'
        measures =  
        <div style={{color:"black"}}>
             <Card >
-                <Card.Header style={{textAlign:"center"}}><h2>Outcome {outcomeMeasures.outcomeID}</h2></Card.Header>
+                <Card.Header style={{textAlign:"center"}}><h2>Outcome {disIndex}</h2></Card.Header>
                 <Card.Body>
                    <h3> {outcomeTitle} </h3>
                 </Card.Body>
@@ -69,10 +71,13 @@ import {CardGroup, Card, ListGroup} from 'react-bootstrap'
                 return (
                     <Card>
                         <Card.Header>
-                            <h3>
-                        {outcomeMeasures.outcomeID}.{index+1}
+                            <h2>
+                        {disIndex}.{measure.displayIndex}
                         &nbsp;{measure.measureName}
-                         </h3>
+                        <Button className="float-right noprint" onClick={()=> this.props.history.goBack()}>
+            <i className="fas fa-times"></i>
+            </Button>
+                         </h2>
                         </Card.Header>
                         <Card.Body>
                             <strong>
