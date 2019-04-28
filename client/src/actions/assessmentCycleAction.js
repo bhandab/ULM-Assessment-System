@@ -444,6 +444,10 @@ export const getAssignedStudents = (measureID) => dispatch => {
 export const assignStudentsToMeasure = (measureID, body) => dispatch => {
     axios
         .post("/api/cycles/" + measureID + "/assign",body)
+        .then(() => toastr.success(
+            "Student(s) Assigned!",
+            "Student Successfully Assigned To Measure Evaluator!"
+        ))
         .then(() => dispatch(getAssignedStudents(measureID)))
         .then(()=> dispatch(getStudentsOfMeasure(measureID)))
         .catch(err => {

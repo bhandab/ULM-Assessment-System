@@ -2,16 +2,19 @@ import React, { Component, Fragment } from "react";
 import SuperAdminLayout from "../layouts/SuperAdminLayout";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { Card, Form, Button, ListGroup, InputGroup } from "react-bootstrap";
+import { Card, Form, Button, ListGroup, InputGroup, ListGroupItem} from "react-bootstrap";
 import {Link} from 'react-router-dom'
 import {getPrograms,
-  createProgram} from '../../actions/coordinatorAction';
+  createProgram,
+updateProgram} from '../../actions/coordinatorAction';
 import {isEmpty} from '../../utils/isEmpty'
 
 class SuperAdmin extends Component {
 
     state = {
-        createProgram : false
+        createProgram : false,
+        programID: '',
+        updateShow: false
     }
 
     componentDidMount(){
@@ -58,18 +61,58 @@ class SuperAdmin extends Component {
       this.props.createProgram(body)
       this.setState({createProgram:false})
     }
-  render() {
 
+    updateProgram = e => {
+      e.preventDefault();
+      const body = {
+        programName: e.target.programName.value,
+        programID: this.state.programID
+      }
+
+      this.props.updateProgram(body)
+      this.setState({updateShow:false, programID:""})
+      console.log(body)
+    }
+
+  render() {
+    console.log(this.props)
       let programs = []
 
       if (this.props.coordinators.programs !== null && 
         this.props.coordinators.programs !== undefined){
           programs = this.props.coordinators.programs.map(program => {
+
+            if(this.state.updateShow && this.state.programID === program.programID){
+              return (<ListGroupItem key={program.programID}> 
+                    <Form onSubmit={this.updateProgram.bind(this)}>
+                    <div className="row">
+                  <InputGroup className="col-8">
+                    <InputGroup.Append>
+                    <InputGroup.Text id="basic-addon15">Program Name</InputGroup.Text>
+                    </InputGroup.Append>
+                    <Form.Control placeholder={program.programName} name="programName"/>
+                  </InputGroup>
+                  <Button type="submit" variant="success"><i className="fas fa-check"></i></Button>
+                  <Button variant="danger" onClick={()=>this.setState({updateShow:false,programID:""})}><i className="fas fa-times"></i></Button>
+                  </div>
+                    </Form>
+                 </ListGroupItem>)
+            }
+            else {
             return(
-              <Link to={`superuser/programs/${program.programID}`} key={program.programID}>
-              <ListGroup.Item >{program.programName}</ListGroup.Item>
-              </Link>
+              <ListGroup.Item key={program.programID}>
+                <Link to={`superuser/programs/${program.programID}`} key={program.programID}>{program.programName}
+                </Link>
+                
+               <button
+               style={{ border: "none", background: "none" }}
+               onClick={()=>this.setState({updateShow:true, programID:program.programID})}
+               className="outcome-edit float-right"
+             />
+                </ListGroup.Item>
+              
             )
+            }
           })
         }
 
@@ -79,8 +122,8 @@ class SuperAdmin extends Component {
         <main id="main" className="m-5">
           <section className="panel important m-5">
           <Card>
-            <Card.Header><h2 style={{textAlign:'center'}}>Programs <button className="float-right"
-            onClick={this.createProgramShow}><i className="far fa-plus"></i></button></h2></Card.Header>
+            <Card.Header><h2 style={{textAlign:'center'}}>Programs <Button className="float-right"
+            onClick={this.createProgramShow}><i className="fas fa-plus"></i></Button></h2></Card.Header>
             <Card.Body>
               <ListGroup>
               {programs}
@@ -128,5 +171,6 @@ const MapStateToProps = state => ({
 
 export default connect(MapStateToProps,
     {getPrograms,
-    createProgram
+    createProgram,
+    updateProgram
   })(SuperAdmin);

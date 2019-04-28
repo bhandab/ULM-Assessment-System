@@ -19,6 +19,7 @@ import CycleReport from '../reports/CycleReport';
 import RubricReport from '../reports/RubricReport';
 import TestReport from '../reports/TestReport';
 import PastCycles from '../contents/PastCycles';
+import Dashboard from '../dashboard/Dashboard';
 
 
 class Admin extends Component {
@@ -54,6 +55,7 @@ class Admin extends Component {
                         <Route exact path='/admin/cycles/cycle/:cycleID(\d+)' component={CycleMeasures} />
                         <Route exact path='/admin/cycles' component={AssessmentCycle} />
                         <Route exact path='/admin/pastCycles' component={PastCycles} />
+                        <Route exact path='/admin/dashboard' component={Dashboard} />
                     </Switch>
 
                 </main>

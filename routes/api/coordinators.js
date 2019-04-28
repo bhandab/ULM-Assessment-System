@@ -117,6 +117,7 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let invitedCoordinators = [];
+    let programID = req.params.programID
     let sql =
       "SELECT * FROM INVITED_COORDINATOR WHERE programID=" +
       db.escape(req.params.programID);
@@ -127,7 +128,7 @@ router.get(
       result.forEach(row => {
         invitedCoordinators.push(row.invitedCorEmail);
       });
-      return res.status(200).json(invitedCoordinators);
+      return res.status(200).json({programID,invitedCoordinators});
     });
   }
 );

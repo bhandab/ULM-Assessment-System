@@ -1,3 +1,4 @@
+
 body {
   margin: 0;
   padding: 0;
@@ -6,6 +7,16 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+
+
+  box-sizing: border-box;
+  background:linear-gradient( rgba(255,255,255,0.7) ,rgba(255,255,255,0.7),rgba(255,255,255,0.7)) no-repeat center center fixed, 
+  url("https://bestcounselingdegrees.azureedge.net/wp-content/uploads/2015/02/University-of-Louisiana-at-Monroe-online-counseling-graduate-degree.jpg") no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
 
 code {
@@ -13,4 +24,15 @@ code {
     monospace;
 }
 
+.jumbotron{
+  margin-bottom: 0;
+  /* padding: 50px !important; */
+}
 
+#coordCard.panel.important{
+  background: none;
+}
+
+#cHeaderDiv{
+  background: white !important;
+}

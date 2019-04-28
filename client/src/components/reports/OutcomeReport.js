@@ -48,7 +48,10 @@ import {Card, Button} from 'react-bootstrap'
        measures =  
        <div style={{color:"black"}}>
             <Card >
-                <Card.Header style={{textAlign:"center"}}><h2>Outcome {disIndex}</h2></Card.Header>
+                <Card.Header style={{textAlign:"center"}}><h2>Outcome {disIndex}
+                <Button className="float-right noprint" onClick={()=> this.props.history.goBack()}>
+            <i className="fas fa-times"></i>
+            </Button></h2></Card.Header>
                 <Card.Body>
                    <h3> {outcomeTitle} </h3>
                 </Card.Body>
@@ -74,9 +77,6 @@ import {Card, Button} from 'react-bootstrap'
                             <h2>
                         {disIndex}.{measure.displayIndex}
                         &nbsp;{measure.measureName}
-                        <Button className="float-right noprint" onClick={()=> this.props.history.goBack()}>
-            <i className="fas fa-times"></i>
-            </Button>
                          </h2>
                         </Card.Header>
                         <Card.Body>

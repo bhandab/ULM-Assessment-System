@@ -29,7 +29,7 @@ class OutcomeMeasures extends Component {
     toolTypeVal: "",
     testType: "scored",
     hiddenClass: "",
-    isActive : true
+    isActive : false
   };
 
   componentDidMount() {
@@ -71,7 +71,7 @@ class OutcomeMeasures extends Component {
       studentNumberOperator: measure.studentNumberScale
     };
     this.props.linkMeasureToOutcome(
-      this.propsmatch.params.cycleID,
+      this.props.match.params.cycleID,
       this.props.match.params.outcomeID,
       measureDetails
     );
@@ -386,6 +386,7 @@ class OutcomeMeasures extends Component {
                             </div>
                         </div>
                     </div> */}
+                    <section className="panel important border border-info rounded p-3">
         <Card>
           <Card.Header>
             <h2>
@@ -430,7 +431,7 @@ class OutcomeMeasures extends Component {
             : null}
           </Card.Body>
         </Card>
-
+        </section>
         <Modal
           aria-labelledby="contained-modal-title-vcenter"
           centered

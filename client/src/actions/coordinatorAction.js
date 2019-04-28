@@ -34,6 +34,22 @@ export const deleteCoordinator = (body,programID) => dispatch => {
     );
 }
 
+export const uninviteCoordinator = (programID,body) => dispatch => {
+    axios
+    .post ("/api/coordinators/deleteInvitedCoordinator",body)
+    .then(() => toastr.success(
+        "Coordinator Invitation Cancelled!",
+        "Program Coordinator Successfully Uninvited!"
+    ))
+    .then (()=> dispatch(getInvitedCoordinators(programID)))
+    .catch(err =>
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+        })
+    );
+}
+
 export const getInvitedCoordinators = (programID) => dispatch => {
     console.log(programID)
     axios
@@ -100,6 +116,25 @@ export const createProgram = (progName) => dispatch => {
     .then(() => toastr.success(
         "Program Created!",
         "New Assessment Program Successfully Deleted!"
+    ))
+    .then(()=> dispatch(getPrograms()))
+    .catch(err => {
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+
+        }
+        )
+    })
+
+}
+
+export const updateProgram = (body) => dispatch => {
+    axios
+    .post("/api/coordinators/updateProgram",body)
+    .then(() => toastr.success(
+        "Program Updated!",
+        "Assessment Program Successfully Updated!"
     ))
     .then(()=> dispatch(getPrograms()))
     .catch(err => {

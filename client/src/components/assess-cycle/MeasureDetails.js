@@ -68,7 +68,8 @@ class MeasureDetails extends Component {
     evalStudents:false,
     evalAssgStudents: [],
     notAssgd: false,
-    notAssignOption:[]
+    notAssignOption:[],
+    isActive: false
   };
 
   componentDidMount() {
@@ -93,7 +94,7 @@ class MeasureDetails extends Component {
         this.props.cycles.measureDetails !== prevProps.cycles.measureDetails
       ) {
 
-
+        this.setState({isActive : !this.props.cycles.measureDetails.isClosed})
         if (this.props.cycles.measureDetails.toolType === "rubric") {
           this.props.getMeasureRubricReport(measureID);
           this.setState({ toolType: "rubric", scored:true });
@@ -471,7 +472,7 @@ class MeasureDetails extends Component {
             return (
               <li key={evaluator.measureEvalID} className="list-group-item">
                 <span id="evalName" data-val={evaluator.measureEvalID} value={evaluator.measureEvalID} onClick={(e)=>evalStudentsHandler(e)}>{evaluator.name}</span>
-                {true ?
+                {this.state.isActive ?
                 <button
                 value = {evaluator.measureEvalID}
               style={{ border: "none", background: "none" }}
@@ -522,7 +523,7 @@ class MeasureDetails extends Component {
                   <li className="p-0">{student.name}{" "}
                   {/* <li>Email: ({student.email})</li>{" "}
                     <li>CWID: {student.CWID}</li> */}
-                    { true ?
+                    { this.state.isActive ?
                      <button
                 value = {student.studentID}
               style={{ border: "none", background: "none" }}
@@ -1046,7 +1047,7 @@ class MeasureDetails extends Component {
             <p id="measure-title-label">Measure Title</p>
             <h4 id="measure-title">
               {measureTitle}
-              {true ?
+              {this.state.isActive ?
               <>
               <button
               style={{ border: "none", background: "none" }}
@@ -1148,7 +1149,7 @@ class MeasureDetails extends Component {
                   <h3>
                     Evaluators 
                     <span style={{fontSize:'.5em'}} className=" ml-5 boder rounded p-1 text-dark bg-warning">Click on name to view students</span>
-                    { true ? 
+                    { this.state.isActive ? 
                     <Button
                       data-toggle="tooltip"
                       data-placement="right"
@@ -1164,7 +1165,7 @@ class MeasureDetails extends Component {
                 </Card.Header>
                 <Card.Body className="mb-1 pt-1">
                   <ol className="list-group measureCard">{evaluatorList}</ol>
-                      { true ? 
+                      { this.state.isActive ? 
                   <Button
                     className="mt-2"
                     onClick={this.assignStudShow}
@@ -1180,7 +1181,7 @@ class MeasureDetails extends Component {
                 <Card.Header>
                   <h3>
                     Students
-                    { true ?
+                    { this.state.isActive ?
                     <Button
                       data-toggle="tooltip"
                       data-placement="right"
@@ -1196,7 +1197,7 @@ class MeasureDetails extends Component {
                 </Card.Header>
                 <Card.Body className="mb-1 pt-1">
                   <ol className="list-group measureCard">{studentList}</ol>
-                  {this.state.toolType === "test" ? (
+                  {this.state.toolType === "test" && this.state.isActive ? (
                     <Button
                       data-toggle="tooltip"
                       className="mt-2 mb-3 float-right"
