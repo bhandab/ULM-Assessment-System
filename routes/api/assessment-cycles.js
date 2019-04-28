@@ -2186,7 +2186,7 @@ router.get(
               indResult["class"] = row.courseAssociated;
               indResult["studentName"] =
                 row.studentLastName + ", " + row.studentFirstName;
-              indResult["evalName"] = row.evalName;
+              indResult["evalName"] = row.evalLastName+", "+ row.evalFirstName;
               indResult[row.criteriaDesc] = Math.round(
                 row.criteriaScore / row.criteriaWeight
               );
