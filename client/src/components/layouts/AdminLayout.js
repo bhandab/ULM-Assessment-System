@@ -3,6 +3,8 @@ import { NavLink, Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { logoutUser } from "../../actions/authActions";
+import Logo from '../../assets/warhawk-logo.png';
+// let logo = require('../../assets/')
 
 import "./Style.css";
 
@@ -26,7 +28,6 @@ class AdminLayout extends Component {
     this.props.logoutUser();
   };
 
-  
     /* Set the width of the side navigation to 250px and the left margin of the page content to 250px */
 openNav = () => {
   if(!this.state.sidebar){
@@ -76,22 +77,23 @@ openNav = () => {
           </ul>
         </header>
         <div id="mySidebar" className="sidebar noprint">
+        <img className = "ml-3" style={{height: '100px', width: '200px'}}src= {Logo}/>
             {/* <a href="javascript:void(0)" className="closebtn" onClick={this.closeNav}>&times;</a> */}
            <ul className="bordered m-3"style={{backgroundColor:'white'}}>
             <li className="dashboard">
-              <NavLink to="/admin/cycles">Dashboard</NavLink>
+              <NavLink to="/admin/cycles"><i className="fas fa-chalkboard"></i>Dashboard</NavLink>
             </li>
             <li className="assess-cycle">
-              <NavLink to="/admin/cycles">Assessment Cycle</NavLink>
+              <NavLink to="/admin/cycles"><i className="fas fa-recycle "></i>Assessment Cycle</NavLink>
             </li>
             <li className="rubrics">
-              <NavLink to="/admin/rubrics">Rubrics</NavLink>
+              <NavLink to="/admin/rubrics"><i className="fas fa-th"></i>Rubrics</NavLink>
             </li>
             <li className="evaluators">
-            <NavLink to="/admin/evaluators">Evaluators</NavLink>
+            <NavLink to="/admin/evaluators"><i className="fas fa-user-tie"></i>Evaluators</NavLink>
             </li>
             <li className="pastCycles">
-            <NavLink to="/admin/pastCycles">Past Cycles</NavLink>
+            <NavLink to="/admin/pastCycles"><i className="fas fa-fast-backward"></i>Past Cycles</NavLink>
             </li>
             </ul>
           </div>
