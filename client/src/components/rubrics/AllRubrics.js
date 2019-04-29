@@ -35,7 +35,6 @@ class AllRubrics extends Component {
     e.preventDefault();
 
     /*let scaleInfo = []
-
         for(let i = 0; i < this.state.scaleInfo.length; i++){
             const scaleDescName = `scaleDesc${i+1}`
             const scaleValName = `scaleValue${(i+1)}`
@@ -74,7 +73,6 @@ class AllRubrics extends Component {
         console.log(e.target.parent)
         const cols = e.target.value
         for(let i = 0; i < cols; i++){
-
         }
     }*/
 
@@ -153,7 +151,7 @@ class AllRubrics extends Component {
               <Button
                 variant="primary"
                 onClick={this.handleRubricCreateShow}
-                className="float-right"
+                className="float-left mb-3"
               >
                 Create New Rubric
               </Button>

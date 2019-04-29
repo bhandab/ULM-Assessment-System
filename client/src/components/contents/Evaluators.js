@@ -2,7 +2,10 @@ import React, { Component } from "react";
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Form, Card, CardGroup, Button, Modal, InputGroup, ListGroup} from 'react-bootstrap';
-import { getRegisteredEvaluators, getInvitedEvaluators, inviteEvaluator} from '../../actions/evaluatorAction';
+import { getRegisteredEvaluators,
+     getInvitedEvaluators, 
+     inviteEvaluator,
+     unInviteEvaluator} from '../../actions/evaluatorAction';
 
 
 class Evaluators extends Component {
@@ -33,14 +36,18 @@ class Evaluators extends Component {
         this.setState({invite:false})
     }
 
-    render() {
+    uninviteEval = e => {
+        this.props.unInviteEvaluator(e.target.value)
+    }
 
+    render() {
+        console.log(this.props)
         let evaluatorsList = null
 
         if (this.props.evaluator.evaluators !== null) {
             evaluatorsList = this.props.evaluator.evaluators.evaluators.map((item, index) => {
                 return (
-                    <ListGroup id="ev-invited" key={index}>{item.name} ({item.email})</ListGroup>
+                    <ListGroup.Item key={index}>{item.name} ({item.email})</ListGroup.Item>
                 )
             })
         }
@@ -49,7 +56,14 @@ class Evaluators extends Component {
         if (this.props.evaluator.invitedEvaluators !== null) {
             invitedList = this.props.evaluator.invitedEvaluators.invitedEvaluators.map((item, index) => {
                 return (
-                    <ListGroup key={index}>{item}</ListGroup>
+                    <ListGroup.Item key={index}>{item}
+                    <button
+              style={{ border: "none", background: "none" }}
+              value={item}
+              onClick={this.uninviteEval.bind(this)}
+              className="delete float-right"
+            />
+                    </ListGroup.Item>
                 )
             })
 
@@ -65,9 +79,9 @@ class Evaluators extends Component {
                 <Card style={{ width: '30rem', float: "left"}}>
                 <Card.Header style={{textAlign:'center'}}><h4>Registered Evaluators</h4></Card.Header>
                     <Card.Body>
-                        <ListGroup.Item id="ev-list">
+                        <ListGroup>
                             {evaluatorsList}
-                        </ListGroup.Item>
+                        </ListGroup>
                         <Button variant="primary" className="float-right mt-3" onClick={this.inviteShow}>Invite Evaluators</Button>
                     </Card.Body>
                 </Card>
@@ -76,9 +90,10 @@ class Evaluators extends Component {
                 <Card.Header style={{textAlign:'center'}}><h4>Invited Evaluators</h4></Card.Header>
                     <Card.Body>
                         
-                        <ListGroup.Item className="list-group">
+                        <ListGroup className="list-group">
                             {invitedList}
-                        </ListGroup.Item>
+                            
+                        </ListGroup>
                     </Card.Body>
                 </Card>
                 </CardGroup>
@@ -129,4 +144,8 @@ const MapStateToProps = state => ({
     errors: state.errors
 })
 
-export default connect(MapStateToProps, { getRegisteredEvaluators, getInvitedEvaluators, inviteEvaluator })(Evaluators)
+export default connect(MapStateToProps, 
+    { getRegisteredEvaluators, 
+        getInvitedEvaluators, 
+        inviteEvaluator,
+    unInviteEvaluator })(Evaluators)

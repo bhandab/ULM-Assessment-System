@@ -347,6 +347,7 @@ class MeasureDetails extends Component {
     let rubricID = this.props.cycles.measureDetails.toolID;
     if(toolType === "rubric"){
     body = {
+      evalID,
       studentIDs,
       rubricID,
       measureEvalID
