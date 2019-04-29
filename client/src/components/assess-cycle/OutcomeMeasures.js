@@ -282,7 +282,7 @@ class OutcomeMeasures extends Component {
                             }
                           >
                             <Button className="mt-2 float-right">
-                              Go Into Details
+                              View Details
                             </Button>
                           </Link>
                         </Card.Body>

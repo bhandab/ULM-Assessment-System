@@ -265,8 +265,8 @@ router.post(
   (req, res) => {
     let sql =
       "SELECT * from EVALUATOR WHERE isActive=true AND evalEmail=" +
-      db.escape(email);
-
+      db.escape(req.user.email);
+    let errors = {}
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -275,7 +275,7 @@ router.post(
       //User email and password exists
       else if (result.length > 0) {
         const payload = {
-          email,
+          email:req.user.email,
           name: result[0].evalFirstName + " " + result[0].evalLastName,
           id: result[0].evalID,
           role: "evaluator"

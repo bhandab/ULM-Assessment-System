@@ -2,7 +2,8 @@ import React, { Component, Fragment } from "react";
 import { NavLink, Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { logoutUser } from "../../actions/authActions";
+import { logoutUser, loginAsEval } from "../../actions/authActions";
+import {Button} from 'react-bootstrap'
 
 import "./Style.css";
 
@@ -25,6 +26,11 @@ class AdminLayout extends Component {
     console.log("Logout user!");
     this.props.logoutUser();
   };
+
+  actAsEval = () => {
+    console.log("clicked")
+    this.props.loginAsEval()
+  }
 
   
     /* Set the width of the side navigation to 250px and the left margin of the page content to 250px */
@@ -62,6 +68,9 @@ openNav = () => {
            <span className="ml-3 mt-5"><strong>Coordinator</strong></span>
         </h1>
           <ul className="utilities">
+            <li className="mr-5">
+              <Button onClick={this.actAsEval}>Evaluator</Button>
+            </li>
             <li className="users">
               <Link to="/admin/profile">{this.props.auth.user.name}</Link>
             </li>
@@ -98,7 +107,8 @@ openNav = () => {
 
 AdminLayout.propTypes = {
   logoutUser: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired
+  auth: PropTypes.object.isRequired,
+  loginAsEval: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
@@ -107,5 +117,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { logoutUser }
+  { logoutUser, loginAsEval }
 )(AdminLayout);
