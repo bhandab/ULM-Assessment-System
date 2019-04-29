@@ -4,9 +4,10 @@ import AdminLayout from '../layouts/SuperAdminLayout'
 import {getInvitedCoordinators,
    getRegisteredCoordinators, 
    inviteCoordinator,
-  deleteCoordinator  
+  deleteCoordinator,
+  uninviteCoordinator  
   } from '../../actions/coordinatorAction'
-import {ListGroup, Card, Modal, Form, Button, InputGroup} from 'react-bootstrap'
+import {ListGroup, Card, Modal, Form, Button, InputGroup, CardGroup, Badge} from 'react-bootstrap'
 import {isEmpty} from '../../utils/isEmpty'
 import Delete from "../../utils/Delete";
 
@@ -36,13 +37,6 @@ class ProgramCoordinators extends Component {
     }
     this.props.inviteCoordinator(body)
     this.setState({coorInvite:false})
-    if(isEmpty(this.props.errors) === false){
-        window.alert("Coordinator successfully invited")
-
-    }
-    else{
-        window.alert(this.props.errors.errors)
-    }
 }
 
 coorInviteShow = () => {
@@ -70,6 +64,12 @@ deleteHide = () => {
 corDeleteHandler = () => {
   console.log(this.state)
   this.props.deleteCoordinator({cordID:this.state.corID},this.props.match.params.programID)
+}
+
+unInvite = e => {
+  console.log(e.target.name)
+  console.log(e.target.value)
+  this.props.uninviteCoordinator(e.target.value,{corEmail:e.target.name})
 }
 
   
@@ -119,7 +119,7 @@ corDeleteHandler = () => {
         
         if(this.props.coordinators.invitedCoordinators !== null &&
           this.props.coordinators.invitedCoordinators !== undefined){
-            let array = this.props.coordinators.invitedCoordinators
+            let array = this.props.coordinators.invitedCoordinators.invitedCoordinators
             if(array.length > 0){
             invitedCoordinators = array.map((coordinator,index) => {
               return (
@@ -127,6 +127,13 @@ corDeleteHandler = () => {
                 <ol className="pl-0">
                   <li className="pl-0">
                    {coordinator}
+                  <button
+                  style={{ border: "none", background: "none" }}
+                  name={coordinator} 
+                   value = {this.props.coordinators.invitedCoordinators.programID}
+                   onClick={(e)=>this.unInvite(e)}
+                  className="delete float-right"
+                />
                   </li>
                 </ol>
               </ListGroup.Item>
@@ -150,11 +157,12 @@ corDeleteHandler = () => {
       <>
       <AdminLayout/>
       <main>
-     <section className="panel important">
-     <Card>
-      <Card.Header><h3 style={{textAlign:'center'}}>Program Coordinators</h3></Card.Header>
-      <Card.Body className="row">
-        <Card className="col-5 ml-5">
+     <section className="panel important" id="coordCard">
+     <div id="cHeaderDiv">
+     <Card.Header className='mb-2'><h3 style={{textAlign:'center',fontSize:'2.5em'}}><strong>Program Coordinators</strong></h3></Card.Header>
+     </div>
+      <CardGroup>
+        <Card>
           <Card.Header><h4>Registered Coordinators</h4></Card.Header>
           <Card.Body>
             <ListGroup>
@@ -162,11 +170,13 @@ corDeleteHandler = () => {
             </ListGroup>
           </Card.Body>
         </Card>
-        <Card className="col-5 ml-5">
+
+        <Card>
           <Card.Header><h4>Invited Coordinators
           <Button className="float-right" type="submit" onClick={this.coorInviteShow}>
           <i className="fas fa-plus"></i></Button>
-            </h4></Card.Header>
+            </h4>
+            </Card.Header>
           <Card.Body>
             <ListGroup>
             {invitedCoordinators}
@@ -174,8 +184,7 @@ corDeleteHandler = () => {
           </Card.Body>
 
         </Card>
-      </Card.Body>
-     </Card>
+        </CardGroup>
      </section>
      <Modal show={this.state.coorInvite} onHide={this.coorInviteHide} centered size="md">
               <Modal.Header><h4>Invite Coordinator</h4></Modal.Header>
@@ -217,5 +226,6 @@ export default connect (MapStateToProps,
     getInvitedCoordinators,
     getRegisteredCoordinators,
     inviteCoordinator,
-    deleteCoordinator
+    deleteCoordinator,
+    uninviteCoordinator
   })(ProgramCoordinators)

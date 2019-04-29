@@ -20,7 +20,6 @@ class AssessmentCycle extends Component {
   
   render() {
     let cyclesList = null;
-    let cyclesOptions = []
     if (
       this.props.cycles.cycles !== null &&
       this.props.cycles.cycles !== undefined
@@ -30,9 +29,8 @@ class AssessmentCycle extends Component {
         this.props.cycles.cycles.cycles !== undefined
       ) {
         cyclesList = this.props.cycles.cycles.cycles.map(cycle => {
-          cyclesOptions.push(
-            <option value={cycle.cycleID} key={"opt"+cycle.cycleID}>{cycle.cycleName}</option>
-          )
+          
+          if(cycle.isClosed){
           return (
           <ListGroup.Item key={cycle.cycleID}>
             <Link
@@ -43,7 +41,11 @@ class AssessmentCycle extends Component {
               {cycle.cycleName}
             </Link>
           </ListGroup.Item>
-        )});
+        )}
+        else {
+          return null;
+        }
+      });
         if (cyclesList.length === 0) {
           cyclesList = <ListGroup.Item>No Cycles Present</ListGroup.Item>;
         }

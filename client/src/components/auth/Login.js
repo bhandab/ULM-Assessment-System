@@ -39,7 +39,7 @@ class Login extends Component {
         }
 
         else if (this.props.auth.isAuthenticated && this.props.auth.user.role === "evaluator") {
-            this.props.history.push("/evaluator")
+            this.props.history.push("/evaluator/evaluate")
         }
 
         else if (this.props.auth.isAuthenticated && this.props.auth.user.role === "superuser"){

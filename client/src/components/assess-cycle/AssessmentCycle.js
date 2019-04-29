@@ -5,7 +5,8 @@ import {
   createCycle,
   updateCycleName,
   deleteCycle,
-  cycleMigrate
+  cycleMigrate,
+  closeCycle
 } from "../../actions/assessmentCycleAction";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
@@ -19,7 +20,8 @@ class AssessmentCycle extends Component {
     cycleName: "",
     cycleID: null,
     deleteShow: false,
-    migrate:false
+    migrate:false,
+    closeShow:true
   };
 
   componentDidMount() {
@@ -98,6 +100,11 @@ class AssessmentCycle extends Component {
 
   }
 
+  endCycle = e => {
+    console.log(e.target.value)
+    this.props.closeCycle(e.target.value)
+  }
+
   render() {
     let cyclesList = null;
     let cyclesOptions = []
@@ -113,6 +120,7 @@ class AssessmentCycle extends Component {
           cyclesOptions.push(
             <option value={cycle.cycleID} key={"opt"+cycle.cycleID}>{cycle.cycleName}</option>
           )
+          if(!cycle.isClosed){
           return (
           <ListGroup.Item key={cycle.cycleID}>
             <Link
@@ -124,6 +132,10 @@ class AssessmentCycle extends Component {
             >
               {cycle.cycleName}
             </Link>
+            <Button className="float-right rounded" 
+            onClick={this.endCycle.bind(this)} 
+            value={cycle.cycleID}
+            name={cycle.cycleName}>END CYCLE</Button>
             <button
               style={{ border: "none", background: "none" }}
               name={cycle.cycleID}
@@ -139,7 +151,12 @@ class AssessmentCycle extends Component {
               className="delete"
             />
           </ListGroup.Item>
-        )});
+        )
+            }
+            else {
+              return null
+            }
+      });
         if (cyclesList.length === 0) {
           cyclesList = <ListGroup.Item>No Cycles Present</ListGroup.Item>;
         }
@@ -279,5 +296,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { getAssessmentCycles, createCycle, updateCycleName, deleteCycle, cycleMigrate }
+  { getAssessmentCycles, createCycle, updateCycleName, deleteCycle, cycleMigrate,closeCycle }
 )(AssessmentCycle);

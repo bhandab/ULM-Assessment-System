@@ -68,7 +68,8 @@ class MeasureDetails extends Component {
     evalStudents:false,
     evalAssgStudents: [],
     notAssgd: false,
-    notAssignOption:[]
+    notAssignOption:[],
+    isActive: false
   };
 
   componentDidMount() {
@@ -92,6 +93,8 @@ class MeasureDetails extends Component {
       if (
         this.props.cycles.measureDetails !== prevProps.cycles.measureDetails
       ) {
+
+        this.setState({isActive : !this.props.cycles.measureDetails.isClosed})
         if (this.props.cycles.measureDetails.toolType === "rubric") {
           this.props.getMeasureRubricReport(measureID);
           this.setState({ toolType: "rubric", scored:true });
@@ -426,13 +429,16 @@ class MeasureDetails extends Component {
     let totalEvaluated = 0;
     let totalPassing = 0;
     let totalFailing = 0;
-    let progressBar = (
+    let spinner = (
       <Fragment>
         <Spinner animation="grow" variant="primary" />
         <Spinner animation="grow" variant="secondary" />
         <Spinner animation="grow" variant="success" />
       </Fragment>
     );
+    let studAssignDetail = spinner;
+    let progressBar = spinner;
+    let studUnassgDetail = spinner;
 
     if (
       this.props.cycles.measureDetails !== null &&
@@ -469,7 +475,7 @@ class MeasureDetails extends Component {
             return (
               <li key={evaluator.measureEvalID} className="list-group-item">
                 <span id="evalName" data-val={evaluator.measureEvalID} value={evaluator.measureEvalID} onClick={(e)=>evalStudentsHandler(e)}>{evaluator.name}</span>
-                {true ?
+                {this.state.isActive ?
                 <button
                 value = {evaluator.measureEvalID}
               style={{ border: "none", background: "none" }}
@@ -497,13 +503,18 @@ class MeasureDetails extends Component {
         totalUnassignedStudents = this.props.cycles.measureStudents.notAssignedStudents.length
         totalAssignedStudents = totalStudentNumber - totalUnassignedStudents
 
-        notAssignOption = this.props.cycles.measureStudents.notAssignedStudents.map((student,index) => {
+        studUnassgDetail = this.props.cycles.measureStudents.notAssignedStudents.map((student,index) => {
           return (
-              <option key={"notAssgd"+ index} value={student.studentID}>
-                {student.name}
-              </option>
+              <ListGroup.Item key={"notAssgd"+ index}>
+               {index+1}. {student.name}
+              </ListGroup.Item>
           )
         })
+
+        if(studUnassgDetail.length < 1){
+          studUnassgDetail = <Alert variant="danger">No Students Present</Alert>
+        }
+
         console.log(notAssignOption)
 
         if(totalStudents > 0){
@@ -520,7 +531,7 @@ class MeasureDetails extends Component {
                   <li className="p-0">{student.name}{" "}
                   {/* <li>Email: ({student.email})</li>{" "}
                     <li>CWID: {student.CWID}</li> */}
-                    { true ?
+                    { this.state.isActive ?
                      <button
                 value = {student.studentID}
               style={{ border: "none", background: "none" }}
@@ -573,7 +584,7 @@ class MeasureDetails extends Component {
                 <>
                 <h3>
                   Status: <span className="text-success">Passing
-                  <span style={{fontSize:'.5em'}} className=" ml-5 boder rounded p-1 float-right text-dark bg-warning">Click on 'Status' to see details</span></span>
+                 </span>
                 </h3>
                 
                 </>
@@ -582,7 +593,7 @@ class MeasureDetails extends Component {
               status = (
                 <h3>
                   Status: <span className="text-danger">Failing 
-                  <span style={{fontSize:'.5em'}} className=" ml-5 boder rounded p-1 float-right text-dark bg-warning">Click on 'Status' to see details</span></span>
+                  </span>
                 </h3>
               );
             }
@@ -770,7 +781,6 @@ class MeasureDetails extends Component {
               status = (
                 <h3>
                   Status: <span className="text-success">Passing
-                  <span style={{fontSize:'.5em'}} className=" ml-5 boder rounded p-1 float-right text-dark bg-warning">Click on 'Status' to see details</span>
                   </span>
                 </h3>
               );
@@ -778,7 +788,6 @@ class MeasureDetails extends Component {
               status = (
                 <h3>
                   Status: <span className="text-danger">Failing
-                  <span style={{fontSize:'.5em'}} className=" ml-5 boder rounded p-1 float-right text-dark bg-warning">Click on 'Status' to see details</span>
                   </span>
                 </h3>
               );
@@ -1014,6 +1023,22 @@ class MeasureDetails extends Component {
         this.setState({notAssignOption:notAssignOption})
     }
 
+    if(this.props.cycles.assignedStudents !== null){
+      const assignedStuds = this.props.cycles.assignedStudents.assignedStudentsList.concat(this.props.cycles.assignedStudents.evaluatedStudentsList)
+      studAssignDetail = assignedStuds.map((student,index) => {
+        return (<ListGroup.Item key ={"seval"+student.studentID}>
+         {index+1}. <span className="statStud">{student.name}</span> <Badge pill> assigned to </Badge> <span className="statEval">{student.evalEmail}</span>
+        </ListGroup.Item>)
+      })
+
+      if(studAssignDetail < 1){
+        studAssignDetail = <ListGroup.Item>
+          <Alert variant="danger">No Students Present!</Alert>
+        </ListGroup.Item>
+      }
+      console.log(studAssignDetail)
+    }
+
 
     return (
       <Fragment>
@@ -1044,7 +1069,7 @@ class MeasureDetails extends Component {
             <p id="measure-title-label">Measure Title</p>
             <h4 id="measure-title">
               {measureTitle}
-              {true ?
+              {this.state.isActive ?
               <>
               <button
               style={{ border: "none", background: "none" }}
@@ -1128,12 +1153,13 @@ class MeasureDetails extends Component {
             <hr />
             <div className="ml-0  mb-2 pl-2 pr-2 pb-2 border border-info">
               <Button
-                variant="outline-default"
-                className="mt-1"
+                variant="outline-info"
+                className="mt-1 mb-1"
                 onClick={this.statusModalShow}
               >
                 {status}
               </Button>
+              <Badge pill variant="warning" className=" ml-3 p-1 text-dark">Click on 'Status' to see details</Badge>
               {progressBar}
               {statusModal}
               {stats}
@@ -1145,8 +1171,8 @@ class MeasureDetails extends Component {
                 <Card.Header>
                   <h3>
                     Evaluators 
-                    <span style={{fontSize:'.5em'}} className=" ml-5 boder rounded p-1 text-dark bg-warning">Click on name to view students</span>
-                    { true ? 
+                    <Badge pill variant="warning" style={{fontSize:".5em"}}className=" ml-4 p-1">Click on name to see students</Badge>
+                    { this.state.isActive ? 
                     <Button
                       data-toggle="tooltip"
                       data-placement="right"
@@ -1162,7 +1188,7 @@ class MeasureDetails extends Component {
                 </Card.Header>
                 <Card.Body className="mb-1 pt-1">
                   <ol className="list-group measureCard">{evaluatorList}</ol>
-                      { true ? 
+                      { this.state.isActive ? 
                   <Button
                     className="mt-2"
                     onClick={this.assignStudShow}
@@ -1178,7 +1204,7 @@ class MeasureDetails extends Component {
                 <Card.Header>
                   <h3>
                     Students
-                    { true ?
+                    { this.state.isActive ?
                     <Button
                       data-toggle="tooltip"
                       data-placement="right"
@@ -1194,7 +1220,7 @@ class MeasureDetails extends Component {
                 </Card.Header>
                 <Card.Body className="mb-1 pt-1">
                   <ol className="list-group measureCard">{studentList}</ol>
-                  {this.state.toolType === "test" ? (
+                  {this.state.toolType === "test" && this.state.isActive ? (
                     <Button
                       data-toggle="tooltip"
                       className="mt-2 mb-3 float-right"
@@ -1209,21 +1235,49 @@ class MeasureDetails extends Component {
                 </Card.Body>
               </Card>
               </CardGroup>
-              <Card className="mt-2">
+              <Card className="mt-3">
                 <Card.Header style= {{textAlign:"center"}}><h4>Measure Statistics</h4></Card.Header>
                 <Card.Body style={{fontSize:'1.4em'}}>
                   <Row>
                   <Col><Badge variant="light">Total Students: {totalStudentNumber}</Badge></Col>
-                  <Col><Badge variant="light">Total Assigned Students: {totalAssignedStudents}</Badge></Col>
-                  <Col><Badge variant="light">Total Unassigned Students: {totalUnassignedStudents}</Badge></Col>
+                  <Col><Badge variant="light">Total Assigned: {totalAssignedStudents}</Badge></Col>
+                  <Col><Badge variant="light">Total Unassigned: {totalUnassignedStudents}</Badge></Col>
                   </Row>
                   <Row>
-                  <Col><Badge variant="light">Total Evaluated Students: {totalEvaluated}</Badge></Col>
-                  <Col><Badge variant="light">Total Students Passing Meaure: {totalPassing}</Badge></Col>
-                  <Col><Badge variant="light">Total Students Failing Measure: {totalFailing}</Badge></Col>
+                  <Col><Badge variant="light">Total Evaluated: {totalEvaluated}</Badge></Col>
+                  <Col><Badge variant="light">Passing Meaure Count: {totalPassing}</Badge></Col>
+                  <Col><Badge variant="light">Failing Measure Count: {totalFailing}</Badge></Col>
                   </Row>
                 </Card.Body>
               </Card>
+
+              <Card.Header className="mt-3">
+                  <h4>Student Assignment Information</h4>
+                </Card.Header>
+              
+              <CardGroup>
+                <Card className="assignmentStats">
+                  <Card.Header>
+                    Assigned Students
+                  </Card.Header>
+                <Card.Body>
+                  <ListGroup>
+                    {studAssignDetail}
+                  </ListGroup>
+                </Card.Body>
+              </Card>
+
+              <Card className="unAssgStats">
+                <Card.Header>
+                  Unassigned Students
+                </Card.Header>
+                <Card.Body>
+                  <ListGroup>
+                 {studUnassgDetail}
+                 </ListGroup>
+                </Card.Body>
+              </Card>
+              </CardGroup>
             </Fragment>
 
             {typeTest ? (

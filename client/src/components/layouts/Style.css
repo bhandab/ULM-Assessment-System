@@ -693,6 +693,33 @@ input[type=checkbox] {
   color: #600;
 }
 
+.assignmentStats div.card-header {
+  font-size: 1.7em;
+  text-align: center;
+}
+
+.assignmentStats div.list-group-item {
+  font-size: .8em;
+}
+
+.assignmentStats span.statStud {
+  color:green;
+}
+
+.assignmentStats span.statEval {
+  color:rgb(147, 147, 177);
+}
+
+.unAssgStats div.card-header{
+  font-size: 1.7em;
+  text-align: center;
+}
+
+.unAssgStats div.list-group-item {
+  font-size: .8em;
+  color:black;
+}
+
 
 @media screen and (min-width: 375px){
   html,
