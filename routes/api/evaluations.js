@@ -80,7 +80,8 @@ router.get(
               testName: row.toolName,
               testID: row.toolID,
               measureID: row.measureID,
-              projectedResult: row.projectedResult
+              projectedResult: row.projectedResult,
+              projectedNumberScale: row.projectedValueScale
             });
           }
         }
@@ -311,7 +312,7 @@ router.post(
     errors.validationError = null;
     let existingStudents = new Set();
     let students = [];
-    
+
     let sql1 =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
       db.escape(measureID);
@@ -349,7 +350,7 @@ router.post(
               })
               .on("end", () => {
                 fs.unlinkSync(req.file.path);
-                console.log(students)
+                console.log(students);
                 if (projectedResult) {
                   errors.validationError = validateCSVTestStudents(students);
                 } else {
@@ -376,11 +377,10 @@ router.post(
                     }
                   }
                 });
-                console.log(existingStudentsInFile)
+                console.log(existingStudentsInFile);
                 async.forEachOf(
                   existingStudentsInFile,
                   (value, key, callback) => {
-                    
                     let sql3 = !isEmpty(projectedResult)
                       ? "UPDATE TEST_SCORE SET testScore=" +
                         db.escape(parseFloat(value.score)) +
@@ -440,46 +440,52 @@ router.post(
                         if (err) {
                           return res.status(500).json(err);
                         }
-                        let message =
-                          existingStudentsInFile.length +
-                          " students were Graded by " +
-                          req.user.email +
-                          " for Measure '" +
-                          measureName +
-                          "' through file upload";
-                        let activitySql =
-                          "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
-                          db.escape(message) +
-                          ", now(4)," +
-                          db.escape(programID) +
-                          ")";
-                        db.query(activitySql, (err, result) => {
-                          if (err) {
-                            return res.status(500).json(err);
-                          }
-                          let message1 =
-                            "You Graded " +
+                        if (existingStudentsInFile.length > 0) {
+                          let message =
                             existingStudentsInFile.length +
-                            " students through file upload for '" +
-                            toolName +
-                            "' " +
-                            toolType;
-                          let activitySql1 =
-                            "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +
-                            db.escape(req.user.id) +
-                            ", " +
-                            db.escape(message1) +
-                            ", " +
-                            "now(4))";
-                          db.query(activitySql1, (err, result) => {
+                            " Students were Graded by " +
+                            req.user.email +
+                            " for Measure '" +
+                            measureName +
+                            "' Through File Upload";
+                          let activitySql =
+                            "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
+                            db.escape(message) +
+                            ", now(4)," +
+                            db.escape(programID) +
+                            ")";
+                          db.query(activitySql, (err, result) => {
                             if (err) {
                               return res.status(500).json(err);
                             }
-                            return res
-                              .status(200)
-                              .json("Scores successfully Submitted");
+                            let message1 =
+                              "You Graded " +
+                              existingStudentsInFile.length +
+                              " Students Through File Upload for '" +
+                              toolName +
+                              "' " +
+                              toolType;
+                            let activitySql1 =
+                              "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +
+                              db.escape(req.user.id) +
+                              ", " +
+                              db.escape(message1) +
+                              ", " +
+                              "now(4))";
+                            db.query(activitySql1, (err, result) => {
+                              if (err) {
+                                return res.status(500).json(err);
+                              }
+                              return res
+                                .status(200)
+                                .json("Scores successfully Submitted");
+                            });
                           });
-                        });
+                        } else {
+                          return res
+                            .status(404)
+                            .json("No students were uploaded");
+                        }
                       });
                     });
                   }

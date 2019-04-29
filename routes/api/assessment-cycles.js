@@ -207,8 +207,7 @@ router.post(
                         programID,
                         outcomeID,
                         newCycleID,
-                        row.toolID,
-                        Date.now()
+                        row.toolID
                       ]);
                     });
                     let sql3 =
@@ -223,7 +222,7 @@ router.post(
                       });
 
                       let sql4 =
-                        "INSERT INTO PERFORMANCE_MEASURE (measureDesc,projectedResult,projectedStudentsValue,courseAssociated,studentNumberScale,projectedValueScale,toolType,toolName,programID,learnID,cycleID,toolID,measureCreatedTime) VALUES ?";
+                        "INSERT INTO PERFORMANCE_MEASURE (measureDesc,projectedResult,projectedStudentsValue,courseAssociated,studentNumberScale,projectedValueScale,toolType,toolName,programID,learnID,cycleID,toolID) VALUES ?";
                       if (measures.length > 0) {
                         db.query(sql4, [measures], (err, result) => {
                           if (err) {
