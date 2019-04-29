@@ -27,7 +27,7 @@ class CycleMeasures extends Component {
     deleteShow: false,
     outcomeName: "",
     outcomeID: null,
-    isActive: true
+    isActive: true,
   };
 
   componentDidMount() {
@@ -90,12 +90,13 @@ class CycleMeasures extends Component {
 
   addOutcomeShow = () => {
     this.props.getOutcomes();
-    this.setState({ addOutcome: true });
+    this.setState({ addOutcome: true, createOutcome:false });
   };
 
   addOutcomeHide = () => {
     this.setState({ addOutcome: false });
   };
+
 
   editShow = e => {
     this.setState({
@@ -263,12 +264,6 @@ class CycleMeasures extends Component {
           >
             Create Outcome
           </Button>
-          <Button
-            className="mt-3 ml-3"
-            onClick={this.addOutcomeShow}
-          >
-            Add Outcome
-          </Button>
           </>
           :null }
           </Card.Body>
@@ -296,6 +291,13 @@ class CycleMeasures extends Component {
                 Save Changes
               </Button>
             </Form>
+            <Button variant="info" size="sm"
+            className="mt-3 ml-3"
+            onClick={this.addOutcomeShow}
+          >
+            <strong>Add Existing
+            </strong>
+          </Button>
           </Modal.Body>
         </Modal>
 
@@ -360,6 +362,8 @@ class CycleMeasures extends Component {
           name={this.state.outcomeName}
           delete={this.outcomeDeleteHandler}
         />
+
+      
       </Fragment>
     );
   }

@@ -248,6 +248,27 @@ export const updateOutcomeName = (cycleID, outcomeID, body) => dispatch => {
         })
 }
 
+export const addNewCourse = (cycleID,outcomeID,courseCode) => dispatch => {
+    axios
+        .post("/api/cycles/"+outcomeID +"/addNewCourse", {courseCode})
+        .then(() => toastr.success(
+            "Updated!",
+            "Learning Outcome Successfully Updated!"
+        ))
+        .then(() => dispatch(getOutcomesMeasures(cycleID, outcomeID)))
+        .catch(err => {
+            // console.log(err)
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            }
+            )
+        })
+}
+
+
+
 export const deleteOutcome = (cycleID, outcomeID) => dispatch => {
     axios
         .post("/api/cycles/" + cycleID + "/" + outcomeID + "/delete")
@@ -512,20 +533,6 @@ export const getMeasureRubricReport = (measureID) => dispatch => {
             })
         })
 
-}
-
-/***Need to change the following two actions */
-
-export const uploadTestScores = (measureID,formData, config) => dispatch => {
-    axios
-    .post("/api/cycles/"+measureID+"/uploadTestScores",formData,config)
-    .catch(err => {
-        dispatch({
-            type: GET_ERRORS,
-            payload: err.response.data
-
-        })
-    })
 }
 
 export const addStudentScore = (measureID,body) => dispatch => {

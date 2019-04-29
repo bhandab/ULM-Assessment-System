@@ -66,7 +66,7 @@ header .utilities li a {
 
 /* header */
 .utilities a:before {
-  /*content: "\f007";*/
+  /* content: "\f007"; */
   font-family: FontAwesome;
   padding-right: 0.6em;
 }
@@ -74,6 +74,24 @@ header .utilities li a {
 .logout a:before {
   content: "\f011";
 }
+
+li.users {
+  margin-bottom: 20px;
+}
+
+#dropdown-basic {
+  border: none;
+  background: white !important;
+  color: black;
+  font-size: 1.2em;
+  line-height: 24px;
+}
+
+#drpdn {
+  margin-top: 4px;
+}
+
+
 
 nav {
   /*background: #2a3542;*/
@@ -100,6 +118,17 @@ nav li a:hover {
   /*background-color: rgba(255, 255, 255, 0.05);*/
   background-color: white;
   color: maroon;
+}
+
+#actAsEval {
+  color: black;
+  font-weight: bold;
+  background: white !important;
+  border: none;
+  padding: none !important;
+  margin: none !important; 
+  text-align: center;
+  /* font-size: 1.3em; */
 }
 
 nav li a:active {

@@ -21,7 +21,8 @@ class AssessmentCycle extends Component {
     cycleID: null,
     deleteShow: false,
     migrate:false,
-    closeShow:true
+    closeShow:true,
+    cycleClose: false 
   };
 
   componentDidMount() {
@@ -70,6 +71,14 @@ class AssessmentCycle extends Component {
     this.setState({ show: false});
   };
 
+  cycleCloseShow = (e) => {
+    this.setState({cycleClose:true,cycleID:e.target.value})
+  }
+
+  cycleCloseHide = () => {
+    this.setState({cycleClose:false})
+  }
+
   editShow = e => {
     this.setState({
       cycleName: e.target.value,
@@ -100,9 +109,10 @@ class AssessmentCycle extends Component {
 
   }
 
-  endCycle = e => {
-    console.log(e.target.value)
-    this.props.closeCycle(e.target.value)
+  endCycle = () => {
+    console.log(this.state.cycleID)
+    this.props.closeCycle(this.state.cycleID)
+    this.setState({cycleClose:false})
   }
 
   render() {
@@ -150,7 +160,7 @@ class AssessmentCycle extends Component {
             </Link>
             <Button variant="danger"
             className="float-right rounded" 
-            onClick={this.endCycle.bind(this)} 
+            onClick={this.cycleCloseShow} 
             value={cycle.cycleID}
             name={cycle.cycleName}>CLOSE CYCLE</Button>
             <button
@@ -323,6 +333,18 @@ class AssessmentCycle extends Component {
           name={this.state.cycleName}
           delete={this.deleteCycleHandler}
         />
+
+        <Modal show={this.state.cycleClose} onHide={this.cycleCloseHide} centered>
+          <Modal.Header closeButton><h3>Confirm Cycle Close</h3></Modal.Header>
+          <Modal.Body>
+            After you close you can only view the contents of this cycle. 
+            Changes cannot be made.
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="danger" onClick={this.cycleCloseHide}>Cancel</Button>
+            <Button variant="success" onClick={this.endCycle}>Close Cycle</Button>
+          </Modal.Footer>
+        </Modal>
       </Fragment>
     );
   }

@@ -2,7 +2,8 @@ import React, { Component, Fragment } from "react";
 import {
   getOutcomesMeasures,
   linkMeasureToOutcome,
-  getStudentsOfMeasure
+  getStudentsOfMeasure,
+  addNewCourse
 } from "../../actions/assessmentCycleAction";
 import { getMeasures } from "../../actions/measuresAction";
 import { getAllRubrics, getSingleRubric } from "../../actions/rubricsAction";
@@ -18,7 +19,8 @@ import {
   Card,
   Badge,
   Row,
-  Col
+  Col,
+  ListGroup
 } from "react-bootstrap";
 import { isEmpty } from "../../utils/isEmpty";
 
@@ -29,7 +31,10 @@ class OutcomeMeasures extends Component {
     toolTypeVal: "",
     testType: "scored",
     hiddenClass: "",
-    isActive : false
+    isActive : false,
+    cMap: false,
+    cAdd: false
+
   };
 
   componentDidMount() {
@@ -128,11 +133,12 @@ class OutcomeMeasures extends Component {
   };
 
   addMeasuresShow = () => {
+    this.createMeasureHide();
     this.setState({ addMeasuresShow: true });
   };
 
   addMeasuresHide = () => {
-    this.setState({ addMeasuresShow: false });
+    this.setState({ addMeasuresShow: false});
   };
 
   createMeasuresShow = () => {
@@ -142,6 +148,14 @@ class OutcomeMeasures extends Component {
   createMeasureHide = () => {
     this.setState({ createMeasuresShow: false, testType: "scored" });
   };
+
+  cMapShow = () => {
+    this.setState({cMap:true})
+  }
+  cMapHide = () => {
+    this.setState({cMap:false})
+  }
+
 
   testTypeChange = e => {
     const type = e.target.value;
@@ -163,9 +177,20 @@ class OutcomeMeasures extends Component {
     return per + "%";
   };
 
+  addNewCourse = (e) => {
+    e.preventDefault()
+    const cycleID = this.props.match.params.cycleID
+    const outcomeID = this.props.match.params.outcomeID
+    const course = e.target.courseName.value
+    this.props.addNewCourse(cycleID, outcomeID, course)
+    this.setState({cAdd:false})
+    
+  }
+
   render() {
     // console.log(this.props)
     console.log(window.location.hash.substr(1))
+    let outcomeCourses = null
     let totalStudents = 0;
     let measures = <Spinner animation="border" variant="primary" />;
     let measureTitle = null;
@@ -302,6 +327,21 @@ class OutcomeMeasures extends Component {
           );
         }
         measureTitle = this.props.cycles.outcomeMeasures.outcomeName;
+
+        outcomeCourses = this.props.cycles.outcomeMeasures.outcomeCourses.map(course => {
+          return (
+            <ListGroup.Item key={"crCourse"+course.courseID}>
+              {course.courseCode}
+            </ListGroup.Item>
+          )
+        })
+
+        if(outcomeCourses.length < 1){
+          outcomeCourses =  <ListGroup.Item key={"nocrCourse"}>
+              No Course Present
+            </ListGroup.Item>
+        }
+
       }
     }
 
@@ -421,13 +461,12 @@ class OutcomeMeasures extends Component {
             >
               Create Measure
             </button>
-            <button
-              onClick={this.addMeasuresShow}
-              className="btn btn-primary  ml-3 mt-3"
-            >
-              Add Measure
-            </button>
-           
+            <Button variant="secondary"
+            className="btn mt-3 ml-3"
+            onClick={this.cMapShow}
+          >
+            Curriculum Mapping
+          </Button>
             </>
             : null}
           </Card.Body>
@@ -616,7 +655,7 @@ class OutcomeMeasures extends Component {
                 </InputGroup>
 
                 <Button
-                  className="float-right btn btn-primary"
+                  className="float-right btn btn-primary mt-3"
                   variant="primary"
                   type="submit"
                   onClick={this.createMeasureHide}
@@ -624,9 +663,47 @@ class OutcomeMeasures extends Component {
                   Create
                 </Button>
               </Form>
+              <button
+              onClick={this.addMeasuresShow}
+              className="btn btn-info  ml-3 mt-3"
+            >
+              Add Existing
+            </button>
             </Modal.Body>
           </Modal>
         </section>
+        <Modal show={this.state.cMap} onHide={this.cMapHide} size="lg" centered>
+        <Modal.Header closeButton><h2>
+        <Button className="mr-3"
+        onClick={()=>this.setState({cAdd:true})}
+        ><i className="fas fa-plus"></i></Button>
+          Curriculum Mapping
+          
+          </h2></Modal.Header>
+        <Modal.Body>
+          {outcomeCourses}
+          {this.state.cAdd ?
+          <ListGroup.Item className="row">
+              <Form onSubmit={this.addNewCourse.bind(this)}>
+                <InputGroup>
+                  <InputGroup.Append>
+                    <InputGroup.Text>
+                      Course Name
+                    </InputGroup.Text>
+                  </InputGroup.Append>
+                  <Form.Control placeholder="eg. CSCI 4040" name="courseName" />
+                  <Button className="col-2" variant="success" type="submit"><i className="fas fa-check"></i></Button>
+                  <Button className="col-2" variant="danger" onClick={()=> this.setState({cAdd:false})}><i className="fas fa-times"></i></Button>
+
+                </InputGroup>
+              </Form>
+          </ListGroup.Item>
+          : null }
+        </Modal.Body>
+            <Modal.Footer>
+              <Button variant="danger" className="float-right" onClick={this.cMapHide}>Close</Button>
+            </Modal.Footer>
+        </Modal>
       </Fragment>
     );
   }
@@ -659,6 +736,7 @@ export default connect(
     linkMeasureToOutcome,
     getAllRubrics,
     getSingleRubric,
-    getStudentsOfMeasure
+    getStudentsOfMeasure,
+    addNewCourse
   }
 )(OutcomeMeasures);

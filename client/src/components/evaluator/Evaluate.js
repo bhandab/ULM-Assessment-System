@@ -1,16 +1,19 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
+import {toastr} from 'react-redux-toastr'
 import {
   getEvaluationRubrics,
   getEvaluatorDetails,
   submitRubricScores,
   updateRubricScores,
   testScores,
-  updateTestScores
+  updateTestScores,
+  uploadTestScores,
 } from "../../actions/evaluationsAction";
 import { getSingleRubric } from "../../actions/rubricsAction";
+import {getEvalActivity} from '../../actions/activityAction'
 import PropTypes from "prop-types";
-import { ListGroup, Card, Button, Table, Alert, Spinner } from "react-bootstrap";
+import { ListGroup, Card, Button, Table, Alert, Spinner, Form, Modal } from "react-bootstrap";
 
 class Evaluate extends Component {
   state = {
@@ -26,12 +29,16 @@ class Evaluate extends Component {
     ),
     scoreMap : new Map(),
     scoreObject: [],
-    rubricTarget:""
+    rubricTarget:"",
+    file: "",
+    uploadFile: false
+
   };
 
   componentDidMount() {
     this.props.getEvaluatorDetails();
     this.props.getEvaluationRubrics();
+    this.props.getEvalActivity();
   }
 
   componentDidUpdate(prevProps,prevState) {
@@ -184,6 +191,42 @@ class Evaluate extends Component {
     this.setState({ table: table });
   };
 
+  uploadFileShow = () => {
+    this.setState({uploadFile:true})
+  }
+
+  uploadFileHide = () => {
+    this.setState({uploadFile:false})
+  }
+
+  fileChangeHandler = e => {
+    this.setState({ file: e.target.files[0] });
+  };
+
+  uploadTestScoresHandler = e => {
+    e.preventDefault();
+    this.testScoresUpload(this.state.file);
+    this.setState({ uploadTest: false });
+  };
+
+  testScoresUpload = file => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const config = {
+      headers: {
+        "content-type": "multipart/form-data"
+      }
+    };
+    console.log(formData)
+    this.props.uploadTestScores(
+      this.state.measureID,
+      formData,
+      config
+    );
+  };
+
+
   onClickListener = e => {
     const index = e.target.dataset.idx;
     const measureID = e.target.dataset.measureid;
@@ -315,6 +358,8 @@ class Evaluate extends Component {
 
   testTitleClick = e => {
     const testID = e.target.value;
+    const measureID = e.target.dataset.msrid
+    this.setState({measureID:measureID})
     const spinner = (
       <Fragment>
       <Spinner animation="grow" variant="primary" />
@@ -422,7 +467,11 @@ class Evaluate extends Component {
     const scoreTable = (
       <Card>
         <Card.Header>
-          <h3 style={{ textAlign: "center" }}>{this.state.testName}</h3>
+          <h3 style={{ textAlign: "center" }}>{this.state.testName}
+          <Button className="float-right"
+          onClick={this.uploadFileShow}
+          ><i className="fas fa-file"></i></Button>
+          </h3>
         </Card.Header>
         <Card.Body>
           <Table bordered hover id="evalScoreTable">
@@ -535,6 +584,7 @@ class Evaluate extends Component {
                       data-measure={test.measureID}
                       name={test.testName}
                       value={test.testID}
+                      data-msrid={test.measureID}
                       onClick={this.testTitleClick.bind(this)}
                     >
                       {test.testName}
@@ -626,6 +676,16 @@ class Evaluate extends Component {
           </Card.Body>
           
         </Card>
+
+        <Modal show={this.state.uploadFile} onHide={this.uploadFileHide} centered>
+          <Modal.Header closeButton><h2>Uplaod Score File</h2></Modal.Header>
+          <Modal.Body> 
+              <Form.Control onChange={this.fileChangeHandler.bind(this)} type="file" name="scoreFile" accept=".csv" /> 
+              <Button variant="success" className="float-right mt-3"
+              onClick = {this.uploadTestScoresHandler}
+              >Upload</Button>
+          </Modal.Body>
+        </Modal>
         
       </section>
     );
@@ -647,7 +707,8 @@ const MapStateToProps = state => ({
   evaluationDetails: state.evaluationDetails,
   evaluations: state.evaluations,
   errors: state.errors,
-  rubric: state.rubric
+  rubric: state.rubric,
+  logs:state.logs
 });
 
 export default connect(
@@ -659,6 +720,8 @@ export default connect(
     submitRubricScores,
     updateRubricScores,
     testScores,
-    updateTestScores
+    updateTestScores,
+    uploadTestScores,
+    getEvalActivity
   }
 )(Evaluate);

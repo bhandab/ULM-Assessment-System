@@ -311,7 +311,7 @@ router.post(
     errors.validationError = null;
     let existingStudents = new Set();
     let students = [];
-    var existingStudentsInFile = [];
+    
     let sql1 =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
       db.escape(measureID);
@@ -349,6 +349,7 @@ router.post(
               })
               .on("end", () => {
                 fs.unlinkSync(req.file.path);
+                console.log(students)
                 if (projectedResult) {
                   errors.validationError = validateCSVTestStudents(students);
                 } else {
@@ -360,7 +361,7 @@ router.post(
                 if (errors.validationError) {
                   return res.status(404).json({ errors });
                 }
-
+                var existingStudentsInFile = [];
                 var newArray = students.filter((row, index) => {
                   if (index !== students.length - 1) {
                     if (existingStudents.has(row[2])) {
@@ -375,9 +376,11 @@ router.post(
                     }
                   }
                 });
+                console.log(existingStudentsInFile)
                 async.forEachOf(
                   existingStudentsInFile,
                   (value, key, callback) => {
+                    
                     let sql3 = !isEmpty(projectedResult)
                       ? "UPDATE TEST_SCORE SET testScore=" +
                         db.escape(parseFloat(value.score)) +
