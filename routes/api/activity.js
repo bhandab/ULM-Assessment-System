@@ -24,7 +24,7 @@ router.get(
       }
       result.forEach(row => {
         logs.push({
-          time: dateFormat(row.activityTime),
+          time: dateFormat(row.activityTime, "dddd, mmmm dS, yyyy, h:MM:ss TT"),
           activity: row.corActivity
         });
       });
@@ -41,7 +41,7 @@ router.get(
     let logs = [];
 
     let sql =
-      "SELECT * EVALUATOR_ACTIVITY WHERE evalID=" +
+      "SELECT evalActivity, CONVERT_TZ(evalActivityTime,'UTC','US/Central') as activityTime EVALUATOR_ACTIVITY WHERE evalID=" +
       db.escape(req.user.id) +
       " ORDER BY evalActivityTime DESC";
     db.query(sql, (err, result) => {
@@ -49,7 +49,10 @@ router.get(
         return res.status(500).json(err);
       }
       result.forEach(row => {
-        logs.push({ time: row.evalActivityTime, activity: row.evalActivity });
+        logs.push({
+          time: dateFormat(row.activityTime, "dddd, mmmm dS, yyyy, h:MM:ss TT"),
+          activity: row.evalActivity
+        });
       });
       res.status(200).json({ logs });
     });
