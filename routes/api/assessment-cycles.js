@@ -1196,7 +1196,7 @@ router.get(
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
     let measureID = req.params.measureIdentifier;
-
+    let programID = req.user.programID;
     let sql1 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
