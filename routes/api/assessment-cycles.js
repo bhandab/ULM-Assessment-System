@@ -60,7 +60,8 @@ router.post(
         let activitySql =
           "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
           db.escape(message) +
-          ", now(4)," +
+          "," +
+          "now(4)," +
           db.escape(programID) +
           ")";
         db.query(activitySql, (err, result) => {
