@@ -29,7 +29,9 @@ class OutcomeMeasures extends Component {
     toolTypeVal: "",
     testType: "scored",
     hiddenClass: "",
-    isActive : false
+    isActive : false,
+    cMap: false
+
   };
 
   componentDidMount() {
@@ -128,11 +130,12 @@ class OutcomeMeasures extends Component {
   };
 
   addMeasuresShow = () => {
+    this.createMeasureHide();
     this.setState({ addMeasuresShow: true });
   };
 
   addMeasuresHide = () => {
-    this.setState({ addMeasuresShow: false });
+    this.setState({ addMeasuresShow: false});
   };
 
   createMeasuresShow = () => {
@@ -142,6 +145,14 @@ class OutcomeMeasures extends Component {
   createMeasureHide = () => {
     this.setState({ createMeasuresShow: false, testType: "scored" });
   };
+
+  cMapShow = () => {
+    this.setState({cMap:true})
+  }
+  cMapHide = () => {
+    this.setState({cMap:false})
+  }
+
 
   testTypeChange = e => {
     const type = e.target.value;
@@ -421,13 +432,12 @@ class OutcomeMeasures extends Component {
             >
               Create Measure
             </button>
-            <button
-              onClick={this.addMeasuresShow}
-              className="btn btn-primary  ml-3 mt-3"
-            >
-              Add Measure
-            </button>
-           
+            <Button variant="secondary"
+            className="btn mt-3 ml-3"
+            onClick={this.cMapShow}
+          >
+            Curriculum Mapping
+          </Button>
             </>
             : null}
           </Card.Body>
@@ -616,7 +626,7 @@ class OutcomeMeasures extends Component {
                 </InputGroup>
 
                 <Button
-                  className="float-right btn btn-primary"
+                  className="float-right btn btn-primary mt-3"
                   variant="primary"
                   type="submit"
                   onClick={this.createMeasureHide}
@@ -624,9 +634,24 @@ class OutcomeMeasures extends Component {
                   Create
                 </Button>
               </Form>
+              <button
+              onClick={this.addMeasuresShow}
+              className="btn btn-info  ml-3 mt-3"
+            >
+              Add Existing
+            </button>
             </Modal.Body>
           </Modal>
         </section>
+        <Modal show={this.state.cMap} onHide={this.cMapHide} size="lg" centered>
+        <Modal.Header closeButton><h2>Curriculum Mapping</h2></Modal.Header>
+        <Modal.Body>
+          here goes curriculum
+        </Modal.Body>
+            <Modal.Footer>
+              <Button variant="danger" className="float-right" onClick={this.cMapHide}>Close</Button>
+            </Modal.Footer>
+        </Modal>
       </Fragment>
     );
   }

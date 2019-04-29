@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Logo from "../../assets/warhawk-logo.png";
 import { logoutUser, loginAsEval } from "../../actions/authActions";
-import { Button } from "react-bootstrap";
+import { Button, Dropdown } from "react-bootstrap";
 //Silly commit
 
 import "./Style.css";
@@ -69,11 +69,25 @@ class AdminLayout extends Component {
             </span>
           </h1>
           <ul className="utilities">
-            <li className="mr-5">
-              <Button onClick={this.actAsEval}>Evaluator</Button>
-            </li>
+            {/* <li className="mr-5">
+              <Button id="actAsEval" onClick = {this.actAsEval}>Evaluator</Button>
+            </li> */}
             <li className="users">
-              <Link to="/admin/profile">{this.props.auth.user.name}</Link>
+            <Dropdown id="drpdn">
+                <Dropdown.Toggle id="dropdown-basic">
+                <strong>{this.props.auth.user.name}</strong>
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item href="/admin/profile">
+                    <Button id="actAsEval">My Profile</Button>
+                    </Dropdown.Item>
+                  <Dropdown.Item>
+                    <Button id="actAsEval" onClick = {this.actAsEval}>Evaluator Mode
+                    </Button>
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+              {/* <Link to="/admin/profile">{this.props.auth.user.name}</Link> */}
             </li>
             <li className="logout warn">
               <Link to="/login" onClick={this.onLogoutClick.bind(this)}>
