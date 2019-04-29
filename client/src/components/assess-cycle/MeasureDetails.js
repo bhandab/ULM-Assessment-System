@@ -13,7 +13,6 @@ import {
   addStudentToMeasure,
   getStudentsOfMeasure,
   assignStudentsToMeasure,
-  uploadTestScores,
   getMeasureRubricReport,
   getMeasureTestReport,
   addStudentScore,
@@ -276,27 +275,27 @@ class MeasureDetails extends Component {
     );
   };
 
-  uplaodTestScoresHandler = e => {
-    e.preventDefault();
-    this.testScoresUpload(this.state.file);
-    this.setState({ uploadTest: false });
-  };
+  // uploadTestScoresHandler = e => {
+  //   e.preventDefault();
+  //   this.testScoresUpload(this.state.file);
+  //   this.setState({ uploadTest: false });
+  // };
 
-  testScoresUpload = file => {
-    const formData = new FormData();
-    formData.append("file", file);
+  // testScoresUpload = file => {
+  //   const formData = new FormData();
+  //   formData.append("file", file);
 
-    const config = {
-      headers: {
-        "content-type": "multipart/form-data"
-      }
-    };
-    this.props.uploadTestScores(
-      this.props.match.params.measureID,
-      formData,
-      config
-    );
-  };
+  //   const config = {
+  //     headers: {
+  //       "content-type": "multipart/form-data"
+  //     }
+  //   };
+  //   this.props.uploadTestScores(
+  //     this.props.match.params.measureID,
+  //     formData,
+  //     config
+  //   );
+  // };
 
   /*** This prolly needs to change */
   scoreSingleStudent = e => {
@@ -1824,7 +1823,6 @@ export default connect(
     getStudentsOfMeasure,
     assignStudentsToMeasure,
     getRegisteredEvaluators,
-    uploadTestScores,
     getMeasureRubricReport,
     getMeasureTestReport,
     addStudentScore,

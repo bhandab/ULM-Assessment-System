@@ -37,7 +37,7 @@ router.get(
     let logs = [];
 
     let sql =
-      "SELECT * EVALUATOR_ACTIVITY WHERE evalID=" +
+      "SELECT * FROM EVALUATOR_ACTIVITY WHERE evalID=" +
       db.escape(req.user.id) +
       " ORDER BY evalActivityTime DESC";
     db.query(sql, (err, result) => {

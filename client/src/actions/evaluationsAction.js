@@ -73,11 +73,19 @@ export const testScores = (body) => dispatch =>{
 export const updateTestScores = (testID,body) => dispatch =>{
     axios
     .post("/api/evaluations/updateTestScore",body)
-    // .then(() => toastr.success(
-    //     "Score Updated!",
-    //     ""
-    // ))
     .then(dispatch(testScores({testID})))
+    .catch(err => {
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+
+        })
+    })
+}
+
+export const uploadTestScores = (measureID,formData,config) => dispatch => {
+    axios
+    .post("/api/evaluations/"+measureID+"/uploadStudentScore",formData,config)
     .catch(err => {
         dispatch({
             type: GET_ERRORS,

@@ -1,7 +1,8 @@
-import {COORDINATOR_ACTIVITY} from '../actions/types'
+import {COORDINATOR_ACTIVITY, EVALUATOR_ACTIVITY} from '../actions/types'
 
 const initialState = {
     coordinatorLogs : null,
+    evalLogs:null,
     logLoading: true
 }
 export default function (state = initialState, action) {
@@ -10,6 +11,13 @@ export default function (state = initialState, action) {
            return {
                ...state,
                coordinatorLogs: action.payload,
+               logLoading: false
+           }
+
+           case EVALUATOR_ACTIVITY:
+           return{
+               ...state,
+               evalLogs: action.payload,
                logLoading: false
            }
            case 'LOG_LOADING':
