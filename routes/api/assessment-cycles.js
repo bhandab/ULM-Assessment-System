@@ -2627,15 +2627,13 @@ router.get(
         } else {
           passingPercentage = 0;
         }
-        res
-          .status(200)
-          .json({
-            report,
-            totalStudents,
-            passingCounts,
-            passingPercentage,
-            projectedValueScale
-          });
+        res.status(200).json({
+          report,
+          totalStudents,
+          passingCounts,
+          passingPercentage,
+          projectedValueScale
+        });
       });
     });
   }
