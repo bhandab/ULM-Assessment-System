@@ -2486,7 +2486,7 @@ router.get(
           };
           if (row.testScoreStatus !== null) {
             report.push(result);
-            if (row.testScoreStatus === true) {
+            if (row.testScoreStatus) {
               passingCounts++;
             }
           }
