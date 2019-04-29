@@ -128,7 +128,7 @@ router.post(
 );
 
 // @route POST api/evaluations/updateTestScore
-// @desc Updates student score
+// @desc Updates student test score
 // @access Private
 router.post(
   "/updateTestScore",
@@ -235,8 +235,9 @@ router.post(
                 studentName +
                 " was Graded by " +
                 req.user.email +
-                " for Measure " +
-                measureName;
+                " for Measure '" +
+                measureName +
+                "'";
               let activitySql =
                 "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
                 db.escape(message) +
@@ -250,9 +251,9 @@ router.post(
                 let message1 =
                   "You Graded " +
                   studentName +
-                  " for " +
+                  " for '" +
                   toolName +
-                  " " +
+                  "' " +
                   toolType;
                 let activitySql1 =
                   "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +
@@ -273,6 +274,221 @@ router.post(
         });
       });
     });
+  }
+);
+
+// @route POST api/evaluations/uploadStudentScore
+// @desc Uploads students to be evaluated using file upload
+// @access Private
+
+const multer = require("multer");
+const csv = require("fast-csv");
+const fs = require("fs");
+const {
+  validateCSVTestStudents,
+  validateCSVTestPassStudents
+} = require("../../validation/uploadStudents");
+const upload = multer({
+  dest: "measureStudents",
+  limits: {
+    fileSize: 1000000
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.csv$/)) {
+      return cb(new Error("Please upload a .csv file"));
+    }
+    cb(undefined, true);
+  }
+});
+
+router.post(
+  "/:measureIdentifier/uploadStudentScore",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("file"),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
+    let errors = {};
+    errors.validationError = null;
+    let existingStudents = new Set();
+    let students = [];
+    var existingStudentsInFile = [];
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res.status(404).json({ errors: "Measure Not Found" });
+      } else {
+        let projectedResult = result[0].projectedResult;
+        let projectedStudentsValue = result[0].projectedStudentsValue;
+        let programID = result[0].programID;
+        let toolName = result[0].toolName;
+        let toolType = result[0].toolType;
+        let measureName = result[0].measureDesc;
+
+        let sql2 =
+          "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN STUDENT WHERE measureID=" +
+          db.escape(measureID) +
+          " AND evalID=" +
+          db.escape(req.user.id);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          } else {
+            result.forEach(row => {
+              existingStudents.add(row.studentEmail);
+            });
+
+            csv
+              .fromPath(req.file.path)
+              .on("data", data => {
+                data.push(measureID);
+                students.push(data);
+              })
+              .on("end", () => {
+                fs.unlinkSync(req.file.path);
+                if (projectedResult) {
+                  errors.validationError = validateCSVTestStudents(students);
+                } else {
+                  errors.validationError = validateCSVTestPassStudents(
+                    students
+                  );
+                }
+
+                if (errors.validationError) {
+                  return res.status(404).json({ errors });
+                }
+
+                var newArray = students.filter((row, index) => {
+                  if (index !== students.length - 1) {
+                    if (existingStudents.has(row[2])) {
+                      existingStudentsInFile.push({
+                        email: row[2],
+                        score: row[4]
+                      });
+                      return false;
+                    } else {
+                      existingStudents.add(row[2]);
+                      return true;
+                    }
+                  }
+                });
+                async.forEachOf(
+                  existingStudentsInFile,
+                  (value, key, callback) => {
+                    let sql3 = !isEmpty(projectedResult)
+                      ? "UPDATE TEST_SCORE SET testScore=" +
+                        db.escape(parseFloat(value.score)) +
+                        ",testScoreStatus=" +
+                        db.escape(parseFloat(value.score) >= projectedResult)
+                      : "UPDATE TEST_SCORE SET testScoreStatus=" +
+                        db.escape(value.score);
+
+                    sql3 =
+                      sql3 +
+                      " WHERE testStudentEmail=" +
+                      db.escape(value.email) +
+                      " AND evalID=" +
+                      db.escape(req.user.id) +
+                      " AND measureID=" +
+                      db.escape(measureID);
+                    db.query(sql3, (err, result) => {
+                      if (err) {
+                        return callback(err);
+                      }
+                      callback();
+                    });
+                  },
+                  err => {
+                    if (err) {
+                      return res.status(500).json(err);
+                    }
+                    let sql4 =
+                      "SELECT * FROM TEST_SCORE WHERE measureID=" +
+                      db.escape(measureID);
+                    db.query(sql4, (err, result) => {
+                      if (err) {
+                        return res.status(500).json(err);
+                      }
+                      let successCount = 0;
+                      result.forEach(row => {
+                        if (row.testScoreStatus) {
+                          successCount++;
+                        }
+                      });
+                      let measureStatus =
+                        result.length === 0 ||
+                        (successCount / result.length) * 100 <
+                          projectedStudentsValue
+                          ? false
+                          : true;
+                      let sql5 =
+                        "UPDATE PERFORMANCE_MEASURE SET measureStatus=" +
+                        db.escape(measureStatus) +
+                        ", evalCount=" +
+                        db.escape(result.length) +
+                        ", successCount=" +
+                        db.escape(successCount) +
+                        " WHERE measureID=" +
+                        db.escape(measureID);
+                      db.query(sql5, (err, result) => {
+                        if (err) {
+                          return res.status(500).json(err);
+                        }
+                        let message =
+                          existingStudentsInFile.length +
+                          " students were Graded by " +
+                          req.user.email +
+                          " for Measure '" +
+                          measureName +
+                          "' through file upload";
+                        let activitySql =
+                          "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
+                          db.escape(message) +
+                          ", now(4)," +
+                          db.escape(programID) +
+                          ")";
+                        db.query(activitySql, (err, result) => {
+                          if (err) {
+                            return res.status(500).json(err);
+                          }
+                          let message1 =
+                            "You Graded " +
+                            existingStudentsInFile.length +
+                            " students through file upload for '" +
+                            toolName +
+                            "' " +
+                            toolType;
+                          let activitySql1 =
+                            "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +
+                            db.escape(req.user.id) +
+                            ", " +
+                            db.escape(message1) +
+                            ", " +
+                            "now(4))";
+                          db.query(activitySql1, (err, result) => {
+                            if (err) {
+                              return res.status(500).json(err);
+                            }
+                            return res
+                              .status(200)
+                              .json("Scores successfully Submitted");
+                          });
+                        });
+                      });
+                    });
+                  }
+                );
+              });
+          }
+        });
+      }
+    });
+  },
+  (error, req, res, next) => {
+    return res.status(400).json({ errors: error.message });
   }
 );
 
@@ -524,7 +740,7 @@ router.post(
 
               let updateMeasureStatus = () => {
                 let sql4 =
-                  "SELECT AVG(rubricScore) as averageStudentScore, studentFirstName, studentLastName FROM RUBRIC_SCORE NATURAL JOIN STUDENT WHERE toolID=" +
+                  "SELECT AVG(rubricScore) as averageStudentScore, studentFirstName, studentLastName, studentEmail FROM RUBRIC_SCORE NATURAL JOIN STUDENT WHERE toolID=" +
                   db.escape(rubricID) +
                   " AND studentID=" +
                   db.escape(studentID);
@@ -570,7 +786,7 @@ router.post(
                       let toolType = "";
                       if (result.length > 0) {
                         programID = result[0].programID;
-                        measureName = result[0].measureName;
+                        measureName = result[0].measureDesc;
                         toolName = result[0].toolName;
                       }
 
@@ -609,8 +825,9 @@ router.post(
                           studentName +
                           " was Graded by " +
                           req.user.email +
-                          " for Measure " +
-                          measureName;
+                          " for Measure '" +
+                          measureName +
+                          "'";
                         let activitySql =
                           "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
                           db.escape(message) +
@@ -624,9 +841,9 @@ router.post(
                           let message1 =
                             "You Graded " +
                             studentName +
-                            " for " +
+                            " for '" +
                             toolName +
-                            " " +
+                            "' " +
                             toolType;
                           let activitySql1 =
                             "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +
@@ -656,51 +873,5 @@ router.post(
     });
   }
 );
-
-// router.post(
-//   "/updateMeasure",
-//   passport.authenticate("jwt", { session: false }),
-//   (req, res) => {
-//     let sql1 =
-//       "SELECT * FROM PERFORMANCE_MEASURE NATURAL JOIN STUDENT_AVERAGE_SCORE where measureID=" +
-//       db.escape(req.body.measureID);
-
-//     db.query(sql1, (err, result) => {
-//       if (err) {
-//         return res.status(500).json(err);
-//       }
-
-//       let totalCount = 0;
-//       let passingCount = 0;
-//       var thresholdStudents = -1;
-//       let passing = false;
-//       result.forEach(row => {
-//         thresholdStudents = row.projectedStudentsValue;
-//         totalCount++;
-//         if (row.averageScore >= row.projectedResult) {
-//           passingCount++;
-//         }
-//       });
-//       if (
-//         totalCount !== 0 &&
-//         thresholdStudents !== -1 &&
-//         passingCount / totalCount >= thresholdStudents
-//       ) {
-//         passing = true;
-//       }
-//       let sql2 =
-//         "UPDATE PERFORMANCE_MEASURE SET measureStatus=" +
-//         db.escape(passing) +
-//         " WHERE measureID=" +
-//         db.escape(req.body.measureID);
-//       db.query(sql2, (err, result) => {
-//         if (err) {
-//           return res.status(500).json(err);
-//         }
-//         res.status(200).json("Updated Successfully!");
-//       });
-//     });
-//   }
-// );
 
 module.exports = router;

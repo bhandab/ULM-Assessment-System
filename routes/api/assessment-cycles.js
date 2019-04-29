@@ -55,7 +55,8 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        let message = req.user.email + " Created a New Cycle " + cycleName;
+        let message =
+          req.user.email + " Created a New Cycle " + "'" + cycleName + "'";
         let activitySql =
           "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
           db.escape(message) +
@@ -251,7 +252,7 @@ router.post(
                 return res.status(500).json(err);
               }
               let message =
-                req.user.email + " Created a New Cycle " + cycleName;
+                req.user.email + " Created a New Cycle '" + cycleName + "'";
               let activitySql =
                 "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
                 db.escape(message) +
@@ -370,7 +371,7 @@ router.post(
           if (err) {
             return res.status(500).json(err);
           }
-          let message = req.user.email + " Deleted Cycle " + cycleName;
+          let message = req.user.email + " Deleted Cycle '" + cycleName + "'";
           let activitySql =
             "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
             db.escape(message) +
@@ -408,7 +409,7 @@ router.post(
         errors.message = "Cycle Does not Exist";
         return res.status(404).json(errors);
       }
-      let cycleName = result[0].cycleTitle
+      let cycleName = result[0].cycleTitle;
       let sql1 =
         "UPDATE ASSESSMENT_CYCLE SET endDate=now(4) WHERE cycleID=" +
         db.escape(cycleID);
@@ -2166,8 +2167,9 @@ router.post(
                     req.user.email +
                     " Assigned " +
                     tobeAssignedStudents.length +
-                    " Students for Measure" +
-                    measureName;
+                    " Students for Measure '" +
+                    measureName +
+                    "'";
                   let activitySql =
                     "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
                     db.escape(message) +
@@ -2181,9 +2183,9 @@ router.post(
                     let message1 =
                       "You have been Assigned " +
                       tobeAssignedStudents.length +
-                      " Students to Evaluate for " +
+                      " Students to Evaluate for '" +
                       toolName +
-                      " " +
+                      "' " +
                       toolType;
                     let activitySql1 =
                       "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +
@@ -2233,6 +2235,7 @@ router.post(
 
     alreadyAssignedStudents = [];
     tobeAssignedStudents = [];
+    let testScores = [];
     let errors = {};
     let sql =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
@@ -2256,7 +2259,7 @@ router.post(
               " AND measureEvalID=" +
               db.escape(measureEvalID) +
               " AND studentID=" +
-              db.escape(value) +
+              db.escape(value.id) +
               " AND toolID=" +
               db.escape(testID) +
               " AND measureID=" +
@@ -2267,7 +2270,8 @@ router.post(
                 return callback(err);
               } else if (result.length > 0) {
                 alreadyAssignedStudents.push({
-                  studentID: value,
+                  studentID: value.id,
+                  email: value.email,
                   measureEvalID,
                   testID
                 });
@@ -2276,11 +2280,12 @@ router.post(
                 tobeAssignedStudents.push([
                   adminID,
                   measureEvalID,
-                  value,
+                  value.id,
                   testID,
                   measureID,
                   programID
                 ]);
+                testScores.push([value.id, value.email, evalID, measureID]);
                 callback();
               }
             });
@@ -2296,12 +2301,9 @@ router.post(
                   if (err) {
                     return res.status(500).json(err);
                   }
-                  let testScores = [];
-                  tobeAssignedStudents.forEach(student => {
-                    testScores.push([student[2], evalID, measureID]);
-                  });
+
                   let sql3 =
-                    "INSERT INTO TEST_SCORE (studentID, evalID, measureID) VALUES ?";
+                    "INSERT INTO TEST_SCORE (studentID, testStudentEmail, evalID, measureID) VALUES ?";
                   db.query(sql3, [testScores], (err, result) => {
                     if (err) {
                       return res.status(500).json(err);
@@ -2310,8 +2312,9 @@ router.post(
                       req.user.email +
                       " Assigned " +
                       tobeAssignedStudents.length +
-                      " Students for Measure" +
-                      measureName;
+                      " Students for Measure '" +
+                      measureName +
+                      "'";
                     let activitySql =
                       "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
                       db.escape(message) +
@@ -2325,9 +2328,9 @@ router.post(
                       let message1 =
                         "You have been assigned " +
                         tobeAssignedStudents.length +
-                        " Students to Evaluate for " +
+                        " Students to Evaluate for '" +
                         toolName +
-                        " " +
+                        "' " +
                         toolType;
                       let activitySql1 =
                         "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +

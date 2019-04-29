@@ -149,8 +149,9 @@ router.post("/login", (req, res) => {
   let sql =
     "SELECT * from SUPER_USER WHERE superEmail=" +
     db.escape(email) +
-    " and superPassword=" +
-    db.escape(password);
+    " and superPassword=password(" +
+    db.escape(password) +
+    ")";
 
   db.query(sql, (err, result) => {
     if (err) {
