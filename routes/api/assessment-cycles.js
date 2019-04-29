@@ -29,7 +29,6 @@ router.post(
 
     let programID = db.escape(req.user.programID);
     let cycleName = db.escape(req.body.cycleTitle);
-    //created = db.escape(new Date());
 
     let sql =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE programID=" +
@@ -49,7 +48,6 @@ router.post(
         "INSERT INTO ASSESSMENT_CYCLE (cycleTitle, startDate, programID) VALUES (" +
         cycleName +
         ", now(4)" +
-        //created +
         ", " +
         programID +
         ")";
@@ -57,7 +55,19 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        return res.status(200).json({ cycleName });
+        let message = req.user.email + " Created a New Cycle " + cycleName;
+        let activitySql =
+          "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
+          db.escape(message) +
+          ", now(4)," +
+          db.escape(programID) +
+          ")";
+        db.query(activitySql, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          return res.status(200).json({ cycleName });
+        });
       });
     });
   }
@@ -240,7 +250,20 @@ router.post(
               if (err) {
                 return res.status(500).json(err);
               }
-              res.status(200).json("Migration Successful!");
+              let message =
+                req.user.email + " Created a New Cycle " + cycleName;
+              let activitySql =
+                "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
+                db.escape(message) +
+                ", now(4)," +
+                db.escape(req.user.programID) +
+                ")";
+              db.query(activitySql, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
+                res.status(200).json("Migration Successful!");
+              });
             }
           );
         });
@@ -347,8 +370,19 @@ router.post(
           if (err) {
             return res.status(500).json(err);
           }
-
-          return res.status(200).json({ cycleID, cycleName });
+          let message = req.user.email + " Deleted Cycle " + cycleName;
+          let activitySql =
+            "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
+            db.escape(message) +
+            ", now(4)," +
+            db.escape(programID) +
+            ")";
+          db.query(activitySql, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            return res.status(200).json({ cycleID, cycleName });
+          });
         });
       });
     });
@@ -381,7 +415,19 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        res.status(200).json("Cycle Successfully Closed!");
+        let message = req.user.email + " Closed Cycle " + cycleName;
+        let activitySql =
+          "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
+          db.escape(message) +
+          ", now(4)," +
+          db.escape(req.user.programID) +
+          ")";
+        db.query(activitySql, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          return res.status(200).json("Cycle Successfully Closed!");
+        });
       });
     });
   }
@@ -2048,6 +2094,7 @@ router.post(
     let adminID = req.user.id;
     let programID = req.user.programID;
     let evalID = req.body.measureEvalID;
+    let actualEvalID = req.body.evalID;
     let rubricID = req.body.rubricID;
     alreadyAssignedStudents = [];
     tobeAssignedStudents = [];
@@ -2062,6 +2109,9 @@ router.post(
         errors.identifierError = "Measure ID not found";
         return res.status(404).json(errors);
       } else {
+        let measureName = result[0].measureDesc;
+        let toolName = result[0].toolName;
+        let toolType = result[0].toolType;
         async.forEachOfSeries(
           req.body.studentIDs,
           (value, key, callback) => {
@@ -2111,9 +2161,46 @@ router.post(
                   if (err) {
                     return res.status(500).json(err);
                   }
-                  return res
-                    .status(200)
-                    .json({ alreadyAssignedStudents, tobeAssignedStudents });
+                  let message =
+                    req.user.email +
+                    " Assigned " +
+                    tobeAssignedStudents.length +
+                    " Students for Measure" +
+                    measureName;
+                  let activitySql =
+                    "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
+                    db.escape(message) +
+                    ", now(4)," +
+                    db.escape(req.user.programID) +
+                    ")";
+                  db.query(activitySql, (err, result) => {
+                    if (err) {
+                      return res.status(500).json(err);
+                    }
+                    let message1 =
+                      "You have been Assigned " +
+                      tobeAssignedStudents.length +
+                      " Students to Evaluate for " +
+                      toolName +
+                      " " +
+                      toolType;
+                    let activitySql1 =
+                      "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +
+                      db.escape(actualEvalID) +
+                      ", " +
+                      db.escape(message1) +
+                      ", " +
+                      "now(4))";
+                    db.query(activitySql1, (err, result) => {
+                      if (err) {
+                        return res.status(500).json(err);
+                      }
+                      return res.status(200).json({
+                        alreadyAssignedStudents,
+                        tobeAssignedStudents
+                      });
+                    });
+                  });
                 });
               } else {
                 return res
@@ -2142,7 +2229,7 @@ router.post(
     let measureEvalID = req.body.measureEvalID;
     let evalID = req.body.evalID;
     let testID = req.body.testID;
-    console.log(testID);
+
     alreadyAssignedStudents = [];
     tobeAssignedStudents = [];
     let errors = {};
@@ -2156,6 +2243,9 @@ router.post(
         errors.identifierError = "Measure ID not found";
         return res.status(404).json(errors);
       } else {
+        let measureName = result[0].measureDesc;
+        let toolName = result[0].toolName;
+        let toolType = result[0].toolType;
         async.forEachOfSeries(
           req.body.studentIDs,
           (value, key, callback) => {
@@ -2215,9 +2305,46 @@ router.post(
                     if (err) {
                       return res.status(500).json(err);
                     }
-                    return res
-                      .status(200)
-                      .json({ alreadyAssignedStudents, tobeAssignedStudents });
+                    let message =
+                      req.user.email +
+                      " Assigned " +
+                      tobeAssignedStudents.length +
+                      " Students for Measure" +
+                      measureName;
+                    let activitySql =
+                      "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
+                      db.escape(message) +
+                      ", now(4)," +
+                      db.escape(req.user.programID) +
+                      ")";
+                    db.query(activitySql, (err, result) => {
+                      if (err) {
+                        return res.status(500).json(err);
+                      }
+                      let message1 =
+                        "You have been assigned " +
+                        tobeAssignedStudents.length +
+                        " Students to Evaluate for " +
+                        toolName +
+                        " " +
+                        toolType;
+                      let activitySql1 =
+                        "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +
+                        db.escape(evalID) +
+                        ", " +
+                        db.escape(message1) +
+                        ", " +
+                        "now(4))";
+                      db.query(activitySql1, (err, result) => {
+                        if (err) {
+                          return res.status(500).json(err);
+                        }
+                        return res.status(200).json({
+                          alreadyAssignedStudents,
+                          tobeAssignedStudents
+                        });
+                      });
+                    });
                   });
                 });
               } else {

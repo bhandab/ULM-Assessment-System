@@ -152,13 +152,18 @@ router.post(
       }
       let projectedResult = result[0].projectedResult;
       let projectedStudentsValue = result[0].projectedStudentsValue;
+      let programID = result[0].programID;
+      let toolName = result[0].toolName;
+      let toolType = result[0].toolType;
+      let measureName = result[0].measureDesc;
       if (!isEmpty(projectedResult)) {
         if (isEmpty(testScore)) {
           return res.status(404).json("Test Score Field Cannot Be Empty");
         }
       }
       let sql1 =
-        "SELECT * FROM TEST_SCORE WHERE studentID=" + db.escape(studentID);
+        "SELECT * FROM TEST_SCORE NATURAL JOIN STUDENT WHERE studentID=" +
+        db.escape(studentID);
 
       db.query(sql1, (err, result) => {
         if (err) {
@@ -168,6 +173,13 @@ router.post(
           errors.studentNotFound = "Student Does not Exist!";
           return res.status(404).json(errors);
         }
+        let studentName =
+          result[0].studentFirstName +
+          " " +
+          result[0].studentLastName +
+          " (" +
+          result[0].studentEmail +
+          ")";
         //let measureEvalID = result[0].measureEvalID;
         let sql2 = !isEmpty(projectedResult)
           ? "UPDATE TEST_SCORE SET testScore=" +
@@ -218,8 +230,44 @@ router.post(
               if (err) {
                 return res.status(500).json(err);
               }
+              let message =
+                studentName +
+                " was Graded by " +
+                req.user.email +
+                " for Measure " +
+                measureName;
+              let activitySql =
+                "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
+                db.escape(message) +
+                ", now(4)," +
+                db.escape(programID) +
+                ")";
+              db.query(activitySql, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
+                let message1 =
+                  "You Graded " +
+                  studentName +
+                  " for " +
+                  toolName +
+                  " " +
+                  toolType;
+                let activitySql1 =
+                  "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +
+                  db.escape(req.user.id) +
+                  ", " +
+                  db.escape(message1) +
+                  ", " +
+                  "now(4))";
+                db.query(activitySql1, (err, result) => {
+                  if (err) {
+                    return res.status(500).json(err);
+                  }
+                  return res.status(200).json("Scores successfully Submitted");
+                });
+              });
             });
-            res.status(200).json("Updated Successfully!");
           });
         });
       });
@@ -475,7 +523,7 @@ router.post(
 
               let updateMeasureStatus = () => {
                 let sql4 =
-                  "SELECT AVG(rubricScore) as averageStudentScore FROM RUBRIC_SCORE WHERE toolID=" +
+                  "SELECT AVG(rubricScore) as averageStudentScore, studentFirstName, studentLastName FROM RUBRIC_SCORE NATURAL JOIN STUDENT WHERE toolID=" +
                   db.escape(rubricID) +
                   " AND studentID=" +
                   db.escape(studentID);
@@ -483,7 +531,13 @@ router.post(
                   if (err) {
                     return res.status(500).json(err);
                   }
-
+                  let studentName =
+                    result[0].studentFirstName +
+                    " " +
+                    result[0].studentLastName +
+                    " (" +
+                    result[0].studentEmail +
+                    ")";
                   let averageStudentScore = result[0].averageStudentScore.toFixed(
                     2
                   );
@@ -508,6 +562,15 @@ router.post(
                     db.query(sql9, (err, result) => {
                       if (err) {
                         return res.status(500).json(err);
+                      }
+                      let programID = -1;
+                      let measureName = "";
+                      let toolName = "";
+                      let toolType = "";
+                      if (result.length > 0) {
+                        programID = result[0].programID;
+                        measureName = result[0].measureName;
+                        toolName = result[0].toolName;
                       }
 
                       let totalCount = 0;
@@ -541,9 +604,45 @@ router.post(
                         if (err) {
                           return res.status(500).json(err);
                         }
-                        return res
-                          .status(200)
-                          .json("Scores successfully Submitted");
+                        let message =
+                          studentName +
+                          " was Graded by " +
+                          req.user.email +
+                          " for Measure " +
+                          measureName;
+                        let activitySql =
+                          "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
+                          db.escape(message) +
+                          ", now(4)," +
+                          db.escape(programID) +
+                          ")";
+                        db.query(activitySql, (err, result) => {
+                          if (err) {
+                            return res.status(500).json(err);
+                          }
+                          let message1 =
+                            "You Graded " +
+                            studentName +
+                            " for " +
+                            toolName +
+                            " " +
+                            toolType;
+                          let activitySql1 =
+                            "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +
+                            db.escape(req.user.id) +
+                            ", " +
+                            db.escape(message1) +
+                            ", " +
+                            "now(4))";
+                          db.query(activitySql1, (err, result) => {
+                            if (err) {
+                              return res.status(500).json(err);
+                            }
+                            return res
+                              .status(200)
+                              .json("Scores successfully Submitted");
+                          });
+                        });
                       });
                     });
                   });
