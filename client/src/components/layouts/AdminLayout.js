@@ -2,7 +2,14 @@ import React, { Component, Fragment } from "react";
 import { NavLink, Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+<<<<<<< HEAD
 import { logoutUser } from "../../actions/authActions";
+import Logo from '../../assets/warhawk-logo.png';
+// let logo = require('../../assets/')
+=======
+import { logoutUser, loginAsEval } from "../../actions/authActions";
+import {Button} from 'react-bootstrap'
+>>>>>>> 214380635bba652d95876fecc41daf9dfb60b226
 
 import "./Style.css";
 
@@ -26,7 +33,15 @@ class AdminLayout extends Component {
     this.props.logoutUser();
   };
 
+<<<<<<< HEAD
+=======
+  actAsEval = () => {
+    console.log("clicked")
+    this.props.loginAsEval()
+  }
+
   
+>>>>>>> 214380635bba652d95876fecc41daf9dfb60b226
     /* Set the width of the side navigation to 250px and the left margin of the page content to 250px */
 openNav = () => {
   if(!this.state.sidebar){
@@ -61,10 +76,10 @@ openNav = () => {
           <button id = "disappear" className="openbtn" onClick={this.openNav}>&#9776; </button>
            <span className="ml-3 mt-5"><strong>Coordinator</strong></span>
         </h1>
-          {/* <div id="main">
-           <button id = "disappear" class="openbtn" onClick={openNav}>&#9776; </button>
-          </div> */}
           <ul className="utilities">
+            <li className="mr-5">
+              <Button onClick={this.actAsEval}>Evaluator</Button>
+            </li>
             <li className="users">
               <Link to="/admin/profile">{this.props.auth.user.name}</Link>
             </li>
@@ -76,22 +91,29 @@ openNav = () => {
           </ul>
         </header>
         <div id="mySidebar" className="sidebar noprint">
+<<<<<<< HEAD
+        <img className = "ml-3" style={{height: '100px', width: '200px'}}src= {Logo}/>
             {/* <a href="javascript:void(0)" className="closebtn" onClick={this.closeNav}>&times;</a> */}
            <ul className="bordered m-3"style={{backgroundColor:'white'}}>
             <li className="dashboard">
-              <NavLink to="/admin/cycles">Dashboard</NavLink>
+              <NavLink to="/admin/cycles"><i className="fas fa-chalkboard"></i>Dashboard</NavLink>
+=======
+           <ul className="bordered m-3"style={{backgroundColor:'white'}}>
+            <li className="dashboard">
+              <NavLink to="/admin/dashboard">Dashboard</NavLink>
+>>>>>>> 214380635bba652d95876fecc41daf9dfb60b226
             </li>
             <li className="assess-cycle">
-              <NavLink to="/admin/cycles">Assessment Cycle</NavLink>
+              <NavLink to="/admin/cycles"><i className="fas fa-recycle "></i>Assessment Cycle</NavLink>
             </li>
             <li className="rubrics">
-              <NavLink to="/admin/rubrics">Rubrics</NavLink>
+              <NavLink to="/admin/rubrics"><i className="fas fa-th"></i>Rubrics</NavLink>
             </li>
             <li className="evaluators">
-            <NavLink to="/admin/evaluators">Evaluators</NavLink>
+            <NavLink to="/admin/evaluators"><i className="fas fa-user-tie"></i>Evaluators</NavLink>
             </li>
             <li className="pastCycles">
-            <NavLink to="/admin/pastCycles">Past Cycles</NavLink>
+            <NavLink to="/admin/pastCycles"><i className="fas fa-fast-backward"></i>Past Cycles</NavLink>
             </li>
             </ul>
           </div>
@@ -102,7 +124,8 @@ openNav = () => {
 
 AdminLayout.propTypes = {
   logoutUser: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired
+  auth: PropTypes.object.isRequired,
+  loginAsEval: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
@@ -111,5 +134,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { logoutUser }
+  { logoutUser, loginAsEval }
 )(AdminLayout);

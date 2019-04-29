@@ -228,6 +228,10 @@ main li:before {
   border-bottom: solid 5px transparent;
 }
 
+i {
+  margin-right: 10px;
+}
+
 /**Angel*/
 textarea {
   resize: none !important;
@@ -882,7 +886,7 @@ input[type=checkbox] {
 
 /* The sidebar links */
 .sidebar a {
-  padding: 8px 8px 8px 32px;
+  padding: 8px 8px 10px;
   text-decoration: none;
   font-size: 25px;
   color: #3d3a3a;

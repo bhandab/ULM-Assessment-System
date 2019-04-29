@@ -1958,14 +1958,14 @@ router.get(
 // @desc Deletes Assigned Student
 // @access Private
 router.post(
-  ":/measureIdentifier/deleteAssignedStudent",
+  "/:measureIdentifier/deleteAssignedStudent",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let errors = {};
     let measureID = req.params.measureIdentifier;
     let deleteStudentID = req.body.studentID;
     let measureEvalID = req.body.measureEvalID;
-
+    console.log(req.body)
     let sql1 =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
       db.escape(measureID);
@@ -2068,7 +2068,7 @@ router.post(
                       return res.status(200).json("Deleted Successfully!");
                     });
                   } else {
-                    return res.status.json("Deleted Successfully!");
+                    return res.status(200).json("Deleted Successfully!");
                   }
                 } else {
                   return res.status(200).json("Deleted Successfully!");

@@ -21,7 +21,8 @@ import {
   deleteMeasure,
   updateMeasure,
   deleteEvaluator,
-  deleteStudent
+  deleteStudent,
+  unassignStudent
 } from "../../actions/assessmentCycleAction";
 import {updateTestScores} from '../../actions/evaluationsAction';
 import { getRegisteredEvaluators } from "../../actions/evaluatorAction";
@@ -193,14 +194,6 @@ class MeasureDetails extends Component {
   statusModalHide = () => {
     this.setState({ statusModal: false });
   };
-
-  // statsShow = () => {
-  //   this.setState({ stats: true });
-  // };
-
-  // statsHide = () => {
-  //   this.setState({ stats: false });
-  // };
 
   scoreStudentsShow = () => {
     this.setState({ scoreStudents: true });
@@ -403,6 +396,18 @@ class MeasureDetails extends Component {
     console.log(studentID)
 
     this.props.deleteStudent(measureID,studentID)
+
+  }
+
+  unAssignStudent = e => {
+    console.log(e.target.name)
+    console.log(e.target.value)
+    const measureID = this.props.match.params.measureID
+    const measureEvalID = e.target.name
+    const studentID = e.target.value
+    const body = {measureEvalID,studentID}
+    console.log(body)
+    this.props.unassignStudent(measureID, body)
 
   }
 
@@ -1027,7 +1032,15 @@ class MeasureDetails extends Component {
       const assignedStuds = this.props.cycles.assignedStudents.assignedStudentsList.concat(this.props.cycles.assignedStudents.evaluatedStudentsList)
       studAssignDetail = assignedStuds.map((student,index) => {
         return (<ListGroup.Item key ={"seval"+student.studentID}>
-         {index+1}. <span className="statStud">{student.name}</span> <Badge pill> assigned to </Badge> <span className="statEval">{student.evalEmail}</span>
+         {index+1}. <span className="statStud">{student.name}</span> 
+         <Badge pill> assigned to </Badge> <span className="statEval">{student.evalEmail}</span>
+         <button
+              style={{ border: "none", background: "none" }}
+              name={student.measureEvalID}
+              value={student.studentID}
+              onClick={this.unAssignStudent.bind(this)}
+              className="delete float-right"
+            />
         </ListGroup.Item>)
       })
 
@@ -1583,7 +1596,7 @@ class MeasureDetails extends Component {
                
                 </Card.Header>
                 <Card.Body className="m-0 p-2">
-                <span><input onChange={()=>this.setState({notAssgd:!this.state.notAssgd})}type="checkbox" id="assgdCheckBox"/>Unassigned Students</span>
+                <span><input onChange={()=>this.setState({notAssgd:this.state.notAssgd})}type="checkbox" id="assgdCheckBox"/>Unassigned Students</span>
                 {!this.state.notAssgd ? 
                 (studentSelect.length > 0 ? 
                 <select id="studSelect" name="assignedStudents" multiple>
@@ -1685,6 +1698,7 @@ export default connect(
     deleteMeasure,
     updateMeasure,
     deleteEvaluator,
-    deleteStudent
+    deleteStudent,
+    unassignStudent
   }
 )(MeasureDetails);

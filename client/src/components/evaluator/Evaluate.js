@@ -25,7 +25,8 @@ class Evaluate extends Component {
       </div>
     ),
     scoreMap : new Map(),
-    scoreObject: []
+    scoreObject: [],
+    rubricTarget:""
   };
 
   componentDidMount() {
@@ -67,8 +68,8 @@ class Evaluate extends Component {
       }
   }
 
-  checkOut = () => {
-    console.log("From Component did update");
+  collapseRubric = (e) => {
+    console.log("e.dataset");
   };
 
   createRubric = () => {
@@ -308,6 +309,8 @@ class Evaluate extends Component {
   rubricHeaderClick = e => {
     console.log(e.target.value);
     this.props.getSingleRubric(e.target.value, true);
+    this.setState({rubricTarget:","+e.target.dataset.target})
+    console.log(e.target.dataset.target)
   };
 
   testTitleClick = e => {
@@ -594,9 +597,10 @@ class Evaluate extends Component {
                     className="btn btn-link"
                     type="button"
                     data-toggle="collapse"
-                    data-target="#scoretestCollapse"
+                    data-target={"#scoretestCollapse"+ this.state.rubricTarget}
                     aria-expanded="true"
                     aria-controls="scoretestCollapse"
+                    onClick={()=>this.setState({rubricTarget:""})}
                   >
                     Tests
                   </button>

@@ -476,6 +476,24 @@ export const assignStudentsToTest = (measureID, body) => dispatch => {
         })
 }
 
+export const unassignStudent = (measureID, body) => dispatch => {
+    axios
+    .post("/api/cycles/"+measureID+"/deleteAssignedStudent",body)
+    .then(() => toastr.success(
+        "Student Unassigned!",
+        "Student Successfully Unassigned From Evaluator!"
+    ))
+    .then(() => dispatch(getAssignedStudents(measureID)))
+    .catch(err => {
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+
+        })
+    })
+}
+
+
 export const getMeasureRubricReport = (measureID) => dispatch => {
     axios
     .get("/api/cycles/"+measureID+"/measureRubricReport")

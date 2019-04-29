@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Spinner, Button, Modal, Form, Col,FormCheck } from 'react-bootstrap';
+import { Spinner, Button, Modal, Form, Col,FormCheck, Card } from 'react-bootstrap';
 import { getAllRubrics, createRubric} from '../../actions/rubricsAction';
 import PropTypes from 'prop-types';
 import { isEmpty } from '../../utils/isEmpty';
@@ -25,14 +25,31 @@ class AllRubrics extends Component {
     saveChangesHandler = e => {
         
         e.preventDefault();
+
+        /*let scaleInfo = []
+
+        for(let i = 0; i < this.state.scaleInfo.length; i++){
+            const scaleDescName = `scaleDesc${i+1}`
+            const scaleValName = `scaleValue${(i+1)}`
+            const scaleDesc = document.getElementById(scaleDescName).value
+            const value = document.getElementById(scaleValName).value
+            const scale = {
+                scaleDesc: scaleDesc,
+                scaleValue : value
+            }
+            scaleInfo.push(scale)
+        }*/
+        
         const rubricDetails = {
             rubricName: e.target.rubricTitle.value,
             rows: e.target.rows.value,
             columns: e.target.cols.value,
+            //scales: scaleInfo,
             weighted: e.target.weighted.checked+""
         };
-        this.props.createRubric(rubricDetails,this.props.history);
+        this.props.createRubric(rubricDetails);
         console.log(rubricDetails)
+        //localStorage.setItem('rubric',JSON.stringify(rubricDetails))
         this.setState({createRubric:false})
     };
 
@@ -44,9 +61,18 @@ class AllRubrics extends Component {
         this.setState({ createRubric: true });
     };
 
+    /*columnChangeHandler = (e) => {
+        console.log("Column Changed")
+        console.log(e.target.parent)
+        const cols = e.target.value
+        for(let i = 0; i < cols; i++){
+
+        }
+    }*/
 
     render() {
 
+       // console.log(this.props)
         let allRubrics = <Spinner animation="border" variant="primary" />;
 
         if (isEmpty(this.props.rubric.rubrics) === false) {
@@ -68,20 +94,69 @@ class AllRubrics extends Component {
 
         }
 
+        
+       /*const columnChangeHandler = (e) => {
+            //this.setState({scaleInfo:[]})
+            //let scaleInfo = []
+            console.log("Column Changed")
+            console.log(e.target.parentNode.parentNode)
+            const cols = e.target.value
+            console.log(cols)
+            for (let i = 0; i < cols; i++) {
+                
+               const scale = ( <Form.Row className="mb-4" key ={i}>
+                    <Col>
+                        <Form.Label className="font-weight-bold">Scale Description</Form.Label>
+                        <Form.Control
+                            placeholder="Description"
+                            id={"scaleDesc"+(i+1)}
+                        />
+                    </Col>
+                    <Col>
+                        <Form.Label className="font-weight-bold">
+                            Value
+                    </Form.Label>
+                        <Form.Control
+                            type="number"
+                            placeholder="Numeric Value"
+                            min="1"
+                            max={cols}
+                            id={"scaleValue"+(i+1)}
+                        />
+                    </Col>
+               </Form.Row> )
+                scaleInfo.push(scale)
+                this.setState({scaleInfo:scaleInfo})
+            }
+        }*/
+
         return (
+            <>
             <section className="panel important">
-                <h2>All Rubrics</h2>
-                <hr />
+            <Card>
+                <Card.Header>
+                <h2 style={{textAlign:'center'}}><strong>All Rubrics</strong></h2>
+                </Card.Header>
+                <Card.Body>
                 <ol className="list-group">{allRubrics}</ol>
                 <br></br>
+                </Card.Body>
+                <Card.Footer>
                 <Button
                     variant="primary"
                     onClick={this.handleRubricCreateShow}
-                    className="float-left"
+<<<<<<< HEAD
+                    className="float-left mb-3"
+=======
+                    className="float-right"
                     
+>>>>>>> 214380635bba652d95876fecc41daf9dfb60b226
                 >
                     Create New Rubric
           </Button>
+          </Card.Footer>
+          </Card>
+          </section>
 
                 <Modal
                     show={this.state.createRubric}
@@ -150,7 +225,7 @@ class AllRubrics extends Component {
                     </Modal.Body>
                 </Modal>
 
-            </section>
+            </>
         )
     }
 }
