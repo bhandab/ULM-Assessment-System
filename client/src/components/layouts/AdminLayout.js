@@ -2,20 +2,8 @@ import React, { Component, Fragment } from "react";
 import { NavLink, Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-<<<<<<< HEAD
-import { logoutUser } from "../../actions/authActions";
-import Logo from '../../assets/warhawk-logo.png';
-// let logo = require('../../assets/')
-=======
-import { logoutUser, loginAsEval } from "../../actions/authActions";
-import {Button} from 'react-bootstrap'
->>>>>>> 214380635bba652d95876fecc41daf9dfb60b226
-
-import "./Style.css";
-
 class AdminLayout extends Component {
 
-  state = {
     sidebar : false
   }
   
@@ -33,15 +21,12 @@ class AdminLayout extends Component {
     this.props.logoutUser();
   };
 
-<<<<<<< HEAD
-=======
   actAsEval = () => {
     console.log("clicked")
     this.props.loginAsEval()
   }
 
   
->>>>>>> 214380635bba652d95876fecc41daf9dfb60b226
     /* Set the width of the side navigation to 250px and the left margin of the page content to 250px */
 openNav = () => {
   if(!this.state.sidebar){
@@ -91,17 +76,9 @@ openNav = () => {
           </ul>
         </header>
         <div id="mySidebar" className="sidebar noprint">
-<<<<<<< HEAD
-        <img className = "ml-3" style={{height: '100px', width: '200px'}}src= {Logo}/>
-            {/* <a href="javascript:void(0)" className="closebtn" onClick={this.closeNav}>&times;</a> */}
-           <ul className="bordered m-3"style={{backgroundColor:'white'}}>
-            <li className="dashboard">
-              <NavLink to="/admin/cycles"><i className="fas fa-chalkboard"></i>Dashboard</NavLink>
-=======
            <ul className="bordered m-3"style={{backgroundColor:'white'}}>
             <li className="dashboard">
               <NavLink to="/admin/dashboard">Dashboard</NavLink>
->>>>>>> 214380635bba652d95876fecc41daf9dfb60b226
             </li>
             <li className="assess-cycle">
               <NavLink to="/admin/cycles"><i className="fas fa-recycle "></i>Assessment Cycle</NavLink>
