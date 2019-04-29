@@ -7,10 +7,14 @@ import { setCurrentUser, logoutUser } from './actions/authActions';
 import { Provider } from 'react-redux';
 import store from './store';
 
+import ReduxToastr from 'react-redux-toastr'
+
 import Login from './components/auth/Login'
 import Admin from './components/users/Admin'
 import Evaluator from './components/users/Evaluator'
 import Register from './components/auth/Register'
+import SuperAdmin from './components/users/SuperAdmin'
+import ProgramCoordiantors from './components/admin/ProgramCoordinators'
 
 
 import './App.css';
@@ -50,10 +54,22 @@ class App extends Component {
             <Route path='/evaluator' component={Evaluator}></Route>
             <Route path='/login' exact component={Login}></Route>
             <Route path="/register" exact component = {Register}></Route>
+            <Route exact path="/superuser" component={SuperAdmin}></Route>
+            <Route exact path="/superuser/programs/:programID(\d+)" component={ProgramCoordiantors}></Route>
+
             <Route path='/' exact component={Login} />
             </Switch>
           </div>
         </Router>
+        <ReduxToastr
+      timeOut={4000}
+      newestOnTop={false}
+      preventDuplicates
+      position="top-right"
+      transitionIn="fadeIn"
+      transitionOut="fadeOut"
+      progressBar
+      closeOnToastrClick/>
       </Provider>
 
     );

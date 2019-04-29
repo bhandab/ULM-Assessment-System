@@ -16,7 +16,8 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let sql =
-      "SELECT * FROM PERFORMANCE_MEASURE WHERE corId=" + db.escape(req.user.id);
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE programID=" +
+      db.escape(req.user.programID);
     let measureDescs = new Set();
     let measures = [];
     db.query(sql, (err, result) => {

@@ -12,6 +12,15 @@ import CreateRubric from '../rubrics/CreateRubric';
 import AllRubrics from '../rubrics/AllRubrics';
 import MeasureDetails from '../assess-cycle/MeasureDetails';
 import Evaluators from '../contents/Evaluators';
+// import MeasureReport from '../assess-cycle/MeasureReport';
+import CoordinatorProfile from '../profiles/CoordinatorProfile';
+import OutcomeReport from '../reports/OutcomeReport';
+import CycleReport from '../reports/CycleReport';
+import RubricReport from '../reports/RubricReport';
+import TestReport from '../reports/TestReport';
+import PastCycles from '../contents/PastCycles';
+import Dashboard from '../dashboard/Dashboard';
+
 
 class Admin extends Component {
 
@@ -28,17 +37,26 @@ class Admin extends Component {
             <Fragment>
                 <AdminLayout></AdminLayout>
 
-                <main>
+                <main id="main">
+                    <Switch>
+                        <Route exact path='/admin/cycles/cycle/:cycleID(\d+)/report' component={CycleReport} />
+                        <Route exact path="/admin/cycles/cycle/:cycleID(\d+)/outcome/:outcomeID(\d+)/report" component={OutcomeReport}/>
+                        <Route exact path="/admin/measure/:measureID(\d+)/report" component={RubricReport}/>
+                        <Route exact path="/admin/measure/:measureID(\d+)/testReport" component={TestReport}/>
                         <Route exact path='/admin/rubrics' component={AllRubrics} />
                         <Route exact path='/admin/outcomes' component={Outcomes} />
                         <Route exact path='/admin/measures' component={Measures} />
                         <Route exact path="/admin/evaluators" component ={Evaluators} />
-                        <Route path='/admin/rubrics/:rubricID(\d+)' component={CreateRubric} />
-                        <Route path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)/measures/:measureID(\d+)' component={MeasureDetails}/>
-                        <Route path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)/rubric/:rubricID(\d+)' component={CreateRubric} />
-                        {/**<Route exact path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)' component={OutcomeMeasures} />*/}
-                        <Route  exact path='/admin/cycles/cycle/:cycleID(\d+)' component={CycleMeasures} />
+                        <Route exact path='/admin/rubrics/:rubricID(\d+)' component={CreateRubric} />
+                        <Route exact path='/admin/profile' component={CoordinatorProfile} />
+                        <Route exact path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)/measures/:measureID(\d+)' component={MeasureDetails}/>
+                        <Route exact path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)/rubric/:rubricID(\d+)' component={CreateRubric} />
+                        <Route exact path='/admin/cycles/cycle/:cycleID(\d+)/outcomes/:outcomeID(\d+)' component={OutcomeMeasures} />
+                        <Route exact path='/admin/cycles/cycle/:cycleID(\d+)' component={CycleMeasures} />
                         <Route exact path='/admin/cycles' component={AssessmentCycle} />
+                        <Route exact path='/admin/pastCycles' component={PastCycles} />
+                        <Route exact path='/admin/dashboard' component={Dashboard} />
+                    </Switch>
 
                 </main>
             </Fragment>

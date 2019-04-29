@@ -2,12 +2,15 @@ const express = require("express");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const async = require("async");
+const Validator = require("validator");
+const moment = require("moment");
 
 const db = require("../../config/dbconnection");
 const validateCycleInput = require("../../validation/assessment-cycle");
 const validateOutcomeInput = require("../../validation/learning-outcome");
 const validateMeasureInput = require("../../validation/performance-measure");
 const validateAddEvaluatorInput = require("../../validation/addEvaluator");
+const isEmpty = require("../../validation/isEmpty");
 
 const router = express.Router();
 
@@ -24,13 +27,13 @@ router.post(
       return res.status(404).json(errors);
     }
 
-    let adminID = db.escape(req.user.id);
+    let programID = db.escape(req.user.programID);
     let cycleName = db.escape(req.body.cycleTitle);
-    created = db.escape(new Date());
+    //created = db.escape(new Date());
 
     let sql =
-      "SELECT * FROM ASSESSMENT_CYCLE WHERE corId=" +
-      adminID +
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE programID=" +
+      programID +
       " AND cycleTitle=" +
       cycleName;
 
@@ -43,18 +46,18 @@ router.post(
       }
 
       sql =
-        "INSERT INTO ASSESSMENT_CYCLE (cycleTitle, startDate, corId) VALUES (" +
+        "INSERT INTO ASSESSMENT_CYCLE (cycleTitle, startDate, programID) VALUES (" +
         cycleName +
+        ", now(4)" +
+        //created +
         ", " +
-        created +
-        ", " +
-        adminID +
+        programID +
         ")";
       db.query(sql, (err, reslt) => {
         if (err) {
           return res.status(500).json(err);
         }
-        return res.status(200).json({ cycleName, created });
+        return res.status(200).json({ cycleName });
       });
     });
   }
@@ -68,10 +71,11 @@ router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let sql =
-      "SELECT * FROM ASSESSMENT_CYCLE WHERE corId=" + db.escape(adminID);
-
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE programID=" +
+      db.escape(programID) +
+      " ORDER BY startDate DESC";
     let cycles = [];
 
     db.query(sql, (err, result) => {
@@ -82,6 +86,8 @@ router.get(
         cycleInfo = {
           cycleName: row.cycleTitle,
           dateCreated: row.startDate,
+          endDate: row.endDate,
+          isClosed: row.endDate ? true : false,
           cycleID: row.cycleID
         };
         cycles.push(cycleInfo);
@@ -91,200 +97,158 @@ router.get(
   }
 );
 
-// @route GET api/cycles/:cycleIdentifier/outcomes
-// @desc Retrieves outcomes associated with the current cycle
+// @route GET api/cycles/migrate
+// @desc Migrates contents of selected cycle into new cycle
 // @access Private
-
-router.get(
-  "/:cycleIdentifier/outcomes",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    let adminID = req.user.id;
-    let cycleIdentifier = req.params.cycleIdentifier;
-    let outcomes = [];
-
-    let sql =
-      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID = " +
-      db.escape(cycleIdentifier) +
-      " AND corId = " +
-      db.escape(adminID);
-    db.query(sql, (err, result) => {
-      if (err) {
-        return res.status(500).json(err);
-      } else if (result.length <= 0) {
-        return res.status(404).json({
-          errors: "Cycle with cycle ID " + cycleIdentifier + " Does not Exist!"
-        });
-      }
-      let cycleName = result[0].cycleTitle;
-
-      let sql1 =
-        "SELECT * FROM LEARNING_OUTCOME" +
-        " WHERE cycleID=" +
-        db.escape(cycleIdentifier) +
-        " AND corId=" +
-        db.escape(adminID);
-      db.query(sql1, (err, result) => {
-        if (err) {
-          return res.status(500).json(err);
-        }
-        result.forEach(row => {
-          outcome = {
-            outcomeName: row.learnDesc,
-            outcomeID: row.learnID
-          };
-          outcomes.push(outcome);
-        });
-        res.status(200).json({ outcomes, cycleIdentifier, cycleName });
-      });
-    });
-  }
-);
-
-// @route POST api/cycles/:cycleIdentifier/addNewOutcome
-// @desc Adds a new outcome within a cycle
-// @access Private
-
 router.post(
-  "/:cycleIdentifier/addNewOutcome",
+  "/migrate",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    let { errors, isValid } = validateOutcomeInput(req.body);
-    if (!isValid) {
+    let errors = {};
+
+    if (isEmpty(req.body.oldCycleID)) {
+      errors.noCycleSelected = "Please select a cycle to migrate from!";
       return res.status(404).json(errors);
     }
-
-    let cycleID = req.params.cycleIdentifier;
-    let adminID = req.user.id;
-    let outcomeName = req.body.outcomeDescription;
-
+    if (isEmpty(req.body.cycleName)) {
+      errors.emptyCycleName = "Cycle Name Field Cannot be Empty";
+      return res.status(404).json(errors);
+    }
+    let cycleName = req.body.cycleName;
     let sql0 =
-      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
-      db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleTitle=" + db.escape(cycleName);
     db.query(sql0, (err, result) => {
       if (err) {
         return res.status(500).json(err);
       }
-      if (result.length <= 0) {
-        errors.outcomeDescription =
-          "Cycle with cycle ID " + cycleID + " Does not Exist!";
+      if (result.length > 0) {
+        errors.alreadyExistingCycle = "Cycle with this name already exists!";
         return res.status(404).json(errors);
       }
-      let sql =
-        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
-        db.escape(cycleID) +
-        " AND learnDesc=" +
-        db.escape(outcomeName) +
-        " AND corId=" +
-        db.escape(adminID);
-      db.query(sql, (err, result) => {
+      sql0 =
+        "INSERT INTO ASSESSMENT_CYCLE (cycleTitle, startDate, programID) VALUES (" +
+        db.escape(cycleName) +
+        ", now(4)" +
+        // db.escape(new Date()) +
+        ", " +
+        db.escape(req.user.programID) +
+        ")";
+      db.query(sql0, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
-
-        if (result.length > 0) {
-          errors.outcomeDescription =
-            "The Selected Outcome is already in current Assessment Cycle";
-          return res.status(404).json(errors);
-        }
-
-        sql =
-          "INSERT INTO LEARNING_OUTCOME (cycleID, learnDesc, corId) VALUES (" +
-          db.escape(cycleID) +
-          ", " +
-          db.escape(outcomeName) +
-          ", " +
-          db.escape(adminID) +
-          ")";
-
+        let oldCycleID = req.body.oldCycleID;
+        let newCycleID = result.insertId;
+        let programID = req.user.programID;
+        let sql =
+          "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
+          db.escape(oldCycleID);
         db.query(sql, (err, result) => {
           if (err) {
             return res.status(500).json(err);
           }
-          let outcomeID = result.insertId;
-          res.status(200).json({ cycleID, outcomeID, adminID, outcomeName });
-        });
-      });
-    });
-  }
-);
-
-// @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier
-// @desc Retrieves all measures associated with the given cycle and outcome
-// @access Private
-
-router.get(
-  "/:cycleIdentifier/:outcomeIdentifier/measures",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    let cycleID = req.params.cycleIdentifier;
-    let outcomeID = req.params.outcomeIdentifier;
-    let adminID = req.user.id;
-
-    let measures = [];
-
-    let sql1 =
-      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
-      db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
-    db.query(sql1, (err, result) => {
-      if (err) {
-        return res.status(500).json(err);
-      } else if (result.length <= 0) {
-        return res.status(404).json({
-          errors: "Cycle with ID " + cycleID + " Does not Exist!"
-        });
-      }
-
-      let sql2 =
-        "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
-        db.escape(outcomeID) +
-        " AND corId=" +
-        db.escape(adminID);
-      db.query(sql2, (err, result) => {
-        if (err) {
-          return res.status(500).json(err);
-        } else if (result.length <= 0) {
-          return res.status(404).json({
-            errors:
-              "Learning Outcome with the ID " + outcomeID + " Does not Exist!"
-          });
-        }
-
-        let outcomeName = result[0].learnDesc;
-
-        let sql3 =
-          "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
-          db.escape(outcomeID) +
-          " AND corId=" +
-          db.escape(adminID);
-
-        db.query(sql3, (err, result) => {
-          if (err) {
-            return res.status(500).json(err);
-          }
-
+          let outcomes = [];
           result.forEach(row => {
-            measure = {
-              measureName: row.measureDesc,
-              measureID: row.measureID,
-              projectedResult: row.projectedResult,
-              projectedStudentNumber: row.projectedStudentsValue,
-              courseAssociated: row.courseAssociated,
-              toolName: row.toolName,
-              toolID: row.toolID
-            };
-            measures.push(measure);
+            outcomes.push({
+              learnDesc: row.learnDesc,
+              oldOutcomeID: row.learnID
+            });
           });
-          res.status(200).json({ measures, cycleID, outcomeID, outcomeName });
+
+          async.forEachOf(
+            outcomes,
+            (value, key, callback) => {
+              let sql1 =
+                "INSERT INTO LEARNING_OUTCOME (learnDesc, programID, cycleID, learnCreatedTime) VALUES (" +
+                db.escape(value.learnDesc) +
+                ", " +
+                db.escape(programID) +
+                ", " +
+                db.escape(newCycleID) +
+                ", " +
+                //db.escape(moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")) +
+                "now(4))";
+              db.query(sql1, (err, result) => {
+                if (err) {
+                  return callback(err);
+                } else {
+                  let outcomeID = result.insertId;
+                  let measures = [];
+                  let outcomeCourses = [];
+                  let sql2 =
+                    "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
+                    db.escape(value.oldOutcomeID);
+                  db.query(sql2, (err, result) => {
+                    if (err) {
+                      return callback(err);
+                    }
+                    result.forEach(row => {
+                      measures.push([
+                        row.measureDesc,
+                        row.projectedResult,
+                        row.projectedStudentsValue,
+                        row.courseAssociated,
+                        row.studentNumberScale,
+                        row.projectedValueScale,
+                        row.toolType,
+                        row.toolName,
+                        programID,
+                        outcomeID,
+                        newCycleID,
+                        row.toolID,
+                        Date.now()
+                      ]);
+                    });
+                    let sql3 =
+                      "SELECT * FROM OUTCOME_COURSE WHERE learnID=" +
+                      db.escape(value.oldOutcomeID);
+                    db.query(sql3, (err, result) => {
+                      if (err) {
+                        return callback(err);
+                      }
+                      result.forEach(row => {
+                        outcomeCourses.push([row.courseCode, outcomeID]);
+                      });
+
+                      let sql4 =
+                        "INSERT INTO PERFORMANCE_MEASURE (measureDesc,projectedResult,projectedStudentsValue,courseAssociated,studentNumberScale,projectedValueScale,toolType,toolName,programID,learnID,cycleID,toolID,measureCreatedTime) VALUES ?";
+                      if (measures.length > 0) {
+                        db.query(sql4, [measures], (err, result) => {
+                          if (err) {
+                            return callback(err);
+                          }
+                        });
+                      }
+                      let sql5 =
+                        "INSERT INTO OUTCOME_COURSE (courseCode,learnID) VALUES ?";
+                      if (outcomeCourses.length > 0) {
+                        db.query(sql5, [outcomeCourses], (err, result) => {
+                          if (err) {
+                            return callback(err);
+                          }
+                          callback();
+                        });
+                      } else {
+                        callback();
+                      }
+                    });
+                  });
+                }
+              });
+            },
+            err => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              res.status(200).json("Migration Successful!");
+            }
+          );
         });
       });
     });
   }
 );
+
 // @route POST api/cycles/:cycleIdentifier/update
 // @desc Updates an  existing Assessment Cycle
 // @access Private BIKASH
@@ -299,15 +263,15 @@ router.post(
     }
 
     let cycleID = req.params.cycleIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let cycleName = req.body.cycleTitle;
     created = db.escape(new Date());
 
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
 
     db.query(sql0, (err, result) => {
       if (err) {
@@ -344,13 +308,13 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let cycleID = req.params.cycleIdentifier;
-    let adminID = req.user.id;
-
+    let programID = req.user.programID;
+    let errors = {};
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
 
     db.query(sql0, (err, result) => {
       if (err) {
@@ -360,21 +324,192 @@ router.post(
         errors = "The given cycle doesn't with cycleID " + cycleID + " exists";
         return res.status(404).json({ errors });
       }
-
-      let sql1 =
-        "DELETE FROM ASSESSMENT_CYCLE WHERE cycleID=" +
-        db.escape(cycleID) +
-        " AND corId=" +
-        db.escape(adminID);
-
       cycleName = result[0].cycleTitle;
-
+      let sql1 =
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" + db.escape(cycleID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
+        if (result.length > 0) {
+          errors.outcomeExistingInsideCycle =
+            "One or more outcomes is linked with this cycle. Please delete outcomes linked with the cycle first!";
+          return res.status(404).json(errors);
+        }
 
-        return res.status(200).json({ cycleID, cycleName });
+        let sql2 =
+          "DELETE FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+          db.escape(cycleID) +
+          " AND programID=" +
+          db.escape(programID);
+
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          return res.status(200).json({ cycleID, cycleName });
+        });
+      });
+    });
+  }
+);
+
+// @route POST api/cycles/closeCycle
+// @desc Close a cycle
+// @access Private
+router.post(
+  "/closeCycle",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let cycleID = req.body.cycleID;
+    let errors = {};
+    let sql =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" + db.escape(cycleID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.message = "Cycle Does not Exist";
+        return res.status(404).json(errors);
+      }
+      let sql1 =
+        "UPDATE ASSESSMENT_CYCLE SET endDate=now(4) WHERE cycleID=" +
+        db.escape(cycleID);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        res.status(200).json("Cycle Successfully Closed!");
+      });
+    });
+  }
+);
+
+// @route GET api/cycles/:cycleIdentifier/outcomes
+// @desc Retrieves outcomes associated with the current cycle
+// @access Private
+
+router.get(
+  "/:cycleIdentifier/outcomes",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let programID = req.user.programID;
+    let cycleIdentifier = req.params.cycleIdentifier;
+    let outcomes = [];
+
+    let sql =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID = " +
+      db.escape(cycleIdentifier) +
+      " AND programID = " +
+      db.escape(programID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res.status(404).json({
+          errors: "Cycle with cycle ID " + cycleIdentifier + " Does not Exist!"
+        });
+      }
+      let cycleName = result[0].cycleTitle;
+      let isClosed = result[0].endDate ? true : false;
+      let sql1 =
+        "SELECT * FROM LEARNING_OUTCOME" +
+        " WHERE cycleID=" +
+        db.escape(cycleIdentifier) +
+        " AND programID=" +
+        db.escape(programID) +
+        " ORDER BY learnCreatedTime";
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        let indexCount = 1;
+        result.forEach(row => {
+          outcome = {
+            outcomeName: row.learnDesc,
+            outcomeID: row.learnID,
+            displayIndex: indexCount
+          };
+          indexCount++;
+          outcomes.push(outcome);
+        });
+        res
+          .status(200)
+          .json({ outcomes, cycleIdentifier, cycleName, isClosed });
+      });
+    });
+  }
+);
+
+// @route POST api/cycles/:cycleIdentifier/addNewOutcome
+// @desc Adds a new outcome within a cycle
+// @access Private
+
+router.post(
+  "/:cycleIdentifier/addNewOutcome",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let { errors, isValid } = validateOutcomeInput(req.body);
+    if (!isValid) {
+      return res.status(404).json(errors);
+    }
+
+    let cycleID = req.params.cycleIdentifier;
+    let programID = req.user.programID;
+    let outcomeName = req.body.outcomeDescription;
+
+    let sql0 =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND programID=" +
+      db.escape(programID);
+    db.query(sql0, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.outcomeDescription =
+          "Cycle with cycle ID " + cycleID + " Does not Exist!";
+        return res.status(404).json(errors);
+      }
+      let sql =
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
+        db.escape(cycleID) +
+        " AND learnDesc=" +
+        db.escape(outcomeName) +
+        " AND programID=" +
+        db.escape(programID);
+      db.query(sql, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+
+        if (result.length > 0) {
+          errors.outcomeDescription =
+            "The Selected Outcome is already in current Assessment Cycle";
+          return res.status(404).json(errors);
+        }
+
+        sql =
+          "INSERT INTO LEARNING_OUTCOME (cycleID, learnDesc, programID,learnCreatedTime) VALUES (" +
+          db.escape(cycleID) +
+          ", " +
+          db.escape(outcomeName) +
+          ", " +
+          db.escape(programID) +
+          ", " +
+          //+ //db.escape(moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")) +
+          "now(4))";
+
+        db.query(sql, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          let outcomeID = result.insertId;
+          res.status(200).json({ cycleID, outcomeID, programID, outcomeName });
+        });
       });
     });
   }
@@ -394,14 +529,14 @@ router.post(
 
     let cycleID = req.params.cycleIdentifier;
     let learnID = req.params.outcomeIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let outcomeName = req.body.outcomeDescription;
 
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
 
     db.query(sql0, (err, result) => {
       if (err) {
@@ -417,8 +552,8 @@ router.post(
         db.escape(cycleID) +
         " AND learnID=" +
         db.escape(learnID) +
-        " AND corId=" +
-        db.escape(adminID);
+        " AND programID=" +
+        db.escape(programID);
       db.query(sql, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -429,22 +564,23 @@ router.post(
             "The Selected Outcome is not in the current Assessment Cycle";
           return res.status(404).json({ errors });
         }
-        let sql1 =
+
+        let sql2 =
           "UPDATE LEARNING_OUTCOME SET learnDesc=" +
           db.escape(outcomeName) +
           "WHERE cycleID=" +
           db.escape(cycleID) +
           " AND learnID=" +
           db.escape(learnID) +
-          " AND corId=" +
-          db.escape(adminID);
+          " AND programID=" +
+          db.escape(programID);
 
-        db.query(sql1, (err, result) => {
+        db.query(sql2, (err, result) => {
           if (err) {
             return res.status(500).json(err);
           }
 
-          res.status(200).json({ cycleID, learnID, adminID, outcomeName });
+          res.status(200).json({ cycleID, learnID, programID, outcomeName });
         });
       });
     });
@@ -460,13 +596,14 @@ router.post(
   (req, res) => {
     let cycleID = req.params.cycleIdentifier;
     let learnID = req.params.outcomeIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
+    let errors = {};
 
     let sql0 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
 
     db.query(sql0, (err, result) => {
       if (err) {
@@ -482,8 +619,8 @@ router.post(
         db.escape(cycleID) +
         " AND learnID=" +
         db.escape(learnID) +
-        " AND corId=" +
-        db.escape(adminID);
+        " AND programID=" +
+        db.escape(programID);
       db.query(sql, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -494,21 +631,193 @@ router.post(
             "The Selected Outcome is not in the current Assessment Cycle";
           return res.status(404).json({ errors });
         }
-        let sql1 =
-          "DELETE FROM LEARNING_OUTCOME WHERE cycleID=" +
-          db.escape(cycleID) +
-          " AND learnID=" +
-          db.escape(learnID) +
-          " AND corId=" +
-          db.escape(adminID);
-
         let outcomeName = result[0].learnDesc;
+        let sql1 =
+          "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
+          db.escape(learnID);
         db.query(sql1, (err, result) => {
           if (err) {
             return res.status(500).json(err);
           }
+          if (result.length > 0) {
+            errors.measureExistingInsideOutcome =
+              "One or more measures is linked with this this outcome. Please delete measures linked with the outcome first!";
+            return res.status(404).json(errors);
+          }
+          let sql2 =
+            "DELETE FROM LEARNING_OUTCOME WHERE cycleID=" +
+            db.escape(cycleID) +
+            " AND learnID=" +
+            db.escape(learnID) +
+            " AND programID=" +
+            db.escape(programID);
 
-          res.status(200).json({ cycleID, learnID, adminID, outcomeName });
+          db.query(sql2, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+
+            res.status(200).json({ cycleID, learnID, programID, outcomeName });
+          });
+        });
+      });
+    });
+  }
+);
+
+// @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier
+// @desc Retrieves all measures and curriculam associated with the given cycle and outcome
+// @access Private
+
+router.get(
+  "/:cycleIdentifier/:outcomeIdentifier/measures",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let cycleID = req.params.cycleIdentifier;
+    let outcomeID = req.params.outcomeIdentifier;
+    let programID = req.user.programID;
+
+    let measures = [];
+    let outcomeCourses = [];
+
+    let sql1 =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND programID=" +
+      db.escape(programID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        return res.status(404).json({
+          errors: "Cycle with ID " + cycleID + " Does not Exist!"
+        });
+      }
+      let isClosed = result[0].endDate ? true : false;
+
+      let sql2 =
+        "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
+        db.escape(outcomeID) +
+        " AND programID=" +
+        db.escape(programID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        } else if (result.length <= 0) {
+          return res.status(404).json({
+            errors:
+              "Learning Outcome with the ID " + outcomeID + " Does not Exist!"
+          });
+        }
+
+        let outcomeName = result[0].learnDesc;
+
+        let sql3 =
+          "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
+          db.escape(outcomeID) +
+          " AND programID=" +
+          db.escape(programID) +
+          " ORDER BY measureCreatedTime";
+
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          let indexCount = 1;
+          result.forEach(row => {
+            measure = {
+              measureName: row.measureDesc,
+              measureID: row.measureID,
+              projectedResult: row.projectedResult,
+              projectedStudentNumber: row.projectedStudentsValue,
+              courseAssociated: row.courseAssociated,
+              toolName: row.toolName,
+              toolID: row.toolID,
+              measureStatus: row.measureStatus,
+              evalCount: row.evalCount,
+              successCount: row.successCount,
+              displayIndex: indexCount
+            };
+            indexCount++;
+            measures.push(measure);
+          });
+          let sql4 =
+            "SELECT * FROM OUTCOME_COURSE WHERE learnID=" +
+            db.escape(outcomeID);
+          db.query(sql4, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            result.forEach(row => {
+              outcomeCourses.push({
+                courseCode: row.courseCode,
+                courseID: row.courseID
+              });
+            });
+            res.status(200).json({
+              measures,
+              outcomeCourses,
+              cycleID,
+              outcomeID,
+              outcomeName,
+              isClosed
+            });
+          });
+        });
+      });
+    });
+  }
+);
+
+// @route POST api/cycles/:outcomeIdentifier/addNewCourse
+// @desc Adds a new curriculam mapping to outcome
+// @access Private
+router.post(
+  "/:outcomeIdentifier/addNewCourse",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+    if (isEmpty(req.body.courseCode)) {
+      errors.emptyCourseCode = "Course Code Field Cannot be Empty";
+      return res.status(404).json(errors);
+    }
+    let courseCode = req.body.courseCode.trim();
+
+    let sql =
+      "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
+      db.escape(req.params.outcomeIdentifier);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.nonExistantOutcome = "Outcome Does not Exist";
+        return res.status(404).json(errors);
+      }
+      sql =
+        "SELECT * FROM OUTCOME_COURSE WHERE courseCode = " +
+        db.escape(courseCode) +
+        " AND learnID=" +
+        db.escape(req.params.outcomeIdentifier);
+      db.query(sql, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        } else if (result.length > 0) {
+          errors.alreadyExisitingCourse =
+            "This course is already mapped with this outcome";
+          return res.status(404).json(errors);
+        }
+        let sql1 =
+          "INSERT INTO OUTCOME_COURSE (courseCode,learnID) VALUES (" +
+          db.escape(courseCode) +
+          ", " +
+          db.escape(req.params.outcomeIdentifier) +
+          ")";
+        db.query(sql1, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Course Successfully Added to Outcome");
         });
       });
     });
@@ -530,15 +839,19 @@ router.post(
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
 
-    let projectedValue = req.body.projectedValue;
     let projectedStudentNumber = req.body.projectedStudentNumber;
     let course = req.body.course;
     let toolType = req.body.toolType;
     let toolName = req.body.toolTitle;
-
+    let scoreOrPass = req.body.scoreOrPass;
     let studentNumberOperator = req.body.studentNumberOperator;
-    let valueOperator = req.body.valueOperator;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
+    let projectedValue = null;
+    let valueOperator = null;
+    if (scoreOrPass.toLowerCase() !== "pass") {
+      projectedValue = req.body.projectedValue;
+      valueOperator = req.body.valueOperator;
+    }
 
     let toolID = req.body.toolID;
 
@@ -547,22 +860,28 @@ router.post(
       projectedStudentNumber +
       " " +
       studentNumberOperator +
-      " in class " +
-      course +
-      " will score " +
-      projectedValue +
-      " " +
-      valueOperator +
-      " or greater in " +
-      toolName +
-      " " +
-      toolType;
+      " Of Students ";
+
+    measureName =
+      course !== ""
+        ? measureName + " in Class " + course + " will "
+        : measureName + " will ";
+    measureName =
+      scoreOrPass.toLowerCase() !== "pass"
+        ? measureName +
+          " Score " +
+          projectedValue +
+          " " +
+          valueOperator +
+          " Or Greater In "
+        : measureName + " Pass In ";
+    measureName = measureName + toolName + " " + toolType;
 
     let sql1 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
     db.query(sql1, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -575,8 +894,8 @@ router.post(
       let sql2 =
         "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
         db.escape(outcomeID) +
-        " AND corId=" +
-        db.escape(adminID);
+        " AND programID=" +
+        db.escape(programID);
       db.query(sql2, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -591,8 +910,8 @@ router.post(
           db.escape(outcomeID) +
           " AND measureDesc=" +
           db.escape(measureName) +
-          " AND corId=" +
-          db.escape(adminID);
+          " AND programID=" +
+          db.escape(programID);
 
         db.query(sql3, (err, result) => {
           if (err) {
@@ -602,21 +921,9 @@ router.post(
               "The selected performance measure is already associated with this learning outcome";
             return res.status(404).json(errors);
           } else {
-            let sql0 =
-              "INSERT INTO TOOL (toolType,corId) VALUES (" +
-              db.escape(toolType) +
-              ", " +
-              db.escape(adminID) +
-              ")";
-            db.query(sql0, (err, result) => {
-              if (err) {
-                return res
-                  .status(500)
-                  .json("Measure Could not be created \n", err);
-              }
-              toolID = result.insertId;
+            let insertIntoMeasure = () => {
               let sql4 =
-                "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, toolID,toolName, toolType, studentNumberScale,projectedValueScale) VALUES (" +
+                "INSERT INTO PERFORMANCE_MEASURE(learnID, cycleID, measureDesc, projectedResult, projectedStudentsValue, courseAssociated, programID, toolID,toolName, toolType, studentNumberScale,projectedValueScale,measureCreatedTime) VALUES (" +
                 db.escape(outcomeID) +
                 ", " +
                 db.escape(cycleID) +
@@ -629,7 +936,7 @@ router.post(
                 ", " +
                 db.escape(course) +
                 ", " +
-                db.escape(adminID) +
+                db.escape(programID) +
                 ", " +
                 db.escape(toolID) +
                 ", " +
@@ -640,7 +947,9 @@ router.post(
                 db.escape(studentNumberOperator) +
                 ", " +
                 db.escape(valueOperator) +
-                ")";
+                ", " +
+                //db.escape(moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")) +
+                "now(4))";
 
               db.query(sql4, (err, result) => {
                 if (err) {
@@ -651,7 +960,7 @@ router.post(
                   cycleID,
                   outcomeID,
                   measureID,
-                  adminID,
+                  programID,
                   measureName,
                   projectedValue,
                   projectedStudentNumber,
@@ -663,48 +972,218 @@ router.post(
                   toolID
                 });
               });
-            });
+            };
+            if (toolType === "test") {
+              let sql0 =
+                "INSERT INTO TOOL (toolType,programID) VALUES (" +
+                db.escape(toolType) +
+                ", " +
+                db.escape(programID) +
+                ")";
+              db.query(sql0, (err, result) => {
+                if (err) {
+                  return res
+                    .status(500)
+                    .json("Measure Could not be created \n", err);
+                }
+                toolID = result.insertId;
+                insertIntoMeasure();
+              });
+            } else {
+              insertIntoMeasure();
+            }
+            //console.log(toolID);
+
+            // });
           }
         });
       });
     });
   }
 );
-/*
-// @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/addExistingMeasure
-router.post(':/cycleIdentifier/:outcomeIdentifier/addExistingMeasure',passport.authenticate('jwt',{session:false}),(req,res)=>{
 
-    let cycleID = req.params.cycleIdentifier;
-    let outcomeID = req.params.outcomeIdentifier;
-    let measureID = req.body.measureID
+// @route POST api/cycles/:measureIdentifier/Update
+// @desc Updates a measure of existing assessment Cycle
+// @access Private
+router.post(
+  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/update",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+    let measureID = req.params.measureIdentifier;
+    if (isEmpty(req.body.projectedStudentNumber)) {
+      errors.emptyThresholdStudentNumber =
+        "Student Threshold number cannot be empty";
+      return res.status(404).json(errors);
+    } else if (
+      !Validator.isFloat(req.body.projectedStudentNumber, { min: 0, max: 100 })
+    ) {
+      errors.StudentThresholdNotANumber =
+        "Student Threhold value should be a number between 0 and 100";
+      return res.status(404).json(errors);
+    }
 
-    let sql1 = "SELECT * FROM PERFORMANCE_MEASURE WHERE cycleID="+db.escape(cycleID)+" AND learnID="+db.escape(outcomeID)+" AND measureID="+db.escape(measureID)
+    let projectedStudentNumber = parseFloat(req.body.projectedStudentNumber);
+    let projectedResult = req.body.projectedResult;
 
-    db.query(sql1,(err,result)=>{
-      if(err){
-        return res.status(500).json(err)
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
       }
-      else if(result.length<=0){
-        return res.status(404).json({errors:"Params invalid"})
+      if (result.length <= 0) {
+        errors.measureNotFound = "Measure with the ID not found!";
+        return res.status(404).json(errors);
       }
-      let measureName=result[0].measureDesc
-      let projectedValue = result[0].projectedResult
-      let projectedStudentNumber = result[0].projectedStudentsValue
-      let toolID = result[0].toolID
-      let adminID = req.user.id
-      let course = result[0].courseAssociated
 
-      let sql2 = "INSERT INTO PERFORMANCE_MEASURE(measureDesc, projectedResult, projectedStudentsValue, courseAssociated, corId, learnID, cycleID, toolID) VALUES ("+db.escape(measureName)+", "+db.escape(projectedValue)+", "+db.escape(projectedStudentNumber)+", "+db.escape(course)+", "+db.escape(adminID)+", "+db.escape(outcomeID)+", "+db.escape(cycleID)+", "+db.escape(toolID)+")"
-      db.query(sql2,(err,result)=>{
-        if(err){
-          return res.status(500).json(err)
+      if (result[0].projectedResult) {
+        if (isEmpty(projectedResult)) {
+          errors.emptyProjectedScore = "Projected Score Cannot be Empty";
+          return res.status(404).json(errors);
+        } else if (!Validator.isFloat(projectedResult, { min: 0, max: 100 })) {
+          errors.thresholdScoreNotANumber =
+            "Threshold score value should be a number between 0 and 100";
+          return res.status(404).json(errors);
         }
-        return res.status(200).json({outcomeID,cycleID,measureName,projectedValue,})
-      })
-    })
+      }
 
-})
-*/
+      let measureName =
+        "At least " +
+        projectedStudentNumber +
+        " " +
+        result[0].studentNumberScale +
+        " Of Students ";
+
+      measureName = result[0].courseAssociated
+        ? measureName + " in Class " + result[0].courseAssociated + " will "
+        : measureName + " will ";
+      measureName = result[0].projectedResult
+        ? measureName +
+          " Score " +
+          projectedResult +
+          " " +
+          result[0].projectedValueScale +
+          " Or Greater In "
+        : measureName + " Pass In ";
+      measureName = measureName + result[0].toolName + " " + result[0].toolType;
+      projectedResult = parseFloat(projectedResult);
+      let sql2 = !isEmpty(result[0].projectedResult)
+        ? "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
+          db.escape(projectedStudentNumber) +
+          ", projectedResult=" +
+          db.escape(projectedResult)
+        : "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
+          db.escape(projectedStudentNumber);
+      sql2 =
+        sql2 +
+        ", measureDesc=" +
+        db.escape(measureName) +
+        " WHERE measureID=" +
+        db.escape(measureID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json();
+        }
+        res.status(200).json("Updated Successfully!");
+      });
+      //}
+    });
+  }
+);
+
+// @route POST api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/Delete"
+// @desc DELETE a measure of existing assessment Cycle
+// @access Private BIKASH
+router.post(
+  "/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/Delete",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let cycleID = req.params.cycleIdentifier;
+    let learnID = req.params.outcomeIdentifier;
+    let measureID = req.params.measureIdentifier;
+    //console.log(measureID);
+    let programID = req.user.programID;
+
+    let sql0 =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND programID=" +
+      db.escape(programID);
+
+    db.query(sql0, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors = "Cycle with cycle ID " + cycleID + " Does not Exist!";
+        return res.status(404).json({ errors });
+      }
+
+      let sql1 =
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
+        db.escape(cycleID) +
+        " AND learnID=" +
+        db.escape(learnID) +
+        " AND programID=" +
+        db.escape(programID);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+
+        if (result.length <= 0) {
+          errors =
+            "The Selected Outcome is not in the current Assessment Cycle";
+          return res.status(404).json({ errors });
+        }
+
+        let sql2 =
+          "SELECT * FROM PERFORMANCE_MEASURE WHERE cycleID=" +
+          db.escape(cycleID) +
+          " AND learnID=" +
+          db.escape(learnID) +
+          " AND programID=" +
+          db.escape(programID) +
+          " AND  measureID=" +
+          db.escape(measureID);
+
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          if (result.length <= 0) {
+            errors =
+              "The Selected measure is not in the current Assessment Cycle";
+            return res.status(404).json({ errors });
+          }
+          let sql3 =
+            "DELETE FROM PERFORMANCE_MEASURE WHERE cycleID=" +
+            db.escape(cycleID) +
+            " AND learnID=" +
+            db.escape(learnID) +
+            " AND programID=" +
+            db.escape(programID) +
+            " AND measureID=" +
+            db.escape(measureID);
+
+          let measureDetails = result[0].measureDesc;
+          db.query(sql3, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+
+            res
+              .status(200)
+              .json({ cycleID, learnID, programID, measureID, measureDetails });
+          });
+        });
+      });
+    });
+  }
+);
 
 // @route GET api/cycles/:cycleIdentifier/:outcomeIdentifier/:measureIdentifier/measureDetails
 // @desc Provides details of a  measure within an outcome which in turn to cycle
@@ -717,36 +1196,69 @@ router.get(
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
     let measureID = req.params.measureIdentifier;
-
+    let programID = req.user.programID;
     let sql1 =
-      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
-      db.escape(measureID) +
-      " AND learnID=" +
-      db.escape(outcomeID) +
-      " AND cycleID=" +
-      db.escape(cycleID);
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
+      db.escape(cycleID) +
+      " AND programID=" +
+      db.escape(programID);
     db.query(sql1, (err, result) => {
       if (err) {
         return res.status(500).json(err);
       } else if (result.length <= 0) {
-        return res
-          .status(404)
-          .json({ errors: "Measure Details could not be retrieved" });
+        return res.status(404).json({
+          errors: "Cycle with ID " + cycleID + " Does not Exist!"
+        });
       }
+      let isClosed = result[0].endDate ? true : false;
 
-      res.status(200).json({
-        cycleID,
-        outcomeID,
-        measureID,
-        measureDescription: result[0].measureDesc,
-        projectedResult: result[0].projectedResult,
-        resultScale: result[0].projectedValueScale,
-        projectedStudentNumber: result[0].projectedStudentsValue,
-        studentNumberScale: result[0].studentNumberScale,
-        course: result[0].courseAssociated,
-        toolName: result[0].toolName,
-        toolType: result[0].toolType,
-        toolID: result[0].toolID
+      let sql2 =
+        "SELECT * FROM LEARNING_OUTCOME WHERE learnID=" +
+        db.escape(outcomeID) +
+        " AND programID=" +
+        db.escape(programID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        } else if (result.length <= 0) {
+          return res.status(404).json({
+            errors:
+              "Learning Outcome with the ID " + outcomeID + " Does not Exist!"
+          });
+        }
+        let sql3 =
+          "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+          db.escape(measureID) +
+          " AND learnID=" +
+          db.escape(outcomeID) +
+          " AND cycleID=" +
+          db.escape(cycleID);
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          } else if (result.length <= 0) {
+            return res
+              .status(404)
+              .json({ errors: "Measure Details could not be retrieved" });
+          }
+
+          res.status(200).json({
+            cycleID,
+            outcomeID,
+            measureID,
+            measureDescription: result[0].measureDesc,
+            projectedResult: result[0].projectedResult,
+            resultScale: result[0].projectedValueScale,
+            projectedStudentNumber: result[0].projectedStudentsValue,
+            studentNumberScale: result[0].studentNumberScale,
+            course: result[0].courseAssociated,
+            toolName: result[0].toolName,
+            toolType: result[0].toolType,
+            toolID: result[0].toolID,
+            testType: result[0].testType,
+            isClosed
+          });
+        });
       });
     });
   }
@@ -765,7 +1277,6 @@ router.post(
       return res.status(404).json(errors);
     }
     let evaluatorEmail = req.body.evaluatorEmail;
-    let adminID = req.user.id;
     let measureID = req.params.measureIdentifier;
 
     let sql1 =
@@ -778,7 +1289,8 @@ router.post(
         return res.status(404).json("Measure with the given ID not found");
       }
       let sql2 =
-        "SELECT * FROM EVALUATOR WHERE evalEmail=" + db.escape(evaluatorEmail);
+        "SELECT * FROM EVALUATOR WHERE isActive=true AND evalEmail=" +
+        db.escape(evaluatorEmail);
       db.query(sql2, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -820,7 +1332,6 @@ router.post(
               res.status(200).json({
                 evaluatorEmail,
                 measureID,
-                adminID,
                 evaluatorName,
                 measureEvalID: result.insertId
               });
@@ -843,7 +1354,7 @@ router.get(
     let evaluators = [];
 
     let sql =
-      "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR WHERE measureID=" +
+      "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR WHERE isActive=true AND measureID=" +
       db.escape(measureID);
 
     db.query(sql, (err, result) => {
@@ -854,7 +1365,8 @@ router.get(
         if (row.evalName != "") {
           evalInfo = {
             measureEvalID: row.measureEvalID,
-            name: row.evalName,
+            evalID: row.evalID,
+            name: row.evalFirstName + " " + row.evalLastName,
             email: row.evalEmail
           };
           evaluators.push(evalInfo);
@@ -865,6 +1377,53 @@ router.get(
   }
 );
 
+// @route POST api/cycles/:measureIdentifier/deleteMeasureEvaluator
+// @desc Deletes Measure Evaluator
+// @access Private
+router.post(
+  "/:measureIdentifier/deleteMeasureEvaluator",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+    let measureID = req.params.measureIdentifier;
+    let measureEvalID = req.body.measureEvalID;
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.measureNotFound = "Measure with the id not found!";
+        return res.status(404).json(errors);
+      }
+
+      let sql2 =
+        "SELECT * FROM MEASURE_EVALUATOR WHERE measureEvalID=" +
+        db.escape(measureEvalID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length <= 0) {
+          errors.evaluatorNotFound = "Evaluator Does not Exist!";
+          return res.status(404).json(errors);
+        }
+        let sql3 =
+          "DELETE FROM MEASURE_EVALUATOR WHERE measureEvalID=" +
+          db.escape(measureEvalID);
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Deleted Successfully!");
+        });
+      });
+    });
+  }
+);
 // @route POST api/cycles/:measureIdentifier/uploadStudents
 // @desc Uploads students to be evaluated using file upload
 // @access Private
@@ -874,7 +1433,9 @@ const csv = require("fast-csv");
 const fs = require("fs");
 const {
   validateCSVStudents,
-  validateCSVStudentsRow
+  validateCSVStudentsRow,
+  validateCSVStudentsTestRow,
+  validateCSVTestStudents
 } = require("../../validation/uploadStudents");
 const upload = multer({
   dest: "measureStudents",
@@ -921,7 +1482,6 @@ router.post(
             csv
               .fromPath(req.file.path)
               .on("data", data => {
-                data.push(req.user.id);
                 data.push(measureID);
                 students.push(data);
               })
@@ -932,25 +1492,31 @@ router.post(
                 if (validationError) {
                   return res.status(404).json({ errors: validationError });
                 }
+                var existingStudentsInFile = [];
                 var newArray = students.filter((row, index) => {
-                  if (existingStudents.has(row[1])) {
-                    return false;
-                  } else {
-                    existingStudents.add(row[1]);
-                    return true;
+                  if (index !== students.length - 1) {
+                    if (existingStudents.has(row[2])) {
+                      existingStudentsInFile.push(row[2]);
+                      return false;
+                    } else {
+                      existingStudents.add(row[2]);
+                      return true;
+                    }
                   }
                 });
                 //console.log(newArray.length);
                 //console.log("Gets Here");
                 let sql3 =
-                  "INSERT INTO STUDENT (studentName,studentEmail,studentCWID,corId,measureID) VALUES ?";
+                  "INSERT INTO STUDENT (studentFirstName,studentLastName,studentEmail,studentCWID,measureID) VALUES ?";
                 if (newArray.length > 0) {
                   db.query(sql3, [newArray], (err, result) => {
                     if (err) {
                       return res.status(500).json(err);
                     }
-                    res.status(200).json({ students: newArray });
                   });
+                  return res.status(200).json({ existingStudentsInFile });
+                } else {
+                  return res.status(200).json({ existingStudentsInFile });
                 }
               });
           }
@@ -972,7 +1538,12 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let measureID = req.params.measureIdentifier;
-    let students = [req.body.name, req.body.email, req.body.CWID];
+    let students = [
+      req.body.firstName,
+      req.body.lastName,
+      req.body.email,
+      req.body.CWID
+    ];
     let errors = {};
 
     let sql1 =
@@ -985,13 +1556,13 @@ router.post(
         return res.status(404).json({ errors: "Measure Not Found" });
       } else {
         students.push(measureID);
-        students.push(req.user.id);
         const validationError = validateCSVStudentsRow(students);
         if (validationError) {
           errors.validationError = validationError;
           return res.status(404).json(errors);
         } else {
-          let name = req.body.name;
+          let firstName = req.body.firstName;
+          let lastName = req.body.lastName;
           let email = req.body.email;
           let CWID = req.body.CWID;
           let sql2 =
@@ -1007,24 +1578,29 @@ router.post(
               return res.status(errors);
             } else {
               let sql3 =
-                "INSERT INTO STUDENT (studentName, studentEmail,studentCWID, measureID,corId) VALUES (" +
-                db.escape(name) +
+                "INSERT INTO STUDENT (studentFirstName, studentLastName, studentEmail,studentCWID, measureID) VALUES (" +
+                db.escape(firstName) +
+                ", " +
+                db.escape(lastName) +
                 ", " +
                 db.escape(email) +
                 ", " +
                 db.escape(CWID) +
                 ", " +
                 db.escape(measureID) +
-                ", " +
-                db.escape(req.user.id) +
                 ")";
               db.query(sql3, (err, result) => {
                 if (err) {
                   return res.status(500).json(err);
                 }
-                res
-                  .status(200)
-                  .json({ name, email, CWID, measureID, adminID: req.user.id });
+                res.status(200).json({
+                  name: firstName + " " + lastName,
+                  email,
+                  CWID,
+                  measureID,
+                  adminID: req.user.id,
+                  programID: req.user.programID
+                });
               });
             }
           });
@@ -1045,6 +1621,7 @@ router.get(
 
     let students = [];
     let notAssignedStudents = [];
+    let studentsEmail = new Set();
     let errors = {};
 
     let sql =
@@ -1068,7 +1645,9 @@ router.get(
         }
         result.forEach(row => {
           student = {
-            name: row.studentName,
+            name: row.studentFirstName + " " + row.studentLastName,
+            lastName: row.studentLastName,
+            firstName: row.studentFirstName,
             email: row.studentEmail,
             CWID: row.studentCWID,
             studentID: row.studentID
@@ -1076,9 +1655,185 @@ router.get(
           if (!row.measureEvalID) {
             notAssignedStudents.push(student);
           }
-          students.push(student);
+          if (!studentsEmail.has(row.studentEmail)) {
+            students.push(student);
+            studentsEmail.add(row.studentEmail);
+          }
         });
         res.status(200).json({ notAssignedStudents, students });
+      });
+    });
+  }
+);
+
+// @route POST api/cycles/:measureIdentifier/updateStudent
+// @desc Updates Student Info
+// @access Private
+
+router.post(
+  ":/measureIdentifier/updateStudent",
+  passport.authenticate("jwt", { sesion: false }),
+  (req, res) => {
+    let errors = {};
+    let measureID = req.params.measureIdentifier;
+    let studentID = req.body.studentID;
+    let CWID = "";
+    if (isEmpty(req.body.firstName)) {
+      errors.emptyFirstName = "First Name field cannot be Empty";
+    }
+    if (isEmpty(req.body.lastName)) {
+      errors.lastName = "Last Name field cannot be Empty";
+    }
+
+    if (isEmpty(req.body.studentEmail)) {
+      errors.studentEmail = "Email field cannot be empty";
+    }
+    if (!isEmpty(req.body.studentCWID)) {
+      CWID = req.body.studentCWID;
+    }
+    if (!isEmpty(errors)) {
+      return res.status(404).json(errors);
+    }
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.measureNotExisiting = "Measure Does not Exist!";
+        return res.status(404).json(errors);
+      }
+      let sql2 =
+        "SELECT * FROM STUDENT WHERE studentID=" + db.escape(studentID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length <= 0) {
+          errors.nonExistingStudent = "Student Does not Exist!";
+          return res.status(404).json(errors);
+        }
+        let sql3 =
+          "UPDATE STUDENT SET studentFirstName=" +
+          db.escape(req.body.firstName) +
+          ", studentLastName=" +
+          db.escape(lastName) +
+          ", studentEmail=" +
+          db.escape(studentEmail) +
+          ", studentCWID=" +
+          db.escape(CWID) +
+          " WHERE studentID=" +
+          db.escape(studentID);
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Updated Successfully!");
+        });
+      });
+    });
+  }
+);
+
+// @route POST api/cycles/:measureIdentifier/deleteStudent
+// @desc Deletes Student
+// @access Private
+router.post(
+  "/:measureIdentifier/deleteStudent",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+    let measureID = req.params.measureIdentifier;
+    let deleteStudentID = req.body.studentID;
+
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.measureNotFound = "Measure with the id not found!";
+        return res.status(404).json(errors);
+      }
+      let projectedResult = result[0].projectedResult;
+      let thresholdStudents = result[0].projectedStudentsValue;
+      let toolType = result[0].toolType;
+      let sql2 =
+        "SELECT * FROM STUDENT WHERE studentID=" + db.escape(deleteStudentID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length <= 0) {
+          errors.studentNotFound = "Selected Student Does Not Exist";
+          return res.status(404).json(errors);
+        }
+        let sql3 =
+          "DELETE FROM STUDENT WHERE studentID=" + db.escape(deleteStudentID);
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          let sql9 = "SELECT * FROM ";
+          sql9 =
+            toolType.toLowerCase() === "rubric"
+              ? sql9 +
+                "STUDENT_AVERAGE_SCORE where measureID=" +
+                db.escape(measureID)
+              : sql9 + "TEST_SCORE where measureID=" + db.escape(measureID);
+
+          db.query(sql9, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            let totalCount = 0;
+            let passingCount = 0;
+            let passing = false;
+
+            result.forEach(row => {
+              totalCount++;
+              if (toolType.toLowerCase() === "rubric") {
+                if (row.averageScore >= projectedResult) {
+                  passingCount++;
+                }
+              } else {
+                if (row.testScoreStatus) {
+                  passingCount++;
+                }
+              }
+            });
+            if (
+              totalCount !== 0 &&
+              thresholdStudents !== -1 &&
+              (passingCount / totalCount) * 100 >= thresholdStudents
+            ) {
+              passing = true;
+            }
+            let sql10 =
+              "UPDATE PERFORMANCE_MEASURE SET measureStatus=" +
+              db.escape(passing) +
+              ", evalCount=" +
+              db.escape(result.length) +
+              ", successCount=" +
+              db.escape(passingCount) +
+              " WHERE measureID=" +
+              db.escape(measureID);
+            db.query(sql10, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              return res.status(200).json("Deleted Successfully!");
+            });
+          });
+
+          //res.status(200).json("Deleted Successfully!");
+        });
       });
     });
   }
@@ -1108,17 +1863,24 @@ router.get(
         errors.identifierError = "Measure ID not found";
         return res.status(404).json({ errors });
       }
+      let toolType = result[0].toolType;
       let sql1 =
-        "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN EVALUATOR_ASSIGN NATURAL LEFT JOIN EVALUATE WHERE measureID=" +
-        db.escape(measureID);
-
+        "SELECT * FROM MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN STUDENT NATURAL JOIN EVALUATOR_ASSIGN ";
+      sql1 =
+        result[0].toolType.toLowerCase() === "rubric"
+          ? sql1 +
+            "NATURAL LEFT JOIN RUBRIC_SCORE WHERE measureID=" +
+            db.escape(measureID)
+          : sql1 +
+            "NATURAL JOIN TEST_SCORE WHERE measureID=" +
+            db.escape(measureID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
         }
         result.forEach(row => {
           student = {
-            name: row.studentName,
+            name: row.studentFirstName + " " + row.studentLastName,
             email: row.studentEmail,
             CWID: row.studentCWID,
             studentID: row.studentID,
@@ -1126,10 +1888,18 @@ router.get(
             evalName: row.evalName,
             measureEvalID: row.measureEvalID
           };
-          if (!row.criteriaScore) {
-            assignedStudentsList.push(student);
-          } else {
-            evaluatedStudentsList.push(student);
+          if (toolType.toLowerCase() === "rubric") {
+            if (!row.rubricScore) {
+              assignedStudentsList.push(student);
+            } else {
+              evaluatedStudentsList.push(student);
+            }
+          } else if (toolType.toLowerCase() === "test") {
+            if (!row.testScoreStatus) {
+              assignedStudentsList.push(student);
+            } else {
+              evaluatedStudentsList.push(student);
+            }
           }
         });
         res.status(200).json({ assignedStudentsList, evaluatedStudentsList });
@@ -1138,73 +1908,133 @@ router.get(
   }
 );
 
-// @route POST api/cycles/:measureIdentifier/assign
-// @desc Assign Rubric and Student to Evaluator for evaluation purpose
-// @access private
+// @route POST api/cycles/:measureIdentifier/deleteAssignedStudent
+// @desc Deletes Assigned Student
+// @access Private
+router.post(
+  "/:measureIdentifier/deleteAssignedStudent",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+    let measureID = req.params.measureIdentifier;
+    let deleteStudentID = req.body.studentID;
+    let measureEvalID = req.body.measureEvalID;
+    console.log(req.body)
+    let sql1 =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.measureNotFound = "Measure with the id not found!";
+        return res.status(404).json(errors);
+      }
+      let toolType = result[0].toolType;
+      let sql2 =
+        "SELECT * FROM STUDENT WHERE studentID=" + db.escape(deleteStudentID);
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length <= 0) {
+          errors.studentNotFound = "Selected Student Does Not Exist";
+          return res.status(404).json(errors);
+        }
+        let sql3 =
+          "SELECT * FROM MEASURE_EVALUATOR WHERE measureEvalID=" +
+          db.escape(measureEvalID);
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          if (result.length <= 0) {
+            errors.evaluatorNotFound = "Evaluator Does not Exist!";
+            return res.status(404).json(errors);
+          }
+          evalID = result[0].evalID;
+          let sql4 =
+            "DELETE FROM EVALUATOR_ASSIGN WHERE studentID=" +
+            db.escape(deleteStudentID) +
+            " AND measureEvalID=" +
+            db.escape(measureEvalID);
+          db.query(sql4, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
 
-// router.post(
-//   "/:measureIdentifier/assign",
-//   passport.authenticate("jwt", { session: false }),
-//   (req, res) => {
-//     let measureID = req.params.measureIdentifier;
-//     let adminID = req.user.id;
-//     let evalID = req.body.evalID;
-//     let rubricID = req.body.rubricID;
-//     let studentID = req.body.studentID;
-//     let errors = {};
-//     let sql =
-//       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
-//       db.escape(measureID);
-//     db.query(sql, (err, result) => {
-//       if (err) {
-//         return res.status(500).json(err);
-//       } else if (result.length <= 0) {
-//         errors.identifierError = "Measure ID not found";
-//         return res.status(404).json(errors);
-//       }
+            if (toolType.toLowerCase() === "rubric") {
+              let sql5 =
+                "SELECT * FROM EVALUATE NATURAL LEFT JOIN RUBRIC_SCORE WHERE evalID=" +
+                db.escape(evalID) +
+                " AND studentID=" +
+                db.escape(deleteStudentID);
+              db.query(sql5, (err, result) => {
+                if (err) {
+                  return res.status(500).json();
+                }
+                let del = false;
+                result.forEach(row => {
+                  if (!row.rubricScore) {
+                    del = true;
+                    return;
+                  }
+                });
+                if (del) {
+                  let sql6 =
+                    "DELETE FROM EVALUATE WHERE evalID=" +
+                    db.escape(evalID) +
+                    " AND studentID=" +
+                    db.escape(deleteStudentID);
+                  db.query(sql6, (err, result) => {
+                    if (err) {
+                      return res.status(500).json(err);
+                    }
+                    return res.status(200).json("Deleted Successfully!");
+                  });
+                } else {
+                  return res.status(200).json("Deleted Successfully!");
+                }
+              });
+            } else {
+              let sql5 =
+                "SELECT * FROM TEST_SCORE WHERE studentID=" +
+                db.escape(deleteStudentID) +
+                " AND evalID=" +
+                db.escape(evalID);
+              db.query(sql5, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
 
-//       let sql1 =
-//         "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
-//         db.escape(adminID) +
-//         " AND measureEvalID=" +
-//         db.escape(evalID) +
-//         " AND studentID=" +
-//         db.escape(studentID) +
-//         " AND toolID=" +
-//         db.escape(rubricID) +
-//         " AND measureID=" +
-//         db.escape(measureID);
-
-//       db.query(sql1, (err, result) => {
-//         if (err) {
-//           return res.status(500).json(err);
-//         } else if (result.length > 0) {
-//           errors.assignmentFoundError =
-//             "You have already assigned the selected evaluator and student to this rubric";
-//           return res.status(404).json({ errors });
-//         }
-//         let sql2 =
-//           "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES (" +
-//           db.escape(adminID) +
-//           ", " +
-//           db.escape(evalID) +
-//           ", " +
-//           db.escape(studentID) +
-//           ", " +
-//           db.escape(rubricID) +
-//           ", " +
-//           db.escape(measureID) +
-//           ")";
-//         db.query(sql2, (err, result) => {
-//           if (err) {
-//             return res.status(500).json(err);
-//           }
-//           res.status(200).json(result);
-//         });
-//       });
-//     });
-//   }
-// );
+                if (result.length > 0) {
+                  if (!result[0].testScoreStatus) {
+                    let sql6 =
+                      "DELETE FROM TEST_SCORE WHERE studentID=" +
+                      db.escape(deleteStudentID) +
+                      "evalID=" +
+                      db.escape(evalID);
+                    db.query(sql6, (err, result) => {
+                      if (err) {
+                        return res.status(500).json(err);
+                      }
+                      return res.status(200).json("Deleted Successfully!");
+                    });
+                  } else {
+                    return res.status(200).json("Deleted Successfully!");
+                  }
+                } else {
+                  return res.status(200).json("Deleted Successfully!");
+                }
+              });
+            }
+          });
+        });
+      });
+    });
+  }
+);
 
 // @route POST api/cycles/:measureIdentifier/assign
 // @desc Assign Rubric and Student to Evaluator for evaluation purpose
@@ -1216,11 +2046,11 @@ router.post(
   (req, res) => {
     let measureID = req.params.measureIdentifier;
     let adminID = req.user.id;
-    let evalID = req.body.evalID;
+    let programID = req.user.programID;
+    let evalID = req.body.measureEvalID;
     let rubricID = req.body.rubricID;
     alreadyAssignedStudents = [];
     tobeAssignedStudents = [];
-    //let studentID = req.body.studentID;
     let errors = {};
     let sql =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
@@ -1236,8 +2066,8 @@ router.post(
           req.body.studentIDs,
           (value, key, callback) => {
             let sql1 =
-              "SELECT * FROM EVALUATOR_ASSIGN WHERE corId=" +
-              db.escape(adminID) +
+              "SELECT * FROM EVALUATOR_ASSIGN WHERE programID=" +
+              db.escape(programID) +
               " AND measureEvalID=" +
               db.escape(evalID) +
               " AND studentID=" +
@@ -1249,14 +2079,13 @@ router.post(
 
             db.query(sql1, (err, result) => {
               if (err) {
-                callback(err);
+                return callback(err);
               } else if (result.length > 0) {
                 alreadyAssignedStudents.push({
                   studentID: value,
                   evalID,
                   rubricID
                 });
-                //console.log(alreadyAssignedStudents);
                 callback();
               } else {
                 tobeAssignedStudents.push([
@@ -1264,7 +2093,8 @@ router.post(
                   evalID,
                   value,
                   rubricID,
-                  measureID
+                  measureID,
+                  programID
                 ]);
                 callback();
               }
@@ -1275,15 +2105,21 @@ router.post(
               return res.status(500).json(err);
             } else {
               let sql2 =
-                "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID) VALUES ?";
+                "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID,programID) VALUES ?";
               if (tobeAssignedStudents.length > 0) {
                 db.query(sql2, [tobeAssignedStudents], (err, result) => {
                   if (err) {
                     return res.status(500).json(err);
                   }
+                  return res
+                    .status(200)
+                    .json({ alreadyAssignedStudents, tobeAssignedStudents });
                 });
+              } else {
+                return res
+                  .status(200)
+                  .json({ alreadyAssignedStudents, tobeAssignedStudents });
               }
-              res.status(200).json({ alreadyAssignedStudents });
             }
           }
         );
@@ -1292,4 +2128,467 @@ router.post(
   }
 );
 
+// @route POST api/cycles/:measureIdentifier/testAssign
+// @desc Assign Test and Student to Evaluator for evaluation purpose
+// @access private
+
+router.post(
+  "/:measureIdentifier/testAssign",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
+    let adminID = req.user.id;
+    let programID = req.user.programID;
+    let measureEvalID = req.body.measureEvalID;
+    let evalID = req.body.evalID;
+    let testID = req.body.testID;
+    console.log(testID);
+    alreadyAssignedStudents = [];
+    tobeAssignedStudents = [];
+    let errors = {};
+    let sql =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
+      db.escape(measureID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        errors.identifierError = "Measure ID not found";
+        return res.status(404).json(errors);
+      } else {
+        async.forEachOfSeries(
+          req.body.studentIDs,
+          (value, key, callback) => {
+            let sql1 =
+              "SELECT * FROM EVALUATOR_ASSIGN WHERE programID=" +
+              db.escape(programID) +
+              " AND measureEvalID=" +
+              db.escape(measureEvalID) +
+              " AND studentID=" +
+              db.escape(value) +
+              " AND toolID=" +
+              db.escape(testID) +
+              " AND measureID=" +
+              db.escape(measureID);
+
+            db.query(sql1, (err, result) => {
+              if (err) {
+                return callback(err);
+              } else if (result.length > 0) {
+                alreadyAssignedStudents.push({
+                  studentID: value,
+                  measureEvalID,
+                  testID
+                });
+                callback();
+              } else {
+                tobeAssignedStudents.push([
+                  adminID,
+                  measureEvalID,
+                  value,
+                  testID,
+                  measureID,
+                  programID
+                ]);
+                callback();
+              }
+            });
+          },
+          err => {
+            if (err) {
+              return res.status(500).json(err);
+            } else {
+              let sql2 =
+                "INSERT INTO EVALUATOR_ASSIGN (corId,measureEvalID,studentID,toolID,measureID,programID) VALUES ?";
+              if (tobeAssignedStudents.length > 0) {
+                db.query(sql2, [tobeAssignedStudents], (err, result) => {
+                  if (err) {
+                    return res.status(500).json(err);
+                  }
+                  let testScores = [];
+                  tobeAssignedStudents.forEach(student => {
+                    testScores.push([student[2], evalID, measureID]);
+                  });
+                  let sql3 =
+                    "INSERT INTO TEST_SCORE (studentID, evalID, measureID) VALUES ?";
+                  db.query(sql3, [testScores], (err, result) => {
+                    if (err) {
+                      return res.status(500).json(err);
+                    }
+                    return res
+                      .status(200)
+                      .json({ alreadyAssignedStudents, tobeAssignedStudents });
+                  });
+                });
+              } else {
+                return res
+                  .status(200)
+                  .json({ alreadyAssignedStudents, tobeAssignedStudents });
+              }
+            }
+          }
+        );
+      }
+    });
+  }
+);
+
+// @route POST api/cycles/:measureIdentifier/measureRubricReport
+// @desc Generates Measure Report
+// @access private
+router.get(
+  "/:measureIdentifier/measureRubricReport",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    function round(value, decimals) {
+      return Number(Math.round(value + "e" + decimals) + "e-" + decimals);
+    }
+
+    let measureID = req.params.measureIdentifier;
+
+    let errors = {};
+
+    let results = [];
+
+    let sql =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID = " +
+      db.escape(measureID);
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        errors.measureNotFound = "Measure Not Found";
+        return res.status(404).json(errors);
+      }
+      let threshold = result[0].projectedResult;
+      let toolName = result[0].toolName;
+      let sql0 =
+        "SELECT * FROM RUBRIC NATURAL JOIN CRITERIA WHERE toolID=" +
+        db.escape(result[0].toolID) +
+        " ORDER BY criteriaID";
+      db.query(sql0, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        } else if (result.length <= 0) {
+          errors.nonExistentCriterias = "Criterias does not exist";
+          return res.status(404).json(errors);
+        }
+        let weightedRubric = 0;
+
+        if (result[0].weighted) {
+          weightedRubric = 1;
+        }
+        let criteriaInfo = [];
+        result.forEach(row => {
+          if (weightedRubric) {
+            criteriaInfo.push({
+              criteriaDescription: row.criteriaDesc,
+              criteriaWeight: row.criteriaWeight * 100
+            });
+          } else {
+            criteriaInfo.push({ criteriaDescription: row.criteriaDesc });
+          }
+        });
+        //console.log(threshold);
+        let sql1 =
+          "SELECT * FROM EVALUATE NATURAL JOIN EVALUATOR  NATURAL JOIN PERFORMANCE_MEASURE NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN CRITERIA  NATURAL JOIN RUBRIC_SCORE NATURAL JOIN STUDENT_AVERAGE_SCORE WHERE measureID=" +
+          db.escape(measureID) +
+          " ORDER BY criteriaID,studentID,evalID";
+        db.query(sql1, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          let prevCriteria = "";
+          let count = 0;
+
+          result.forEach((row, index) => {
+            if (index === 0) {
+              prevCriteria = row.criteriaID;
+            }
+            if (row.criteriaID !== prevCriteria) {
+              return;
+            }
+            count++;
+          });
+
+          //console.log(count);
+          let innerIndex = 0;
+          let classAverage = {};
+          let passingCounts = {};
+          let passingPercentages = {};
+
+          // console.log(threshold);
+          // console.log(result.length);
+          result.forEach((row, index) => {
+            //criteriaSet.add(row.criteriaDesc)
+            if (index < count) {
+              if (index === 0) {
+                classAverage[row.criteriaDesc] = 0;
+                classAverage["rubricScore"] = 0;
+                passingCounts[row.criteriaDesc] = 0;
+                passingCounts["rubricScore"] = 0;
+              }
+              let indResult = new Object();
+              indResult["class"] = row.courseAssociated;
+              indResult["studentName"] =
+                row.studentLastName + ", " + row.studentFirstName;
+              indResult["evalName"] =
+                row.evalLastName + ", " + row.evalFirstName;
+              indResult[row.criteriaDesc] = Math.round(
+                row.criteriaScore / row.criteriaWeight
+              );
+              indResult["rubricScore"] = row.rubricScore;
+              indResult["averageScore"] = row.averageScore;
+              indResult["studentID"] = row.studentID;
+              classAverage[row.criteriaDesc] += Math.round(
+                row.criteriaScore / row.criteriaWeight
+              );
+
+              classAverage["rubricScore"] += row.rubricScore;
+              passingCounts[row.criteriaDesc] =
+                Math.round(row.criteriaScore / row.criteriaWeight) >= threshold
+                  ? passingCounts[row.criteriaDesc] + 1
+                  : passingCounts[row.criteriaDesc];
+              passingCounts["rubricScore"] =
+                row.rubricScore >= threshold
+                  ? passingCounts["rubricScore"] + 1
+                  : passingCounts["rubricScore"];
+              results.push(indResult);
+            } else {
+              if (index % count !== 0) {
+                innerIndex++;
+                classAverage[row.criteriaDesc] += Math.round(
+                  row.criteriaScore / row.criteriaWeight
+                );
+
+                passingCounts[row.criteriaDesc] =
+                  Math.round(row.criteriaScore / row.criteriaWeight) >=
+                  threshold
+                    ? passingCounts[row.criteriaDesc] + 1
+                    : passingCounts[row.criteriaDesc];
+                results[innerIndex][row.criteriaDesc] = Math.round(
+                  row.criteriaScore / row.criteriaWeight
+                );
+              } else {
+                innerIndex = 0;
+                classAverage[row.criteriaDesc] = Math.round(
+                  row.criteriaScore / row.criteriaWeight
+                );
+
+                passingCounts[row.criteriaDesc] =
+                  Math.round(row.criteriaScore / row.criteriaWeight) >=
+                  threshold
+                    ? 1
+                    : 0;
+                results[innerIndex][row.criteriaDesc] = Math.round(
+                  row.criteriaScore / row.criteriaWeight
+                );
+              }
+            }
+          });
+          for (let average in classAverage) {
+            classAverage[average] = round(classAverage[average] / count, 2);
+          }
+          for (let passingCount in passingCounts) {
+            passingPercentages[passingCount] = round(
+              (passingCounts[passingCount] / count) * 100,
+              2
+            );
+          }
+          let prevStudentID = -1;
+          let avgtotalStudentCount = 0;
+          let avgPassingStudentCount = 0;
+          results.forEach((rslt, index) => {
+            if (index === 0) {
+              prevStudentID = rslt.studentID;
+              avgtotalStudentCount++;
+              if (rslt.averageScore >= threshold) {
+                avgPassingStudentCount++;
+              }
+            } else {
+              if (prevStudentID !== rslt.studentID) {
+                prevStudentID = rslt.studentID;
+                avgtotalStudentCount++;
+                if (rslt.averageScore >= threshold) {
+                  avgPassingStudentCount++;
+                }
+              }
+            }
+          });
+          classAverage["averageScore"] = classAverage.rubricScore;
+
+          passingCounts["averageScore"] =
+            avgtotalStudentCount === 0 ? "" : avgPassingStudentCount;
+          passingPercentages["averageScore"] =
+            avgtotalStudentCount === 0
+              ? 0
+              : round((avgPassingStudentCount / avgtotalStudentCount) * 100, 2);
+
+          res.status(200).json({
+            criteriaInfo,
+            results,
+            classAverage,
+            passingCounts,
+            passingPercentages,
+            numberOfEvaluations: count,
+            numberOfUniqueStudents: avgtotalStudentCount,
+            toolName,
+            threshold,
+            weightedRubric
+          });
+        });
+      });
+    });
+  }
+);
+
+// @route POST api/cycles/:measureIdentifier/measureTestReport
+// @desc Generates Measure Report for Test tool
+// @access private
+router.get(
+  "/:measureIdentifier/measureTestReport",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let measureID = req.params.measureIdentifier;
+    let errors = {};
+    let report = [];
+
+    let sql =
+      "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID = " +
+      db.escape(measureID);
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      } else if (result.length <= 0) {
+        errors.measureNotFound = "Measure Not Found";
+        return res.status(404).json(errors);
+      }
+      let threshold = result[0].projectedResult;
+      let sql1 =
+        "SELECT * FROM TEST_SCORE NATURAL JOIN STUDENT WHERE measureID=" +
+        db.escape(measureID);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        let totalStudents = result.length;
+        let passingCounts = 0;
+        result.forEach(row => {
+          result = {
+            studentName: row.studentLastName + ", " + row.studentFirstName,
+            studentEmail: row.studentEmail,
+            CWID: row.studentCWID,
+            score: row.testScore ? row.testScore : "N/A",
+            passing: row.testScoreStatus ? true : false
+          };
+          if (row.testScoreStatus !== null) {
+            report.push(result);
+            if (row.testScoreStatus) {
+              passingCounts++;
+            }
+          }
+        });
+        let passingPercentage = 0;
+        if (totalStudents !== 0 && passingCounts !== 0) {
+          passingPercentage = Number(
+            Math.round((passingCounts / totalStudents) * 100 + "e2") + "e-2"
+          );
+        } else {
+          passingPercentage = 0;
+        }
+        res
+          .status(200)
+          .json({ report, totalStudents, passingCounts, passingPercentage });
+      });
+    });
+  }
+);
+
+router.get(
+  "/:cycleIdentifier/cycleSummaryReport",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let cycleID = req.params.cycleIdentifier;
+    let errors = {};
+    let cycleReport = {};
+
+    let sql1 =
+      "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" + db.escape(cycleID);
+    db.query(sql1, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+
+      if (result.length <= 0) {
+        errors.cycleNotFound = "Assessment Cycle Does not Exist";
+        return res.status(404).json(errors);
+      }
+      cycleReport.cycleName = result[0].cycleTitle;
+
+      let sql2 =
+        "SELECT * FROM LEARNING_OUTCOME WHERE cycleID=" +
+        db.escape(cycleID) +
+        " ORDER BY learnCreatedTime";
+      db.query(sql2, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+
+        async.forEachOf(
+          result,
+          (value, key, callback) => {
+            let outcomeName = key + 1 + ". " + value.learnDesc;
+            cycleReport[outcomeName] = {};
+            cycleReport[outcomeName]["measureDetails"] = [];
+
+            let outcomeCourses = [];
+            let sql3 =
+              "SELECT * FROM OUTCOME_COURSE WHERE learnID=" +
+              db.escape(value.learnID);
+            db.query(sql3, (err, result) => {
+              if (err) {
+                return callback(err);
+              }
+              result.forEach(row => {
+                outcomeCourses.push(row.courseCode);
+              });
+              cycleReport[outcomeName].outcomeCourses = outcomeCourses;
+              let sql4 =
+                "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
+                db.escape(value.learnID) +
+                " ORDER BY measureCreatedTime";
+              db.query(sql4, (err, result) => {
+                if (err) {
+                  return callback(err);
+                }
+                result.forEach((row, indx) => {
+                  cycleReport[outcomeName].measureDetails.push({
+                    measureDesc: row.measureDesc,
+                    measureDisplayID: key + 1 + "." + (indx + 1),
+                    evalCount: row.evalCount,
+                    successCount: row.successCount,
+                    threshold: row.projectedResult
+                      ? row.projectedResult + row.projectedValueScale
+                      : "pass",
+                    measureStatus: row.measureStatus
+                  });
+                });
+                callback();
+              });
+            });
+          },
+          err => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            res.status(200).json(cycleReport);
+          }
+        );
+      });
+    });
+  }
+);
 module.exports = router;

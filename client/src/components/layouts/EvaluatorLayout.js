@@ -25,9 +25,6 @@ class EvaluatorLayout extends Component {
     };
 
     render() {
-
-        console.log(this.props)
-
         return (
             <Fragment>
                 <header>
@@ -37,16 +34,6 @@ class EvaluatorLayout extends Component {
                         <li className="logout warn"><Link to="/" onClick={this.onLogoutClick.bind(this)}>Log Out</Link></li>
                     </ul>
                 </header>
-
-
-                <nav>
-                    <ul className="main">
-                        <li className="dashboard"><Link to="/evaluator/dashboard">Dashboard</Link></li>
-                        <li className="rubrics"><Link to="/evaluator/rubrics">Rubrics</Link></li>
-                        <li className="assess-cycle"><Link to="/evaluator/students">Student</Link></li>
-                        <li className="assess-cycle"><Link to="/evaluator/evaluate">Evaluate</Link></li>
-                    </ul>
-                </nav>
 
             </Fragment>
         )

@@ -2,6 +2,7 @@ const express = require("express");
 const passport = require("passport");
 const async = require("async");
 
+const isEmpty = require("../../validation/isEmpty");
 const db = require("../../config/dbconnection");
 const validateRubricStructureInput = require("../../validation/rubric");
 
@@ -24,15 +25,15 @@ router.post(
     let noOfColumns = req.body.columns;
     let rubricTitle = req.body.rubricName;
     let weighted = req.body.weighted;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
 
     let rubricDetails = {};
 
     let sql3 =
       "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE rubricTitle=" +
       db.escape(rubricTitle) +
-      " AND corId=" +
-      db.escape(adminID);
+      " AND programID=" +
+      db.escape(programID);
     db.query(sql3, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -42,8 +43,8 @@ router.post(
         return res.status(404).json(errors);
       }
       let sql5 =
-        "INSERT INTO TOOL (corId, toolType) VALUES (" +
-        db.escape(adminID) +
+        "INSERT INTO TOOL (programID, toolType) VALUES (" +
+        db.escape(programID) +
         ", " +
         db.escape("rubric") +
         ")";
@@ -76,7 +77,7 @@ router.post(
             rubricTitle,
             weighted,
             rubricID,
-            adminID
+            programID
           };
           let scales = [];
           let values = [];
@@ -85,7 +86,7 @@ router.post(
 
           //req.body.scales.sort((a, b) => b.scaleValue - a.scaleValue);
           for (var i = 0; i < noOfColumns; i++) {
-            values.push([rubricID, "", i + 1]);
+            values.push([rubricID, i + 1 + "", i + 1]);
           }
 
           db.query(sql7, [values], (err, result) => {
@@ -97,7 +98,7 @@ router.post(
             for (var i = 0; i < noOfColumns; i++) {
               scales.push({
                 scaleID,
-                scaleDescription: "",
+                scaleDescription: i + 1 + "",
                 scaleValue: i + 1
               });
               scaleID++;
@@ -108,10 +109,23 @@ router.post(
             let crValues = [];
             let sql8 =
               "INSERT INTO CRITERIA (toolID,criteriaDesc,criteriaWeight) VALUES ?";
-            let criteriaDescription = "";
-
+            let criteriaDescription = "Criteria ";
+            let weightedValue = 1;
+            if (weighted) {
+              weightedValue = 0;
+            }
             for (var i = 0; i < noOfRows; i++) {
-              crValues.push([rubricID, criteriaDescription, 0]);
+              crValues.push([
+                rubricID,
+                i === 0
+                  ? i + 1 + "st " + criteriaDescription
+                  : i == 1
+                  ? i + 1 + "nd " + criteriaDescription
+                  : i == 2
+                  ? i + 1 + "rd " + criteriaDescription
+                  : i + 1 + "th " + criteriaDescription,
+                weightedValue
+              ]);
             }
 
             db.query(sql8, [crValues], (err, result) => {
@@ -216,8 +230,8 @@ router.get(
     let rubrics = [];
 
     let sql2 =
-      "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE corId=" +
-      db.escape(req.user.id);
+      "SELECT * FROM TOOL NATURAL JOIN RUBRIC WHERE programID=" +
+      db.escape(req.user.programID);
 
     db.query(sql2, (err, result) => {
       if (err) {
@@ -247,7 +261,7 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let rubricID = req.params.rubricIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
 
     let rubricDetails = {};
 
@@ -270,7 +284,7 @@ router.get(
         rubricTitle: result[0].rubricTitle,
         weighted: result[0].weighted,
         rubricID,
-        adminID
+        programID
       };
       let scales = [];
       let sql3 =
@@ -363,8 +377,12 @@ router.post(
   (req, res) => {
     let rubricID = req.params.rubricIdentifier;
     let criteriaID = req.body.criteriaID;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let criteriaDesc = req.body.criteriaDesc;
+    if (isEmpty(criteriaDesc)) {
+      return res.status(404).json("Criteria Desc Cannot be Empty");
+    }
+
     let sql1 =
       "SELECT * FROM CRITERIA WHERE toolID=" +
       db.escape(rubricID) +
@@ -387,7 +405,7 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        res.status(200).json({ criteriaDesc, adminID, criteriaID, rubricID });
+        res.status(200).json({ criteriaDesc, programID, criteriaID, rubricID });
       });
     });
   }
@@ -402,7 +420,7 @@ router.post(
   (req, res) => {
     let rubricID = req.params.rubricIdentifier;
     let cellID = req.body.cellID;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let levelDesc = req.body.levelDesc;
     let sql1 =
       "SELECT * FROM LEVEL_DESCRIPTION WHERE toolID=" +
@@ -426,7 +444,7 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        res.status(200).json({ levelDesc, adminID, cellID, rubricID });
+        res.status(200).json({ levelDesc, programID, cellID, rubricID });
       });
     });
   }
@@ -440,8 +458,7 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let rubricID = req.params.rubricIdentifier;
-    let criteriaID = req.params.criteriaIdentifier;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let errors = {};
     let totalWeight = 0;
     for (var i = 0; i < req.body.length; i++) {
@@ -474,10 +491,10 @@ router.post(
             db.escape(value.criteriaID);
           db.query(sql1, (err, result) => {
             if (!err) {
-              console.log("Sucess 1");
+              //console.log("Sucess 1");
               callback();
             } else {
-              console.log("Reaches here");
+              //console.log("Reaches here");
               return callback(err);
             }
           });
@@ -502,10 +519,14 @@ router.post(
   (req, res) => {
     let rubricID = req.params.rubricIdentifier;
     let scaleID = req.body.scaleID;
-    let adminID = req.user.id;
+    let programID = req.user.programID;
     let scaleDesc = req.body.scaleDescription;
 
     let errors = {};
+    if (isEmpty(scaleDesc)) {
+      errors.EmptyScaleDescription = "Scale Description Cannot be Empty";
+      return res.status(404).json(errors);
+    }
 
     let sql1 =
       "SELECT * FROM RATING_SCALE WHERE toolID=" +
@@ -529,10 +550,53 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        res.status(200).json({ scaleDesc, adminID, scaleID, rubricID });
+        res.status(200).json({ scaleDesc, programID, scaleID, rubricID });
       });
     });
   }
 );
 
+// @route POST api/rubrics/delete
+// @desc Deletes a Rubric
+// @access Private
+router.post(
+  "/delete",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let programID = req.user.programID;
+    let rubricID = req.body.rubricID;
+    let errors = {};
+
+    let sql = "SELECT * FROM RUBRIC WHERE toolID=" + db.escape(rubricID);
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.rubricNotFound = "Rubric Does not Exist!";
+        return res.status(404).json(errors);
+      }
+
+      let sql1 =
+        "SELECT * FROM PERFORMANCE_MEASURE WHERE toolID=" + db.escape(rubricID);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length > 0) {
+          errors.rubricAssociatedWithMeasure =
+            "Rubric has been linked to a Measure!";
+          return res.status(404).json(errors);
+        }
+        let sql2 = "DELETE FROM TOOL WHERE toolID=" + db.escape(rubricID);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Deleted Successfully!");
+        });
+      });
+    });
+  }
+);
 module.exports = router;

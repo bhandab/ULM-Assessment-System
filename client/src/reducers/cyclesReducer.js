@@ -4,7 +4,10 @@ import { GET_CYCLES,
     GET_MEASURE_DETAILS,
     CYCLE_LOADING,
     GET_MEASURE_EVALUATORS,
-    GET_MEASURE_STUDENTS}
+    GET_MEASURE_STUDENTS,
+    GET_ASSIGNED_STUDENTS,
+    GET_MEASURE_REPORT
+}
     from "../actions/types";
 
 const initialState = {
@@ -14,7 +17,9 @@ const initialState = {
     measureDetails: null,
     cycleLoading: true,
     measureEvaluators: null,
-    measureStudents: null
+    measureStudents: null,
+    assignedStudents: null,
+    measureReport: null
 }
 
 export default function (state = initialState, action) {
@@ -56,9 +61,24 @@ export default function (state = initialState, action) {
             measureStudents: action.payload,
             cycleLoading: false
         }
+
+        case GET_ASSIGNED_STUDENTS:
+        return {
+            ...state,
+            assignedStudents: action.payload,
+            cycleLoading: false
+        }
+
+        case GET_MEASURE_REPORT:
+        return {
+            ...state,
+            measureReport:action.payload,
+            cycleLoading:false
+        }
          
         case CYCLE_LOADING:
         return{
+            ...state,
             cycleLoading:true
         }
         default:

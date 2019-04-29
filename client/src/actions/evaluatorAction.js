@@ -1,9 +1,14 @@
 import { GET_ERRORS, GET_REGISTERED_EVALUATORS, GET_INVITED_EVALUATORS } from './types'
 import axios from 'axios'
+import {toastr} from 'react-redux-toastr'
 
 export const inviteEvaluator = (email) => dispatch => {
     axios
         .post("/api/evaluators/invite", email)
+        .then(() => toastr.success(
+            "Evaluator Invited!",
+            "Measure Evaluator Successfully Invited!"
+        ))
         .then(() => dispatch(getInvitedEvaluators()))
         .catch(err => {
             dispatch({
@@ -19,7 +24,7 @@ export const getRegisteredEvaluators = () => dispatch => {
     axios
         .get("/api/evaluators")
         .then(res => {
-            console.log(res)
+            // console.log(res)
             dispatch({
                 type: GET_REGISTERED_EVALUATORS,
                 payload: res.data

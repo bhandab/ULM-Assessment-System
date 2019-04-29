@@ -17,7 +17,8 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     let sql =
-      "SELECT * FROM LEARNING_OUTCOME WHERE corId=" + db.escape(req.user.id);
+      "SELECT * FROM LEARNING_OUTCOME WHERE programID=" +
+      db.escape(req.user.programID);
     var outcomesSet = new Set();
     var outcomes = [];
     db.query(sql, (err, result) => {

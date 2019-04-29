@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Form, Card, Button, Modal, InputGroup, FormControl } from 'react-bootstrap';
+import { Form, Card, CardGroup, Button, Modal, InputGroup, ListGroup} from 'react-bootstrap';
 import { getRegisteredEvaluators, getInvitedEvaluators, inviteEvaluator} from '../../actions/evaluatorAction';
-import { parse } from 'papaparse'
 
 
 class Evaluators extends Component {
@@ -30,35 +29,18 @@ class Evaluators extends Component {
 
     inviteHandler = (e) => {
         e.preventDefault();
-
-        console.log(e.target.invEmail.value)
-        
-        //IN CASE OF A FILE INPUT
-       /* const file = e.target.myFile.files[0]
-        let invitedList = "cvcv"
-        var reader = new FileReader();
-        reader.onload = function () {
-            invitedList= reader.result;
-            console.log(parse(invitedList))
-        }
-        console.log(invitedList)
-        reader.readAsText(file);*/
-
         this.props.inviteEvaluator({ evaluatorEmail: e.target.invEmail.value})
         this.setState({invite:false})
-
-
     }
 
     render() {
-        console.log(this.props)
 
         let evaluatorsList = null
 
         if (this.props.evaluator.evaluators !== null) {
             evaluatorsList = this.props.evaluator.evaluators.evaluators.map((item, index) => {
                 return (
-                    <li className="list-group-item" key={index}>{item.name} ({item.email})</li>
+                    <ListGroup id="ev-invited" key={index}>{item.name} ({item.email})</ListGroup>
                 )
             })
         }
@@ -67,34 +49,41 @@ class Evaluators extends Component {
         if (this.props.evaluator.invitedEvaluators !== null) {
             invitedList = this.props.evaluator.invitedEvaluators.invitedEvaluators.map((item, index) => {
                 return (
-                    <li className="list-group-item" key={index}>{item}</li>
+                    <ListGroup key={index}>{item}</ListGroup>
                 )
             })
 
         }
 
         return (
-            <section className="panel important border border-info rounded p-3">
-                <Card style={{ width: '30rem', float: "left", marginRight: "5%", marginLeft: "5%" }}>
+            <section className="panel important rounded p-3">
+            <Card>
+                <Card.Header style={{textAlign:'center'}}><h1>Evaluators</h1>
+                </Card.Header>
+                <Card.Body>
+                    <CardGroup>
+                <Card style={{ width: '30rem', float: "left"}}>
+                <Card.Header style={{textAlign:'center'}}><h4>Registered Evaluators</h4></Card.Header>
                     <Card.Body>
-                        <Card.Title>Registered Evaluators</Card.Title>
-                        <hr/>
-                        <ul className="list-group">
+                        <ListGroup.Item id="ev-list">
                             {evaluatorsList}
-                        </ul>
+                        </ListGroup.Item>
                         <Button variant="primary" className="float-right mt-3" onClick={this.inviteShow}>Invite Evaluators</Button>
                     </Card.Body>
                 </Card>
 
-                <Card style={{ width: '30rem', marginLeft: '5%' }}>
+                <Card style={{ width: '30rem'}}>
+                <Card.Header style={{textAlign:'center'}}><h4>Invited Evaluators</h4></Card.Header>
                     <Card.Body>
-                        <Card.Title>Invited Evaluators</Card.Title>
-                        <hr/>
-                        <ul className="list-group">
+                        
+                        <ListGroup.Item className="list-group">
                             {invitedList}
-                        </ul>
+                        </ListGroup.Item>
                     </Card.Body>
                 </Card>
+                </CardGroup>
+                </Card.Body>
+            </Card>
 
                 <Modal centered show={this.state.invite} onHide={this.inviteHide}>
                     <Modal.Title className="ml-3">
@@ -111,10 +100,10 @@ class Evaluators extends Component {
                                 <Form.Control type="email" name="invEmail" placeholder="sth@example.com" />
                             </InputGroup>
 
-                            <InputGroup className="">
+                            {/* <InputGroup className="">
 
                                 <p className="mb-0 mt-3">Upload a CSV File:</p><Form.Control id="inputFile" type="file" name="myFile" />
-                            </InputGroup>
+                            </InputGroup> */}
                             <Button variant="danger" className="mt-3 float-right ml-3" onClick={this.inviteHide}>Close</Button>
                             <Button variant="success" className="mt-3 float-right" type="submit">Invite</Button>
                         </Form>

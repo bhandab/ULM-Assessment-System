@@ -1,12 +1,17 @@
 import React, { Component, Fragment } from "react";
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { logoutUser } from "../../actions/authActions";
+import { logoutUser, loginAsEval } from "../../actions/authActions";
+import {Button} from 'react-bootstrap'
 
 import "./Style.css";
 
 class AdminLayout extends Component {
+
+  state = {
+    sidebar : false
+  }
   
 
   componentWillReceiveProps(nextProps) {
@@ -21,15 +26,53 @@ class AdminLayout extends Component {
     console.log("Logout user!");
     this.props.logoutUser();
   };
+
+  actAsEval = () => {
+    console.log("clicked")
+    this.props.loginAsEval()
+  }
+
+  
+    /* Set the width of the side navigation to 250px and the left margin of the page content to 250px */
+openNav = () => {
+  if(!this.state.sidebar){
+  document.getElementById("mySidebar").style.width = "250px";
+  document.getElementById("main").style.marginLeft = "250px";
+  this.setState({sidebar:true})
+  }
+  else{
+    document.getElementById("mySidebar").style.width = "0";
+    document.getElementById("main").style.marginLeft = "0";
+    this.setState({sidebar:false})
+
+  
+  }
+}
+
+/* Set the width of the side navigation to 0 and the left margin of the page content to 0 */
+// closeNav = () => {
+//   document.getElementById("mySidebar").style.width = "0";
+//   document.getElementById("main").style.marginLeft = "0";
+
+// }
+  /* Set the width of the sidebar to 250px and the left margin of the page content to 250px */
+
   
   render() {
+
     return (
       <Fragment>
-        <header>
-          <h1>Admin Panel</h1>
+        <header id="pageHeader" className="noprint">
+        <h1 className = "justify-content-between">
+          <button id = "disappear" className="openbtn" onClick={this.openNav}>&#9776; </button>
+           <span className="ml-3 mt-5"><strong>Coordinator</strong></span>
+        </h1>
           <ul className="utilities">
+            <li className="mr-5">
+              <Button onClick={this.actAsEval}>Evaluator</Button>
+            </li>
             <li className="users">
-              <Link to="#">{this.props.auth.user.name}</Link>
+              <Link to="/admin/profile">{this.props.auth.user.name}</Link>
             </li>
             <li className="logout warn">
               <Link to="/login" onClick={this.onLogoutClick.bind(this)}>
@@ -38,29 +81,25 @@ class AdminLayout extends Component {
             </li>
           </ul>
         </header>
-
-        <nav>
-          <ul className="main">
+        <div id="mySidebar" className="sidebar noprint">
+           <ul className="bordered m-3"style={{backgroundColor:'white'}}>
             <li className="dashboard">
-              <Link to="/admin/cycles">Dashboard</Link>
-            </li>
-            <li className="outcomes">
-              <Link to="/admin/outcomes">Outcomes</Link>
-            </li>
-            <li className="perf-measures">
-              <Link to="/admin/measures">Performance Measures</Link>
-            </li>
-            <li className="rubrics">
-              <Link to="/admin/rubrics">Rubrics</Link>
+              <NavLink to="/admin/dashboard">Dashboard</NavLink>
             </li>
             <li className="assess-cycle">
-              <Link to="/admin/cycles">Assessment Cycle</Link>
+              <NavLink to="/admin/cycles"><i className="fas fa-recycle "></i>Assessment Cycle</NavLink>
+            </li>
+            <li className="rubrics">
+              <NavLink to="/admin/rubrics"><i className="fas fa-th"></i>Rubrics</NavLink>
             </li>
             <li className="evaluators">
-            <Link to="/admin/evaluators">Evaluators</Link>
+            <NavLink to="/admin/evaluators"><i className="fas fa-user-tie"></i>Evaluators</NavLink>
             </li>
-          </ul>
-        </nav>
+            <li className="pastCycles">
+            <NavLink to="/admin/pastCycles"><i className="fas fa-fast-backward"></i>Past Cycles</NavLink>
+            </li>
+            </ul>
+          </div>
       </Fragment>
     );
   }
@@ -68,7 +107,8 @@ class AdminLayout extends Component {
 
 AdminLayout.propTypes = {
   logoutUser: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired
+  auth: PropTypes.object.isRequired,
+  loginAsEval: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
@@ -77,5 +117,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { logoutUser }
+  { logoutUser, loginAsEval }
 )(AdminLayout);
