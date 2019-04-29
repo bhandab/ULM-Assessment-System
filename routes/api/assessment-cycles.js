@@ -1197,7 +1197,6 @@ router.get(
     let outcomeID = req.params.outcomeIdentifier;
     let measureID = req.params.measureIdentifier;
     let programID = req.user.programID;
-
     let sql1 =
       "SELECT * FROM ASSESSMENT_CYCLE WHERE cycleID=" +
       db.escape(cycleID) +
@@ -2487,7 +2486,7 @@ router.get(
           };
           if (row.testScoreStatus !== null) {
             report.push(result);
-            if (row.testScoreStatus === true) {
+            if (row.testScoreStatus) {
               passingCounts++;
             }
           }

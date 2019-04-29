@@ -58,19 +58,33 @@ router.post("/register", (req, res) => {
         if (err) {
           return res.status(500).json(err);
         }
-        let sql1 =
-          "DELETE FROM INVITED_COORDINATOR WHERE invitedCorEmail = " +
-          db.escape(email);
-        db.query(sql1, (err, result) => {
+        let sql0 =
+          "INSERT INTO EVALUATOR (evalFirstName, evalLastName,evalEmail,evalPWHash) VALUES (" +
+          db.escape(adminFirstName) +
+          "," +
+          db.escape(adminLastName) +
+          ", " +
+          db.escape(email) +
+          ",password(" +
+          db.escape(password) +
+          "))";
+        db.query(sql0, (err, result) => {
           if (err) {
             return res.status(500).json(err);
-          } else {
-            return res.status(200).json(result);
           }
+          let sql1 =
+            "DELETE FROM INVITED_COORDINATOR WHERE invitedCorEmail = " +
+            db.escape(email);
+          db.query(sql1, (err, result) => {
+            if (err) {
+              return res.status(500).json(err);
+            } else {
+              return res.status(200).json(result);
+            }
+          });
         });
       });
     } else if (result <= 0) {
-      // console.log(result.length);
       let sql2 =
         "SELECT * FROM INVITED_EVALUATOR WHERE invitedEvalEmail = " +
         db.escape(email);
@@ -79,7 +93,6 @@ router.post("/register", (req, res) => {
           return res.status(500).json(error);
         }
 
-        //console.log(email);
         if (result.length > 0) {
           let evalFirstName = req.body.firstName;
           let evalLastName = req.body.lastName;
@@ -120,57 +133,6 @@ router.post("/register", (req, res) => {
     }
   });
 });
-
-// // @route POST api/users/registerEvaluator
-// // @desc Register evaluator
-// // @access Protected
-
-// router.post("/registerEvaluator", (req, res) => {
-//   let { errors, isValid } = validateRegisterInput(req.body);
-//   if (!isValid) {
-//     return res.status(404).json(errors);
-//   }
-
-//   let evalName = req.body.name;
-//   let email = req.body.email;
-//   let password = req.body.password;
-
-//   let sql =
-//     "SELECT * FROM INVITED_EVALUATOR WHERE invitedEvalEmail=" +
-//     db.escape(email);
-//   db.query(sql, (err, result) => {
-//     if (err) {
-//       return res.status(500).json(err);
-//     } else if (result.length <= 0) {
-//       errors.email =
-//         "You have not been added in the system yet. Please check with your coordinator";
-//       return res.status(404).json(errors);
-//     }
-
-//     sql =
-//       "INSERT INTO EVALUATOR (evalName, evalEmail, evalPWHash) VALUES(" +
-//       db.escape(evalName) +
-//       ", " +
-//       db.escape(email) +
-//       ", password(" +
-//       db.escape(password) +
-//       "))";
-//     db.query(sql, (err, result) => {
-//       if (err) {
-//         return res.status(500).json(err);
-//       }
-//       let sql1 =
-//         "DELETE FROM INVITED_EVALUATOR WHERE invitedEvalEmail=" +
-//         db.escape(email);
-//       db.query(sql1, (err, result) => {
-//         if (err) {
-//           return res.status(500).json(err);
-//         }
-//         res.status(200).json(result);
-//       });
-//     });
-//   });
-// });
 
 // @route POST api/users/login
 // @desc Login User
@@ -293,5 +255,51 @@ router.post("/login", (req, res) => {
     }
   });
 });
+// @route POST api/users/loginAsEval
+// @desc Login User
+// @access Public
+
+router.post(
+  "/loginAsEval",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let sql =
+      "SELECT * from EVALUATOR WHERE isActive=true AND evalEmail=" +
+      db.escape(email);
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+
+      //User email and password exists
+      else if (result.length > 0) {
+        const payload = {
+          email,
+          name: result[0].evalFirstName + " " + result[0].evalLastName,
+          id: result[0].evalID,
+          role: "evaluator"
+        };
+
+        jwt.sign(
+          payload,
+          keys.secretOrkey,
+          {
+            expiresIn: 5400
+          },
+          (err, token) => {
+            res.status(200).json({
+              success: true,
+              token: "Bearer " + token
+            });
+          }
+        );
+      } else {
+        errors.password = "Password Incorrect";
+        res.status(404).json(errors);
+      }
+    });
+  }
+);
 
 module.exports = router;
