@@ -11,6 +11,7 @@ const rubricRouter = require("./routes/api/rubrics");
 const evaluatorRouter = require("./routes/api/evaluators");
 const coordinatorRouter = require("./routes/api/coordinators");
 const evaluationRouter = require("./routes/api/evaluations");
+const logsRouter = require("./routes/api/activity");
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use("/api/rubrics", rubricRouter);
 app.use("/api/evaluators", evaluatorRouter);
 app.use("/api/coordinators", coordinatorRouter);
 app.use("/api/evaluations", evaluationRouter);
+app.use("/api/logs", logsRouter);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
