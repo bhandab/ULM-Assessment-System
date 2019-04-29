@@ -117,6 +117,7 @@ router.post(
           studentID: row.studentID,
           measureID: row.measureID,
           projectedResult: row.projectedResult,
+          projectedNumberScale: row.projectedValueScale,
           testScore: row.testScore,
           testScoreStatus: row.testScoreStatus
         });

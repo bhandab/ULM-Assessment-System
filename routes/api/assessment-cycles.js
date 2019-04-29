@@ -1965,7 +1965,7 @@ router.post(
     let measureID = req.params.measureIdentifier;
     let deleteStudentID = req.body.studentID;
     let measureEvalID = req.body.measureEvalID;
-    console.log(req.body)
+    console.log(req.body);
     let sql1 =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
       db.escape(measureID);
@@ -2594,6 +2594,7 @@ router.get(
         return res.status(404).json(errors);
       }
       let threshold = result[0].projectedResult;
+      let projectedValueScale = result[0].projectedValueScale;
       let sql1 =
         "SELECT * FROM TEST_SCORE NATURAL JOIN STUDENT WHERE measureID=" +
         db.escape(measureID);
@@ -2628,7 +2629,13 @@ router.get(
         }
         res
           .status(200)
-          .json({ report, totalStudents, passingCounts, passingPercentage });
+          .json({
+            report,
+            totalStudents,
+            passingCounts,
+            passingPercentage,
+            projectedValueScale
+          });
       });
     });
   }
