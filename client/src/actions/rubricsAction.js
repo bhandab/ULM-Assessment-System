@@ -7,9 +7,8 @@ export const createRubric = (rubricDetails,history) => dispatch => {
 
     axios
         .post("/api/rubrics/createRubric", rubricDetails)
-        
         .then(res => 
-            dispatch(history.push("/admin/rubrics/"+res.data.rubricDetails.strutureInfo.rubricID))
+            history.push("/admin/rubrics/"+res.data.rubricDetails.strutureInfo.rubricID)
         )
         .then(() => toastr.success(
             "Rubric Created!",
@@ -18,7 +17,6 @@ export const createRubric = (rubricDetails,history) => dispatch => {
         .then(()=>
             dispatch(getAllRubrics())
         )
-
         .catch(err=> 
             console.log(err)
         )
@@ -118,6 +116,18 @@ export const updateScaleDescription = (rubricID,body) => dispatch => {
             })
         })
 } 
+
+export const deleteRubric = (rubricID) => dispatch => {
+    axios
+    .post("/api/rubrics/delete",{rubricID})
+    .then(() => toastr.success(
+        "Rubric Deleted!",
+        `Rubric Successfully Deleted!!`
+    ))
+    .then(()=>
+        dispatch(getAllRubrics())
+    )
+}
 
 export const setRubricsLoading = () => {
     return {

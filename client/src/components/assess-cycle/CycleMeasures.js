@@ -245,7 +245,7 @@ class CycleMeasures extends Component {
           </div> */}
           <Card>
             <Card.Header>
-          <h2>{title}
+          <h2><u className="text-secondary">Cycle</u>: {title}
           <Link to={`/admin/cycles/cycle/${this.props.match.params.cycleID}/report`}>
           <button size="lg" variant="outline-primary" className="float-right">
           <i className="fas fa-file-invoice"></i>
@@ -258,17 +258,16 @@ class CycleMeasures extends Component {
           {!this.state.isActive? 
           <>
           <Button
-            className="btn mt-3 float-right ml-3"
-            onClick={this.addOutcomeShow}
-          >
-            Add Outcome
-          </Button>
-
-          <Button
-            className="btn mt-3 float-right"
+            className="btn mt-3"
             onClick={this.createOutcomeShow}
           >
             Create Outcome
+          </Button>
+          <Button
+            className="mt-3 ml-3"
+            onClick={this.addOutcomeShow}
+          >
+            Add Outcome
           </Button>
           </>
           :null }

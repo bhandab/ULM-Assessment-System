@@ -45,7 +45,7 @@ export const unInviteEvaluator = (email) => dispatch => {
             "Evaluator Invitation Cancelled!",
             "Measure Evaluator Invitation Successfully Cancelled!"
         ))
-        .then(() => dispatch(getRegisteredEvaluators()))
+        .then(() => dispatch(getInvitedEvaluators()))
         .catch(err => {
             dispatch({
                 type: GET_ERRORS,

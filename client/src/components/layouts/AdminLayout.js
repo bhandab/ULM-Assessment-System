@@ -113,6 +113,12 @@ class AdminLayout extends Component {
                 Past Cycles
               </NavLink>
             </li>
+            <li className="Logs">
+              <NavLink to="/admin/logs">
+                <i className="fas" />
+                Activity Logs
+              </NavLink>
+            </li>
           </ul>
         </div>
       </Fragment>

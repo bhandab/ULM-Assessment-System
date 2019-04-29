@@ -35,7 +35,7 @@ componentDidMount(){
         activeCyclesList = this.props.cycles.cycles.cycles.map((cycle,index) => {
           if(!cycle.isClosed){
               if(index === 0) {
-                workingCycle = <Link to={{
+                workingCycle = <Link className="float-right" to={{
                   pathname: "/admin/cycles/cycle/" + cycle.cycleID
                 }}><Button>Current Cycle</Button></Link>
               }
@@ -80,13 +80,13 @@ componentDidMount(){
       
       <Card.Body>
         <ListGroup>
-          <Card.Header>Active Cycles <span className="float-right">{workingCycle}</span></Card.Header>
+          <Card.Header><h2>Active Cycles {workingCycle}</h2></Card.Header>
           {activeCyclesList}
         </ListGroup>
       </Card.Body>
       </Card>
-      <Card className="mt-3">
-        <Card.Header style={{textAlign:'center'}}><h3>Recent Activities</h3></Card.Header>
+      <Card className="mt-5">
+        <Card.Header><h3>Recent Activities</h3></Card.Header>
         <Card.Body>
           <Table style={{fontSize:'17px'}} striped borderless >
             <thead>

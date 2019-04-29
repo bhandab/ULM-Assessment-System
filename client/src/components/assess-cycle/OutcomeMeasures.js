@@ -390,7 +390,7 @@ class OutcomeMeasures extends Component {
         <Card>
           <Card.Header>
             <h2>
-              {measureTitle}
+              <u className="text-secondary">Measure</u>: {measureTitle}
               <Link
                 to={{
                   pathname: `/admin/cycles/cycle/${
@@ -415,18 +415,19 @@ class OutcomeMeasures extends Component {
             </div>
             { this.state.isActive ?
             <> 
-            <button
-              onClick={this.addMeasuresShow}
-              className="btn btn-primary  ml-3 float-right mt-3"
-            >
-              Add Measure
-            </button>
-            <button
+             <button
               onClick={this.createMeasuresShow}
-              className="btn btn-primary float-right mt-3"
+              className="btn btn-primary mt-3"
             >
               Create Measure
             </button>
+            <button
+              onClick={this.addMeasuresShow}
+              className="btn btn-primary  ml-3 mt-3"
+            >
+              Add Measure
+            </button>
+           
             </>
             : null}
           </Card.Body>

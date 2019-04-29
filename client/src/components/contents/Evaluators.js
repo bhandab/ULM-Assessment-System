@@ -5,7 +5,8 @@ import { Form, Card, CardGroup, Button, Modal, InputGroup, ListGroup} from 'reac
 import { getRegisteredEvaluators,
      getInvitedEvaluators, 
      inviteEvaluator,
-     unInviteEvaluator} from '../../actions/evaluatorAction';
+     unInviteEvaluator,
+    deleteEvaluator} from '../../actions/evaluatorAction';
 
 
 class Evaluators extends Component {
@@ -47,7 +48,14 @@ class Evaluators extends Component {
         if (this.props.evaluator.evaluators !== null) {
             evaluatorsList = this.props.evaluator.evaluators.evaluators.map((item, index) => {
                 return (
-                    <ListGroup.Item key={index}>{item.name} ({item.email})</ListGroup.Item>
+                    <ListGroup.Item key={index}>{item.name} ({item.email})
+                     {/* <button
+              style={{ border: "none", background: "none" }}
+              value={item}
+              onClick={this.deleteEval.bind(this)}
+              className="delete float-right"
+            /> */}
+                    </ListGroup.Item>
                 )
             })
         }
@@ -82,7 +90,6 @@ class Evaluators extends Component {
                         <ListGroup>
                             {evaluatorsList}
                         </ListGroup>
-                        <Button variant="primary" className="float-right mt-3" onClick={this.inviteShow}>Invite Evaluators</Button>
                     </Card.Body>
                 </Card>
 
@@ -94,6 +101,7 @@ class Evaluators extends Component {
                             {invitedList}
                             
                         </ListGroup>
+                    <Button variant="primary" className="float-right mt-3" onClick={this.inviteShow}>Invite Evaluators</Button>
                     </Card.Body>
                 </Card>
                 </CardGroup>
@@ -114,11 +122,6 @@ class Evaluators extends Component {
                                 </InputGroup.Append>
                                 <Form.Control type="email" name="invEmail" placeholder="sth@example.com" />
                             </InputGroup>
-
-                            {/* <InputGroup className="">
-
-                                <p className="mb-0 mt-3">Upload a CSV File:</p><Form.Control id="inputFile" type="file" name="myFile" />
-                            </InputGroup> */}
                             <Button variant="danger" className="mt-3 float-right ml-3" onClick={this.inviteHide}>Close</Button>
                             <Button variant="success" className="mt-3 float-right" type="submit">Invite</Button>
                         </Form>
@@ -148,4 +151,5 @@ export default connect(MapStateToProps,
     { getRegisteredEvaluators, 
         getInvitedEvaluators, 
         inviteEvaluator,
-    unInviteEvaluator })(Evaluators)
+    unInviteEvaluator,
+deleteEvaluator })(Evaluators)

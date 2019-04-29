@@ -41,8 +41,9 @@ class CycleReport extends Component {
                     if(measures.length === 0) {
                         tableBody.push(
                         <tr>
-                           <td><strong> {oIndex+1}. {key}</strong></td>
+                           <td><strong>{key}</strong></td>
                            <td colSpan="5">No Measures Present</td>
+                           <td><strong>Related Courses</strong></td>
                         </tr>)
                     }
                   
@@ -60,7 +61,7 @@ class CycleReport extends Component {
                         <td className = {measure.measureStatus ? "text-success" : "bg-warning"}>{this.getPercentages(measure.successCount,measure.evalCount)}</td>
                         <td className = {measure.measureStatus ? "text-success" : "bg-warning"}>{measure.measureStatus ? "Satisfied" : "Not Satisfied"}</td>
                         {span ? 
-                        <td className="cycRepOutcome" rowSpan={measures.length}>
+                        <td className="cycRepOutcome" rowSpan={measures.length > 0 ? measures.length : 1}>
                            <strong>related courses</strong>
                         </td>
                         : null}

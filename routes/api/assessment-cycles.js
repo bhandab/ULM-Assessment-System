@@ -409,7 +409,7 @@ router.post(
         errors.message = "Cycle Does not Exist";
         return res.status(404).json(errors);
       }
-      let cycleName = result[0].cycleTitle;
+      let cycleName = result[0].cycleTitle
       let sql1 =
         "UPDATE ASSESSMENT_CYCLE SET endDate=now(4) WHERE cycleID=" +
         db.escape(cycleID);

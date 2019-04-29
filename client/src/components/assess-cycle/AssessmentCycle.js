@@ -107,7 +107,8 @@ class AssessmentCycle extends Component {
 
   render() {
     let cyclesList = null;
-    let cyclesOptions = []
+    let cyclesOptions = [];
+    let closedCycles = [];
     if (
       this.props.cycles.cycles !== null &&
       this.props.cycles.cycles !== undefined
@@ -120,6 +121,21 @@ class AssessmentCycle extends Component {
           cyclesOptions.push(
             <option value={cycle.cycleID} key={"opt"+cycle.cycleID}>{cycle.cycleName}</option>
           )
+          if(cycle.isClosed){
+            closedCycles.push (
+            <ListGroup.Item key={cycle.cycleID}>
+              <Link
+                to={{
+                  pathname: "/admin/cycles/cycle/" + cycle.cycleID
+                }}
+              >
+                {cycle.cycleName}
+              </Link>
+            </ListGroup.Item>
+          )}
+          else {
+            closedCycles.push (null)
+          }
           if(!cycle.isClosed){
           return (
           <ListGroup.Item key={cycle.cycleID}>
@@ -132,7 +148,8 @@ class AssessmentCycle extends Component {
             >
               {cycle.cycleName}
             </Link>
-            <Button className="float-right rounded" 
+            <Button variant="danger"
+            className="float-right rounded" 
             onClick={this.endCycle.bind(this)} 
             value={cycle.cycleID}
             name={cycle.cycleName}>CLOSE CYCLE</Button>
@@ -156,9 +173,13 @@ class AssessmentCycle extends Component {
             else {
               return null
             }
+          
       });
         if (cyclesList.length === 0) {
           cyclesList = <ListGroup.Item>No Cycles Present</ListGroup.Item>;
+        }
+        if(closedCycles.length === 0){
+          closedCycles = <ListGroup.Item>No Cycles Present</ListGroup.Item>
         }
       }
     } else {
@@ -193,16 +214,43 @@ class AssessmentCycle extends Component {
           </h2>
           </Card.Header>
           <Card.Body>
-          <ul className="list-group">
+            <Card>
+              <Card.Header style={{textAlign:'center'}}><h2>Active Cycles</h2></Card.Header>
+              <Card.Body>
+              <ul className="list-group">
             {cyclesList === null ? (
               <li className="list-group-item">No Cycles Present</li>
             ) : (
               cyclesList
             )}
           </ul>
-          <Button className="mt-3 float-right" onClick={this.modalShow}>
+          <Button className="mt-3" onClick={this.modalShow}>
             Create New Cycle
           </Button>
+
+              </Card.Body>
+            </Card>
+            <Card className="mt-5">
+              <Card.Header>
+                <h2 style={{textAlign:'center'}}>Closed Cycles</h2>
+              </Card.Header>
+              <Card.Body>
+              <ul className="list-group">
+            {closedCycles === null ? (
+              <li className="list-group-item">No Cycles Present</li>
+            ) : (
+              closedCycles
+            )}
+          </ul>
+              </Card.Body>
+            </Card>
+            {/* <ul className="list-group">
+              {cyclesList === null ? (
+                <li className="list-group-item">No Cycles Present</li>
+              ) : (
+                cyclesList
+              )}
+            </ul> */}
           </Card.Body>
           </Card>
         </section>

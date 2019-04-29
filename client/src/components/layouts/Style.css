@@ -217,7 +217,7 @@ main li:before {
   border-bottom: solid 5px transparent;
 }
 
-i {
+#mySidebar i {
   margin-right: 10px;
 }
 
@@ -551,9 +551,6 @@ th.rubricHeaders {
   cursor: pointer;
 }
 
-.card {
-  overflow: auto;
-}
 
 /**Score Test Table*/
 #evalScoreTable {
@@ -631,11 +628,12 @@ input[type="checkbox"] {
 #cycleReport.table td {
   font-size: 1.5em;
   text-align: center;
+  vertical-align: middle;
 }
 
 #cycleReport.table th {
   font-size: 1.6em;
-  text-align: center;
+  vertical-align: middle;
 }
 
 #cycleReport.table #cycRepOutcome {
@@ -653,6 +651,11 @@ input[type="checkbox"] {
 #assgStudToEval.modal-header {
   background: rgba(0, 0, 0, 0.03);
   margin-left: 0 !important;
+}
+
+#log-card{
+max-height: 800px;
+overflow: auto;
 }
 
 #studSelect {
