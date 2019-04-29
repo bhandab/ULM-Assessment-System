@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Spinner, Button, Modal, Form, Col,FormCheck } from 'react-bootstrap';
+import { Spinner, Button, Modal, Form, Col,FormCheck, Card } from 'react-bootstrap';
 import { getAllRubrics, createRubric} from '../../actions/rubricsAction';
 import PropTypes from 'prop-types';
 import { isEmpty } from '../../utils/isEmpty';
@@ -69,19 +69,28 @@ class AllRubrics extends Component {
         }
 
         return (
+            <>
             <section className="panel important">
-                <h2>All Rubrics</h2>
-                <hr />
+            <Card>
+                <Card.Header>
+                <h2 style={{textAlign:'center'}}><strong>All Rubrics</strong></h2>
+                </Card.Header>
+                <Card.Body>
                 <ol className="list-group">{allRubrics}</ol>
                 <br></br>
+                </Card.Body>
+                <Card.Footer>
                 <Button
                     variant="primary"
                     onClick={this.handleRubricCreateShow}
-                    className="float-left"
+                    className="float-right"
                     
                 >
                     Create New Rubric
           </Button>
+          </Card.Footer>
+          </Card>
+          </section>
 
                 <Modal
                     show={this.state.createRubric}
@@ -150,7 +159,7 @@ class AllRubrics extends Component {
                     </Modal.Body>
                 </Modal>
 
-            </section>
+            </>
         )
     }
 }

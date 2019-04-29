@@ -61,9 +61,6 @@ openNav = () => {
           <button id = "disappear" className="openbtn" onClick={this.openNav}>&#9776; </button>
            <span className="ml-3 mt-5"><strong>Coordinator</strong></span>
         </h1>
-          {/* <div id="main">
-           <button id = "disappear" class="openbtn" onClick={openNav}>&#9776; </button>
-          </div> */}
           <ul className="utilities">
             <li className="users">
               <Link to="/admin/profile">{this.props.auth.user.name}</Link>
@@ -76,10 +73,9 @@ openNav = () => {
           </ul>
         </header>
         <div id="mySidebar" className="sidebar noprint">
-            {/* <a href="javascript:void(0)" className="closebtn" onClick={this.closeNav}>&times;</a> */}
            <ul className="bordered m-3"style={{backgroundColor:'white'}}>
             <li className="dashboard">
-              <NavLink to="/admin/cycles">Dashboard</NavLink>
+              <NavLink to="/admin/dashboard">Dashboard</NavLink>
             </li>
             <li className="assess-cycle">
               <NavLink to="/admin/cycles">Assessment Cycle</NavLink>

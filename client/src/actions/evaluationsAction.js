@@ -73,10 +73,10 @@ export const testScores = (body) => dispatch =>{
 export const updateTestScores = (testID,body) => dispatch =>{
     axios
     .post("/api/evaluations/updateTestScore",body)
-    .then(() => toastr.success(
-        "Score Updated!",
-        ""
-    ))
+    // .then(() => toastr.success(
+    //     "Score Updated!",
+    //     ""
+    // ))
     .then(dispatch(testScores({testID})))
     .catch(err => {
         dispatch({
