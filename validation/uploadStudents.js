@@ -88,7 +88,7 @@ const validateCSVStudentsTestPassRow = row => {
       return "Empty Score Field";
     } else {
       if (
-        row[4].trim().toLowerCase() !== "pass" ||
+        row[4].trim().toLowerCase() !== "pass" &&
         row[4].trim().toLowerCase() !== "fail"
       ) {
         return "Invalid Score Field";
@@ -162,5 +162,6 @@ module.exports = {
   validateCSVStudents,
   validateCSVStudentsRow,
   validateCSVStudentsTestRow,
-  validateCSVTestStudents
+  validateCSVTestStudents,
+  validateCSVTestPassStudents
 };

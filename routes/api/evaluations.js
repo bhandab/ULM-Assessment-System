@@ -302,12 +302,13 @@ const upload = multer({
 });
 
 router.post(
-  "/uploadStudentScore",
+  "/:measureIdentifier/uploadStudentScore",
   passport.authenticate("jwt", { session: false }),
   upload.single("file"),
   (req, res) => {
-    let measureID = req.body.measureID;
+    let measureID = req.params.measureIdentifier;
     let errors = {};
+    errors.validationError = null;
     let existingStudents = new Set();
     let students = [];
     var existingStudentsInFile = [];
@@ -328,7 +329,7 @@ router.post(
         let measureName = result[0].measureDesc;
 
         let sql2 =
-          "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL STUDENT WHERE measureID=" +
+          "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN STUDENT WHERE measureID=" +
           db.escape(measureID) +
           " AND evalID=" +
           db.escape(req.user.id);
@@ -356,7 +357,7 @@ router.post(
                   );
                 }
 
-                if (validationError) {
+                if (errors.validationError) {
                   return res.status(404).json({ errors });
                 }
 
