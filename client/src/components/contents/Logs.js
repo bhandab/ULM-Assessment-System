@@ -35,7 +35,7 @@ import {getCordActivity} from '../../actions/activityAction'
     
         return (
       <section className="panem important">
-      <Card className="mt-3">
+      <Card className="mt-3" id="log-card">
         <Card.Header style={{textAlign:'center'}}><h3>Activity Logs</h3></Card.Header>
         <Card.Body>
           <Table style={{fontSize:'17px'}} striped borderless >

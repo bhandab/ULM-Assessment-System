@@ -336,13 +336,18 @@ class MeasureDetails extends Component {
     e.preventDefault();
     let body = {}
     let studentIDs = [];
+    // let email = e.target.assignedStudents.dataset.email
+    // console.log(email)
     let evalID = e.target.evaluator.dataset.evalid;
     let measureEvalID = e.target.evaluator.dataset.measureevalid
     let optionList = e.target.assignedStudents.selectedOptions;
     let toolType = this.props.cycles.measureDetails.toolType
     let measureID = this.props.match.params.measureID
+
     for (let student of optionList) {
-      studentIDs.push(student.value);
+      // studentIDs.push(student.value)
+      studentIDs.push({id:student.value, email:student.dataset.email});
+      console.log(student.dataset.email)
     }
     let rubricID = this.props.cycles.measureDetails.toolID;
     if(toolType === "rubric"){
@@ -352,7 +357,7 @@ class MeasureDetails extends Component {
       rubricID,
       measureEvalID
     };
-    this.props.assignStudentsToMeasure(measureID, body);
+    // this.props.assignStudentsToMeasure(measureID, body);
   }
   if(toolType === "test"){
     body = {
@@ -362,7 +367,7 @@ class MeasureDetails extends Component {
       testID:rubricID,
       studentIDs
     }
-    this.props.assignStudentsToTest(measureID, body);
+    // this.props.assignStudentsToTest(measureID, body);
     console.log(body)
   }
   this.setState({studAssign:false})
@@ -527,7 +532,7 @@ class MeasureDetails extends Component {
         studentList = this.props.cycles.measureStudents.students.map(
           student => {
             studentSelect.push(
-              <option key={student.studentID} value={student.studentID}>
+              <option key={student.studentID} data-email={student.email} value={student.studentID}>
                 {student.name}
               </option>
             );
