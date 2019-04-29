@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
-import {Card, Button} from 'react-bootstrap'
+import {Card, Button, Table} from 'react-bootstrap'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import {Link} from 'react-router-dom'
 import {ListGroup} from 'react-bootstrap'
 import {getAssessmentCycles} from '../../actions/assessmentCycleAction'
+import {getCordActivity} from '../../actions/activityAction'
 
  class Dashboard extends Component {
 
@@ -16,11 +17,12 @@ componentDidMount(){
     this.props.history.push("/login");
   }
   this.props.getAssessmentCycles();
+  this.props.getCordActivity();
 
 }
   render() {
     let workingCycle = null
-
+    let logs = null
     let activeCyclesList = null;
     if (
       this.props.cycles.cycles !== null &&
@@ -58,6 +60,18 @@ componentDidMount(){
     }
   }
 
+  if(!this.props.logs.logLoading ) {
+      const shortLogs = this.props.logs.coordinatorLogs.logs.slice(0,10)
+     logs = shortLogs.map((log,index) => {
+      return (
+        <tr key={"logs"+index}>
+          <td>{log.time}</td>
+          <td>{log.activity}</td>
+        </tr>
+      )
+    })
+  }
+
     console.log(this.props)
     return (
       <section className="panel important border border-info rounded p-3">
@@ -72,9 +86,19 @@ componentDidMount(){
       </Card.Body>
       </Card>
       <Card className="mt-3">
-        <Card.Header>Recent Activities</Card.Header>
+        <Card.Header style={{textAlign:'center'}}><h3>Recent Activities</h3></Card.Header>
         <Card.Body>
-          Recent Activities Goes Here
+          <Table style={{fontSize:'17px'}} striped borderless >
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Activity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {logs}
+            </tbody>
+          </Table >
         </Card.Body>
       </Card>
       </section>
@@ -88,7 +112,12 @@ Dashboard.propTypes = {
 
 const MapStateToProps = state => ({
   auth: state.auth,
-  cycles:state.cycles
+  cycles:state.cycles,
+  logs: state.logs,
+  errors: state.errors
 })
 
-export default connect (MapStateToProps,{getAssessmentCycles})(Dashboard)
+export default connect (MapStateToProps,
+  {getAssessmentCycles,
+    getCordActivity
+  })(Dashboard)

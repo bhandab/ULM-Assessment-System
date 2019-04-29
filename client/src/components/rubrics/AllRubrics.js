@@ -25,31 +25,15 @@ class AllRubrics extends Component {
     saveChangesHandler = e => {
         
         e.preventDefault();
-
-        /*let scaleInfo = []
-
-        for(let i = 0; i < this.state.scaleInfo.length; i++){
-            const scaleDescName = `scaleDesc${i+1}`
-            const scaleValName = `scaleValue${(i+1)}`
-            const scaleDesc = document.getElementById(scaleDescName).value
-            const value = document.getElementById(scaleValName).value
-            const scale = {
-                scaleDesc: scaleDesc,
-                scaleValue : value
-            }
-            scaleInfo.push(scale)
-        }*/
         
         const rubricDetails = {
             rubricName: e.target.rubricTitle.value,
             rows: e.target.rows.value,
             columns: e.target.cols.value,
-            //scales: scaleInfo,
             weighted: e.target.weighted.checked+""
         };
         this.props.createRubric(rubricDetails);
         console.log(rubricDetails)
-        //localStorage.setItem('rubric',JSON.stringify(rubricDetails))
         this.setState({createRubric:false})
     };
 
@@ -61,18 +45,7 @@ class AllRubrics extends Component {
         this.setState({ createRubric: true });
     };
 
-    /*columnChangeHandler = (e) => {
-        console.log("Column Changed")
-        console.log(e.target.parent)
-        const cols = e.target.value
-        for(let i = 0; i < cols; i++){
-
-        }
-    }*/
-
     render() {
-
-       // console.log(this.props)
         let allRubrics = <Spinner animation="border" variant="primary" />;
 
         if (isEmpty(this.props.rubric.rubrics) === false) {
@@ -93,43 +66,6 @@ class AllRubrics extends Component {
             allRubrics = <li className="list-group-item">No Rubrics Present!!</li>;
 
         }
-
-        
-       /*const columnChangeHandler = (e) => {
-            //this.setState({scaleInfo:[]})
-            //let scaleInfo = []
-            console.log("Column Changed")
-            console.log(e.target.parentNode.parentNode)
-            const cols = e.target.value
-            console.log(cols)
-            for (let i = 0; i < cols; i++) {
-                
-               const scale = ( <Form.Row className="mb-4" key ={i}>
-                    <Col>
-                        <Form.Label className="font-weight-bold">Scale Description</Form.Label>
-                        <Form.Control
-                            placeholder="Description"
-                            id={"scaleDesc"+(i+1)}
-                        />
-                    </Col>
-                    <Col>
-                        <Form.Label className="font-weight-bold">
-                            Value
-                    </Form.Label>
-                        <Form.Control
-                            type="number"
-                            placeholder="Numeric Value"
-                            min="1"
-                            max={cols}
-                            id={"scaleValue"+(i+1)}
-                        />
-                    </Col>
-               </Form.Row> )
-                scaleInfo.push(scale)
-                this.setState({scaleInfo:scaleInfo})
-            }
-        }*/
-
         return (
             <>
             <section className="panel important">

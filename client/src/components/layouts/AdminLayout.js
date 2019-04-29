@@ -84,11 +84,11 @@ openNav = () => {
           </ul>
         </header>
         <div id="mySidebar" className="sidebar noprint">
-        <img className = "ml-3" style={{height: '100px', width: '200px'}}src= {Logo}/>
+        <img className = "ml-3" style={{height: '100px', width: '200px'}}src= {Logo} alt="ULM LOGO"/>
             {/* <a href="javascript:void(0)" className="closebtn" onClick={this.closeNav}>&times;</a> */}
            <ul className="bordered m-3"style={{backgroundColor:'white'}}>
             <li className="dashboard">
-              <NavLink to="/admin/cycles"><i className="fas fa-chalkboard"></i>Dashboard</NavLink>
+              <NavLink to="/admin/dashboard"><i className="fas fa-chalkboard"></i>Dashboard</NavLink>
             </li>
             <li className="assess-cycle">
               <NavLink to="/admin/cycles"><i className="fas fa-recycle "></i>Assessment Cycle</NavLink>

@@ -1,5 +1,6 @@
 const express = require("express");
 const passport = require("passport");
+const moment = require("moment");
 
 const db = require("../../config/dbconnection");
 
@@ -13,15 +14,15 @@ router.get(
     let logs = [];
 
     let sql =
-      "SELECT * COORDINATOR_ACTIVITY WHERE programID=" +
+      "SELECT * FROM COORDINATOR_ACTIVITY WHERE programID=" +
       db.escape(req.user.programID) +
-      " ORDER BY corActivityTime";
+      " ORDER BY corActivityTime DESC";
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
       }
       result.forEach(row => {
-        logs.push({ time: row.corActivityTime, activity: row.corActivity });
+        logs.push({ time: moment(row.corActivityTime).format('LLL'), activity: row.corActivity });
       });
       res.status(200).json({ logs });
     });
