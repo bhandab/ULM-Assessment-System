@@ -568,6 +568,10 @@ th.rubricHeaders {
   cursor: pointer;
 }
 
+.card {
+  overflow: auto;
+}
+
 /**Score Test Table*/
  #evalScoreTable {
    min-height : 250px;

@@ -467,6 +467,7 @@ export const assignStudentsToTest = (measureID, body) => dispatch => {
             "Student Successfully Assigned To Measure Evaluator!"
         ))
         .then(() => dispatch(getAssignedStudents(measureID)))
+        .then(()=> dispatch(getStudentsOfMeasure(measureID)))
         .catch(err => {
             dispatch({
                 type: GET_ERRORS,

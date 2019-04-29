@@ -20,6 +20,42 @@ export const inviteEvaluator = (email) => dispatch => {
         })
 }
 
+export const deleteEvaluator = (evalID) => dispatch => {
+    axios
+        .post("/api/evaluators/deleteEvaluator", {evalID})
+        .then(() => toastr.success(
+            "Evaluator Deleted!",
+            "Evaluator Successfully Deleted!"
+        ))
+        .then(() => dispatch(getInvitedEvaluators()))
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            }
+            )
+        })
+}
+
+export const unInviteEvaluator = (email) => dispatch => {
+    axios
+        .post("/api/evaluators/deleteInvitedEvaluator", {evalEmail:email})
+        .then(() => toastr.success(
+            "Evaluator Invitation Cancelled!",
+            "Measure Evaluator Invitation Successfully Cancelled!"
+        ))
+        .then(() => dispatch(getRegisteredEvaluators()))
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+
+            }
+            )
+        })
+}
+
 export const getRegisteredEvaluators = () => dispatch => {
     axios
         .get("/api/evaluators")
