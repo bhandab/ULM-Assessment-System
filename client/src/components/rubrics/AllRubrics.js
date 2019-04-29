@@ -9,7 +9,7 @@ import {
   FormCheck,
   Card
 } from "react-bootstrap";
-import { getAllRubrics, createRubric } from "../../actions/rubricsAction";
+import { getAllRubrics, createRubric, deleteRubric } from "../../actions/rubricsAction";
 import PropTypes from "prop-types";
 import { isEmpty } from "../../utils/isEmpty";
 import { Link } from "react-router-dom";
@@ -39,7 +39,7 @@ class AllRubrics extends Component {
       columns: e.target.cols.value,
       weighted: e.target.weighted.checked + ""
     };
-    this.props.createRubric(rubricDetails);
+    this.props.createRubric(rubricDetails, this.props.history);
     console.log(rubricDetails);
     this.setState({ createRubric: false });
   };
@@ -51,6 +51,10 @@ class AllRubrics extends Component {
   handleRubricCreateShow = () => {
     this.setState({ createRubric: true });
   };
+
+  deleteRubric = (e) => {
+    this.props.deleteRubric(e.target.value)
+  }
 
   render() {
     let allRubrics = <Spinner animation="border" variant="primary" />;
@@ -64,6 +68,13 @@ class AllRubrics extends Component {
                 {" "}
                 {rubric.rubricTitle}
               </Link>
+              <button
+              style={{ border: "none", background: "none" }}
+              // name={cycle.cycleID}
+              value={rubric.rubricID}
+              onClick={this.deleteRubric.bind(this)}
+              className="delete float-right"
+            />
             </li>
           );
         });
@@ -181,5 +192,5 @@ const MapStateToProps = state => ({
 });
 export default connect(
   MapStateToProps,
-  { getAllRubrics, createRubric }
+  { getAllRubrics, createRubric, deleteRubric }
 )(AllRubrics);

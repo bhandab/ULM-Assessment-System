@@ -217,7 +217,7 @@ main li:before {
   border-bottom: solid 5px transparent;
 }
 
-i {
+#mySidebar i {
   margin-right: 10px;
 }
 
@@ -654,6 +654,8 @@ input[type="checkbox"] {
   background: rgba(0, 0, 0, 0.03);
   margin-left: 0 !important;
 }
+
+
 
 #studSelect {
   width: 100%;
