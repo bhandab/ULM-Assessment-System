@@ -135,7 +135,7 @@ class AssessmentCycle extends Component {
             <Button className="float-right rounded" 
             onClick={this.endCycle.bind(this)} 
             value={cycle.cycleID}
-            name={cycle.cycleName}>END CYCLE</Button>
+            name={cycle.cycleName}>CLOSE CYCLE</Button>
             <button
               style={{ border: "none", background: "none" }}
               name={cycle.cycleID}
