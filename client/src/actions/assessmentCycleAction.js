@@ -40,11 +40,18 @@ export const createCycle = (cycleName) => dispatch => {
             `Assessment Cycle Successfully Created!`
         ))
         .then(() => dispatch(getAssessmentCycles()))
-        .catch(err =>
+        .catch(err => {
+            const message = (err.response.data.cycleDescription)
+            toastr.error(
+                "Delete Fail!",
+                message)
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
-            }))
+
+            }
+            )
+        })
 }
 
 export const cycleMigrate = (cycleName,oldCycleID) => dispatch => {
@@ -87,11 +94,18 @@ export const linkOutcomeToCycle = (cycleID, outcome) => dispatch => {
         .then((res) => {
             dispatch(getCycleMeasures(cycleID));
         })
-        .catch(err =>
+        .catch(err => {
+            const message = (err.response.data.outcomeDescription)
+            toastr.error(
+                "Failed to Create Outcome!",
+                message)
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
-            }))
+
+            }
+            )
+        })
 }
 
 export const linkMeasureToOutcome = (cycleID, outcomeID, details) => dispatch => {
@@ -105,11 +119,18 @@ export const linkMeasureToOutcome = (cycleID, outcomeID, details) => dispatch =>
         .then(() => {
             dispatch(getOutcomesMeasures(cycleID, outcomeID));
         })
-        .catch(err =>
+        .catch(err => {
+            const message = (err.response.data.measureDescription)
+            toastr.error(
+                "Delete Fail!",
+                message)
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
-            }))
+
+            }
+            )
+        })
 }
 
 export const deleteMeasure = (cycleID, learnID, measureID) => dispatch => {
@@ -383,11 +404,16 @@ export const addStudentToMeasure = (measureID, body) => dispatch => {
         ))
         .then(() => dispatch(getStudentsOfMeasure(measureID)))
         .catch(err => {
+            const message = err.response.data.evaluatorEmail
+            toastr.error(
+                "Error!",
+                message)
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
 
-            })
+            }
+            )
         })
 }
 
@@ -416,6 +442,7 @@ export const deleteStudent = (measureID, studentID) => dispatch => {
         "Student Successfully Deleted From Measure!"
     ))
     .then(() => dispatch(getStudentsOfMeasure(measureID)))
+    .then(() => dispatch(getAssignedStudents(measureID)))
     .catch(err => {
         dispatch({
             type: GET_ERRORS,
@@ -501,11 +528,13 @@ export const assignStudentsToTest = (measureID, body) => dispatch => {
 export const unassignStudent = (measureID, body) => dispatch => {
     axios
     .post("/api/cycles/"+measureID+"/deleteAssignedStudent",body)
+    .then(() => dispatch(getAssignedStudents(measureID)))
+    .then(()=> dispatch(getStudentsOfMeasure(measureID)))
     .then(() => toastr.success(
         "Student Unassigned!",
         "Student Successfully Unassigned From Evaluator!"
     ))
-    .then(() => dispatch(getAssignedStudents(measureID)))
+
     .catch(err => {
         dispatch({
             type: GET_ERRORS,

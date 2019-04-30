@@ -339,7 +339,7 @@ class OutcomeMeasures extends Component {
 
         outcomeCourses = this.props.cycles.outcomeMeasures.outcomeCourses.map(course => {
           return (
-            <ListGroup.Item key={"crCourse"+course.courseID}>
+            <ListGroup.Item  key={"crCourse"+course.courseID}>
               {course.courseCode}
             </ListGroup.Item>
           )
@@ -438,8 +438,9 @@ class OutcomeMeasures extends Component {
                     <section className="panel important border border-info rounded p-3">
         <Card>
           <Card.Header>
+          <p style={{fontSize:'20px'}} id="measure-title-label"><strong>OUTCOME</strong></p>
             <h2>
-              <u className="text-secondary">Measure</u>: {measureTitle}
+              {measureTitle}
               <Link
                 to={{
                   pathname: `/admin/cycles/cycle/${
@@ -459,7 +460,9 @@ class OutcomeMeasures extends Component {
             </h2>
           </Card.Header>
           <Card.Body>
-            <div className="accordion" id="assignedMeasure">
+          <p style={{fontSize:'15px', background:'grey'}} id="measure-title-label"><strong>Measures</strong></p>
+
+              <div className="accordion" id="assignedMeasure">
               {measures}
             </div>
             { this.state.isActive ?
@@ -478,6 +481,7 @@ class OutcomeMeasures extends Component {
           </Button>
             </>
             : null}
+           
           </Card.Body>
         </Card>
         </section>

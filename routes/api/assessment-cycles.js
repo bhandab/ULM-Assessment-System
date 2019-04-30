@@ -1306,7 +1306,8 @@ router.get(
             toolType: result[0].toolType,
             toolID: result[0].toolID,
             testType: result[0].testType,
-            isClosed
+            isClosed,
+            status: result[0].measureStatus
           });
         });
       });
@@ -1945,7 +1946,7 @@ router.get(
               evaluatedStudentsList.push(student);
             }
           } else if (toolType.toLowerCase() === "test") {
-            if (!row.testScoreStatus) {
+            if (row.testScoreStatus===null) {
               assignedStudentsList.push(student);
             } else {
               evaluatedStudentsList.push(student);
@@ -2062,8 +2063,8 @@ router.post(
                   if (!result[0].testScoreStatus) {
                     let sql6 =
                       "DELETE FROM TEST_SCORE WHERE studentID=" +
-                      db.escape(deleteStudentID) +
-                      "evalID=" +
+                      db.escape(deleteStudentID) + 
+                      "AND evalID=" +
                       db.escape(evalID);
                     db.query(sql6, (err, result) => {
                       if (err) {
@@ -2125,7 +2126,7 @@ router.post(
               " AND measureEvalID=" +
               db.escape(evalID) +
               " AND studentID=" +
-              db.escape(value) +
+              db.escape(value.id) +
               " AND toolID=" +
               db.escape(rubricID) +
               " AND measureID=" +
@@ -2136,7 +2137,8 @@ router.post(
                 return callback(err);
               } else if (result.length > 0) {
                 alreadyAssignedStudents.push({
-                  studentID: value,
+                  studentEmail: value.email,
+                  studentID: value.id,
                   evalID,
                   rubricID
                 });
@@ -2145,7 +2147,7 @@ router.post(
                 tobeAssignedStudents.push([
                   adminID,
                   evalID,
-                  value,
+                  value.id,
                   rubricID,
                   measureID,
                   programID
@@ -2239,6 +2241,7 @@ router.post(
     tobeAssignedStudents = [];
     let testScores = [];
     let errors = {};
+    console.log(req.body.studentIDs)
     let sql =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
       db.escape(measureID);
@@ -2271,6 +2274,7 @@ router.post(
               if (err) {
                 return callback(err);
               } else if (result.length > 0) {
+                console.log("Is here")
                 alreadyAssignedStudents.push({
                   studentID: value.id,
                   email: value.email,

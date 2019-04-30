@@ -607,6 +607,11 @@ th#scoreHeader {
   width: 70px !important;
 }
 
+#assignInfoCard {
+  max-height: 600px;
+  overflow: auto;
+}
+
 /**End*/
 
 li {
@@ -929,6 +934,23 @@ overflow: auto;
   margin-left: 50px;
   border-bottom: none;
   color: black;
+}
+
+#programName {
+  font-size: 20px;
+  position: absolute;
+  left: 10px;
+  margin-left: 75px;
+  top:60px;
+  background-color: white;
+  padding-left: 5px;
+  padding-right: 5px;
+border-radius: 10%;
+font-weight: bold;
+color : black;
+
+
+  
 }
 
 /* The button used to open the sidebar */
