@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
-import {toastr} from 'react-redux-toastr'
+import {toastr} from 'react-redux-toastr';
+import {Link} from 'react-router-dom'
 import {
   getEvaluationRubrics,
   getEvaluatorDetails,
@@ -24,14 +25,16 @@ class Evaluate extends Component {
     testName: "",
     table: (
       <div className="alert alert-info">
-        <h4>Please Select a Evaluation Tool</h4>
+        <h4>Please Select a Evaluation Tool To Begin Evaluations</h4>
       </div>
     ),
     scoreMap : new Map(),
     scoreObject: [],
     rubricTarget:"",
     file: "",
-    uploadFile: false
+    uploadFile: false,
+    logShow: true,
+    testID: ""
 
   };
 
@@ -42,9 +45,14 @@ class Evaluate extends Component {
   }
 
   componentDidUpdate(prevProps,prevState) {
+
+    if(this.props.logs !== prevProps.logs){
+      console.log("logs changed")
+    }
     if (this.props.rubric.singleRubric !== prevProps.rubric.singleRubric) {
       this.createRubric();
     }
+    
 
     if (
       this.props.evaluations.rubricScores !== prevProps.evaluations.rubricScores
@@ -64,11 +72,13 @@ class Evaluate extends Component {
     })
     console.log(scoreObject)
       this.setState({scoreMap:scoreMap, scoreObject:scoreObject})
+      this.props.getEvalActivity();
     }
 
       if (this.props.evaluations.testScores !== prevProps.evaluations.testScores) {
          console.log(this.props.evaluations.testScores)
          this.createScoreTable();
+         this.props.getEvalActivity();
       }
       if(this.state.scoreObject !== prevState.scoreObject){
         this.addScoresToTable();
@@ -206,7 +216,7 @@ class Evaluate extends Component {
   uploadTestScoresHandler = e => {
     e.preventDefault();
     this.testScoresUpload(this.state.file);
-    this.setState({ uploadTest: false });
+    this.setState({ uploadFile: false });
   };
 
   testScoresUpload = file => {
@@ -220,10 +230,12 @@ class Evaluate extends Component {
     };
     console.log(formData)
     this.props.uploadTestScores(
+      this.state.testID,
       this.state.measureID,
       formData,
       config
     );
+    // this.setState({uploadTest:false})
   };
 
 
@@ -359,7 +371,7 @@ class Evaluate extends Component {
   testTitleClick = e => {
     const testID = e.target.value;
     const measureID = e.target.dataset.msrid
-    this.setState({measureID:measureID})
+    this.setState({measureID:measureID, testID:testID})
     const spinner = (
       <Fragment>
       <Spinner animation="grow" variant="primary" />
@@ -521,6 +533,30 @@ class Evaluate extends Component {
     console.log(this.state)
     let rubrics = [];
     let tests = [];
+    let logs = null;
+
+
+    if(!this.props.logs.logLoading){
+      const shortLog = this.props.logs.evalLogs.logs.splice(0,9)
+      logs = shortLog.map((log,index) => {
+        return (
+          <tr key={"logs"+index}>
+            <td>{log.time}</td>
+            <td>{log.activity}</td>
+          </tr>
+        )
+      })
+
+      if(logs.length < 0){
+        logs = 
+        <tr key="noLogs">
+        <td colSpan="2">
+        <Alert variant="danger">No Recent Activities!</Alert>
+        </td>
+        </tr>
+      }
+    }
+
     if (
       this.props.evaluations.evaluationRubrics !== null &&
       this.props.evaluations.evaluationRubrics !== undefined
@@ -598,13 +634,18 @@ class Evaluate extends Component {
       }
     }
 
-    // console.log(this.props);
-
     return (
+<>
+      <Card.Header className="mb-3" style={{textAlign:'center'}}><h1>ULM EVALUATION SYSTEM</h1></Card.Header>
       <section className="panel important">
         <Card id="rubricStudent">
           <Card.Header>
-            <h2><strong>Assigned Tools</strong></h2>
+            <h2><strong>Assigned Tools</strong>
+            <Link to="/evaluator/logs">
+            <Button variant="info" className="float-right">View Logs</Button>
+            </Link>
+            </h2>
+            
           </Card.Header>
 
           <Card.Body id="assignedTools" className="row">
@@ -619,6 +660,7 @@ class Evaluate extends Component {
                     data-target="#scoreRubricCollapse"
                     aria-expanded="true"
                     aria-controls="scoreRubricCollapse"
+                    onClick={()=> this.setState({logShow:false})}
                   >
                     Rubrics
                   </button>
@@ -650,7 +692,7 @@ class Evaluate extends Component {
                     data-target={"#scoretestCollapse"+ this.state.rubricTarget}
                     aria-expanded="true"
                     aria-controls="scoretestCollapse"
-                    onClick={()=>this.setState({rubricTarget:""})}
+                    onClick={()=>this.setState({rubricTarget:"",logShow:false})}
                   >
                     Tests
                   </button>
@@ -672,7 +714,26 @@ class Evaluate extends Component {
               </div>
             </Card>
             </div>
-            <div className="col-9">{this.state.table}</div>
+            <div className="col-9">{this.state.table}
+            {this.state.logShow  ?
+            <Card>
+              <Card.Header style={{textAlign:'center'}}><h2>Recent Activities</h2></Card.Header>
+              <Card.Body>
+            <Table style={{fontSize:'18px'}} striped borderless>
+              <thead>
+                <tr>
+                <th>Time</th>
+                <th>Activity</th>
+                </tr>
+              </thead>
+              <tbody>
+                  {logs}
+                </tbody>
+            </Table>
+            </Card.Body>
+            </Card>
+            : null }
+            </div>
           </Card.Body>
           
         </Card>
@@ -688,6 +749,7 @@ class Evaluate extends Component {
         </Modal>
         
       </section>
+      </>
     );
   }
 }

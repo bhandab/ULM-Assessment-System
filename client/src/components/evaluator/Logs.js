@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import {Card, Button, Table} from 'react-bootstrap'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
-import {getCordActivity} from '../../actions/activityAction'
+import {getEvalActivity} from '../../actions/activityAction'
 
 
  class Logs extends Component {
@@ -10,11 +10,11 @@ import {getCordActivity} from '../../actions/activityAction'
     componentDidMount(){
         if (
           !this.props.auth.isAuthenticated &&
-          this.props.auth.user.role !== "coordinator"
+          this.props.auth.user.role !== "evaluator"
         ) {
           this.props.history.push("/login");
         }
-        this.props.getCordActivity();
+        this.props.getEvalActivity();
       
       }
       
@@ -22,7 +22,7 @@ import {getCordActivity} from '../../actions/activityAction'
         let logs = null
 
         if(!this.props.logs.logLoading ) {
-            const shortLogs = this.props.logs.coordinatorLogs.logs
+            const shortLogs = this.props.logs.evalLogs.logs
            logs = shortLogs.map((log,index) => {
             return (
               <tr key={"logs"+index}>
@@ -34,11 +34,11 @@ import {getCordActivity} from '../../actions/activityAction'
         }
     
         return (
-      <section className="panem important">
-      <Card className="mt-3" id="log-card">
+      <section className="panel important">
+      <Card id="log-card">
         <Card.Header style={{textAlign:'center'}}><h3>Activity Logs
-        <Button className="float-right" onClick={()=>this.props.history.goBack()}><i className="fas fa-times"></i></Button>
-          </h3></Card.Header>
+            <Button className="float-right" onClick={()=>this.props.history.goBack()}><i className="fas fa-times"></i></Button>
+            </h3></Card.Header>
         <Card.Body>
           <Table style={{fontSize:'17px'}} striped borderless >
             <thead>
@@ -69,6 +69,6 @@ Logs.propTypes = {
   
   export default connect (MapStateToProps,
     {
-      getCordActivity
+      getEvalActivity
     })(Logs)
   
