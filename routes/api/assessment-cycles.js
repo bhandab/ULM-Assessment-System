@@ -1306,7 +1306,8 @@ router.get(
             toolType: result[0].toolType,
             toolID: result[0].toolID,
             testType: result[0].testType,
-            isClosed
+            isClosed,
+            status: result[0].measureStatus
           });
         });
       });
@@ -1945,7 +1946,7 @@ router.get(
               evaluatedStudentsList.push(student);
             }
           } else if (toolType.toLowerCase() === "test") {
-            if (!row.testScoreStatus) {
+            if (row.testScoreStatus===null) {
               assignedStudentsList.push(student);
             } else {
               evaluatedStudentsList.push(student);

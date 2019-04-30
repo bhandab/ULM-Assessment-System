@@ -567,7 +567,7 @@ class MeasureDetails extends Component {
             //  notAssgPer = 0
             //  passPer = 0
             // }
-            if (passPer > benchmarkPer) {
+            if (this.props.cycles.measureDetails.status) {
               status = (
                 <>
                   <h3>
@@ -1260,7 +1260,7 @@ class MeasureDetails extends Component {
                 <h4>Student Assignment Information</h4>
               </Card.Header>
 
-              <CardGroup>
+              <CardGroup id="assignInfoCard">
                 <Card className="assignmentStats">
                   <Card.Header>Assigned Students</Card.Header>
                   <Card.Body>

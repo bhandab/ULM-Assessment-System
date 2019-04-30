@@ -80,12 +80,13 @@ class MeasureReport extends Component {
       );
 
       const reportBody = [];
+      const repResults =  this.props.cycles.measureReport.results.length
 
       reportBody.push(
         this.props.cycles.measureReport.results.map((student,index) => {
           return (
             <tr key={"studSco"+index}>
-              <td style = {cellStyle}>{student.class}</td>
+              { index === 0 ? <td rowSpan={repResults} style = {cellStyle}>{student.class}</td> : null}
               <td style = {cellStyle}>{student.studentName}</td>
               <td style = {cellStyle}>{student.evalName}</td>
               {criteriaScores(student)}
@@ -100,8 +101,8 @@ class MeasureReport extends Component {
         <tr key="avgDtl">
           <td style = {cellStyle} colSpan="3">Class avg.</td>
           {criteriaAvg(avgDetails)}
-          <td style = {cellStyle}>{avgDetails.rubricScore}</td>
-          <td style = {cellStyle}>{avgDetails.averageScore}</td>
+          <td className={avgDetails.rubricScore >= passPoint ? "text-success" : "text-danger"} style = {cellStyle}>{avgDetails.rubricScore}</td>
+              <td className={avgDetails.averageScore >= passPoint ? "text-success" : "text-danger"} style = {cellStyle}>{avgDetails.averageScore}</td>
           
         </tr>
       );

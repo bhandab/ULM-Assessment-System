@@ -607,6 +607,11 @@ th#scoreHeader {
   width: 70px !important;
 }
 
+#assignInfoCard {
+  max-height: 600px;
+  overflow: auto;
+}
+
 /**End*/
 
 li {
