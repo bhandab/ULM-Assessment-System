@@ -2125,7 +2125,7 @@ router.post(
               " AND measureEvalID=" +
               db.escape(evalID) +
               " AND studentID=" +
-              db.escape(value) +
+              db.escape(value.id) +
               " AND toolID=" +
               db.escape(rubricID) +
               " AND measureID=" +
@@ -2136,7 +2136,8 @@ router.post(
                 return callback(err);
               } else if (result.length > 0) {
                 alreadyAssignedStudents.push({
-                  studentID: value,
+                  studentEmail: value.email,
+                  studentID: value.id,
                   evalID,
                   rubricID
                 });
@@ -2145,7 +2146,7 @@ router.post(
                 tobeAssignedStudents.push([
                   adminID,
                   evalID,
-                  value,
+                  value.id,
                   rubricID,
                   measureID,
                   programID

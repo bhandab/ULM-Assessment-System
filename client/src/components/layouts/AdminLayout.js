@@ -129,8 +129,8 @@ class AdminLayout extends Component {
             </li>
             <li className="Logs">
               <NavLink to="/admin/logs">
-                <i className="fas" />
-                Activity Logs
+                <i className="far fa-envelope"/>
+                Notifications
               </NavLink>
             </li>
           </ul>

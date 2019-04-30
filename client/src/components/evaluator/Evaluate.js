@@ -396,25 +396,6 @@ class Evaluate extends Component {
       );
     }
     return scores.map((student, index) => {
-      // if (student.projectedResult !== null) {
-      //   if (initScore === null) {
-      //     initScore = 0;
-      //   }
-      // } else {
-      //   if (initStatus === null) {
-      //     initStatus = "fail"
-      //   }
-      //   else {
-      //     if(initStatus === 1){
-      //       initStatus = "pass"
-      //     }
-      //     else {
-      //       initStatus = "fail"
-      //     }
-
-      //   }
-      // }
-      
       return (
         <tr key={"scr" + index}>
           <td className="rubricCells">{index + 1}</td>
@@ -504,10 +485,8 @@ class Evaluate extends Component {
   };
 
   submitScores = () => {
-    console.log(this.state.scoreMap)
     const scoreMap = new Map(this.state.scoreMap)
     const scoreKeys = scoreMap.keys()
-    console.log(scoreKeys)
     const scoreObject = []
     scoreMap.forEach((value,key) => {
       scoreObject.push(
@@ -531,8 +510,6 @@ class Evaluate extends Component {
     let rubrics = [];
     let tests = [];
     let logs = null;
-    console.log(this.props)
-console.log(this.state)
     if(!this.props.logs.logLoading){
       const shortLog = this.props.logs.evalLogs.logs.splice(0,9)
       logs = shortLog.map((log,index) => {
