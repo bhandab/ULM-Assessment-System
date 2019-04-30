@@ -404,11 +404,16 @@ export const addStudentToMeasure = (measureID, body) => dispatch => {
         ))
         .then(() => dispatch(getStudentsOfMeasure(measureID)))
         .catch(err => {
+            const message = err.response.data.evaluatorEmail
+            toastr.error(
+                "Error!",
+                message)
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
 
-            })
+            }
+            )
         })
 }
 
@@ -437,6 +442,7 @@ export const deleteStudent = (measureID, studentID) => dispatch => {
         "Student Successfully Deleted From Measure!"
     ))
     .then(() => dispatch(getStudentsOfMeasure(measureID)))
+    .then(() => dispatch(getAssignedStudents(measureID)))
     .catch(err => {
         dispatch({
             type: GET_ERRORS,
