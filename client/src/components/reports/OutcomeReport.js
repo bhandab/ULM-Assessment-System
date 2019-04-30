@@ -60,9 +60,9 @@ import {Card, Button} from 'react-bootstrap'
                 <Card.Header style={{textAlign:"center"}}><h2>Related Courses</h2></Card.Header>
                 <Card.Body>
                     <div className="row ml-2">
-                        {courseSet.map((course,index) => {
+                        {this.props.cycles.outcomeMeasures.outcomeCourses.map((course,index) => {
                             return(
-                                <h4 key={"crs"+index}>{course},&nbsp; </h4>
+                                <h4 key={"crs"+index}>{course.courseCode}{this.props.cycles.outcomeMeasures.outcomeCourses.length-1 !== index ? ',' : null}&nbsp; </h4>
                             )
                         })}
                     </div>
@@ -72,7 +72,7 @@ import {Card, Button} from 'react-bootstrap'
             <Card.Title className="mt-2" style={{textAlign:"center"}}><h2>Measures Of Performance</h2></Card.Title>
             { outcomeMeasures.measures.map((measure,index) => {
                 return (
-                    <Card>
+                    <Card key={"octRpCard"+index}>
                         <Card.Header>
                             <h2>
                         {disIndex}.{measure.displayIndex}
