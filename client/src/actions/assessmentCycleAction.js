@@ -40,11 +40,18 @@ export const createCycle = (cycleName) => dispatch => {
             `Assessment Cycle Successfully Created!`
         ))
         .then(() => dispatch(getAssessmentCycles()))
-        .catch(err =>
+        .catch(err => {
+            const message = (err.response.data.cycleDescription)
+            toastr.error(
+                "Delete Fail!",
+                message)
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
-            }))
+
+            }
+            )
+        })
 }
 
 export const cycleMigrate = (cycleName,oldCycleID) => dispatch => {
@@ -87,11 +94,18 @@ export const linkOutcomeToCycle = (cycleID, outcome) => dispatch => {
         .then((res) => {
             dispatch(getCycleMeasures(cycleID));
         })
-        .catch(err =>
+        .catch(err => {
+            const message = (err.response.data.outcomeDescription)
+            toastr.error(
+                "Failed to Create Outcome!",
+                message)
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
-            }))
+
+            }
+            )
+        })
 }
 
 export const linkMeasureToOutcome = (cycleID, outcomeID, details) => dispatch => {
@@ -105,11 +119,18 @@ export const linkMeasureToOutcome = (cycleID, outcomeID, details) => dispatch =>
         .then(() => {
             dispatch(getOutcomesMeasures(cycleID, outcomeID));
         })
-        .catch(err =>
+        .catch(err => {
+            const message = (err.response.data.measureDescription)
+            toastr.error(
+                "Delete Fail!",
+                message)
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
-            }))
+
+            }
+            )
+        })
 }
 
 export const deleteMeasure = (cycleID, learnID, measureID) => dispatch => {

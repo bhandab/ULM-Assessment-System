@@ -43,7 +43,7 @@ class CycleReport extends Component {
                         <tr>
                            <td><strong>{key}</strong></td>
                            <td colSpan="5">No Measures Present</td>
-                           <td><strong>Related Courses</strong></td>
+                           <td><strong></strong></td>
                         </tr>)
                     }
                   
@@ -62,7 +62,7 @@ class CycleReport extends Component {
                         <td className = {measure.measureStatus ? "text-success" : "bg-warning"}>{measure.measureStatus ? "Satisfied" : "Not Satisfied"}</td>
                         {span ? 
                         <td className="cycRepOutcome" rowSpan={measures.length > 0 ? measures.length : 1}>
-                           <strong>related courses</strong>
+                           {outcomes[key].outcomeCourses.toString()}
                         </td>
                         : null}
                     </tr>
