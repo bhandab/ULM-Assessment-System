@@ -258,6 +258,8 @@ class CycleMeasures extends Component {
           </h2>
           </Card.Header>
           <Card.Body>
+          <p style={{fontSize:'15px', background:'grey'}} id="measure-title-label"><strong>Outcomes</strong></p>
+
           <ListGroup>{list}</ListGroup>
           {!this.state.isActive? 
           <>
