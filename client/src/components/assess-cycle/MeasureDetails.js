@@ -99,7 +99,7 @@ class MeasureDetails extends Component {
           this.props.getMeasureTestReport(measureID);
           this.setState({ toolType: "test" });
           if (this.props.cycles.measureDetails.projectedResult !== null) {
-            this.setState({ scored: false });
+            this.setState({ scored: true });
           }
         }
       }
@@ -1047,7 +1047,7 @@ class MeasureDetails extends Component {
                     data-placement="right"
                     data-html="true"
                     title="View Measure Report"
-                    className="ml-5"
+                    className="ml-5 float-right"
                     onClick={this.measureReportShow}
                   >
                     <i className="fas fa-file-invoice" size="lg" />
