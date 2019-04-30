@@ -2617,6 +2617,7 @@ router.get(
         result.forEach(row => {
           result = {
             evalEmail: row.evalEmail,
+            evalName: row.evalLastName + ", "+ row.evalFirstName,
             studentName: row.studentLastName + ", " + row.studentFirstName,
             studentEmail: row.studentEmail,
             CWID: row.studentCWID,
