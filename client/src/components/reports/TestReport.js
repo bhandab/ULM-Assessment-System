@@ -28,7 +28,8 @@ import {Card, Table, Button} from 'react-bootstrap'
               <tr>
                 <th>#</th>
                 <th>Student</th>
-                <th>Email</th>
+                <th>Student Email</th>
+                <th>Evaluator</th>
                 <th>Score</th>
                 <th>Status</th>
               </tr>
@@ -46,6 +47,7 @@ import {Card, Table, Button} from 'react-bootstrap'
                   <td>{index + 1}</td>
                   <td>{student.studentName}</td>
                   <td>{student.studentEmail}</td>
+                  <td>{student.evalEmail}</td>
                   <td className={colour}>{student.score}</td>
                   {student.passing ? (
                     <td className="text-success">Pass</td>
@@ -56,8 +58,8 @@ import {Card, Table, Button} from 'react-bootstrap'
               );
             }
           );
-          body.push(<tr key="testPassing"><td colSpan="5" >Passing Count: {this.props.cycles.measureReport.passingCounts}</td></tr>)
-          body.push(<tr  key="passPer"><td  colSpan="5">Passing Percentage: {this.props.cycles.measureReport.passingPercentage}%</td></tr>)
+          body.push(<tr key="testPassing"><td colSpan="6" >Passing Count: {this.props.cycles.measureReport.passingCounts}</td></tr>)
+          body.push(<tr  key="passPer"><td  colSpan="6">Passing Percentage: {this.props.cycles.measureReport.passingPercentage}%</td></tr>)
 
           measureReport.push(<tbody key="testBody">{body}</tbody>);
           measureReport = (
