@@ -92,6 +92,10 @@ export const uploadTestScores = (testID,measureID,formData,config) => dispatch =
         "Score Updated!",
         "Test Score Successfully Updated!"
     ))
+    .then(() => toastr.info(
+        "Score Updated!",
+        "Click on the Test Name to see updated scores !"
+    ))
     .then(()=>dispatch(testScores({testID})))
     .catch(err => {
         dispatch({

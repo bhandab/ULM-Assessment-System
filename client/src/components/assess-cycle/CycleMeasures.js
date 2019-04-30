@@ -65,6 +65,7 @@ class CycleMeasures extends Component {
     this.props.linkOutcomeToCycle(this.props.match.params.cycleID, {
       outcomeDescription: e.target.outcomes.value
     });
+    this.setState({addOutcome:false})
   };
 
   createNewButtonHandler = e => {
@@ -177,14 +178,14 @@ class CycleMeasures extends Component {
                   name={outcome.outcomeID}
                   value={outcome.outcomeName}
                   onClick={this.editShow.bind(this)}
-                  className="outcome-edit ml-2"
+                  className="outcome-edit ml-2 float-right"
                 />
                 <button
                   style={{ border: "none", background: "none" }}
                   name={outcome.outcomeID}
                   value={outcome.outcomeName}
                   onClick={this.deleteShow.bind(this)}
-                  className="delete"
+                  className="delete float-right"
                 />
                 </>
                 : null }

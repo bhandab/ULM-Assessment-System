@@ -64,16 +64,25 @@ class OutcomeMeasures extends Component {
     e.preventDefault();
     let index = e.target.measures.value;
     const measure = this.props.measures.measures[index];
+    let scoreOrPass = null
+    if(measure.projectedResult !== null){
+      scoreOrPass = "score"
+    }
+    else {
+      scoreOrPass = "pass"
+    }
     const measureDetails = {
-      measureDescription: measure.measureDescription,
       projectedStudentNumber: measure.projectedStudentNumber + "",
-      projectedValue: measure.projectedResult + "",
       course: measure.course,
+      toolType: measure.toolType,
       toolTitle: measure.toolName,
       toolID: measure.toolID + "",
-      toolType: measure.toolType,
-      valueOperator: measure.resultScale,
-      studentNumberOperator: measure.studentNumberScale
+      scoreOrPass : scoreOrPass,
+      studentNumberOperator: measure.studentNumberScale,
+      projectedValue: measure.projectedResult + "",
+      valueOperator: measure.resultScale
+      
+      
     };
     this.props.linkMeasureToOutcome(
       this.props.match.params.cycleID,
@@ -540,7 +549,6 @@ class OutcomeMeasures extends Component {
                       Select
                     </option>
                     <option value="%">%</option>
-                    <option value="p">percentile</option>
                   </select>
                   <InputGroup.Append>
                     <InputGroup.Text id="basic-addon2">

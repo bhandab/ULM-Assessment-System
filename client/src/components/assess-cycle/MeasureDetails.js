@@ -23,7 +23,6 @@ import {
   deleteStudent,
   unassignStudent
 } from "../../actions/assessmentCycleAction";
-import { updateTestScores } from "../../actions/evaluationsAction";
 import { getRegisteredEvaluators } from "../../actions/evaluatorAction";
 import {
   Jumbotron,
@@ -33,7 +32,6 @@ import {
   Form,
   InputGroup,
   ModalBody,
-  FormControl,
   Table,
   ProgressBar,
   ListGroup,
@@ -58,7 +56,6 @@ class MeasureDetails extends Component {
     file: "",
     uploadFile: false,
     studAssign: false,
-    uploadTest: false,
     toolType: "",
     scored: false,
     statusModal: false,
@@ -164,6 +161,7 @@ class MeasureDetails extends Component {
 
   assignStudHide = () => {
     this.setState({ studAssign: false });
+    document.getElementById("assgdCheckBox").checked = false;
   };
 
   testModalShow = () => {
@@ -174,13 +172,6 @@ class MeasureDetails extends Component {
     this.setState({ testModal: false });
   };
 
-  uploadTestShow = () => {
-    this.setState({ uploadTest: true });
-  };
-
-  uploadTestHide = () => {
-    this.setState({ uploadTest: false });
-  };
 
   statusModalShow = () => {
     this.setState({ statusModal: true });
@@ -275,62 +266,10 @@ class MeasureDetails extends Component {
     );
   };
 
-  // uploadTestScoresHandler = e => {
-  //   e.preventDefault();
-  //   this.testScoresUpload(this.state.file);
-  //   this.setState({ uploadTest: false });
-  // };
-
-  // testScoresUpload = file => {
-  //   const formData = new FormData();
-  //   formData.append("file", file);
-
-  //   const config = {
-  //     headers: {
-  //       "content-type": "multipart/form-data"
-  //     }
-  //   };
-  //   this.props.uploadTestScores(
-  //     this.props.match.params.measureID,
-  //     formData,
-  //     config
-  //   );
-  // };
-
-  /*** This prolly needs to change */
-  scoreSingleStudent = e => {
-    e.preventDefault();
-    const email = e.target.email.value;
-    const firstName = e.target.fName.value;
-    const lastName = e.target.lName.value;
-    const score = e.target.score.value;
-    const CWID = e.target.CWID.value;
-
-    const body = { firstName, lastName, email, CWID, score };
-    this.props.addStudentScore(this.props.match.params.measureID, body);
-  };
-
-  updateTestScore = e => {
-    const testType = this.props.cycles.measureDetails.projectedResult;
-    const studentID = e.target.dataset.id;
-    let testScore = null;
-    let scoreStatus = null;
-    if (testType !== null) {
-      testScore = e.target.value;
-    } else {
-      scoreStatus = e.target.value;
-    }
-    const body = { studentID, scoreStatus, testScore };
-    console.log(body);
-    // this.props.updateTestScores(measureID,body) //action call
-  };
-
   assignStudentsHandle = e => {
     e.preventDefault();
     let body = {};
     let studentIDs = [];
-    // let email = e.target.assignedStudents.dataset.email
-    // console.log(email)
     let evalID = e.target.evaluator.dataset.evalid;
     let measureEvalID = e.target.evaluator.dataset.measureevalid;
     let optionList = e.target.assignedStudents.selectedOptions;
@@ -338,7 +277,6 @@ class MeasureDetails extends Component {
     let measureID = this.props.match.params.measureID;
 
     for (let student of optionList) {
-      // studentIDs.push(student.value)
       studentIDs.push({ id: student.value, email: student.dataset.email });
       console.log(student.dataset.email);
     }
@@ -500,7 +438,7 @@ class MeasureDetails extends Component {
           );
         } else {
           evaluatorList = (
-            <li className="listggroup-item">
+            <li className="list-group-item">
               Click the <i className="fas fa-user">+</i> button to add
               evaluators
             </li>
@@ -521,6 +459,15 @@ class MeasureDetails extends Component {
 
         studUnassgDetail = this.props.cycles.measureStudents.notAssignedStudents.map(
           (student, index) => {
+            notAssignOption.push(
+              <option
+              key={student.studentID}
+              data-email={student.email}
+              value={student.studentID}
+            >
+              {student.name}
+            </option>
+            )
             return (
               <ListGroup.Item key={"notAssgd" + index}>
                 {index + 1}. {student.name}
@@ -557,7 +504,7 @@ class MeasureDetails extends Component {
                   <ol>
                     <li className="p-0">
                       {student.name}{" "}
-                      {/* <li>Email: ({student.email})</li>{" "}
+                      {/* <li>Email: ({student.email})</li>
                     <li>CWID: {student.CWID}</li> */}
                       {this.state.isActive ? (
                         <button
@@ -946,72 +893,6 @@ class MeasureDetails extends Component {
             );
           }
 
-          let testType = this.props.cycles.measureDetails.testType;
-          let toScoreList = this.props.cycles.measureStudents.students.map(
-            (student, index) => {
-              return (
-                <tr key={"stud" + student.studentID}>
-                  <td>{index + 1}</td>
-                  <td>{student.lastName}</td>
-                  <td>{student.firstName}</td>
-                  {testType === "score" ? (
-                    <td>
-                      {" "}
-                      <Form.Control
-                        name="testScore"
-                        type="number"
-                        min="0"
-                        placeholder="TestScore"
-                        data-id={student.studentID}
-                        onChange={this.updateTestScore.bind(this)}
-                      />
-                    </td>
-                  ) : (
-                    <td>
-                      <select
-                        defaultValue={"null"}
-                        name="passFail"
-                        data-id={student.studentID}
-                        onChange={this.updateTestScore.bind(this)}
-                      >
-                        <option default disabled value={"null"}>
-                          Pass/Fail
-                        </option>
-                        <option value="pass">Pass</option>
-                        <option value="fail">Fail</option>
-                      </select>
-                    </td>
-                  )}
-                </tr>
-              );
-            }
-          );
-
-          scoreModal = (
-            <Modal
-              size="lg"
-              centered
-              show={this.state.scoreStudents}
-              onHide={this.scoreStudentsHide}
-            >
-              <Modal.Header closeButton>
-                <h3 style={{ textAlign: "center" }}>Score Students</h3>
-              </Modal.Header>
-              <Modal.Body>
-                <Table bordered hover>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Last Name</th>
-                      <th>First Name</th>
-                      <th>Score</th>
-                    </tr>
-                  </thead>
-                  <tbody>{toScoreList}</tbody>
-                </Table>
-              </Modal.Body>
-            </Modal>
-          );
         }
       }
     }
@@ -1050,7 +931,7 @@ class MeasureDetails extends Component {
     };
 
     const notAssignHandler = e => {
-      notAssignOption = [];
+      // notAssignOption = [];
       const assignedStuds = this.props.cycles.assignedStudents.assignedStudentsList.concat(
         this.props.cycles.assignedStudents.evaluatedStudentsList
       );
@@ -1065,8 +946,7 @@ class MeasureDetails extends Component {
           );
         }
       });
-      const box = (document.getElementById("assgdCheckBox").checked = false);
-      console.log(box);
+      document.getElementById("assgdCheckBox").checked = false;
       console.log(notAssignOption);
       this.setState({ notAssignOption: notAssignOption });
     };
@@ -1131,21 +1011,6 @@ class MeasureDetails extends Component {
             <p id="measure-title-label">Measure Title</p>
             <h4 id="measure-title">
               {measureTitle}
-              {this.state.isActive ? (
-                <>
-                  <button
-                    style={{ border: "none", background: "none" }}
-                    onClick={() => this.setState({ editShow: true })}
-                    className="outcome-edit ml-2"
-                  />
-                  <button
-                    style={{ border: "none", background: "none" }}
-                    name={this.props.match.params.measureID}
-                    onClick={this.deleteShow.bind(this)}
-                    className="delete"
-                  />
-                </>
-              ) : null}
               {typeTest ? (
                 <Link
                   to={
@@ -1159,7 +1024,7 @@ class MeasureDetails extends Component {
                     data-toggle="tooltip"
                     data-placement="right"
                     title="View Measure Report"
-                    className="float-right"
+                    className="float-right ml-5"
                   >
                     <i className="fas fa-file-invoice" size="lg" />
                   </button>
@@ -1179,13 +1044,29 @@ class MeasureDetails extends Component {
                     data-placement="right"
                     data-html="true"
                     title="View Measure Report"
-                    className="float-right"
+                    className="ml-5"
                     onClick={this.measureReportShow}
                   >
                     <i className="fas fa-file-invoice" size="lg" />
                   </button>
                 </Link>
               ) : null}
+              {this.state.isActive ? (
+                <>
+                  <button
+                    style={{ border: "none", background: "none" }}
+                    onClick={() => this.setState({ editShow: true })}
+                    className="outcome-edit ml-2"
+                  />
+                  <button
+                    style={{ border: "none", background: "none" }}
+                    name={this.props.match.params.measureID}
+                    onClick={this.deleteShow.bind(this)}
+                    className="delete"
+                  />
+                </>
+              ) : null}
+             
             </h4>
             {this.state.editShow ? (
               <Form className="ml-2" onSubmit={this.updateMeasure.bind(this)}>
@@ -1390,97 +1271,6 @@ class MeasureDetails extends Component {
                 </Card>
               </CardGroup>
             </Fragment>
-
-            {typeTest ? (
-              <Fragment>
-                <Modal
-                  show={this.state.testModal}
-                  onHide={this.testModalHide}
-                  centered
-                >
-                  <Modal.Header closeButton>
-                    <h3>Students</h3>
-                  </Modal.Header>
-                  <Modal.Body className="pt-2 pb-1">
-                    <Form onSubmit={this.scoreSingleStudent.bind(this)}>
-                      <InputGroup>
-                        <InputGroup.Prepend>
-                          <InputGroup.Text id="basic-addon110">
-                            First Name
-                          </InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl placeholder="John" name="fName" />
-                      </InputGroup>
-                      <InputGroup>
-                        <InputGroup.Prepend>
-                          <InputGroup.Text id="basic-addon101">
-                            Last Name
-                          </InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl placeholder="John" name="lName" />
-                      </InputGroup>
-                      <InputGroup>
-                        <InputGroup.Prepend>
-                          <InputGroup.Text id="basic-addon11">
-                            Email (@)
-                          </InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl
-                          type="email"
-                          placeholder="example@example.com"
-                          name="email"
-                        />
-                      </InputGroup>
-                      <InputGroup>
-                        <InputGroup.Prepend>
-                          <InputGroup.Text id="basic-addon12">
-                            CWID
-                          </InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl placeholder="12345678" name="CWID" />
-                      </InputGroup>
-                      <InputGroup>
-                        <InputGroup.Prepend>
-                          <InputGroup.Text id="basic-addon13">
-                            Score
-                          </InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl placeholder="85" name="score" />
-                      </InputGroup>
-
-                      <Button
-                        type="submit"
-                        className="mt-3 mr-3 mb-3 float-right"
-                      >
-                        Submit
-                      </Button>
-                    </Form>
-                  </Modal.Body>
-                </Modal>
-
-                <Modal
-                  show={this.state.uploadTest}
-                  onHide={this.uploadTestHide}
-                  centered
-                >
-                  <Modal.Header closeButton>
-                    <h3>Upload Test Scores</h3>
-                  </Modal.Header>
-                  <Modal.Body>
-                    <Form onSubmit={this.uplaodTestScoresHandler.bind(this)}>
-                      <Form.Control
-                        type="file"
-                        onChange={this.fileChangeHandler.bind(this)}
-                      />
-                      <Button className="mt-3 float-right" type="submit">
-                        Upload
-                      </Button>
-                    </Form>
-                    <CSVFormat />
-                  </Modal.Body>
-                </Modal>
-              </Fragment>
-            ) : null}
           </Jumbotron>
         </section>
 
@@ -1714,14 +1504,14 @@ class MeasureDetails extends Component {
                     <span>
                       <input
                         onChange={() =>
-                          this.setState({ notAssgd: this.state.notAssgd })
+                          this.setState({ notAssgd: !this.state.notAssgd })
                         }
                         type="checkbox"
                         id="assgdCheckBox"
                       />
                       Unassigned Students
                     </span>
-                    {!this.state.notAssgd ? (
+                    {this.state.notAssgd ? (
                       studentSelect.length > 0 ? (
                         <select
                           id="studSelect"
@@ -1795,7 +1585,6 @@ MeasureDetails.propTypes = {
   assignStudentsToMeasure: PropTypes.func.isRequired,
   getMeasureRubricReport: PropTypes.func.isRequired,
   getRegisteredEvaluators: PropTypes.func.isRequired,
-  uploadTestScores: PropTypes.func.isRequired,
   getMeasureTestReport: PropTypes.func.isRequired,
   addStudentScore: PropTypes.func.isRequired
 };
@@ -1826,7 +1615,6 @@ export default connect(
     getMeasureRubricReport,
     getMeasureTestReport,
     addStudentScore,
-    updateTestScores,
     assignStudentsToTest,
     deleteMeasure,
     updateMeasure,

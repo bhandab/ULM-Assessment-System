@@ -779,6 +779,8 @@ router.get(
               projectedResult: row.projectedResult,
               projectedStudentNumber: row.projectedStudentsValue,
               courseAssociated: row.courseAssociated,
+              studentNumberScale: row.studentNumberScale,
+              projectedValueScale: row.projectedValueScale,
               toolName: row.toolName,
               toolID: row.toolID,
               measureStatus: row.measureStatus,
@@ -886,14 +888,14 @@ router.post(
     }
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
-
+    let programID = req.user.programID;
+    
     let projectedStudentNumber = req.body.projectedStudentNumber;
     let course = req.body.course;
     let toolType = req.body.toolType;
     let toolName = req.body.toolTitle;
     let scoreOrPass = req.body.scoreOrPass;
     let studentNumberOperator = req.body.studentNumberOperator;
-    let programID = req.user.programID;
     let projectedValue = null;
     let valueOperator = null;
     if (scoreOrPass.toLowerCase() !== "pass") {

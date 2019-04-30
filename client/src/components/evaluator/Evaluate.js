@@ -15,6 +15,7 @@ import { getSingleRubric } from "../../actions/rubricsAction";
 import {getEvalActivity} from '../../actions/activityAction'
 import PropTypes from "prop-types";
 import { ListGroup, Card, Button, Table, Alert, Spinner, Form, Modal } from "react-bootstrap";
+import CSVFormat from '../../assets/scoreFormat'
 
 class Evaluate extends Component {
   state = {
@@ -34,8 +35,9 @@ class Evaluate extends Component {
     file: "",
     uploadFile: false,
     logShow: true,
-    testID: ""
-
+    testID: "",
+    scored: "",
+    operator : ""
   };
 
   componentDidMount() {
@@ -70,15 +72,12 @@ class Evaluate extends Component {
         }
       )
     })
-    console.log(scoreObject)
       this.setState({scoreMap:scoreMap, scoreObject:scoreObject})
-      this.props.getEvalActivity();
     }
 
       if (this.props.evaluations.testScores !== prevProps.evaluations.testScores) {
-         console.log(this.props.evaluations.testScores)
+          console.log("scores updated")
          this.createScoreTable();
-         this.props.getEvalActivity();
       }
       if(this.state.scoreObject !== prevState.scoreObject){
         this.addScoresToTable();
@@ -201,6 +200,7 @@ class Evaluate extends Component {
     this.setState({ table: table });
   };
 
+
   uploadFileShow = () => {
     this.setState({uploadFile:true})
   }
@@ -216,7 +216,6 @@ class Evaluate extends Component {
   uploadTestScoresHandler = e => {
     e.preventDefault();
     this.testScoresUpload(this.state.file);
-    this.setState({ uploadFile: false });
   };
 
   testScoresUpload = file => {
@@ -228,14 +227,14 @@ class Evaluate extends Component {
         "content-type": "multipart/form-data"
       }
     };
-    console.log(formData)
+    this.setState({uploadFile:false})
     this.props.uploadTestScores(
       this.state.testID,
       this.state.measureID,
       formData,
       config
     );
-    // this.setState({uploadTest:false})
+    window.location.reload()
   };
 
 
@@ -379,12 +378,14 @@ class Evaluate extends Component {
       <Spinner animation="grow" variant="success" />
     </Fragment>
     )
-    this.setState({ testName: e.target.name, table:spinner });
+    
+    this.setState({ testName: e.target.name, table:spinner, scored:e.target.dataset.scored, type:e.target.dataset.operator});
     this.props.testScores({ testID });
   };
 
   toScoreList() {
     const scores = this.props.evaluations.testScores.scores;
+    console.log(scores)
     if (scores.length < 1) {
       return (
         <tr>
@@ -395,27 +396,24 @@ class Evaluate extends Component {
       );
     }
     return scores.map((student, index) => {
-      let initScore = student.testScore;
-      let initStatus = student.testScoreStatus;
-      // console.log(initStatus)
-      if (student.projectedResult !== null) {
-        if (initScore === null) {
-          initScore = 0;
-        }
-      } else {
-        if (initStatus === null) {
-          initStatus = "fail"
-        }
-        else {
-          if(initStatus === 1){
-            initStatus = "pass"
-          }
-          else {
-            initStatus = "fail"
-          }
+      // if (student.projectedResult !== null) {
+      //   if (initScore === null) {
+      //     initScore = 0;
+      //   }
+      // } else {
+      //   if (initStatus === null) {
+      //     initStatus = "fail"
+      //   }
+      //   else {
+      //     if(initStatus === 1){
+      //       initStatus = "pass"
+      //     }
+      //     else {
+      //       initStatus = "fail"
+      //     }
 
-        }
-      }
+      //   }
+      // }
       
       return (
         <tr key={"scr" + index}>
@@ -431,7 +429,7 @@ class Evaluate extends Component {
                 data-testtype="scored"
                 data-studid={student.studentID}
                 onChange={this.testScoreUpdate.bind(this)}
-                defaultValue={initScore}
+                defaultValue={student.testScore}
               />
             </td>
           ) : (
@@ -442,7 +440,7 @@ class Evaluate extends Component {
                 data-testtype="pass"
                 data-studid={student.studentID}
                 onChange={this.testScoreUpdate.bind(this)}
-                defaultValue={student.testScoreStatus === null ? 0 : student.testScoreStatus}
+                defaultValue={student.testScoreStatus}
               >
                 <option value={1}>pass</option>
                 <option value={0}>fail</option>
@@ -476,6 +474,7 @@ class Evaluate extends Component {
   };
 
   createScoreTable = () => {
+    console.log("gets to create score table")
     const scoreTable = (
       <Card>
         <Card.Header>
@@ -493,7 +492,7 @@ class Evaluate extends Component {
                 <th>Last Name</th>
                 <th>First Name</th>
                 <th>Email</th>
-                <th id="scoreHeader">Score</th>
+                <th id="scoreHeader">Score {this.state.scored === "1" ? `(${this.state.type})` : null}</th>
               </tr>
             </thead>
             <tbody>{this.toScoreList()}</tbody>
@@ -529,13 +528,11 @@ class Evaluate extends Component {
 
 
   render() {
-    console.log(this.props)
-    console.log(this.state)
     let rubrics = [];
     let tests = [];
     let logs = null;
-
-
+    console.log(this.props)
+console.log(this.state)
     if(!this.props.logs.logLoading){
       const shortLog = this.props.logs.evalLogs.logs.splice(0,9)
       logs = shortLog.map((log,index) => {
@@ -618,6 +615,8 @@ class Evaluate extends Component {
                       className="btn btn-link"
                       type="button"
                       data-measure={test.measureID}
+                      data-scored = {test.projectedResult !== null ? 1 : 0}
+                      data-operator = {test.projectedNumberScale}
                       name={test.testName}
                       value={test.testID}
                       data-msrid={test.measureID}
@@ -745,9 +744,9 @@ class Evaluate extends Component {
               <Button variant="success" className="float-right mt-3"
               onClick = {this.uploadTestScoresHandler}
               >Upload</Button>
+              <CSVFormat type={this.state.scored}/>
           </Modal.Body>
         </Modal>
-        
       </section>
       </>
     );

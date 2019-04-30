@@ -89,8 +89,8 @@ class MeasureReport extends Component {
               <td style = {cellStyle}>{student.studentName}</td>
               <td style = {cellStyle}>{student.evalName}</td>
               {criteriaScores(student)}
-              <td style = {cellStyle}>{student.rubricScore}</td>
-              <td style = {cellStyle}>{student.averageScore}</td>
+              <td className={student.rubricScore >= passPoint ? "text-success" : "text-danger"} style = {cellStyle}>{student.rubricScore}</td>
+              <td className={student.averageScore >= passPoint ? "text-success" : "text-danger"} style = {cellStyle}>{student.averageScore}</td>
             </tr>
           );
         })

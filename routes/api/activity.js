@@ -41,7 +41,7 @@ router.get(
     let logs = [];
 
     let sql =
-      "SELECT evalActivity, evalActivityID, CONVERT_TZ(evalActivityTime,'UTC','US/Central') as activityTime EVALUATOR_ACTIVITY WHERE evalID=" +
+      "SELECT evalActivity, evalActivityID, CONVERT_TZ(evalActivityTime,'UTC','US/Central') as activityTime FROM EVALUATOR_ACTIVITY WHERE evalID=" +
       db.escape(req.user.id) +
       " ORDER BY evalActivityTime DESC";
     db.query(sql, (err, result) => {

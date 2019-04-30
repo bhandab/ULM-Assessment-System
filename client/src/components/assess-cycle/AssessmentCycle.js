@@ -168,14 +168,14 @@ class AssessmentCycle extends Component {
               name={cycle.cycleID}
               value={cycle.cycleName}
               onClick={this.editShow.bind(this)}
-              className="outcome-edit ml-2"
+              className="outcome-edit ml-2 mr-3 float-right"
             />
             <button
               style={{ border: "none", background: "none" }}
               name={cycle.cycleID}
               value={cycle.cycleName}
               onClick={this.deleteShow.bind(this)}
-              className="delete"
+              className="delete float-right"
             />
           </ListGroup.Item>
         )
