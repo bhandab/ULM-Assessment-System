@@ -460,7 +460,6 @@ class MeasureDetails extends Component {
         totalStudentNumber = totalStudents;
         totalUnassignedStudents = this.props.cycles.measureStudents
           .notAssignedStudents.length;
-        totalAssignedStudents = totalStudentNumber - totalUnassignedStudents;
 
         studUnassgDetail = this.props.cycles.measureStudents.notAssignedStudents.map(
           (student, index) => {
@@ -509,8 +508,6 @@ class MeasureDetails extends Component {
                   <ol>
                     <li className="p-0">
                       {student.name}{" "}
-                      {/* <li>Email: ({student.email})</li>
-                    <li>CWID: {student.CWID}</li> */}
                       {this.state.isActive ? (
                         <button
                           value={student.studentID}
@@ -520,6 +517,7 @@ class MeasureDetails extends Component {
                         />
                       ) : null}
                     </li>
+                    <li className="ml-0" style={{fontSize:'.8em'}}>({student.email})</li>
                   </ol>
                 </li>
               );
@@ -959,7 +957,7 @@ class MeasureDetails extends Component {
     if (this.props.cycles.assignedStudents !== null) {
       studAssignDetail = null;
       const assignedStuds = this.props.cycles.assignedStudents.assignedStudentsList
-
+      totalAssignedStudents = assignedStuds.length
       studAssignDetail = assignedStuds.map((student,index) => {
         return (
           <ListGroup.Item key={"seval" + student.studentID+""+index}>
