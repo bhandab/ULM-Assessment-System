@@ -5,7 +5,6 @@ import { connect } from "react-redux";
 import Logo from "../../assets/warhawk-logo.png";
 import { logoutUser, loginAsEval } from "../../actions/authActions";
 import { Button, Dropdown } from "react-bootstrap";
-//Silly commit
 
 import "./Style.css";
 
@@ -48,13 +47,6 @@ class AdminLayout extends Component {
     }
   };
 
-  /* Set the width of the side navigation to 0 and the left margin of the page content to 0 */
-  // closeNav = () => {
-  //   document.getElementById("mySidebar").style.width = "0";
-  //   document.getElementById("main").style.marginLeft = "0";
-
-  // }
-  /* Set the width of the sidebar to 250px and the left margin of the page content to 250px */
 
   render() {
     return (
@@ -65,13 +57,11 @@ class AdminLayout extends Component {
               &#9776;{" "}
             </button>
             <span className="ml-3 mt-5">
-              <strong>Coordinator</strong>
+              <strong>Coordinator <br></br> <span id="programName">{this.props.auth.user.programName}</span></strong>
             </span>
+            
           </h1>
           <ul className="utilities">
-            {/* <li className="mr-5">
-              <Button id="actAsEval" onClick = {this.actAsEval}>Evaluator</Button>
-            </li> */}
             <li className="users">
             <Dropdown id="drpdn">
                 <Dropdown.Toggle id="dropdown-basic">

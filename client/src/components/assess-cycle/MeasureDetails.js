@@ -1198,19 +1198,8 @@ class MeasureDetails extends Component {
                     </h3>
                   </Card.Header>
                   <Card.Body className="mb-1 pt-1">
-                    <ol className="list-group measureCard">{studentList}</ol>
-                    {this.state.toolType === "test" && this.state.isActive ? (
-                      <Button
-                        data-toggle="tooltip"
-                        className="mt-2 mb-3 float-right"
-                        data-placement="right"
-                        title="Score Students"
-                        size="sm"
-                        onClick={this.scoreStudentsShow}
-                      >
-                        Score Students
-                      </Button>
-                    ) : null}
+                    <ol className="list-group measureCard">{studentList}
+                    </ol>
                   </Card.Body>
                 </Card>
               </CardGroup>
@@ -1227,12 +1216,12 @@ class MeasureDetails extends Component {
                     </Col>
                     <Col>
                       <Badge variant="light">
-                        Total Assigned: {totalAssignedStudents}
+                        Total Assignments: {totalAssignedStudents}
                       </Badge>
                     </Col>
                     <Col>
                       <Badge variant="light">
-                        Total Unassigned: {totalUnassignedStudents}
+                        Not Assigned: {totalUnassignedStudents}
                       </Badge>
                     </Col>
                   </Row>
