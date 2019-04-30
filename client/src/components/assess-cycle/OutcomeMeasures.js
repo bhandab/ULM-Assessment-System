@@ -438,8 +438,9 @@ class OutcomeMeasures extends Component {
                     <section className="panel important border border-info rounded p-3">
         <Card>
           <Card.Header>
+          <p style={{fontSize:'20px'}} id="measure-title-label"><strong>OUTCOME</strong></p>
             <h2>
-              <u className="text-secondary">Measure</u>: {measureTitle}
+              {measureTitle}
               <Link
                 to={{
                   pathname: `/admin/cycles/cycle/${

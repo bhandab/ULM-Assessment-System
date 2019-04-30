@@ -15,7 +15,8 @@ import { Spinner,
      Button,
       InputGroup, 
       Card,
-      ListGroup
+      ListGroup,
+      Badge
      } from "react-bootstrap";
 import Delete from "../../utils/Delete";
 
@@ -247,7 +248,8 @@ class CycleMeasures extends Component {
           </div> */}
           <Card>
             <Card.Header>
-          <h2><u className="text-secondary">Cycle</u>: {title}
+            <p style={{fontSize:'20px'}} id="measure-title-label"><strong>CYCLE</strong></p>
+          <h2> {title}
           <Link to={`/admin/cycles/cycle/${this.props.match.params.cycleID}/report`}>
           <button size="lg" variant="outline-primary" className="float-right">
           <i className="fas fa-file-invoice"></i>
