@@ -161,7 +161,7 @@ class MeasureDetails extends Component {
 
   assignStudHide = () => {
     this.setState({ studAssign: false });
-    document.getElementById("assgdCheckBox").checked = false;
+    // document.getElementById("assgdCheckBox").checked = false;
   };
 
   testModalShow = () => {
@@ -277,6 +277,7 @@ class MeasureDetails extends Component {
     let measureEvalID = data.measureevalid;
     let optionList = e.target.assignedStudents.selectedOptions;
     let toolType = this.props.cycles.measureDetails.toolType;
+    console.log(toolType)
     let measureID = this.props.match.params.measureID;
 
     for (let student of optionList) {
@@ -347,6 +348,7 @@ class MeasureDetails extends Component {
     const body = { measureEvalID, studentID };
     console.log(body);
     this.props.unassignStudent(measureID, body);
+    // window.location.reload()
   };
 
   render() {
@@ -379,9 +381,9 @@ class MeasureDetails extends Component {
         <Spinner animation="grow" variant="success" />
       </Fragment>
     );
-    let studAssignDetail = spinner;
+    let studAssignDetail = null;
     let progressBar = spinner;
-    let studUnassgDetail = spinner;
+    let studUnassgDetail = null;
 
     if (
       this.props.cycles.measureDetails !== null &&
@@ -949,19 +951,19 @@ class MeasureDetails extends Component {
           );
         }
       });
-      document.getElementById("assgdCheckBox").checked = false;
-      console.log(notAssignOption);
-      this.setState({ notAssignOption: notAssignOption });
+      // document.getElementById("assgdCheckBox").checked = false;
+      // console.log(notAssignOption);
+      // this.setState({ notAssignOption: notAssignOption });
     };
 
     if (this.props.cycles.assignedStudents !== null) {
-      const assignedStuds = this.props.cycles.assignedStudents.assignedStudentsList.concat(
-        this.props.cycles.assignedStudents.evaluatedStudentsList
-      );
-      studAssignDetail = assignedStuds.map((student, index) => {
+      studAssignDetail = null;
+      const assignedStuds = this.props.cycles.assignedStudents.assignedStudentsList
+
+      studAssignDetail = assignedStuds.map((student,index) => {
         return (
-          <ListGroup.Item key={"seval" + student.studentID}>
-            {index + 1}. <span className="statStud">{student.name}</span>
+          <ListGroup.Item key={"seval" + student.studentID+""+index}>
+             <span className="statStud">{student.name}</span>
             <Badge pill> assigned to </Badge>{" "}
             <span className="statEval">{student.evalEmail}</span>
             <button
@@ -975,7 +977,7 @@ class MeasureDetails extends Component {
         );
       });
 
-      if (studAssignDetail < 1) {
+      if (studAssignDetail.length < 1) {
         studAssignDetail = (
           <ListGroup.Item>
             <Alert variant="danger">No Students Present!</Alert>
@@ -1503,7 +1505,7 @@ class MeasureDetails extends Component {
                     </h3>
                   </Card.Header>
                   <Card.Body className="m-0 p-2">
-                    <span>
+                    {/* <span>
                       <input
                         onChange={() =>
                           this.setState({ notAssgd: !this.state.notAssgd })
@@ -1512,8 +1514,8 @@ class MeasureDetails extends Component {
                         id="assgdCheckBox"
                       />
                       Unassigned Students
-                    </span>
-                    {this.state.notAssgd ? (
+                    </span> */}
+                    {/* {this.state.notAssgd ? (
                       studentSelect.length > 0 ? (
                         <select
                           id="studSelect"
@@ -1525,13 +1527,21 @@ class MeasureDetails extends Component {
                       ) : (
                         <Alert variant="danger"> No Students Present</Alert>
                       )
-                    ) : this.state.notAssignOption.length > 0 ? (
-                      <select id="studSelect" name="assignedStudents" multiple>
-                        {this.state.notAssignOption}
-                      </select>
-                    ) : (
-                      <Alert variant="danger"> No Students Present</Alert>
-                    )}
+                      ) : this.state.notAssignOption.length > 0 ? (
+                        <select id="studSelect" name="assignedStudents" multiple>
+                          {this.state.notAssignOption}
+                        </select>
+                      ) : (
+                        <Alert variant="danger"> No Students Present</Alert>
+                      )} */}
+                       <select
+                          id="studSelect"
+                          name="assignedStudents"
+                          multiple
+                        >
+                          {studentSelect}
+                        </select>
+                      {/* {studentSelect} */}
                   </Card.Body>
                 </Card>
               </CardGroup>

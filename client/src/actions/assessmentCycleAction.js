@@ -501,11 +501,13 @@ export const assignStudentsToTest = (measureID, body) => dispatch => {
 export const unassignStudent = (measureID, body) => dispatch => {
     axios
     .post("/api/cycles/"+measureID+"/deleteAssignedStudent",body)
+    .then(() => dispatch(getAssignedStudents(measureID)))
+    .then(()=> dispatch(getStudentsOfMeasure(measureID)))
     .then(() => toastr.success(
         "Student Unassigned!",
         "Student Successfully Unassigned From Evaluator!"
     ))
-    .then(() => dispatch(getAssignedStudents(measureID)))
+
     .catch(err => {
         dispatch({
             type: GET_ERRORS,

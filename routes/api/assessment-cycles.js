@@ -2062,8 +2062,8 @@ router.post(
                   if (!result[0].testScoreStatus) {
                     let sql6 =
                       "DELETE FROM TEST_SCORE WHERE studentID=" +
-                      db.escape(deleteStudentID) +
-                      "evalID=" +
+                      db.escape(deleteStudentID) + 
+                      "AND evalID=" +
                       db.escape(evalID);
                     db.query(sql6, (err, result) => {
                       if (err) {
@@ -2239,6 +2239,7 @@ router.post(
     tobeAssignedStudents = [];
     let testScores = [];
     let errors = {};
+    console.log(req.body.studentIDs)
     let sql =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
       db.escape(measureID);
@@ -2271,6 +2272,7 @@ router.post(
               if (err) {
                 return callback(err);
               } else if (result.length > 0) {
+                console.log("Is here")
                 alreadyAssignedStudents.push({
                   studentID: value.id,
                   email: value.email,
