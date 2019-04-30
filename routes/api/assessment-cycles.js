@@ -889,7 +889,7 @@ router.post(
     let cycleID = req.params.cycleIdentifier;
     let outcomeID = req.params.outcomeIdentifier;
     let programID = req.user.programID;
-    
+
     let projectedStudentNumber = req.body.projectedStudentNumber;
     let course = req.body.course;
     let toolType = req.body.toolType;
@@ -1946,7 +1946,7 @@ router.get(
               evaluatedStudentsList.push(student);
             }
           } else if (toolType.toLowerCase() === "test") {
-            if (row.testScoreStatus===null) {
+            if (row.testScoreStatus === null) {
               assignedStudentsList.push(student);
             } else {
               evaluatedStudentsList.push(student);
@@ -2063,7 +2063,7 @@ router.post(
                   if (!result[0].testScoreStatus) {
                     let sql6 =
                       "DELETE FROM TEST_SCORE WHERE studentID=" +
-                      db.escape(deleteStudentID) + 
+                      db.escape(deleteStudentID) +
                       "AND evalID=" +
                       db.escape(evalID);
                     db.query(sql6, (err, result) => {
@@ -2241,7 +2241,7 @@ router.post(
     tobeAssignedStudents = [];
     let testScores = [];
     let errors = {};
-    console.log(req.body.studentIDs)
+    console.log(req.body.studentIDs);
     let sql =
       "SELECT * FROM PERFORMANCE_MEASURE WHERE measureID=" +
       db.escape(measureID);
@@ -2274,7 +2274,7 @@ router.post(
               if (err) {
                 return callback(err);
               } else if (result.length > 0) {
-                console.log("Is here")
+                console.log("Is here");
                 alreadyAssignedStudents.push({
                   studentID: value.id,
                   email: value.email,
@@ -2606,7 +2606,7 @@ router.get(
       let threshold = result[0].projectedResult;
       let projectedValueScale = result[0].projectedValueScale;
       let sql1 =
-        "SELECT * FROM TEST_SCORE NATURAL JOIN STUDENT WHERE measureID=" +
+        "SELECT * FROM TEST_SCORE NATURAL JOIN STUDENT NATURAL JOIN EVALUATOR WHERE measureID=" +
         db.escape(measureID);
       db.query(sql1, (err, result) => {
         if (err) {
@@ -2616,6 +2616,7 @@ router.get(
         let passingCounts = 0;
         result.forEach(row => {
           result = {
+            evalEmail: row.evalEmail,
             studentName: row.studentLastName + ", " + row.studentFirstName,
             studentEmail: row.studentEmail,
             CWID: row.studentCWID,
