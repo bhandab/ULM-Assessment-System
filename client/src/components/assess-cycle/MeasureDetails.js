@@ -268,10 +268,13 @@ class MeasureDetails extends Component {
 
   assignStudentsHandle = e => {
     e.preventDefault();
+    console.log(e.target.evaluator.value)
+    let data = document.querySelector('input[name = "evaluator"]:checked').dataset
+
     let body = {};
     let studentIDs = [];
-    let evalID = e.target.evaluator.dataset.evalid;
-    let measureEvalID = e.target.evaluator.dataset.measureevalid;
+    let evalID = data.evalid;
+    let measureEvalID = data.measureevalid;
     let optionList = e.target.assignedStudents.selectedOptions;
     let toolType = this.props.cycles.measureDetails.toolType;
     let measureID = this.props.match.params.measureID;
@@ -1462,7 +1465,6 @@ class MeasureDetails extends Component {
             </Form>
           </Modal.Body>
         </Modal>
-
         <Modal
           show={this.state.studAssign}
           onHide={this.assignStudHide}
@@ -1533,14 +1535,12 @@ class MeasureDetails extends Component {
                   </Card.Body>
                 </Card>
               </CardGroup>
-
               <Button type="submit" className="mt-3 d-block float-right">
                 Assign{" "}
               </Button>
             </Form>
           </ModalBody>
         </Modal>
-
         {/* Evaluator Students */}
         <Modal
           show={this.state.evalStudents}
@@ -1559,7 +1559,6 @@ class MeasureDetails extends Component {
             </Button>
           </Modal.Footer>
         </Modal>
-
         {scoreModal}
         <Delete
           hide={this.deleteHide}
@@ -1572,7 +1571,6 @@ class MeasureDetails extends Component {
     );
   }
 }
-
 MeasureDetails.propTypes = {
   auth: PropTypes.object.isRequired,
   getMeasureDetails: PropTypes.func.isRequired,
@@ -1588,7 +1586,6 @@ MeasureDetails.propTypes = {
   getMeasureTestReport: PropTypes.func.isRequired,
   addStudentScore: PropTypes.func.isRequired
 };
-
 const MapStateToProps = state => ({
   auth: state.auth,
   cycles: state.cycles,
