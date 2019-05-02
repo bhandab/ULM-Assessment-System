@@ -36,7 +36,7 @@ router.get(
           studentCWID: row.studentCWID,
           studentEmail: row.studentEmail,
           rubricName: row.rubricTitle,
-          evaluated:row.rubricScore?true:false
+          evaluated: row.rubricScore ? true : false
         };
         evaluations.push(evalInfo);
       });
