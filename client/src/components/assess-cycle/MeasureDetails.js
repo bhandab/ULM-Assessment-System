@@ -1332,6 +1332,7 @@ class MeasureDetails extends Component {
                   type="file"
                   name="studentFile"
                   onChange={this.fileChangeHandler.bind(this)}
+                  required
                 />
               </InputGroup>
               <Button

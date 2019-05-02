@@ -47,7 +47,7 @@ export const updateRubricScores = (body) => dispatch => {
     axios
     .post("/api/evaluations/updateScores",body)
     .then(() => toastr.success(
-        "Score Updated!",
+        " Rubric Score Updated!",
         ""
     ))
     .catch(err => dispatch({
@@ -85,18 +85,16 @@ export const updateTestScores = (testID,body) => dispatch =>{
 }
 
 export const uploadTestScores = (testID,measureID,formData,config) => dispatch => {
-    console.log(measureID)
     axios
     .post("/api/evaluations/"+measureID+"/uploadStudentScore",formData,config)
     .then(() => toastr.success(
         "Score Updated!",
         "Test Score Successfully Updated!"
     ))
-    .then(() => toastr.info(
+    .then(() => toastr.warning(
         "Score Updated!",
         "Click on the Test Name to see updated scores !"
     ))
-    .then(()=>dispatch(testScores({testID})))
     .catch(err => {
         dispatch({
             type: GET_ERRORS,

@@ -102,6 +102,7 @@ class OutcomeMeasures extends Component {
     let pv =  null;
     let crs = e.target.course.value;
     let tt = "";
+    let scaleDesc: null;
 
     let ty = e.target.toolType.value;
     let tid = ""; //null
@@ -109,9 +110,13 @@ class OutcomeMeasures extends Component {
       const selected = e.target.tool.options[e.target.tool.selectedIndex];
       console.log(selected);
       tid = selected.dataset.id;
-      pv = e.target.projectedValue.value;
+      let rubrScale = e.target.projectedValue.value
+      rubrScale = JSON.parse(rubrScale)
+      pv = rubrScale.value;
       tt = selected.dataset.name;
+      scaleDesc = rubrScale.desc
     }
+    console.log(pv)
     let pt = e.target.projType.value;
     let vo = "";
 
@@ -135,7 +140,8 @@ class OutcomeMeasures extends Component {
       toolType: ty,
       valueOperator: vo,
       studentNumberOperator: pt,
-      scoreOrPass: testType
+      scoreOrPass: testType,
+      scaleDesc: scaleDesc
     };
     console.log(measureDetails)
     this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails);
@@ -438,7 +444,7 @@ class OutcomeMeasures extends Component {
       rubricScoreOptions = this.props.rubric.singleRubric.rubricDetails.scaleInfo.map(
         scale => {
           return (
-            <option key={"scale" + scale.scaleID} value={scale.scaleValue}>
+            <option key={"scale" + scale.scaleID} value={JSON.stringify({value:scale.scaleValue,desc:scale.scaleDescription})}>
               {scale.scaleDescription}
             </option>
           );

@@ -80,11 +80,9 @@ class Login extends Component {
         console.log(this.props)
         return (
             <>
-            <Card.Header id="loginHeader"><span>WELCOME TO ULM ASSESSMENT SYSTEM</span></Card.Header>
             <div className="wrapper">
                 <form className="form-signin" onSubmit={this.loginUser.bind(this)}>
-                    <h2 className="form-signin-heading">Please Login</h2>
-
+                    <h2 className="form-signin-heading ">Please Login</h2>
                     <input type="text" className="form-control" name="email" placeholder="Username" required="" autoFocus=""/>
                     <p className="mt-0" style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.email}</p>
 

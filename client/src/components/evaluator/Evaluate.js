@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
-import {toastr} from 'react-redux-toastr';
 import {Link} from 'react-router-dom'
 import {
   getEvaluationRubrics,
@@ -14,7 +13,7 @@ import {
 import { getSingleRubric } from "../../actions/rubricsAction";
 import {getEvalActivity} from '../../actions/activityAction'
 import PropTypes from "prop-types";
-import { ListGroup, Card, Button, Table, Alert, Spinner, Form, Modal } from "react-bootstrap";
+import { ListGroup, Card, Button, Table, Alert, Spinner, Form, Modal, Badge } from "react-bootstrap";
 import CSVFormat from '../../assets/scoreFormat'
 
 class Evaluate extends Component {
@@ -47,18 +46,15 @@ class Evaluate extends Component {
   }
 
   componentDidUpdate(prevProps,prevState) {
-
-    if(this.props.logs !== prevProps.logs){
-      console.log("logs changed")
-    }
+    
     if (this.props.rubric.singleRubric !== prevProps.rubric.singleRubric) {
       this.createRubric();
     }
-    
 
     if (
       this.props.evaluations.rubricScores !== prevProps.evaluations.rubricScores
     ) {
+      
       let scoreMap = new Map();
       this.props.evaluations.rubricScores.forEach((criteria => {
           scoreMap.set(criteria.criteriaID, criteria.criteriaScore)
@@ -215,6 +211,7 @@ class Evaluate extends Component {
 
   uploadTestScoresHandler = e => {
     e.preventDefault();
+    console.log(this.state.file)
     this.testScoresUpload(this.state.file);
   };
 
@@ -234,7 +231,9 @@ class Evaluate extends Component {
       formData,
       config
     );
-    window.location.reload()
+    this.props.testScores({testID:this.state.testID});
+    this.forceUpdate()
+
   };
 
 
@@ -282,6 +281,9 @@ class Evaluate extends Component {
               key={student.studentID}
             >
               {student.studentName}
+              {student.evaluated ? 
+              <i className="fas fa-check text-success float-right"></i>  
+            : <Badge pill className="float-right" variant="warning">pending</Badge>}
             </ListGroup.Item>
           );
         } else {
@@ -317,7 +319,6 @@ class Evaluate extends Component {
       const cells = tableRows[index + 1].cells;
       const cellLength = cells.length;
       const lastCell = cells[cellLength - 1];
-      // console.log(lastCell);
       lastCell.innerHTML = criteria.criteriaScore;
       sum += criteria.criteriaScore;
     });
@@ -357,7 +358,6 @@ class Evaluate extends Component {
     )
   })
     this.setState({scoreMap:scoreMap, scoreObject:scoreObject})
-    // this.props.updateRubricScores();
   };
 
   rubricHeaderClick = e => {
@@ -428,6 +428,9 @@ class Evaluate extends Component {
               </select>
             </td>
           )}
+           <td>{student.evaluated ? <i className="fas fa-check text-success"></i>
+          : <Badge variant="warning" pill>pending</Badge>
+          }</td>
         </tr>
       );
     });
@@ -474,6 +477,7 @@ class Evaluate extends Component {
                 <th>First Name</th>
                 <th>Email</th>
                 <th id="scoreHeader">Score {this.state.scored === "1" ? `(${this.state.type})` : null}</th>
+                <th>Evaluated</th>
               </tr>
             </thead>
             <tbody>{this.toScoreList()}</tbody>
@@ -503,10 +507,12 @@ class Evaluate extends Component {
       criteriaInfo: scoreObject
     }
     this.props.updateRubricScores(body)
+    this.props.getEvaluatorDetails()
   };
 
 
   render() {
+    console.log(this.props)
     let rubrics = [];
     let tests = [];
     let logs = null;
@@ -716,11 +722,12 @@ class Evaluate extends Component {
 
         <Modal show={this.state.uploadFile} onHide={this.uploadFileHide} centered>
           <Modal.Header closeButton><h2>Uplaod Score File</h2></Modal.Header>
-          <Modal.Body> 
-              <Form.Control onChange={this.fileChangeHandler.bind(this)} type="file" name="scoreFile" accept=".csv" /> 
-              <Button variant="success" className="float-right mt-3"
-              onClick = {this.uploadTestScoresHandler}
+          <Modal.Body>
+              <Form  onSubmit = {this.uploadTestScoresHandler}>
+              <Form.Control onChange={this.fileChangeHandler.bind(this)} type="file" name="scoreFile" accept=".csv" required/> 
+              <Button type="submit" variant="success" className="float-right mt-3"
               >Upload</Button>
+              </Form>
               <CSVFormat type={this.state.scored}/>
           </Modal.Body>
         </Modal>

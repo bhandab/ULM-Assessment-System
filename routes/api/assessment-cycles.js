@@ -898,6 +898,7 @@ router.post(
     let studentNumberOperator = req.body.studentNumberOperator;
     let projectedValue = null;
     let valueOperator = null;
+
     if (scoreOrPass.toLowerCase() !== "pass") {
       projectedValue = req.body.projectedValue;
       valueOperator = req.body.valueOperator;
@@ -1040,7 +1041,8 @@ router.post(
                 insertIntoMeasure();
               });
             } else {
-              insertIntoMeasure();
+                insertIntoMeasure(); 
+              
             }
             //console.log(toolID);
 
