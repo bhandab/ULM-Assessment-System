@@ -1224,7 +1224,7 @@ router.post(
         updateMeasure(
           null,
           result[0].evalCount !== 0 &&
-            result[0].successCount / result[0].evalCount*100 >=
+            (result[0].successCount / result[0].evalCount) * 100 >=
               projectedStudentNumber
         );
       }
