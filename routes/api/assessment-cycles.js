@@ -1061,6 +1061,8 @@ router.post(
   (req, res) => {
     let errors = {};
     let measureID = req.params.measureIdentifier;
+    let evalCount = 0;
+    let passingCount = 0;
     if (isEmpty(req.body.projectedStudentNumber)) {
       errors.emptyThresholdStudentNumber =
         "Student Threshold number cannot be empty";
@@ -1087,6 +1089,58 @@ router.post(
         errors.measureNotFound = "Measure with the ID not found!";
         return res.status(404).json(errors);
       }
+      let studentNumberScale = result[0].studentNumberScale;
+      let courseAssociated = result[0].courseAssociated;
+      let toolType = result[0].toolType;
+      let toolName = result[0].toolName;
+      let oldprojectedResult = result[0].projectedResult;
+      let projectedValueScale = result[0].projectedValueScale;
+
+      let updateMeasure = (passingStudentsNumber, msrStatus) => {
+        let measureName =
+          "At least " +
+          projectedStudentNumber +
+          " " +
+          studentNumberScale +
+          " Of Students ";
+
+        measureName = courseAssociated
+          ? measureName + " in Class " + courseAssociated + " Will "
+          : measureName + " Will ";
+        measureName = oldprojectedResult
+          ? measureName +
+            " Score " +
+            projectedResult +
+            " " +
+            projectedValueScale +
+            " Or Greater In "
+          : measureName + " Pass In ";
+        measureName = measureName + toolName + " " + toolType;
+
+        let sql4 = !isEmpty(oldprojectedResult)
+          ? "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
+            db.escape(projectedStudentNumber) +
+            ", projectedResult=" +
+            db.escape(projectedResult) +
+            ", successCount=" +
+            db.escape(passingStudentsNumber)
+          : "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
+            db.escape(projectedStudentNumber);
+        sql4 =
+          sql4 +
+          ", measureDesc=" +
+          db.escape(measureName) +
+          ", measureStatus=" +
+          db.escape(msrStatus) +
+          " WHERE measureID=" +
+          db.escape(measureID);
+        db.query(sql4, (err, result) => {
+          if (err) {
+            return res.status(500).json();
+          }
+          res.status(200).json("Updated Successfully!");
+        });
+      };
 
       if (result[0].projectedResult) {
         if (isEmpty(projectedResult)) {
@@ -1096,49 +1150,84 @@ router.post(
           errors.thresholdScoreNotANumber =
             "Threshold score value should be a number between 0 and 100";
           return res.status(404).json(errors);
+        } else {
+          projectedResult = parseFloat(projectedResult);
+          if (result[0].toolType.toLowerCase() === "rubric") {
+            let sql2 =
+              "SELECT * FROM STUDENT_AVERAGE_SCORE WHERE measureID=" +
+              db.escape(measureID);
+            db.query(sql2, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              result.forEach(row => {
+                evalCount++;
+                if (row.averageScore >= projectedResult) {
+                  passingCount++;
+                }
+              });
+              let isPassing =
+                evalCount === 0 ||
+                (passingCount / evalCount) * 100 < projectedStudentNumber
+                  ? false
+                  : true;
+              updateMeasure(passingCount, isPassing);
+            });
+          } else if (result[0].toolType.toLowerCase() === "test") {
+            let sql2 =
+              "SELECT * FROM TEST_SCORE WHERE measureID=" +
+              db.escape(measureID);
+            db.query(sql2, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              async.forEachOf(
+                result,
+                (value, key, callback) => {
+                  let testStatus = false;
+                  if (value.testScoreStatus !== null) {
+                    evalCount++;
+                    if (value.testScore >= projectedResult) {
+                      passingCount++;
+                      testStatus = true;
+                    }
+                    let sql3 =
+                      "UPDATE TEST_SCORE SET testScoreStatus=" +
+                      db.escape(testStatus) +
+                      " WHERE measureID=" +
+                      db.escape(measureID) +
+                      " AND studentID=" +
+                      db.escape(value.studentID);
+                    db.query(sql3, (err, result) => {
+                      if (err) {
+                        return callback(err);
+                      }
+                      callback();
+                    });
+                  }
+                },
+                err => {
+                  if (err) {
+                    return res.status(500).json(err);
+                  }
+                  updateMeasure(
+                    passingCount,
+                    evalCount !== 0 &&
+                      (passingCount / evalCount) * 100 >= projectedStudentNumber
+                  );
+                }
+              );
+            });
+          }
         }
+      } else {
+        updateMeasure(
+          null,
+          result[0].evalCount !== 0 &&
+            (result[0].successCount / result[0].evalCount) * 100 >=
+              projectedStudentNumber
+        );
       }
-
-      let measureName =
-        "At least " +
-        projectedStudentNumber +
-        " " +
-        result[0].studentNumberScale +
-        " Of Students ";
-
-      measureName = result[0].courseAssociated
-        ? measureName + " in Class " + result[0].courseAssociated + " will "
-        : measureName + " will ";
-      measureName = result[0].projectedResult
-        ? measureName +
-          " Score " +
-          projectedResult +
-          " " +
-          result[0].projectedValueScale +
-          " Or Greater In "
-        : measureName + " Pass In ";
-      measureName = measureName + result[0].toolName + " " + result[0].toolType;
-      projectedResult = parseFloat(projectedResult);
-      let sql2 = !isEmpty(result[0].projectedResult)
-        ? "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
-          db.escape(projectedStudentNumber) +
-          ", projectedResult=" +
-          db.escape(projectedResult)
-        : "UPDATE PERFORMANCE_MEASURE SET projectedStudentsValue=" +
-          db.escape(projectedStudentNumber);
-      sql2 =
-        sql2 +
-        ", measureDesc=" +
-        db.escape(measureName) +
-        " WHERE measureID=" +
-        db.escape(measureID);
-      db.query(sql2, (err, result) => {
-        if (err) {
-          return res.status(500).json();
-        }
-        res.status(200).json("Updated Successfully!");
-      });
-      //}
     });
   }
 );
@@ -2617,52 +2706,20 @@ router.get(
         let totalStudents = result.length;
         let passingCounts = 0;
         result.forEach(row => {
-          let passing=false;
-          
-          if(threshold){
-            if (row.testScoreStatus !== null) {
-             
-             
-                if(row.testScore>=threshold){
-                  passing=true
-                  passingCounts++;
-                }
-                result = {
-                  evalEmail: row.evalEmail,
-                  evalName: row.evalLastName + ", "+ row.evalFirstName,
-                  studentName: row.studentLastName + ", " + row.studentFirstName,
-                  studentEmail: row.studentEmail,
-                  CWID: row.studentCWID,
-                  score: row.testScore ? row.testScore : "N/A",
-                  passing
-                };
-                report.push(result);
-              
-              
+          result = {
+            evalEmail: row.evalEmail,
+            studentName: row.studentLastName + ", " + row.studentFirstName,
+            studentEmail: row.studentEmail,
+            CWID: row.studentCWID,
+            score: row.testScore ? row.testScore : "N/A",
+            passing: row.testScoreStatus ? true : false
+          };
+          if (row.testScoreStatus !== null) {
+            report.push(result);
+            if (row.testScoreStatus) {
+              passingCounts++;
             }
           }
-            else{
-              if(row.testScoreStatus!==null){
-               
-                if(row.testScoreStatus){
-                  passing=true;
-                  passingCounts++;
-                }
-                result = {
-                  evalEmail: row.evalEmail,
-                  evalName: row.evalLastName + ", "+ row.evalFirstName,
-                  studentName: row.studentLastName + ", " + row.studentFirstName,
-                  studentEmail: row.studentEmail,
-                  CWID: row.studentCWID,
-                  score: row.testScore ? row.testScore : "N/A",
-                  passing
-                };
-                report.push(result)
-              }
-            }
-          
-          
-
         });
         let passingPercentage = 0;
         if (totalStudents !== 0 && passingCounts !== 0) {
