@@ -473,19 +473,47 @@ router.get(
         if (err) {
           return res.status(500).json(err);
         }
-        let indexCount = 1;
-        result.forEach(row => {
-          outcome = {
-            outcomeName: row.learnDesc,
-            outcomeID: row.learnID,
-            displayIndex: indexCount
-          };
-          indexCount++;
-          outcomes.push(outcome);
-        });
-        res
-          .status(200)
-          .json({ outcomes, cycleIdentifier, cycleName, isClosed });
+
+        async.forEachOf(
+          result,
+          (value, key, callback) => {
+            let outcomeStatus = "pending";
+            let sql2 =
+              "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
+              db.escape(value.learnID);
+            db.query(sql2, (err, result) => {
+              if (err) {
+                callback(err);
+              }
+              result.forEach(row => {
+                if (row.evalCount > 0 && row.measureStatus) {
+                  outcomeStatus = "passing";
+                } else if (row.evalCount > 0 && !row.measureStatus) {
+                  outcomeStatus = "failing";
+                  return;
+                }
+              });
+
+              outcome = {
+                outcomeName: value.learnDesc,
+                outcomeID: value.learnID,
+                displayIndex: key + 1,
+                outcomeStatus
+              };
+
+              outcomes.push(outcome);
+              callback();
+            });
+          },
+          err => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            res
+              .status(200)
+              .json({ outcomes, cycleIdentifier, cycleName, isClosed });
+          }
+        );
       });
     });
   }
@@ -917,10 +945,18 @@ router.post(
         ? measureName + " in Class " + course + " will "
         : measureName + " will ";
     measureName =
-      scoreOrPass.toLowerCase() !== "pass"
+      scoreOrPass.toLowerCase() !== "pass" && toolType.toLowerCase() === "test"
         ? measureName +
           " Score " +
           projectedValue +
+          " " +
+          valueOperator +
+          " Or Greater In "
+        : scoreOrPass.toLowerCase() !== pass &&
+          toolType.toLowerCase() === "rubric"
+        ? measureName +
+          " Score " +
+          req.body.scaleDesc +
           " " +
           valueOperator +
           " Or Greater In "
