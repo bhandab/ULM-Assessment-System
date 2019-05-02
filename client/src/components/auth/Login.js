@@ -79,10 +79,9 @@ class Login extends Component {
     render() {
         console.log(this.props)
         return (
+            <>
+            <Card.Header id="loginHeader"><span>WELCOME TO ULM ASSESSMENT SYSTEM</span></Card.Header>
             <div className="wrapper">
-            <Card style={{width:'30rem',marginLeft:'40%', marginTop:'8%',boorderRadius:'5%',color:'#800'}}>
-                <Card.Header style={{textAlign:'center'}}><h3>WELCOME TO ULM EVALUATION</h3></Card.Header>
-                <Card.Body>
                 <form className="form-signin" onSubmit={this.loginUser.bind(this)}>
                     <h2 className="form-signin-heading">Please Login</h2>
 
@@ -98,9 +97,8 @@ class Login extends Component {
                     <button className="btn btn-lg btn-primary btn-block" type="submit">Log In</button>
                     <Link id = "register" to="/register">Register</Link>
                 </form>
-                </Card.Body>
-                </Card>
             </div>
+            </>
         );
     }
 }

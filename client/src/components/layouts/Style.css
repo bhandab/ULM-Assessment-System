@@ -618,10 +618,6 @@ li {
   color: #111;
 }
 
-/* Measure Report **/
-#measureReport {
-  min-height: 100%;
-}
 
 /* Measure Test Report */
 table#measureTestReport td {
@@ -1001,4 +997,21 @@ button:hover {
   margin-top: 2px;
   padding: 5px;
   border-radius: 3%;
+}
+
+#loginHeader {
+  color: #500;
+  text-align: center;
+  font-size: 2em;
+  font-weight: bold;
+  height: auto;
+  background: rgba(119,0,0,.8);
+}
+
+#loginHeader span {
+  border: 1px solid #400;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 5px 5px 5px 5px #700;
+  background: white;
 }

@@ -3,7 +3,8 @@ import { connect } from "react-redux";
 import { getMeasureRubricReport } from "../../actions/assessmentCycleAction";
 import { isEmpty } from "../../utils/isEmpty";
 import PropTypes from "prop-types";
-import {Card, Table, Button} from 'react-bootstrap'
+import {Card, Table, Button} from 'react-bootstrap';
+import ReactHTMLTableToExcel from 'react-html-table-to-excel'
 
 class MeasureReport extends Component {
   componentDidMount() {
@@ -139,28 +140,33 @@ class MeasureReport extends Component {
       );
 
       measureReport.push(<tbody key="tableBody">{reportBody}</tbody>);
+    }
 
-      measureReport = (
-        
-          <Card>
+    return ( 
+    <section className="panel important" key="secn">
+    <Card>
             <Card.Header style={{textAlign:'center'}}><h2>Measure Report
-            <Button className="float-right noprint" onClick={()=> this.props.history.goBack()}>
+            <Button variant="danger" className="float-right noprint" onClick={()=> this.props.history.goBack()}>
             <i className="fas fa-times"></i>
             </Button>
-            </h2></Card.Header>
+            <ReactHTMLTableToExcel
+                    id="test-table-xls-button"
+                    className="download-table-xls-button btn btn-info float-right mr-3"
+                    table="measureReport"
+                    filename="measureReport"
+                    sheet="tablexls"
+                    buttonText="Download as EXCEL"/>
+            </h2>
+            </Card.Header>
             <Card.Body>
-            <Table id="measureReport" striped bordered key="reportTable">
+            <Table id="measureReport" responsive striped bordered key="reportTable">
               {measureReport}
               </Table>
 
             </Card.Body>
           </Card>
-      );
-    }
-
-    return <section className="panel important" key="secn">
-    {measureReport}
-    </section>;
+    </section>
+    )
   }
 }
 

@@ -24,6 +24,9 @@ import {
   unassignStudent
 } from "../../actions/assessmentCycleAction";
 import { getRegisteredEvaluators } from "../../actions/evaluatorAction";
+import {getSingleRubric} from '../../actions/rubricsAction';
+import { isEmpty } from "../../utils/isEmpty";
+
 import {
   Jumbotron,
   Card,
@@ -93,6 +96,7 @@ class MeasureDetails extends Component {
         this.setState({ isActive: !this.props.cycles.measureDetails.isClosed });
         if (this.props.cycles.measureDetails.toolType === "rubric") {
           this.props.getMeasureRubricReport(measureID);
+          this.props.getSingleRubric(this.props.cycles.measureDetails.toolID)
           this.setState({ toolType: "rubric", scored: true });
         }
         if (this.props.cycles.measureDetails.toolType === "test") {
@@ -161,7 +165,6 @@ class MeasureDetails extends Component {
 
   assignStudHide = () => {
     this.setState({ studAssign: false });
-    // document.getElementById("assgdCheckBox").checked = false;
   };
 
   testModalShow = () => {
@@ -268,7 +271,6 @@ class MeasureDetails extends Component {
 
   assignStudentsHandle = e => {
     e.preventDefault();
-    console.log(e.target.evaluator.value)
     let data = document.querySelector('input[name = "evaluator"]:checked').dataset
 
     let body = {};
@@ -277,12 +279,10 @@ class MeasureDetails extends Component {
     let measureEvalID = data.measureevalid;
     let optionList = e.target.assignedStudents.selectedOptions;
     let toolType = this.props.cycles.measureDetails.toolType;
-    console.log(toolType)
     let measureID = this.props.match.params.measureID;
 
     for (let student of optionList) {
       studentIDs.push({ id: student.value, email: student.dataset.email });
-      console.log(student.dataset.email);
     }
     let rubricID = this.props.cycles.measureDetails.toolID;
     if (toolType === "rubric") {
@@ -302,7 +302,6 @@ class MeasureDetails extends Component {
         studentIDs
       };
       this.props.assignStudentsToTest(measureID, body);
-      console.log(body);
     }
     this.setState({ studAssign: false });
   };
@@ -322,33 +321,28 @@ class MeasureDetails extends Component {
       projectedResult
     };
     this.props.updateMeasure(cycleID, outcomeID, measureID, body);
+    this.setState({editShow:false})
   };
 
   deleteEvaluator = e => {
     const measureID = this.props.match.params.measureID;
     const measureEvalID = e.target.value;
-    console.log(e.target.value);
     this.props.deleteEvaluator(measureID, measureEvalID);
   };
 
   deleteStudent = e => {
     const measureID = this.props.match.params.measureID;
     const studentID = e.target.value + "";
-    console.log(studentID);
 
     this.props.deleteStudent(measureID, studentID);
   };
 
   unAssignStudent = e => {
-    console.log(e.target.name);
-    console.log(e.target.value);
     const measureID = this.props.match.params.measureID;
     const measureEvalID = e.target.name;
     const studentID = e.target.value;
     const body = { measureEvalID, studentID };
-    console.log(body);
     this.props.unassignStudent(measureID, body);
-    // window.location.reload()
   };
 
   render() {
@@ -384,6 +378,7 @@ class MeasureDetails extends Component {
     let studAssignDetail = null;
     let progressBar = spinner;
     let studUnassgDetail = null;
+    let rubricScoreOptions = null;
 
     if (
       this.props.cycles.measureDetails !== null &&
@@ -485,9 +480,6 @@ class MeasureDetails extends Component {
             <Alert variant="danger">No Students Present</Alert>
           );
         }
-
-        console.log(notAssignOption);
-
         if (totalStudents > 0) {
           studentList = this.props.cycles.measureStudents.students.map(
             student => {
@@ -544,8 +536,6 @@ class MeasureDetails extends Component {
             totalEvaluated = this.props.cycles.measureReport.results.length;
 
             let passScore = this.props.cycles.measureReport.threshold;
-            let benchmarkPer = this.props.cycles.measureDetails
-              .projectedStudentNumber;
             let results = this.props.cycles.measureReport.results;
             let passPer = 0;
             if (
@@ -557,14 +547,8 @@ class MeasureDetails extends Component {
             let evaluated = [];
             let passed = [];
             let failed = [];
-            // let notAssigned = totalStudents - results.length
-            // let notAssgPer = ((notAssigned / totalStudents) * 100).toFixed(2)
             let failPer = 100 - passPer;
-            // if(isEmpty(passingCount)){
-            //  failPer = 100
-            //  notAssgPer = 0
-            //  passPer = 0
-            // }
+            if(this.props.cycles.measureDetails.evalCount > 0){
             if (this.props.cycles.measureDetails.status) {
               status = (
                 <>
@@ -580,6 +564,15 @@ class MeasureDetails extends Component {
                 </h3>
               );
             }
+          }
+          else{
+            status = (
+              <h3>
+                Status: <span className="text-warning">Pending</span>
+              </h3>
+            );
+
+          }
 
             progressBar = (
               <ProgressBar>
@@ -595,7 +588,6 @@ class MeasureDetails extends Component {
                   label={`Failing(${failPer}%)`}
                   key={2}
                 />
-                {/* <ProgressBar variant="warning" now={notAssgPer} label={`NA(${notAssgPer}%)`} key={3} /> */}
               </ProgressBar>
             );
             evaluated = results.map((student, index) => {
@@ -675,29 +667,6 @@ class MeasureDetails extends Component {
           }
         }
 
-        stats = (
-          <Modal
-            size="lg"
-            show={this.state.stats}
-            onHide={this.statsHide}
-            centered
-          >
-            <Modal.Header closeButton>
-              <h3>
-                Measure Status <br />
-                <small>Total Students: {totalStudents}</small>
-              </h3>
-            </Modal.Header>
-            <Modal.Body className="row">
-              <Card className="col-4">
-                <Card.Header>
-                  <h5>Not Assigned</h5>
-                </Card.Header>
-                <Card.Body>body here</Card.Body>
-              </Card>
-            </Modal.Body>
-          </Modal>
-        );
 
         if (
           this.props.evaluator.evaluators !== null &&
@@ -717,50 +686,50 @@ class MeasureDetails extends Component {
             this.props.cycles.measureReport.report !== null &&
             this.props.cycles.measureReport.report !== undefined
           ) {
-            let header = (
-              <thead key={"testHeader"}>
-                <tr>
-                  <th>#</th>
-                  <th>Student</th>
-                  <th>Email</th>
-                  <th>Score</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-            );
-            measureReport.push(header);
-            let body = this.props.cycles.measureReport.report.map(
-              (student, index) => {
-                let colour = "text-danger";
-                if (student.passing) {
-                  colour = "text-success";
-                }
-                return (
-                  <tr key={student.CWID}>
-                    <td>{index + 1}</td>
-                    <td>{student.studentName}</td>
-                    <td>{student.studentEmail}</td>
-                    <td className={colour}>{student.score}</td>
-                    {student.passing ? (
-                      <td className="text-success">Pass</td>
-                    ) : (
-                      <td className="text-danger">Fail</td>
-                    )}
-                  </tr>
-                );
-              }
-            );
-            measureReport.push(<tbody key="testBody">{body}</tbody>);
-            measureReport = (
-              <Table striped bordered hover>
-                {measureReport}
-              </Table>
-            );
+            // let header = (
+            //   <thead key={"testHeader"}>
+            //     <tr>
+            //       <th>#</th>
+            //       <th>Student</th>
+            //       <th>Email</th>
+            //       <th>Score</th>
+            //       <th>Status</th>
+            //     </tr>
+            //   </thead>
+            // );
+            // measureReport.push(header);
+            // let body = this.props.cycles.measureReport.report.map(
+            //   (student, index) => {
+            //     let colour = "text-danger";
+            //     if (student.passing) {
+            //       colour = "text-success";
+            //     }
+            //     return (
+            //       <tr key={student.CWID}>
+            //         <td>{index + 1}</td>
+            //         <td>{student.studentName}</td>
+            //         <td>{student.studentEmail}</td>
+            //         <td className={colour}>{student.score}</td>
+            //         {student.passing ? (
+            //           <td className="text-success">Pass</td>
+            //         ) : (
+            //           <td className="text-danger">Fail</td>
+            //         )}
+            //       </tr>
+            //     );
+            //   }
+            // );
+            // measureReport.push(<tbody key="testBody">{body}</tbody>);
+            // measureReport = (
+            //   <Table striped bordered hover>
+            //     {measureReport}
+            //   </Table>
+            // );
             let passPer = this.props.cycles.measureReport.passingPercentage;
             let failPer = 100 - passPer;
-            if (
-              this.props.cycles.measureDetails.status
-            ) {
+
+              if(this.props.cycles.measureDetails.evalCOunt > 0){
+            if (this.props.cycles.measureDetails.status) {
               status = (
                 <h3>
                   Status: <span className="text-success">Passing</span>
@@ -773,6 +742,14 @@ class MeasureDetails extends Component {
                 </h3>
               );
             }
+          }
+          else{
+            status = (
+              <h3>
+                Status: <span className="text-warning">Pending</span>
+              </h3>
+            );
+          }
             progressBar = (
               <ProgressBar>
                 <ProgressBar
@@ -801,7 +778,6 @@ class MeasureDetails extends Component {
             }
 
             let results = this.props.cycles.measureReport.report;
-            console.log(passScore)
             evaluated = results.map((student, index) => {
               if (testType === "scored") {
                 if (student.score >= passScore) {
@@ -899,6 +875,20 @@ class MeasureDetails extends Component {
 
         }
       }
+
+      if(!this.props.rubric.loading){
+        if (isEmpty(this.props.rubric.singleRubric) === false) {
+          rubricScoreOptions = this.props.rubric.singleRubric.rubricDetails.scaleInfo.map(
+            scale => {
+              return (
+                <option key={"scale" + scale.scaleID} value={scale.scaleValue}>
+                  {scale.scaleDescription}
+                </option>
+              );
+            }
+          );
+        }
+      }
     }
 
     const inviteError =
@@ -930,16 +920,13 @@ class MeasureDetails extends Component {
           );
         }
       });
-      console.log(evalStudents);
       this.setState({ evalAssgStudents: evalStudents, evalStudents: true });
     };
 
     const notAssignHandler = e => {
-      // notAssignOption = [];
       const assignedStuds = this.props.cycles.assignedStudents.assignedStudentsList.concat(
-        this.props.cycles.assignedStudents.evaluatedStudentsList
+        this.props.cycles.assignedStudents.evaluatedStudentsList.concat
       );
-      console.log("Not assgd here");
       const evalID = e.target.dataset.measureevalid;
       assignedStuds.forEach((student, index) => {
         if (student.measureEvalID + "" !== evalID) {
@@ -950,9 +937,6 @@ class MeasureDetails extends Component {
           );
         }
       });
-      // document.getElementById("assgdCheckBox").checked = false;
-      // console.log(notAssignOption);
-      // this.setState({ notAssignOption: notAssignOption });
     };
 
     if (this.props.cycles.assignedStudents !== null) {
@@ -962,7 +946,7 @@ class MeasureDetails extends Component {
       studAssignDetail = assignedStuds.map((student,index) => {
         return (
           <ListGroup.Item key={"seval" + student.studentID+""+index}>
-             <span className="statStud">{student.name}</span>
+             <span className="statStud">{index}. {student.name}</span>
             <Badge pill> assigned to </Badge>{" "}
             <span className="statEval">{student.evalEmail}</span>
             <button
@@ -983,33 +967,11 @@ class MeasureDetails extends Component {
           </ListGroup.Item>
         );
       }
-      console.log(studAssignDetail);
     }
 
     return (
       <Fragment>
         <section className="panel important">
-          {/* <div>
-            <div className="row">
-              <div className="btn-group btn-breadcrumb">
-                <li href="#" className="btn btn-primary brdbtn">
-                  Admin
-                </li>
-                <li href="#" className="btn btn-primary brdbtn ">
-                  Cycles
-                </li>
-                <li href="#" className="btn btn-primary brdbtn">
-                  Outcomes
-                </li>
-                <li href="#" className="btn btn-primary brdbtn">
-                  Measures
-                </li>
-                <li className="btn btn-primary brdbtn">
-                  Measure Detail
-                </li>
-              </div>
-            </div>
-          </div> */}
 
           <Jumbotron className="noprint">
             <p id="measure-title-label">Measure Title</p>
@@ -1086,9 +1048,10 @@ class MeasureDetails extends Component {
                       name="pjsn"
                       placeholder="% of passing Students"
                       required
+                      defaultValue={this.props.cycles.measureDetails.projectedStudentNumber}
                     />
                   </InputGroup>
-                  {this.state.scored ? (
+                  {this.state.scored && this.state.toolType === "test"? (
                     <InputGroup className="col-5">
                       <InputGroup.Prepend>
                         <InputGroup.Text>Projected Result</InputGroup.Text>
@@ -1097,24 +1060,36 @@ class MeasureDetails extends Component {
                         type="number"
                         name="score"
                         placeholder="passing score"
+                        defaultValue={this.props.cycles.measureDetails.projectedResult}
                         required
                       />
+                    </InputGroup>
+                  ) : null}
+                   {this.state.scored && this.state.toolType === "rubric"? (
+                    <InputGroup className="col-5">
+                      <InputGroup.Prepend>
+                        <InputGroup.Text>Projected Result</InputGroup.Text>
+                      </InputGroup.Prepend>
+                      <select name="score">
+                        {rubricScoreOptions}
+                      </select>
+                      
                     </InputGroup>
                   ) : null}
                 </InputGroup>
                 <Button
                   type="submit"
-                  variant="outline-light"
+                  variant="success"
                   className="mt-2 ml-3"
                 >
-                  <i className="fas fa-check text-success" />
+                  <i className="fas fa-check text-light" />
                 </Button>
                 <Button
-                  variant="outline-light"
+                  variant="danger"
                   className="mt-2"
                   onClick={() => this.setState({ editShow: false })}
                 >
-                  <i className="fas fa-times text-danger" />
+                  <i className="fas fa-times text-light" />
                 </Button>
               </Form>
             ) : null}
@@ -1220,7 +1195,7 @@ class MeasureDetails extends Component {
                     </Col>
                     <Col>
                       <Badge variant="light">
-                        Not Assigned: {totalUnassignedStudents}
+                        Total Not Assigned: {totalUnassignedStudents}
                       </Badge>
                     </Col>
                   </Row>
@@ -1257,7 +1232,7 @@ class MeasureDetails extends Component {
                 </Card>
 
                 <Card className="unAssgStats">
-                  <Card.Header>Unassigned Students</Card.Header>
+                  <Card.Header>Not Assigned Students</Card.Header>
                   <Card.Body>
                     <ListGroup>{studUnassgDetail}</ListGroup>
                   </Card.Body>
@@ -1493,35 +1468,6 @@ class MeasureDetails extends Component {
                     </h3>
                   </Card.Header>
                   <Card.Body className="m-0 p-2">
-                    {/* <span>
-                      <input
-                        onChange={() =>
-                          this.setState({ notAssgd: !this.state.notAssgd })
-                        }
-                        type="checkbox"
-                        id="assgdCheckBox"
-                      />
-                      Unassigned Students
-                    </span> */}
-                    {/* {this.state.notAssgd ? (
-                      studentSelect.length > 0 ? (
-                        <select
-                          id="studSelect"
-                          name="assignedStudents"
-                          multiple
-                        >
-                          {studentSelect}
-                        </select>
-                      ) : (
-                        <Alert variant="danger"> No Students Present</Alert>
-                      )
-                      ) : this.state.notAssignOption.length > 0 ? (
-                        <select id="studSelect" name="assignedStudents" multiple>
-                          {this.state.notAssignOption}
-                        </select>
-                      ) : (
-                        <Alert variant="danger"> No Students Present</Alert>
-                      )} */}
                        <select
                           id="studSelect"
                           name="assignedStudents"
@@ -1529,7 +1475,6 @@ class MeasureDetails extends Component {
                         >
                           {studentSelect}
                         </select>
-                      {/* {studentSelect} */}
                   </Card.Body>
                 </Card>
               </CardGroup>
@@ -1593,7 +1538,8 @@ const MapStateToProps = state => ({
   measureStudents: state.measureStudents,
   assignStudents: state.assugnedStudents,
   evaluator: state.evaluator,
-  evaluations: state.eveluations
+  evaluations: state.eveluations,
+  rubric: state.rubric
 });
 export default connect(
   MapStateToProps,
@@ -1615,6 +1561,7 @@ export default connect(
     updateMeasure,
     deleteEvaluator,
     deleteStudent,
-    unassignStudent
+    unassignStudent,
+    getSingleRubric
   }
 )(MeasureDetails);

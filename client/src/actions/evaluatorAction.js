@@ -27,7 +27,7 @@ export const deleteEvaluator = (evalID) => dispatch => {
             "Evaluator Deleted!",
             "Evaluator Successfully Deleted!"
         ))
-        .then(() => dispatch(getInvitedEvaluators()))
+        .then(() => dispatch(getRegisteredEvaluators()))
         .catch(err => {
             dispatch({
                 type: GET_ERRORS,

@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 import { connect } from "react-redux";
 import { getMeasureTestReport } from "../../actions/assessmentCycleAction";
 import PropTypes from "prop-types";
-import {Card, Table, Button} from 'react-bootstrap'
+import {Card, Table, Button} from 'react-bootstrap';
+import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+
 
 
  class TestReport extends Component {
@@ -70,11 +72,19 @@ import {Card, Table, Button} from 'react-bootstrap'
       }
 
     return (
-      <section className="panel important">
-        <Card>
+      <section className="panel important p-2">
+        <Card style={{overflow:'auto'}}>
             <Card.Header style={{textAlign:'center'}}><h2>Measure Report<Button className="float-right noprint" onClick={()=> this.props.history.goBack()}>
             <i className="fas fa-times"></i>
-            </Button></h2>
+            </Button>
+            <ReactHTMLTableToExcel
+                    id="test-table-xls-button"
+                    className="download-table-xls-button btn btn-info float-right mr-3"
+                    table="measureTestReport"
+                    filename="measureReport"
+                    sheet="tablexls"
+                    buttonText="Download as EXCEL"/>
+            </h2>
 </Card.Header>
             <Card.Body>
         {measureReport}

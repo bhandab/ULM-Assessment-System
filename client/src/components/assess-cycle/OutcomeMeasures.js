@@ -237,7 +237,7 @@ class OutcomeMeasures extends Component {
                       >
                        {measure.displayIndex}. {measure.measureName}
                       </button>
-                      {measure.measureStatus ? (
+                      {measure.measureStatus && measure.evalCount > 0 ? (
                         <Link
                         to={
                           "/admin/cycles/cycle/" +
@@ -257,7 +257,9 @@ class OutcomeMeasures extends Component {
                         </Button>
                       </Link>
                        
-                      ) : (
+                      ) : null}
+                      {!measure.measureStatus && measure.evalCount > 0 ?
+                      (
                         <Link
                         to={
                           "/admin/cycles/cycle/" +
@@ -277,7 +279,28 @@ class OutcomeMeasures extends Component {
                         </Button>
                       </Link>
                        
-                      )}
+                      ) : null }
+                      { measure.evalCount === 0 ? 
+                       <Link
+                       to={
+                         "/admin/cycles/cycle/" +
+                         this.props.cycles.outcomeMeasures.cycleID +
+                         "/outcomes/" +
+                         this.props.cycles.outcomeMeasures.outcomeID +
+                         "/measures/" +
+                         measure.measureID
+                       }
+                     >
+                         <Button
+                         size="lg"
+                         variant="outline-light"
+                         className="float-right rounded"
+                       >
+                         <Badge pill variant="warning">PENDING&nbsp;</Badge>
+                       </Button>
+                     </Link>
+
+                      : null}
                     </h5>
                   </Card.Header>
                   <div
@@ -655,6 +678,7 @@ class OutcomeMeasures extends Component {
                       name="valueOperator"
                       className={this.state.hiddenClass}
                     >
+                      <option value=""></option>
                       <option value="%">%</option>
                       <option value="percentile">percentile</option>
                     </select>

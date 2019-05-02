@@ -59,10 +59,10 @@ module.exports = function validateMeasureInput(data) {
       data.valueOperator = !isEmpty(data.valueOperator)
         ? data.valueOperator.trim()
         : "";
-      if (Validator.isEmpty(data.valueOperator)) {
-        errors.valueOperator =
-          "Value Scale cannot be empty, Please choose a value scale from drop  down after number of students";
-      }
+      // if (Validator.isEmpty(data.valueOperator)) {
+      //   errors.valueOperator =
+      //     "Value Scale cannot be empty, Please choose a value scale from drop  down after number of students";
+      // }
       validateProjectedValue();
     }
   } else {

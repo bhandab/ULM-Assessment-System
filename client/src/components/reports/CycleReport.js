@@ -3,6 +3,8 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { getCycleReport } from "../../actions/reportsAction";
 import { Card,Table, Button } from "react-bootstrap";
+import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+
 
 class CycleReport extends Component {
   componentDidMount() {
@@ -49,7 +51,7 @@ class CycleReport extends Component {
                   
                   measures.forEach((measure,mIndex) => {
                     tableBody.push(
-                    <tr key={"measr"+mIndex}>
+                    <tr key={"measr"+measure.measureDisplayID}>
                         {span ? 
                         <td className="cycRepOutcome" rowSpan={measures.length}>
                            <strong>{key}</strong>
@@ -82,6 +84,13 @@ class CycleReport extends Component {
         <Button className="float-right noprint" onClick={()=> this.props.history.goBack()}>
             <i className="fas fa-times"></i>
             </Button>
+            <ReactHTMLTableToExcel
+                    id="test-table-xls-button"
+                    className="download-table-xls-button btn btn-info float-right mr-3"
+                    table="cycleReport"
+                    filename={cycleName}
+                    sheet="tablexls"
+                    buttonText="Download as EXCEL"/>
         </h2>
         </Card.Header>
         <Card.Body>
@@ -97,7 +106,7 @@ class CycleReport extends Component {
               <th>Related Courses</th>
             </tr>
           </thead>
-          <tbody key="tbod">
+          <tbody key="tabod">
               {tableBody}
           </tbody>
         </Table>
