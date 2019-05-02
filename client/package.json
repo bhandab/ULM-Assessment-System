@@ -12,6 +12,7 @@
     "react-bootstrap": "^1.0.0-beta.6",
     "react-csv": "^1.1.1",
     "react-dom": "^16.8.4",
+    "react-html-table-to-excel": "^2.0.0",
     "react-redux": "^6.0.1",
     "react-redux-toastr": "^7.4.9",
     "react-router-dom": "^5.0.0",

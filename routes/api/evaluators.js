@@ -25,7 +25,7 @@ router.get(
       }
       result.forEach(row => {
         evalInfo = {
-          name: row.evalName,
+          name: row.evalFirstName +" "+row.evalLastName,
           email: row.evalEmail
         };
         evaluators.push(evalInfo);

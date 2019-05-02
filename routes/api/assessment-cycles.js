@@ -934,6 +934,7 @@ router.post(
     let studentNumberOperator = req.body.studentNumberOperator;
     let projectedValue = null;
     let valueOperator = null;
+
     if (scoreOrPass.toLowerCase() !== "pass") {
       projectedValue = req.body.projectedValue;
       valueOperator = req.body.valueOperator;
@@ -1084,7 +1085,8 @@ router.post(
                 insertIntoMeasure();
               });
             } else {
-              insertIntoMeasure();
+                insertIntoMeasure(); 
+              
             }
             //console.log(toolID);
 
@@ -1440,7 +1442,9 @@ router.get(
             toolID: result[0].toolID,
             testType: result[0].testType,
             isClosed,
-            status: result[0].measureStatus
+            status: result[0].measureStatus,
+            evalCount:result[0].evalCount,
+            successCount:result[0].successCount
           });
         });
       });

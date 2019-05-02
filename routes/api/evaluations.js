@@ -511,7 +511,7 @@ router.post(
     let rubricID = req.body.rubricID;
     let measureID = req.body.measureID;
     let studentID = req.body.studentID;
-    let measureEvalID = req.body.measureEvalID;
+    // let measureEvalID = req.body.measureEvalID;
     let evaluatedScores = [];
     let evalInfo = [];
     let criteriaScores = [];

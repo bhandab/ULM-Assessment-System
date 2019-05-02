@@ -102,6 +102,7 @@ class OutcomeMeasures extends Component {
     let pv =  null;
     let crs = e.target.course.value;
     let tt = "";
+    let scaleDesc: null;
 
     let ty = e.target.toolType.value;
     let tid = ""; //null
@@ -109,9 +110,13 @@ class OutcomeMeasures extends Component {
       const selected = e.target.tool.options[e.target.tool.selectedIndex];
       console.log(selected);
       tid = selected.dataset.id;
-      pv = e.target.projectedValue.value;
+      let rubrScale = e.target.projectedValue.value
+      rubrScale = JSON.parse(rubrScale)
+      pv = rubrScale.value;
       tt = selected.dataset.name;
+      scaleDesc = rubrScale.desc
     }
+    console.log(pv)
     let pt = e.target.projType.value;
     let vo = "";
 
@@ -135,7 +140,8 @@ class OutcomeMeasures extends Component {
       toolType: ty,
       valueOperator: vo,
       studentNumberOperator: pt,
-      scoreOrPass: testType
+      scoreOrPass: testType,
+      scaleDesc: scaleDesc
     };
     console.log(measureDetails)
     this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails);
@@ -237,7 +243,7 @@ class OutcomeMeasures extends Component {
                       >
                        {measure.displayIndex}. {measure.measureName}
                       </button>
-                      {measure.measureStatus ? (
+                      {measure.measureStatus && measure.evalCount > 0 ? (
                         <Link
                         to={
                           "/admin/cycles/cycle/" +
@@ -257,7 +263,9 @@ class OutcomeMeasures extends Component {
                         </Button>
                       </Link>
                        
-                      ) : (
+                      ) : null}
+                      {!measure.measureStatus && measure.evalCount > 0 ?
+                      (
                         <Link
                         to={
                           "/admin/cycles/cycle/" +
@@ -277,7 +285,28 @@ class OutcomeMeasures extends Component {
                         </Button>
                       </Link>
                        
-                      )}
+                      ) : null }
+                      { measure.evalCount === 0 ? 
+                       <Link
+                       to={
+                         "/admin/cycles/cycle/" +
+                         this.props.cycles.outcomeMeasures.cycleID +
+                         "/outcomes/" +
+                         this.props.cycles.outcomeMeasures.outcomeID +
+                         "/measures/" +
+                         measure.measureID
+                       }
+                     >
+                         <Button
+                         size="lg"
+                         variant="outline-light"
+                         className="float-right rounded"
+                       >
+                         <Badge pill variant="warning">PENDING&nbsp;</Badge>
+                       </Button>
+                     </Link>
+
+                      : null}
                     </h5>
                   </Card.Header>
                   <div
@@ -415,7 +444,7 @@ class OutcomeMeasures extends Component {
       rubricScoreOptions = this.props.rubric.singleRubric.rubricDetails.scaleInfo.map(
         scale => {
           return (
-            <option key={"scale" + scale.scaleID} value={scale.scaleValue}>
+            <option key={"scale" + scale.scaleID} value={JSON.stringify({value:scale.scaleValue,desc:scale.scaleDescription})}>
               {scale.scaleDescription}
             </option>
           );
@@ -655,6 +684,7 @@ class OutcomeMeasures extends Component {
                       name="valueOperator"
                       className={this.state.hiddenClass}
                     >
+                      <option value=""></option>
                       <option value="%">%</option>
                       <option value="percentile">percentile</option>
                     </select>
