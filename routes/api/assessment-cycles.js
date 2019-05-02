@@ -787,6 +787,7 @@ router.get(
         }
 
         let outcomeName = result[0].learnDesc;
+        let outcomeStatus = "pending";
 
         let sql3 =
           "SELECT * FROM PERFORMANCE_MEASURE WHERE learnID=" +
@@ -801,6 +802,12 @@ router.get(
           }
           let indexCount = 1;
           result.forEach(row => {
+            if (row.evalCount > 0 && row.measureStatus) {
+              outcomeStatus = "passing";
+            } else if (row.evalCount > 0 && !row.measureStatus) {
+              outcomeStatus = "failing";
+              return;
+            }
             measure = {
               measureName: row.measureDesc,
               measureID: row.measureID,
@@ -838,7 +845,8 @@ router.get(
               cycleID,
               outcomeID,
               outcomeName,
-              isClosed
+              isClosed,
+              outcomeStatus
             });
           });
         });
