@@ -133,7 +133,7 @@ class OutcomeMeasures extends Component {
     }
     const measureDetails = {
       projectedStudentNumber: pjsn,
-      projectedValue: pv,
+      projectedValue: pv+"",
       course: crs,
       toolTitle: tt,
       toolID: tid,
@@ -208,6 +208,7 @@ class OutcomeMeasures extends Component {
     let totalStudents = 0;
     let measures = <Spinner animation="border" variant="primary" />;
     let measureTitle = null;
+    let status = null;
 
     if (
       this.props.cycles.measureStudents !== null &&
@@ -355,7 +356,6 @@ class OutcomeMeasures extends Component {
               );
             }
           );
-          measureTitle = this.props.cycles.outcomeMeasures.outcomeName;
         } else {
           measures = (
             <li className="list-group-item">
@@ -364,6 +364,19 @@ class OutcomeMeasures extends Component {
           );
         }
         measureTitle = this.props.cycles.outcomeMeasures.outcomeName;
+
+        if(this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="pending" ){
+          status = <Badge style={{fontSize:'.5em'}} variant="warning" pill>pending</Badge>
+        }
+
+       if(this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="failing" ){
+         status = <Badge style={{fontSize:'.5em'}} size="sm" variant="danger" pill>failing</Badge>
+       }
+      
+      if(this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="passing"){
+        status =  <Badge style={{fontSize:'.5em'}} size="sm" variant="success" pill>passing</Badge>
+      } 
+
 
         outcomeCourses = this.props.cycles.outcomeMeasures.outcomeCourses.map(course => {
           return (
@@ -378,7 +391,7 @@ class OutcomeMeasures extends Component {
               No Course Present
             </ListGroup.Item>
         }
-
+        // status = "lol"
       }
     }
 
@@ -458,13 +471,7 @@ class OutcomeMeasures extends Component {
           <Card.Header>
           <p style={{fontSize:'20px'}} id="measure-title-label"><strong>OUTCOME</strong></p>
             <h2>
-              {measureTitle} 
-              {!this.props.cycles.cycleLoading && this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="pending" 
-              ? <Badge style={{fontSize:'.5em'}} variant="warning" pill>pending</Badge>:null}
-               {!this.props.cycles.cycleLoading && this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="failing" 
-              ? <Badge style={{fontSize:'.5em'}} size="sm" variant="danger" pill>failing</Badge>:null}
-               {!this.props.cycles.cycleLoading && this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="passing" 
-              ? <Badge style={{fontSize:'.5em'}} size="sm" variant="success" pill>passing</Badge>:null}
+              {measureTitle} {status}
               <Link
                 to={{
                   pathname: `/admin/cycles/cycle/${
