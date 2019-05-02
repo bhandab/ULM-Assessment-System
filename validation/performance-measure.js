@@ -38,7 +38,7 @@ module.exports = function validateMeasureInput(data) {
 
   let validateProjectedValue = () => {
     data.projectedValue = !isEmpty(data.projectedValue)
-      ? data.projectedValue.trim()
+      ? data.projectedValue
       : "";
 
     if (Validator.isEmpty(data.projectedValue)) {
