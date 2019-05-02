@@ -15,7 +15,7 @@ router.get(
     let evaluations = [];
 
     let sql =
-      "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL LEFT JOIN RUBRIC_SCORE WHERE evalID=" +
+      "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR NATURAL JOIN EVALUATOR NATURAL JOIN STUDENT NATURAL JOIN RUBRIC NATURAL JOIN PERFORMANCE_MEASURE NATURAL LEFT JOIN RUBRIC_SCORE WHERE evalID=" +
       db.escape(evalID);
 
     db.query(sql, (err, result) => {
@@ -36,7 +36,8 @@ router.get(
           studentCWID: row.studentCWID,
           studentEmail: row.studentEmail,
           rubricName: row.rubricTitle,
-          evaluated: row.rubricScore ? true : false
+          evaluated: row.rubricScore ? true : false,
+          course: row.courseAssociated
         };
         evaluations.push(evalInfo);
       });
@@ -71,7 +72,8 @@ router.get(
             rubrics.push({
               rubricName: row.toolName,
               rubricID: row.toolID,
-              measureID: row.measureID
+              measureID: row.measureID,
+              course: row.courseAssociated
             });
           }
         } else if (row.toolType.toLowerCase() === "test") {

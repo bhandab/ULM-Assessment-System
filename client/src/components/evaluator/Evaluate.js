@@ -15,6 +15,7 @@ import {getEvalActivity} from '../../actions/activityAction'
 import PropTypes from "prop-types";
 import { ListGroup, Card, Button, Table, Alert, Spinner, Form, Modal, Badge } from "react-bootstrap";
 import CSVFormat from '../../assets/scoreFormat'
+import {isEmpty} from '../../utils/isEmpty'
 
 class Evaluate extends Component {
   state = {
@@ -180,6 +181,8 @@ class Evaluate extends Component {
     table = (
       <Card>
         <Card.Header>
+        <Alert className="col-4 float-right"variant="info">Click on criteria to score.</Alert>
+
         <h3>{rubricDetails.structureInfo.rubricTitle}</h3>
         <h5 id="evaluatedStudent"> </h5>
         </Card.Header>
@@ -428,7 +431,7 @@ class Evaluate extends Component {
               </select>
             </td>
           )}
-           <td>{student.evaluated ? <i className="fas fa-check text-success"></i>
+           <td>{student.evaluated ? <i className="fas fa-check text-success text-center"></i>
           : <Badge variant="warning" pill>pending</Badge>
           }</td>
         </tr>
@@ -462,11 +465,15 @@ class Evaluate extends Component {
     const scoreTable = (
       <Card>
         <Card.Header>
+        <Alert variant="info" className="float-right">Scores are recorded on change</Alert>
+
           <h3 style={{ textAlign: "center" }}>{this.state.testName}
-          <Button className="float-right"
+          <Button className="float-left"
           onClick={this.uploadFileShow}
-          ><i className="fas fa-file"></i></Button>
+          >Upload File</Button>
+
           </h3>
+          
         </Card.Header>
         <Card.Body>
           <Table bordered hover id="evalScoreTable">
@@ -562,7 +569,7 @@ class Evaluate extends Component {
                       name={rubric.rubricName}
                       onClick={this.rubricHeaderClick.bind(this)}
                     >
-                      {rubric.rubricName}
+                      {rubric.rubricName}{isEmpty(rubric.course) ? null : `(${rubric.course})`}
                     </button>
                   </h5>
                 </Card.Header>
