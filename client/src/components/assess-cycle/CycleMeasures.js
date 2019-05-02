@@ -16,7 +16,7 @@ import { Spinner,
       InputGroup, 
       Card,
       ListGroup,
-      Badge
+      Badge, Row, Col
      } from "react-bootstrap";
 import Delete from "../../utils/Delete";
 
@@ -161,6 +161,7 @@ class CycleMeasures extends Component {
           list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
             return (
               <ListGroup.Item key={outcome.outcomeID}>
+              <div className="col-11">
                 <Link
                   to={{
                     pathname: "/admin/cycles/cycle/" +
@@ -179,18 +180,24 @@ class CycleMeasures extends Component {
                   name={outcome.outcomeID}
                   value={outcome.outcomeName}
                   onClick={this.editShow.bind(this)}
-                  className="outcome-edit ml-2 float-right"
+                  className="outcome-edit ml-2"
                 />
                 <button
                   style={{ border: "none", background: "none" }}
                   name={outcome.outcomeID}
                   value={outcome.outcomeName}
                   onClick={this.deleteShow.bind(this)}
-                  className="delete float-right"
+                  className="delete"
                 />
                 </>
                 : null }
-                
+                </div>
+                {outcome.outcomeStatus.toLowerCase() === 'pending' ?
+                <Badge className="float-right" pill variant="warning">pending</Badge> : null}
+                 {outcome.outcomeStatus.toLowerCase() === 'passing' ?
+                <Badge className="float-right" pill variant="success">passing</Badge> : null}
+                 {outcome.outcomeStatus.toLowerCase() === 'failing' ?
+                <Badge className="float-right" pill variant="danger">failing</Badge> : null}
               </ListGroup.Item>
             );
           });

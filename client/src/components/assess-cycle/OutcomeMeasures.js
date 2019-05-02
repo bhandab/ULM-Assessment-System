@@ -102,7 +102,7 @@ class OutcomeMeasures extends Component {
     let pv =  null;
     let crs = e.target.course.value;
     let tt = "";
-    let scaleDesc: null;
+    let scaleDesc = null;
 
     let ty = e.target.toolType.value;
     let tid = ""; //null
@@ -203,7 +203,6 @@ class OutcomeMeasures extends Component {
   }
 
   render() {
-    // console.log(this.props)
     console.log(window.location.hash.substr(1))
     let outcomeCourses = null
     let totalStudents = 0;
@@ -454,22 +453,18 @@ class OutcomeMeasures extends Component {
     console.log(this.props);
     return (
       <Fragment>
-        {/* <div className="container">
-                        <div className="row">
-                            <div className="btn-group btn-breadcrumb">
-                                <li className="btn btn-primary">Admin</li>
-                                <li className="btn btn-primary">Cycles</li>
-                                <li className="btn btn-primary">Outcomes</li>
-                                <li className="btn btn-primary">Measures</li>
-                            </div>
-                        </div>
-                    </div> */}
-                    <section className="panel important border border-info rounded p-3">
+      <section className="panel important border border-info rounded p-3">
         <Card>
           <Card.Header>
           <p style={{fontSize:'20px'}} id="measure-title-label"><strong>OUTCOME</strong></p>
             <h2>
-              {measureTitle}
+              {measureTitle} 
+              {!this.props.cycles.cycleLoading && this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="pending" 
+              ? <Badge style={{fontSize:'.5em'}} variant="warning" pill>pending</Badge>:null}
+               {!this.props.cycles.cycleLoading && this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="failing" 
+              ? <Badge style={{fontSize:'.5em'}} size="sm" variant="danger" pill>failing</Badge>:null}
+               {!this.props.cycles.cycleLoading && this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="passing" 
+              ? <Badge style={{fontSize:'.5em'}} size="sm" variant="success" pill>passing</Badge>:null}
               <Link
                 to={{
                   pathname: `/admin/cycles/cycle/${
