@@ -268,7 +268,7 @@ class Evaluate extends Component {
       (this.props.evaluations.evaluationDetails !== undefined)
     ) {
       students = this.props.evaluations.evaluationDetails.map(student => {
-        if (name === student.rubricName) {
+        if (name === student.measureID) {
           return (
             <ListGroup.Item
               className="students"
@@ -574,7 +574,7 @@ class Evaluate extends Component {
                 >
                   <div className="card-body">
                     <ListGroup>
-                      {this.getStudents(index, rubric.rubricName)}
+                      {this.getStudents(index, rubric.measureID)}
                     </ListGroup>
                   </div>
                 </div>
