@@ -1095,92 +1095,7 @@ router.post(
       let toolName = result[0].toolName;
       let oldprojectedResult = result[0].projectedResult;
       let projectedValueScale = result[0].projectedValueScale;
-      if (result[0].projectedResult) {
-        if (isEmpty(projectedResult)) {
-          errors.emptyProjectedScore = "Projected Score Cannot be Empty";
-          return res.status(404).json(errors);
-        } else if (!Validator.isFloat(projectedResult, { min: 0, max: 100 })) {
-          errors.thresholdScoreNotANumber =
-            "Threshold score value should be a number between 0 and 100";
-          return res.status(404).json(errors);
-        } else {
-          projectedResult = parseFloat(projectedResult);
-          if (result[0].toolType.toLowerCase() === "rubric") {
-            let sql2 =
-              "SELECT * FROM STUDENT_AVERAGE_SCORE WHERE measureID=" +
-              db.escape(measureID);
-            db.query(sql2, (err, result) => {
-              if (err) {
-                return res.status(500).json(err);
-              }
-              result.forEach(row => {
-                evalCount++;
-                if (averageScore >= projectedResult) {
-                  passingCount++;
-                }
-              });
-              let isPassing =
-                evalCount === 0 ||
-                (passingCount / evalCount) * 100 < projectedStudentNumber
-                  ? false
-                  : true;
-              updateMeasure(passingCount, isPassing);
-            });
-          } else if (result[0].toolType.toLowerCase() === "test") {
-            let sql2 =
-              "SELECT * FROM TEST_SCORE WHERE measureID=" +
-              db.escape(measureID);
-            db.query(sql2, (err, result) => {
-              if (err) {
-                return res.status(500).json(err);
-              }
-              async.forEachOf(
-                result,
-                (value, key, callback) => {
-                  let testStatus = false;
-                  if (value.testScoreStatus !== null) {
-                    evalCount++;
-                    if (testScore >= projectedResult) {
-                      passingCount++;
-                      testStatus = true;
-                    }
-                    let sql3 =
-                      "UPDATE TEST_SCORE SET testScoreStatus=" +
-                      db.escape(testStatus) +
-                      " WHERE measureID=" +
-                      db.escape(measureID) +
-                      " AND studentID=" +
-                      db.escape(value.studentID);
-                    db.query(sql3, (err, result) => {
-                      if (err) {
-                        return callback(err);
-                      }
-                      callback();
-                    });
-                  }
-                },
-                err => {
-                  if (err) {
-                    return res.status(500).json(err);
-                  }
-                  updateMeasure(
-                    passingCount,
-                    evalCount !== 0 &&
-                      (passingCount / evalCount) * 100 >= projectedStudentNumber
-                  );
-                }
-              );
-            });
-          }
-        }
-      } else {
-        updateMeasure(
-          null,
-          result[0].evalCount !== 0 &&
-            result[0].successCount / result[0].evalCount >=
-              projectedStudentNumber
-        );
-      }
+
       let updateMeasure = (passingStudentsNumber, msrStatus) => {
         let measureName =
           "At least " +
@@ -1226,6 +1141,93 @@ router.post(
           res.status(200).json("Updated Successfully!");
         });
       };
+
+      if (result[0].projectedResult) {
+        if (isEmpty(projectedResult)) {
+          errors.emptyProjectedScore = "Projected Score Cannot be Empty";
+          return res.status(404).json(errors);
+        } else if (!Validator.isFloat(projectedResult, { min: 0, max: 100 })) {
+          errors.thresholdScoreNotANumber =
+            "Threshold score value should be a number between 0 and 100";
+          return res.status(404).json(errors);
+        } else {
+          projectedResult = parseFloat(projectedResult);
+          if (result[0].toolType.toLowerCase() === "rubric") {
+            let sql2 =
+              "SELECT * FROM STUDENT_AVERAGE_SCORE WHERE measureID=" +
+              db.escape(measureID);
+            db.query(sql2, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              result.forEach(row => {
+                evalCount++;
+                if (row.averageScore >= projectedResult) {
+                  passingCount++;
+                }
+              });
+              let isPassing =
+                evalCount === 0 ||
+                (passingCount / evalCount) * 100 < projectedStudentNumber
+                  ? false
+                  : true;
+              updateMeasure(passingCount, isPassing);
+            });
+          } else if (result[0].toolType.toLowerCase() === "test") {
+            let sql2 =
+              "SELECT * FROM TEST_SCORE WHERE measureID=" +
+              db.escape(measureID);
+            db.query(sql2, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              async.forEachOf(
+                result,
+                (value, key, callback) => {
+                  let testStatus = false;
+                  if (value.testScoreStatus !== null) {
+                    evalCount++;
+                    if (value.testScore >= projectedResult) {
+                      passingCount++;
+                      testStatus = true;
+                    }
+                    let sql3 =
+                      "UPDATE TEST_SCORE SET testScoreStatus=" +
+                      db.escape(testStatus) +
+                      " WHERE measureID=" +
+                      db.escape(measureID) +
+                      " AND studentID=" +
+                      db.escape(value.studentID);
+                    db.query(sql3, (err, result) => {
+                      if (err) {
+                        return callback(err);
+                      }
+                      callback();
+                    });
+                  }
+                },
+                err => {
+                  if (err) {
+                    return res.status(500).json(err);
+                  }
+                  updateMeasure(
+                    passingCount,
+                    evalCount !== 0 &&
+                      (passingCount / evalCount) * 100 >= projectedStudentNumber
+                  );
+                }
+              );
+            });
+          }
+        }
+      } else {
+        updateMeasure(
+          null,
+          result[0].evalCount !== 0 &&
+            result[0].successCount / result[0].evalCount*100 >=
+              projectedStudentNumber
+        );
+      }
     });
   }
 );
