@@ -102,7 +102,7 @@ class OutcomeMeasures extends Component {
     let pv =  null;
     let crs = e.target.course.value;
     let tt = "";
-    let scaleDesc: null;
+    let scaleDesc = null;
 
     let ty = e.target.toolType.value;
     let tid = ""; //null
@@ -133,7 +133,7 @@ class OutcomeMeasures extends Component {
     }
     const measureDetails = {
       projectedStudentNumber: pjsn,
-      projectedValue: pv,
+      projectedValue: pv+"",
       course: crs,
       toolTitle: tt,
       toolID: tid,
@@ -203,12 +203,12 @@ class OutcomeMeasures extends Component {
   }
 
   render() {
-    // console.log(this.props)
     console.log(window.location.hash.substr(1))
     let outcomeCourses = null
     let totalStudents = 0;
     let measures = <Spinner animation="border" variant="primary" />;
     let measureTitle = null;
+    let status = null;
 
     if (
       this.props.cycles.measureStudents !== null &&
@@ -356,7 +356,6 @@ class OutcomeMeasures extends Component {
               );
             }
           );
-          measureTitle = this.props.cycles.outcomeMeasures.outcomeName;
         } else {
           measures = (
             <li className="list-group-item">
@@ -365,6 +364,19 @@ class OutcomeMeasures extends Component {
           );
         }
         measureTitle = this.props.cycles.outcomeMeasures.outcomeName;
+
+        if(this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="pending" ){
+          status = <Badge style={{fontSize:'.5em'}} variant="warning" pill>pending</Badge>
+        }
+
+       if(this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="failing" ){
+         status = <Badge style={{fontSize:'.5em'}} size="sm" variant="danger" pill>failing</Badge>
+       }
+      
+      if(this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="passing"){
+        status =  <Badge style={{fontSize:'.5em'}} size="sm" variant="success" pill>passing</Badge>
+      } 
+
 
         outcomeCourses = this.props.cycles.outcomeMeasures.outcomeCourses.map(course => {
           return (
@@ -379,7 +391,7 @@ class OutcomeMeasures extends Component {
               No Course Present
             </ListGroup.Item>
         }
-
+        // status = "lol"
       }
     }
 
@@ -454,22 +466,12 @@ class OutcomeMeasures extends Component {
     console.log(this.props);
     return (
       <Fragment>
-        {/* <div className="container">
-                        <div className="row">
-                            <div className="btn-group btn-breadcrumb">
-                                <li className="btn btn-primary">Admin</li>
-                                <li className="btn btn-primary">Cycles</li>
-                                <li className="btn btn-primary">Outcomes</li>
-                                <li className="btn btn-primary">Measures</li>
-                            </div>
-                        </div>
-                    </div> */}
-                    <section className="panel important border border-info rounded p-3">
+      <section className="panel important border border-info rounded p-3">
         <Card>
           <Card.Header>
           <p style={{fontSize:'20px'}} id="measure-title-label"><strong>OUTCOME</strong></p>
             <h2>
-              {measureTitle}
+              {measureTitle} {status}
               <Link
                 to={{
                   pathname: `/admin/cycles/cycle/${

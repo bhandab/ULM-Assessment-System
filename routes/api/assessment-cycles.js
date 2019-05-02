@@ -961,7 +961,7 @@ router.post(
           " " +
           valueOperator +
           " Or Greater In "
-        : scoreOrPass.toLowerCase() !== pass &&
+        : scoreOrPass.toLowerCase() !== "pass" &&
           toolType.toLowerCase() === "rubric"
         ? measureName +
           " Score " +
