@@ -759,7 +759,7 @@ class MeasureDetails extends Component {
             let passPer = this.props.cycles.measureReport.passingPercentage;
             let failPer = 100 - passPer;
             if (
-              passPer > this.props.cycles.measureDetails.projectedStudentNumber
+              this.props.cycles.measureDetails.status
             ) {
               status = (
                 <h3>
@@ -801,6 +801,7 @@ class MeasureDetails extends Component {
             }
 
             let results = this.props.cycles.measureReport.report;
+            console.log(passScore)
             evaluated = results.map((student, index) => {
               if (testType === "scored") {
                 if (student.score >= passScore) {

@@ -2702,20 +2702,52 @@ router.get(
         let totalStudents = result.length;
         let passingCounts = 0;
         result.forEach(row => {
-          result = {
-            evalEmail: row.evalEmail,
-            studentName: row.studentLastName + ", " + row.studentFirstName,
-            studentEmail: row.studentEmail,
-            CWID: row.studentCWID,
-            score: row.testScore ? row.testScore : "N/A",
-            passing: row.testScoreStatus ? true : false
-          };
-          if (row.testScoreStatus !== null) {
-            report.push(result);
-            if (row.testScoreStatus) {
-              passingCounts++;
+          let passing=false;
+          
+          if(threshold){
+            if (row.testScoreStatus !== null) {
+             
+             
+                if(row.testScore>=threshold){
+                  passing=true
+                  passingCounts++;
+                }
+                result = {
+                  evalEmail: row.evalEmail,
+                  evalName: row.evalLastName + ", "+ row.evalFirstName,
+                  studentName: row.studentLastName + ", " + row.studentFirstName,
+                  studentEmail: row.studentEmail,
+                  CWID: row.studentCWID,
+                  score: row.testScore ? row.testScore : "N/A",
+                  passing
+                };
+                report.push(result);
+              
+              
             }
           }
+            else{
+              if(row.testScoreStatus!==null){
+               
+                if(row.testScoreStatus){
+                  passing=true;
+                  passingCounts++;
+                }
+                result = {
+                  evalEmail: row.evalEmail,
+                  evalName: row.evalLastName + ", "+ row.evalFirstName,
+                  studentName: row.studentLastName + ", " + row.studentFirstName,
+                  studentEmail: row.studentEmail,
+                  CWID: row.studentCWID,
+                  score: row.testScore ? row.testScore : "N/A",
+                  passing
+                };
+                report.push(result)
+              }
+            }
+          
+          
+
         });
         let passingPercentage = 0;
         if (totalStudents !== 0 && passingCounts !== 0) {
