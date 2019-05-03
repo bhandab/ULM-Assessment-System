@@ -343,155 +343,10 @@ div .card-body {
   border-bottom: 1px solid lavender;
 }
 
-/**New Bread Crumb*/
-
-/* .breadcrumb {
-  list-style-type: none;
+/*Breadcrubm CSS*/
+.breadCrubms li{
+  display: inline !important;
 }
-
-.v1 .breadcrumb-level::before, .v1 .breadcrumb-level::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  height: 50%;
-  width: 100%;
-  background: #ff661a;
-  z-index: -1;
-}
-.v1 .breadcrumb-level::before {
-  top: 0;
-  -webkit-transform: skew(20deg);
-          transform: skew(20deg);
-}
-.v1 .breadcrumb-level::after {
-  bottom: 0;
-  -webkit-transform: skew(-20deg);
-          transform: skew(-20deg);
-}
-
-.breadcrumb-level {
-  display: inline-block;
-  position: relative;
-}
-.breadcrumb-level:last-child a {
-  cursor: default;
-}
-.breadcrumb-level:last-child::before, .breadcrumb-level:last-child::after {
-  background: #ff884d;
-}
-.breadcrumb-level:not(:last-child):hover::before, .breadcrumb-level:not(:last-child):hover::after {
-  background: #e64c00;
-}
-
-.breadcrumb-level a {
-  display: inline-block;
-  position: relative;
-  line-height: 2.5;
-  padding: 0 20px;
-  color: #fff;
-  text-decoration: none;
-}
-
-html {
-  height: 100%;
-  
-  align-items: center;
-  justify-content: center;
-  background: white;
-  font-family: sans-serif;
-}
-
-.breadcrumb.v1 {
-  margin-bottom: 50px;
-} */
-
-/***/
-
-/**Bread crumbs CSS*/
-
-.btn-breadcrumb {
-  background-color: white !important;
-  margin-left: 15px;
-}
-
-.btn-breadcrumb .btn:not(:last-child):after {
-  display: block;
-  width: 0;
-  height: 0;
-  border-top: 17px solid transparent;
-  border-bottom: 17px solid transparent;
-  border-left: 10px solid white;
-  position: absolute;
-  top: 50%;
-  margin-top: -17px;
-  left: 100%;
-  z-index: 3;
-}
-.btn-breadcrumb .btn:not(:last-child):before {
-  display: block;
-  width: 0;
-  height: 0;
-  border-top: 17px solid transparent;
-  border-bottom: 17px solid transparent;
-  border-left: 10px solid rgb(173, 173, 173);
-  position: absolute;
-  top: 50%;
-  margin-top: -17px;
-  margin-left: 1px;
-  left: 100%;
-  z-index: 3;
-}
-
-.btn-breadcrumb .brdbtn {
-  background-color: white;
-  color: maroon;
-  border: 1px solid black;
-}
-
-.btn-breadcrumb .btn:not(:last-child):before:hover {
-  background-color: red;
-}
-
-/** The Spacing **/
-.btn-breadcrumb .btn {
-  padding: 6px 12px 6px 24px;
-}
-.btn-breadcrumb .btn:first-child {
-  padding: 6px 6px 6px 10px;
-  margin-left: 0;
-}
-.btn-breadcrumb .btn:last-child {
-  padding: 6px 18px 6px 24px;
-}
-
-/* * Default button
-.btn-breadcrumb .btn.btn-default:not(:last-child):after {
-  border-left: 10px solid #fff;
-}
-.btn-breadcrumb .btn.btn-default:not(:last-child):before {
-  border-left: 10px solid #ccc;
-}
-.btn-breadcrumb .btn.btn-default:hover:not(:last-child):after {
-  border-left: 10px solid #ebebeb;
-}
-.btn-breadcrumb .btn.btn-default:hover:not(:last-child):before {
-  border-left: 10px solid #adadad;
-} * */
-
-/* Primary button  */
-.btn-breadcrumb .btn.btn-primary:not(:last-child):after {
-  /* border-left: 10px solid #428bca; */
-}
-.btn-breadcrumb .btn.btn-primary:not(:last-child):before {
-  /* border-left: 10px solid #357ebd; */
-}
-.btn-breadcrumb .btn.btn-primary:hover:not(:last-child):after {
-  /* border-left: 10px solid #3276b1; */
-}
-.btn-breadcrumb .btn.btn-primary:hover:not(:last-child):before {
-  /* border-left: 10px solid #285e8e; */
-}
-
 /**Breadcrumbs End**/
 
 button.btn-primary {
@@ -734,6 +589,10 @@ overflow: auto;
 .unAssgStats div.list-group-item {
   font-size: 0.8em;
   color: black;
+}
+
+.dropleft .dropdown-toggle::before {
+  content: none;
 }
 
 @media screen and (min-width: 375px) {

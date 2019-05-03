@@ -686,45 +686,6 @@ class MeasureDetails extends Component {
             this.props.cycles.measureReport.report !== null &&
             this.props.cycles.measureReport.report !== undefined
           ) {
-            // let header = (
-            //   <thead key={"testHeader"}>
-            //     <tr>
-            //       <th>#</th>
-            //       <th>Student</th>
-            //       <th>Email</th>
-            //       <th>Score</th>
-            //       <th>Status</th>
-            //     </tr>
-            //   </thead>
-            // );
-            // measureReport.push(header);
-            // let body = this.props.cycles.measureReport.report.map(
-            //   (student, index) => {
-            //     let colour = "text-danger";
-            //     if (student.passing) {
-            //       colour = "text-success";
-            //     }
-            //     return (
-            //       <tr key={student.CWID}>
-            //         <td>{index + 1}</td>
-            //         <td>{student.studentName}</td>
-            //         <td>{student.studentEmail}</td>
-            //         <td className={colour}>{student.score}</td>
-            //         {student.passing ? (
-            //           <td className="text-success">Pass</td>
-            //         ) : (
-            //           <td className="text-danger">Fail</td>
-            //         )}
-            //       </tr>
-            //     );
-            //   }
-            // );
-            // measureReport.push(<tbody key="testBody">{body}</tbody>);
-            // measureReport = (
-            //   <Table striped bordered hover>
-            //     {measureReport}
-            //   </Table>
-            // );
             let passPer = this.props.cycles.measureReport.passingPercentage;
             let failPer = 100 - passPer;
 
@@ -972,7 +933,13 @@ class MeasureDetails extends Component {
     return (
       <Fragment>
         <section className="panel important">
-
+        <div className="breadCrumbs">
+        <ol>
+          <li>Home</li>
+          <li>Cycles</li>
+        </ol>
+        </div>
+       
           <Jumbotron className="noprint">
             <p id="measure-title-label">Measure Title</p>
             <h4 id="measure-title">
