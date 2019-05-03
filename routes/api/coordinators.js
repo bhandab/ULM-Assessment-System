@@ -1,5 +1,6 @@
 const express = require("express");
 const passport = require("passport");
+const randomstring = require("randomstring");
 
 const { invite } = require("../../email/invite");
 
@@ -206,15 +207,23 @@ router.post(
 
           return res.status(404).json(errors);
         } else {
+          let tempCode = randomstring.generate(7);
           let sql2 =
-            "INSERT INTO INVITED_COORDINATOR (invitedCorEmail,superId,programID) VALUES(" +
+            "INSERT INTO INVITED_COORDINATOR (invitedCorEmail,superId,programID,corTempCode) VALUES(" +
             db.escape(coordinatorEmail) +
             ", " +
             db.escape(adminID) +
             ", " +
             db.escape(programID) +
-            ")";
-          invite(req.user.email, "ULM Evaluation System", coordinatorEmail)
+            ", password(" +
+            db.escape(tempCode) +
+            "))";
+          invite(
+            req.user.email,
+            "ULM Evaluation System",
+            coordinatorEmail,
+            tempCode
+          )
             .then(value => {
               db.query(sql2, (err, result) => {
                 if (err) {

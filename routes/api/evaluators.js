@@ -1,5 +1,6 @@
 const express = require("express");
 const passport = require("passport");
+const randomstring = require("randomstring");
 
 const { invite } = require("../../email/invite");
 
@@ -25,7 +26,7 @@ router.get(
       }
       result.forEach(row => {
         evalInfo = {
-          name: row.evalFirstName +" "+row.evalLastName,
+          name: row.evalFirstName + " " + row.evalLastName,
           email: row.evalEmail
         };
         evaluators.push(evalInfo);
@@ -91,13 +92,16 @@ router.post(
 
           return res.status(404).json(errors);
         }
+        let tempCode = randomstring.generate(7);
         let sql2 =
-          "INSERT INTO INVITED_EVALUATOR (invitedEvalEmail,corId) VALUES(" +
+          "INSERT INTO INVITED_EVALUATOR (invitedEvalEmail,corId,evalTempCode) VALUES(" +
           db.escape(evaluatorEmail) +
           ", " +
           db.escape(adminID) +
-          ")";
-        invite(req.user.email, req.user.name, evaluatorEmail)
+          ", password(" +
+          db.escape(tempCode) +
+          "))";
+        invite(req.user.email, req.user.name, evaluatorEmail, tempCode)
           .then(value => {
             db.query(sql2, (err, result) => {
               if (err) {

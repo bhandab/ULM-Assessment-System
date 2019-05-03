@@ -3,7 +3,6 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const async = require("async");
 const Validator = require("validator");
-const moment = require("moment");
 
 const db = require("../../config/dbconnection");
 const validateCycleInput = require("../../validation/assessment-cycle");

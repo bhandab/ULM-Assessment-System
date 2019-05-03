@@ -10,6 +10,7 @@ module.exports = function validateRegisterInput(data) {
   data.email = !isEmpty(data.email) ? data.email.trim() : "";
   data.password = !isEmpty(data.password) ? data.password.trim() : "";
   data.password2 = !isEmpty(data.password2) ? data.password2.trim() : "";
+  data.tempCode = !isEmpty(data.tempCode) ? data.tempCode.trim() : "";
   //data.program = !isEmpty(data.program) ? data.program.trim() : "";
 
   // Name checks
@@ -47,6 +48,10 @@ module.exports = function validateRegisterInput(data) {
 
   if (!Validator.equals(data.password, data.password2)) {
     errors.password2 = "Passwords must match";
+  }
+  if (Validator.isEmpty(data.tempCode)) {
+    errors.tempCode =
+      "Temporary Code Field Cannot be Empty. Please refer to the email you received for Temporary Code";
   }
 
   return {

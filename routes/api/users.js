@@ -25,10 +25,14 @@ router.post("/register", (req, res) => {
   }
   //Check if user already exists in the database
   let email = req.body.email;
+  let tempCode = req.body.tempCode;
   //let program = req.body.program;
   let sql =
     "SELECT * FROM INVITED_COORDINATOR WHERE invitedCorEmail = " +
-    db.escape(email);
+    db.escape(email) +
+    " AND corTempCode=password(" +
+    db.escape(tempCode) +
+    ")";
   db.query(sql, (err, result) => {
     if (err) {
       return res.status(500).json(error);
@@ -87,7 +91,10 @@ router.post("/register", (req, res) => {
     } else if (result <= 0) {
       let sql2 =
         "SELECT * FROM INVITED_EVALUATOR WHERE invitedEvalEmail = " +
-        db.escape(email);
+        db.escape(email) +
+        " AND evalTempCode=password" +
+        db.escape(tempCode) +
+        ")";
       db.query(sql2, (err, result) => {
         if (err) {
           return res.status(500).json(error);
@@ -126,7 +133,7 @@ router.post("/register", (req, res) => {
           });
         } else {
           errors.email =
-            "Either your account already exists or you have not been added in the system. Please try logging in or contact with the email sender";
+            "Either your account already exists or you have not been added in the system!";
           return res.status(404).json({ errors });
         }
       });

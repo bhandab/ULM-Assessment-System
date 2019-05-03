@@ -2,15 +2,15 @@ const sgMail = require("@sendgrid/mail");
 require("dotenv").config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const invite = (invitorEmail, invitorName, inviteeEmail) => {
-  if(invitorName === undefined){
-    invitorName = Admin
+const invite = (invitorEmail, invitorName, inviteeEmail, token) => {
+  if (invitorName === undefined) {
+    invitorName = Admin;
   }
   const msg = {
     to: inviteeEmail,
     from: invitorEmail,
-    subject: "Invitation to Join ULM Evaluation App",
-    html: `<p>Hello, My name is ${invitorName}. Please click this <a href = 'https://ulm-assessment-system.herokuapp.com/register'>Evaluator Registration Link</a> to sign up and and evaluate students</p>`
+    subject: "Invitation to Join ULM EVALUATION SYSTEM",
+    html: `<p>Hello There, <br><br>You have a sign-up invitation from ULM EVALUATION SYSTEM. Please click on this <a href = 'https://ulm-assessment-system.herokuapp.com/register'>Registration Link</a> and use the temporary code provided belowe to sign-up</p><p>Temporary Code: <strong>${token}</strong><br><br>Thank You!<br>ULM EVALUATION SYSTEM</p>`
   };
   return sgMail.send(msg);
 };
