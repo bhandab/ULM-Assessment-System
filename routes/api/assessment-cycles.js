@@ -417,18 +417,45 @@ router.post(
         if (err) {
           return res.status(500).json(err);
         }
-        let message = req.user.email + " Closed Cycle " + cycleName;
-        let activitySql =
-          "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
-          db.escape(message) +
-          ", now(4)," +
-          db.escape(req.user.programID) +
-          ")";
-        db.query(activitySql, (err, result) => {
+        let sql2 =
+          "SELECT * PERFORMANCE_MEASURE NATURAL JOIN LEARNING_OUTCOME NATURAL JOIN ASSESSMENT_CYCLE WHERE cycleID=" +
+          db.escape(cycleID);
+        db.query(sql2, (err, result) => {
           if (err) {
             return res.status(500).json(err);
           }
-          return res.status(200).json("Cycle Successfully Closed!");
+          async.forEachOf(
+            result,
+            (value, key, callback) => {
+              let sql3 =
+                "DELETE FROM EVALUATOR_ASSIGN WHERE measureID=" +
+                db.escape(value.measureID);
+              db.query(sql3, (err, result) => {
+                if (err) {
+                  callback(err);
+                }
+                callback();
+              });
+            },
+            err => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              let message = req.user.email + " Closed Cycle " + cycleName;
+              let activitySql =
+                "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
+                db.escape(message) +
+                ", now(4)," +
+                db.escape(req.user.programID) +
+                ")";
+              db.query(activitySql, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
+                return res.status(200).json("Cycle Successfully Closed!");
+              });
+            }
+          );
         });
       });
     });
@@ -1085,8 +1112,7 @@ router.post(
                 insertIntoMeasure();
               });
             } else {
-                insertIntoMeasure(); 
-              
+              insertIntoMeasure();
             }
             //console.log(toolID);
 
@@ -1443,8 +1469,8 @@ router.get(
             testType: result[0].testType,
             isClosed,
             status: result[0].measureStatus,
-            evalCount:result[0].evalCount,
-            successCount:result[0].successCount
+            evalCount: result[0].evalCount,
+            successCount: result[0].successCount
           });
         });
       });
