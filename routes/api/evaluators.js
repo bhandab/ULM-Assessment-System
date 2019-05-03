@@ -142,7 +142,14 @@ router.post(
       if (err) {
         return res.status(500).json(err);
       }
-      res.status(200).json("Successfully Deleted!");
+      let sql1 =
+        "DELETE FROM MEASURE_EVALUATOR WHERE evalID=" + db.escape(deleteUser);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        res.status(200).json("Successfully Deleted!");
+      });
     });
   }
 );
