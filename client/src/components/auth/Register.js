@@ -20,6 +20,7 @@ class Register extends Component {
             password2: e.target.password2.value,
             firstName: e.target.fName.value,
             lastName: e.target.lName.value,
+            tempCode: e.target.tempCode.value
         }
         this.props.registerUser(userData,this.props.history)
         console.log(userData)
@@ -54,7 +55,12 @@ class Register extends Component {
 
                     <p className="mb-0">Confirm Password</p>
                     <input type="password" className="form-control mb-0" name="password2" placeholder="Confirm Password" required/>
-                    <p className="mt-0 mb-4" style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.password2}</p>
+                    <p className="mt-0 " style={{ fontSize: '12px', color: 'red' }}>{this.props.errors.password2}</p>
+
+                    <p className="mb-0">Temporary Verification Code</p>
+                    <input type="text" className="form-control mb-0" name="tempCode" required autoFocus="" />
+                    <p className="mt-0 mb-4" style={{fontSize:'12px', color:'red'}}>{this.props.errors.tempCode}</p>
+
 
                     <button className="btn btn-lg btn-primary btn-block" type="submit">Register</button>
                     <Link className="float-right" to="/login">Login</Link>

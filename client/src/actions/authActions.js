@@ -10,6 +10,7 @@ export const registerUser = (userData, history) => dispatch => {
         .post("/api/users/register", userData)
         .then(res => history.push("/login"))
         .catch(err =>
+            // console.log(err)
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
