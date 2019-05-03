@@ -105,10 +105,12 @@ router.post("/register", (req, res) => {
           let evalLastName = req.body.lastName;
           let password = req.body.password;
           let sql3 =
-            "INSERT INTO EVALUATOR (evalFirstName, evalLastName, evalEmail, evalPWHash) VALUES(" +
+            "INSERT INTO EVALUATOR (evalFirstName, evalLastName, programID, evalEmail, evalPWHash) VALUES(" +
             db.escape(evalFirstName) +
             ", " +
             db.escape(evalLastName) +
+            ", " +
+            db.escape(result[0].programID) +
             ", " +
             db.escape(email) +
             ", password(" +
@@ -133,7 +135,7 @@ router.post("/register", (req, res) => {
           });
         } else {
           errors.email =
-            "Either your account already exists or you have not been added in the system!";
+            "Either your account already exists or you have entered incorrect temporary code";
           return res.status(404).json({ errors });
         }
       });

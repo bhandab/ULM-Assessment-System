@@ -18,7 +18,9 @@ router.get(
   (req, res) => {
     let evaluators = [];
 
-    let sql = "SELECT * FROM EVALUATOR WHERE isActive=true";
+    let sql =
+      "SELECT * FROM EVALUATOR WHERE isActive=true AND programID=" +
+      db.escape(req.user.programID);
 
     db.query(sql, (err, result) => {
       if (err) {
@@ -43,7 +45,8 @@ router.get(
   (req, res) => {
     let invitedEvaluators = [];
     let sql =
-      "SELECT * FROM INVITED_EVALUATOR WHERE corId=" + db.escape(req.user.id);
+      "SELECT * FROM INVITED_EVALUATOR WHERE programID=" +
+      db.escape(req.user.programID);
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
@@ -81,8 +84,8 @@ router.post(
       let sql1 =
         "SELECT * FROM INVITED_EVALUATOR WHERE invitedEvalEmail=" +
         db.escape(evaluatorEmail) +
-        " AND corId=" +
-        db.escape(adminID);
+        " AND programID=" +
+        db.escape(req.user.programID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);
@@ -94,10 +97,10 @@ router.post(
         }
         let tempCode = randomstring.generate(7);
         let sql2 =
-          "INSERT INTO INVITED_EVALUATOR (invitedEvalEmail,corId,evalTempCode) VALUES(" +
+          "INSERT INTO INVITED_EVALUATOR (invitedEvalEmail,programID,evalTempCode) VALUES(" +
           db.escape(evaluatorEmail) +
           ", " +
-          db.escape(adminID) +
+          db.escape(req.user.programID) +
           ", password(" +
           db.escape(tempCode) +
           "))";
