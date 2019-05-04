@@ -921,6 +921,14 @@ class MeasureDetails extends Component {
           );
         }
       });
+      this.props.cycles.measureStudents.notAssignedStudents.forEach((student,index) => {
+        notAssignOption.push(
+          <option key={"notAssgd" + index} value={student.studentID}>
+          {student.name}
+        </option>
+        )
+      })
+      // this.setState({notAssignOption:notAssignOption})
     };
 
     if (this.props.cycles.assignedStudents !== null) {

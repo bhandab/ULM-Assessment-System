@@ -28,6 +28,7 @@ class Register extends Component {
 
 
     render() {
+        console.log(this.props)
         return (
 
             <div className="wrapper">
@@ -57,7 +58,7 @@ class Register extends Component {
 
                     <p className="mb-0">Temporary Verification Code</p>
                     <input type="text" className="form-control mb-0" name="tempCode" required autoFocus="" />
-                    <p className="mt-0 mb-4" style={{fontSize:'12px', color:'red'}}>{this.props.errors.tempCode}</p>
+                    <p className="mt-0 mb-4" style={{fontSize:'12px', color:'red'}}>{this.props.errors.email}</p>
 
 
                     <button className="btn btn-lg btn-primary btn-block" type="submit">Register</button>
