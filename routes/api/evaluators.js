@@ -105,7 +105,13 @@ router.post(
           ", password(" +
           db.escape(tempCode) +
           "))";
-        invite(req.user.email, req.user.name, evaluatorEmail, tempCode)
+        invite(
+          req.user.email,
+          req.user.name,
+          evaluatorEmail,
+          tempCode,
+          "Evaluator"
+        )
           .then(value => {
             db.query(sql2, (err, result) => {
               if (err) {
