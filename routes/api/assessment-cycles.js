@@ -417,7 +417,7 @@ router.post(
           return res.status(500).json(err);
         }
         let sql2 =
-          "SELECT * PERFORMANCE_MEASURE NATURAL JOIN LEARNING_OUTCOME NATURAL JOIN ASSESSMENT_CYCLE WHERE cycleID=" +
+          "SELECT * FROM PERFORMANCE_MEASURE NATURAL JOIN LEARNING_OUTCOME NATURAL JOIN ASSESSMENT_CYCLE WHERE cycleID=" +
           db.escape(cycleID);
         db.query(sql2, (err, result) => {
           if (err) {
@@ -1648,7 +1648,7 @@ router.post(
             let sql4 =
               "DELETE EVALUATE FROM  EVALUATE NATURAL LEFT JOIN RUBRIC_SCORE WHERE evalID=" +
               db.escape(evalID) +
-              " AND rubricScore is NULL)";
+              " AND rubricScore is NULL";
             db.query(sql4, (err, result) => {
               if (err) {
                 return res.status(500).json(err);
@@ -2422,10 +2422,11 @@ router.post(
     let measureEvalID = req.body.measureEvalID;
     let evalID = req.body.evalID;
     let testID = req.body.testID;
-    let measureEvalEmail = req.body.measureEvalEmail
+    let measureEvalEmail = req.body.measureEvalEmail;
 
     alreadyAssignedStudents = [];
     tobeAssignedStudents = [];
+    tobeAssignedObjects = [];
     let testScores = [];
     let errors = {};
     console.log(req.body.studentIDs);
@@ -2478,8 +2479,21 @@ router.post(
                   measureID,
                   programID
                 ]);
-                testScores.push([value.id, value.email, evalID, measureID]);
-                callback();
+                let sql00 =
+                  "SELECT * FROM TEST_SCORE WHERE testStudentEmail=" +
+                  db.escape(value.email) +
+                  " AND evalID=" +
+                  db.escape(evalID) +
+                  " AND measureID=" +
+                  db.escape(measureID);
+                db.query(sql00, (err, result) => {
+                  if (err) {
+                    callback(err);
+                  } else if (result.length <= 0) {
+                    testScores.push([value.id, value.email, evalID, measureID]);
+                  }
+                  callback();
+                });
               }
             });
           },
@@ -2494,55 +2508,60 @@ router.post(
                   if (err) {
                     return res.status(500).json(err);
                   }
-
-                  let sql3 =
-                    "INSERT INTO TEST_SCORE (studentID, testStudentEmail, evalID, measureID) VALUES ?";
-                  db.query(sql3, [testScores], (err, result) => {
-                    if (err) {
-                      return res.status(500).json(err);
-                    }
-                    let message =
-                      req.user.email +
-                      " Assigned " +
-                      tobeAssignedStudents.length +
-                      " Students for Measure '" +
-                      measureName +
-                      "'";
-                    let activitySql =
-                      "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
-                      db.escape(message) +
-                      ", now(4)," +
-                      db.escape(req.user.programID) +
-                      ")";
-                    db.query(activitySql, (err, result) => {
+                  if (testScores.length > 0) {
+                    let sql3 =
+                      "INSERT INTO TEST_SCORE (studentID, testStudentEmail, evalID, measureID) VALUES ?";
+                    db.query(sql3, [testScores], (err, result) => {
                       if (err) {
                         return res.status(500).json(err);
                       }
-                      let message1 =
-                        "You have been assigned " +
-                        tobeAssignedStudents.length +
-                        " Students to Evaluate for '" +
-                        toolName +
-                        "' " +
-                        toolType;
-                      let activitySql1 =
-                        "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +
-                        db.escape(evalID) +
-                        ", " +
-                        db.escape(message1) +
-                        ", " +
-                        "now(4))";
-                      db.query(activitySql1, (err, result) => {
+                      let message =
+                        req.user.email +
+                        " Assigned " +
+                        testScores.length +
+                        " Students for Measure '" +
+                        measureName +
+                        "'";
+                      let activitySql =
+                        "INSERT INTO COORDINATOR_ACTIVITY (corActivity,corActivityTime,programID) VALUES (" +
+                        db.escape(message) +
+                        ", now(4)," +
+                        db.escape(req.user.programID) +
+                        ")";
+                      db.query(activitySql, (err, result) => {
                         if (err) {
                           return res.status(500).json(err);
                         }
-                        return res.status(200).json({
-                          alreadyAssignedStudents,
-                          tobeAssignedStudents
+                        let message1 =
+                          "You have been assigned " +
+                          testScores.length +
+                          " Students to Evaluate for '" +
+                          toolName +
+                          "' " +
+                          toolType;
+                        let activitySql1 =
+                          "INSERT INTO EVALUATOR_ACTIVITY (evalID,evalActivity,evalActivityTime) VALUES (" +
+                          db.escape(evalID) +
+                          ", " +
+                          db.escape(message1) +
+                          ", " +
+                          "now(4))";
+                        db.query(activitySql1, (err, result) => {
+                          if (err) {
+                            return res.status(500).json(err);
+                          }
+                          return res.status(200).json({
+                            alreadyAssignedStudents,
+                            tobeAssignedStudents
+                          });
                         });
                       });
                     });
-                  });
+                  } else {
+                    return res
+                      .status(200)
+                      .json({ alreadyAssignedStudents, tobeAssignedStudents });
+                  }
                 });
               } else {
                 return res
