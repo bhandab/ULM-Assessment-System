@@ -7,8 +7,7 @@ import {getInvitedCoordinators,
   deleteCoordinator,
   uninviteCoordinator  
   } from '../../actions/coordinatorAction'
-import {ListGroup, Card, Modal, Form, Button, InputGroup, CardGroup, Badge} from 'react-bootstrap'
-import {isEmpty} from '../../utils/isEmpty'
+import {ListGroup, Card, Modal, Form, Button, InputGroup, CardGroup} from 'react-bootstrap'
 import Delete from "../../utils/Delete";
 
 
@@ -21,7 +20,6 @@ class ProgramCoordinators extends Component {
     corID:""
 }
   componentDidMount(){
-    console.log("component did mount")
     const programID = this.props.match.params.programID
     this.props.getRegisteredCoordinators(programID)
     this.props.getInvitedCoordinators(programID)
@@ -49,7 +47,6 @@ coorInviteHide = () => {
 }
 
 deleteShow = e => {
-  console.log(e.target.name)
   this.setState({
     corName: e.target.value,
     corID: e.target.name,
@@ -62,19 +59,15 @@ deleteHide = () => {
 };
 
 corDeleteHandler = () => {
-  console.log(this.state)
   this.props.deleteCoordinator({cordID:this.state.corID},this.props.match.params.programID)
 }
 
 unInvite = e => {
-  console.log(e.target.name)
-  console.log(e.target.value)
   this.props.uninviteCoordinator(e.target.value,{corEmail:e.target.name})
 }
 
   
     render() {
-      console.log(this.props)
       let registeredCoordinators = null
       let invitedCoordinators = null
 

@@ -132,12 +132,12 @@ router.post("/register", (req, res) => {
       let sql2 =
         "SELECT * FROM INVITED_EVALUATOR WHERE invitedEvalEmail = " +
         db.escape(email) +
-        " AND evalTempCode=password" +
+        " AND evalTempCode = password (" +
         db.escape(tempCode) +
         ")";
       db.query(sql2, (err, result) => {
         if (err) {
-          return res.status(500).json(error);
+          return res.status(500).json(err);
         }
 
         if (result.length > 0) {

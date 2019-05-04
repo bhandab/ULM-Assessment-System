@@ -6,6 +6,10 @@ import {getEvalActivity} from '../../actions/activityAction'
 
 
  class Logs extends Component {
+
+  state = {
+    logs : []
+  }
   
     componentDidMount(){
         if (
@@ -17,7 +21,7 @@ import {getEvalActivity} from '../../actions/activityAction'
         this.props.getEvalActivity();
       
       }
-      
+
     render() {
         let logs = null
 

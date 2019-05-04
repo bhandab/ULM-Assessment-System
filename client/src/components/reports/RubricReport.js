@@ -18,7 +18,6 @@ class MeasureReport extends Component {
   }
 
   render() {
-    console.log(this.props);
 
     const cellStyle = {
         fontSize:'1.5em',
@@ -62,7 +61,6 @@ class MeasureReport extends Component {
 
       const criteriaAvg = details => {
         return criterias.map((criteria,index) => {
-          console.log(details[criteria])
           return <td style = {cellStyle} key={"criAvg"+index}>{details[criteria]}</td>;
         });
       };

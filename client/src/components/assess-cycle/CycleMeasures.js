@@ -16,7 +16,7 @@ import { Spinner,
       InputGroup, 
       Card,
       ListGroup,
-      Badge, Row, Col
+      Badge, Dropdown
      } from "react-bootstrap";
 import Delete from "../../utils/Delete";
 
@@ -144,7 +144,6 @@ class CycleMeasures extends Component {
   };
 
   render() {
-    console.log(this.props)
     let title = null;
     let list = <Spinner animation="border" variant="primary" />;
     let outcomeArray = null;
@@ -161,7 +160,7 @@ class CycleMeasures extends Component {
           list = this.props.cycles.cycleMeasures.outcomes.map(outcome => {
             return (
               <ListGroup.Item key={outcome.outcomeID}>
-              <div className="col-11">
+              <div>
                 <Link
                   to={{
                     pathname: "/admin/cycles/cycle/" +
@@ -174,30 +173,56 @@ class CycleMeasures extends Component {
                  {outcome.displayIndex}. {outcome.outcomeName}
                 </Link>
                 { !this.state.isActive ?
-                <> 
-                <button
-                  style={{ border: "none", background: "none" }}
-                  name={outcome.outcomeID}
-                  value={outcome.outcomeName}
-                  onClick={this.editShow.bind(this)}
-                  className="outcome-edit ml-2"
-                />
-                <button
-                  style={{ border: "none", background: "none" }}
-                  name={outcome.outcomeID}
-                  value={outcome.outcomeName}
-                  onClick={this.deleteShow.bind(this)}
-                  className="delete"
-                />
+                <>
+                  <Dropdown drop='left' className="float-right cycle">
+                  <Dropdown.Toggle 
+                  
+                  variant="success" id="dropdown-basic">
+                  <i className="fas fa-ellipsis-v"></i>
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                  <Dropdown.Item>
+                  <Link to={{
+                    pathname: "/admin/cycles/cycle/" +
+                    cycleID +
+                    "/outcome/" +
+                    outcome.outcomeID +"/report",
+                    hash: (outcome.displayIndex).toString()
+                  }}>
+                    <Button variant="success">
+                    &nbsp;&nbsp;&nbsp;VIEW REPORT&nbsp;&nbsp;&nbsp;&nbsp;
+                    </Button>
+                  </Link>
+                  </Dropdown.Item>
+                  <Dropdown.Item>
+                    <Button
+                      variant = "info"
+                      name={outcome.outcomeID}
+                      value={outcome.outcomeName}
+                      onClick={this.editShow.bind(this)}
+                    >&nbsp;&nbsp;EDIT OUTCOME&nbsp;&nbsp;</Button>
+                  </Dropdown.Item>
+
+                  <Dropdown.Item>
+                    <Button
+                      variant="danger"
+                      name={outcome.outcomeID}
+                      value={outcome.outcomeName}
+                      onClick={this.deleteShow.bind(this)}
+                    >DELETE OUTCOME</Button>
+                  </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
                 </>
                 : null }
-                </div>
                 {outcome.outcomeStatus.toLowerCase() === 'pending' ?
-                <Badge className="float-right" pill variant="warning">pending</Badge> : null}
+                <Badge  pill className="ml-2" variant="warning">PENDING</Badge> : null}
                  {outcome.outcomeStatus.toLowerCase() === 'passing' ?
-                <Badge className="float-right" pill variant="success">passing</Badge> : null}
+                <Badge  pill className="ml-2" variant="success">PASSING</Badge> : null}
                  {outcome.outcomeStatus.toLowerCase() === 'failing' ?
-                <Badge className="float-right" pill variant="danger">failing</Badge> : null}
+                <Badge  pill className="ml-2" variant="danger">FAILING</Badge> : null}
+
+                </div>
               </ListGroup.Item>
             );
           });
@@ -238,21 +263,12 @@ class CycleMeasures extends Component {
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">
-          {/* <div className="container">
-            <div className="row">
-              <div className="btn-group btn-breadcrumb">
-                <li className="btn btn-primary">
-                  Admin
-                </li>
-                <li className="btn btn-primary">
-                  Cycles
-                </li>
-                <li className="btn btn-primary">
-                  Outcomes
-                </li>
-              </div>
-            </div>
-          </div> */}
+        <ul className="ml-0 mb-0" id="breadcrumb">
+        <li className="ml-0"><Link to="/admin/dashboard"><span><i className="fas fa-home mr-1"></i></span>Dashboard </Link></li>
+  <li><Link to="/admin/cycles"><span> <i className="fas mr-1 fa-recycle"></i></span>Cycles</Link></li>
+  <li><Link to={`/admin/cycles/cycle/${this.props.match.params.cycleID}`}><span><i className="far fa-list-alt"></i></span> Outcomes</Link></li>
+</ul>
+
           <Card>
             <Card.Header>
             <p style={{fontSize:'20px'}} id="measure-title-label"><strong>CYCLE</strong></p>

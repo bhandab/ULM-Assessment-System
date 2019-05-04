@@ -42,19 +42,12 @@ class Evaluators extends Component {
     }
 
     render() {
-        console.log(this.props)
         let evaluatorsList = null
 
         if (this.props.evaluator.evaluators !== null) {
             evaluatorsList = this.props.evaluator.evaluators.evaluators.map((item, index) => {
                 return (
                     <ListGroup.Item key={index}>{item.name} ({item.email})
-                     {/* <button
-              style={{ border: "none", background: "none" }}
-              value={item}
-              onClick={this.deleteEval.bind(this)}
-              className="delete float-right"
-            /> */}
                     </ListGroup.Item>
                 )
             })

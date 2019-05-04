@@ -108,7 +108,6 @@ class OutcomeMeasures extends Component {
     let tid = ""; //null
     if (ty === "rubric") {
       const selected = e.target.tool.options[e.target.tool.selectedIndex];
-      console.log(selected);
       tid = selected.dataset.id;
       let rubrScale = e.target.projectedValue.value
       rubrScale = JSON.parse(rubrScale)
@@ -116,12 +115,10 @@ class OutcomeMeasures extends Component {
       tt = selected.dataset.name;
       scaleDesc = rubrScale.desc
     }
-    console.log(pv)
     let pt = e.target.projType.value;
     let vo = "";
 
     let testType = ""; //null
-    console.log(testType);
 
     if (ty === "test") {
       tt = e.target.tool.value;
@@ -143,7 +140,6 @@ class OutcomeMeasures extends Component {
       scoreOrPass: testType,
       scaleDesc: scaleDesc
     };
-    console.log(measureDetails)
     this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails);
   };
 
@@ -181,7 +177,6 @@ class OutcomeMeasures extends Component {
     }
   };
   measureTitleClick = e => {
-    console.log(e.target.dataset);
     this.props.getStudentsOfMeasure(e.target.value);
   };
   passingPer = (part, total) => {
@@ -203,7 +198,6 @@ class OutcomeMeasures extends Component {
   }
 
   render() {
-    console.log(window.location.hash.substr(1))
     let outcomeCourses = null
     let totalStudents = 0;
     let measures = <Spinner animation="border" variant="primary" />;
@@ -245,14 +239,15 @@ class OutcomeMeasures extends Component {
                       </button>
                       {measure.measureStatus && measure.evalCount > 0 ? (
                         <Link
-                        to={
-                          "/admin/cycles/cycle/" +
+                        to={{
+                          pathname:"/admin/cycles/cycle/" +
                           this.props.cycles.outcomeMeasures.cycleID +
                           "/outcomes/" +
                           this.props.cycles.outcomeMeasures.outcomeID +
                           "/measures/" +
-                          measure.measureID
-                        }
+                          measure.measureID,
+                          hash:window.location.hash
+                        }}
                       >
                          <Button
                           size="lg"
@@ -267,14 +262,15 @@ class OutcomeMeasures extends Component {
                       {!measure.measureStatus && measure.evalCount > 0 ?
                       (
                         <Link
-                        to={
-                          "/admin/cycles/cycle/" +
+                        to={{
+                          pathname:"/admin/cycles/cycle/" +
                           this.props.cycles.outcomeMeasures.cycleID +
                           "/outcomes/" +
                           this.props.cycles.outcomeMeasures.outcomeID +
                           "/measures/" +
-                          measure.measureID
-                        }
+                          measure.measureID,
+                          hash:window.location.hash
+                        }}
                       >
                           <Button
                           size="lg"
@@ -288,14 +284,15 @@ class OutcomeMeasures extends Component {
                       ) : null }
                       { measure.evalCount === 0 ? 
                        <Link
-                       to={
-                         "/admin/cycles/cycle/" +
-                         this.props.cycles.outcomeMeasures.cycleID +
-                         "/outcomes/" +
-                         this.props.cycles.outcomeMeasures.outcomeID +
-                         "/measures/" +
-                         measure.measureID
-                       }
+                       to={{
+                        pathname:"/admin/cycles/cycle/" +
+                        this.props.cycles.outcomeMeasures.cycleID +
+                        "/outcomes/" +
+                        this.props.cycles.outcomeMeasures.outcomeID +
+                        "/measures/" +
+                        measure.measureID,
+                        hash:window.location.hash
+                      }}
                      >
                          <Button
                          size="lg"
@@ -335,14 +332,15 @@ class OutcomeMeasures extends Component {
                             </Row>
                           
                           <Link
-                            to={
-                              "/admin/cycles/cycle/" +
+                            to={{
+                              pathname:"/admin/cycles/cycle/" +
                               this.props.cycles.outcomeMeasures.cycleID +
                               "/outcomes/" +
                               this.props.cycles.outcomeMeasures.outcomeID +
                               "/measures/" +
-                              measure.measureID
-                            }
+                              measure.measureID,
+                              hash:window.location.hash
+                            }}
                           >
                             <Button className="mt-2 float-right">
                               View Details
@@ -366,15 +364,15 @@ class OutcomeMeasures extends Component {
         measureTitle = this.props.cycles.outcomeMeasures.outcomeName;
 
         if(this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="pending" ){
-          status = <Badge style={{fontSize:'.5em'}} variant="warning" pill>pending</Badge>
+          status = <Badge style={{fontSize:'.5em'}} variant="warning" pill>PENDING</Badge>
         }
 
        if(this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="failing" ){
-         status = <Badge style={{fontSize:'.5em'}} size="sm" variant="danger" pill>failing</Badge>
+         status = <Badge style={{fontSize:'.5em'}} size="sm" variant="danger" pill>FAILING</Badge>
        }
       
       if(this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="passing"){
-        status =  <Badge style={{fontSize:'.5em'}} size="sm" variant="success" pill>passing</Badge>
+        status =  <Badge style={{fontSize:'.5em'}} size="sm" variant="success" pill>PASSING</Badge>
       } 
 
 
@@ -446,8 +444,6 @@ class OutcomeMeasures extends Component {
     let rubricScoreOptions = null;
     const rubricChangeHandler = e => {
       const selected = e.target.options[e.target.selectedIndex];
-
-      console.log(selected);
       let rubricID = selected.dataset.id;
       this.props.getSingleRubric(rubricID, true);
     };
@@ -463,10 +459,17 @@ class OutcomeMeasures extends Component {
         }
       );
     }
-    console.log(this.props);
+    
     return (
       <Fragment>
       <section className="panel important border border-info rounded p-3">
+      <ul className="ml-0 mb-0" id="breadcrumb">
+  <li className="ml-0"><Link to="/admin/dashboard"><span className="icon icon-home"><i className="fas fa-home"></i></span>Dashboard </Link></li>
+  <li><Link to="/admin/cycles"><span className="icon icon-beaker"> <i className="fas fa-recycle"></i></span>Cycles</Link></li>
+  <li><Link to={`/admin/cycles/cycle/${this.props.match.params.cycleID}`}><span><i className="far fa-list-alt"></i></span> Outcomes</Link></li>
+  <li><Link to={{pathname:`/admin/cycles/cycle/${this.props.match.params.cycleID}/outcomes/${this.props.match.params.outcomeID}`,hash:window.location.hash}}><span><i className="fas fa-percentage"></i></span> Measures</Link></li>
+</ul>
+
         <Card>
           <Card.Header>
           <p style={{fontSize:'20px'}} id="measure-title-label"><strong>OUTCOME</strong></p>

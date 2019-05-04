@@ -40,7 +40,6 @@ class AllRubrics extends Component {
       weighted: e.target.weighted.checked + ""
     };
     this.props.createRubric(rubricDetails, this.props.history);
-    console.log(rubricDetails);
     this.setState({ createRubric: false });
   };
 

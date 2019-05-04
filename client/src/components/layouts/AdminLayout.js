@@ -14,7 +14,6 @@ class AdminLayout extends Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    console.log(nextProps.auth);
     if (
       !nextProps.auth.isAuthenticated ||
       nextProps.auth.user.role !== "coordinator"
@@ -25,12 +24,10 @@ class AdminLayout extends Component {
 
   onLogoutClick = e => {
     e.preventDefault();
-    console.log("Logout user!");
     this.props.logoutUser();
   };
 
   actAsEval = () => {
-    console.log("clicked");
     this.props.loginAsEval();
   };
 

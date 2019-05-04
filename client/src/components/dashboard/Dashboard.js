@@ -72,7 +72,6 @@ componentDidMount(){
     })
   }
 
-    console.log(this.props)
     return (
       <section className="panel important border border-info rounded p-3">
       <Card>

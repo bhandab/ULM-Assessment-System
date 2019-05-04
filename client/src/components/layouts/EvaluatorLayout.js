@@ -12,7 +12,6 @@ class EvaluatorLayout extends Component {
 
 
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps.auth);
         if (!nextProps.auth.isAuthenticated || nextProps.auth.user.role !== "evaluator") {
             window.location.href = "/login";
         }
@@ -20,7 +19,6 @@ class EvaluatorLayout extends Component {
 
     onLogoutClick = e => {
         e.preventDefault();
-        console.log("Logout user!");
         this.props.logoutUser();
     };
 

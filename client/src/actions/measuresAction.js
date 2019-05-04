@@ -22,7 +22,6 @@ export const getMeasures = () => dispatch => {
 } 
 
 export const addMeasure = (measureDescription, history) => dispatch => {
-    console.log(history)
     axios
         .post("/api/measures/createMeasure", measureDescription)
         .then(res => history.push("/admin/measures"))

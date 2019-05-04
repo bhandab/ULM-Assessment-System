@@ -73,7 +73,6 @@ class Evaluate extends Component {
     }
 
       if (this.props.evaluations.testScores !== prevProps.evaluations.testScores) {
-          console.log("scores updated")
          this.createScoreTable();
       }
       if(this.state.scoreObject !== prevState.scoreObject){
@@ -82,7 +81,6 @@ class Evaluate extends Component {
   }
 
   collapseRubric = (e) => {
-    console.log("e.dataset");
   };
 
   createRubric = () => {
@@ -214,7 +212,6 @@ class Evaluate extends Component {
 
   uploadTestScoresHandler = e => {
     e.preventDefault();
-    console.log(this.state.file)
     this.testScoresUpload(this.state.file);
   };
 
@@ -302,11 +299,8 @@ class Evaluate extends Component {
   };
 
   getCriteriaWeight = criteria => {
-    console.log(typeof criteria);
-    console.log(criteria);
     const criteriaInfo = this.props.rubric.singleRubric.rubricDetails.criteriaInfo.find(
       item => {
-        console.log(item);
         return item.criteriaID + "" === criteria;
       }
     );
@@ -317,7 +311,6 @@ class Evaluate extends Component {
     let sum = 0;
     const tableRows = document.getElementById("scoreRubricTable").rows;
     const rowLength = tableRows.length;
-     console.log(this.state.scoreObject);
     this.state.scoreObject.forEach((criteria, index) => {
       const cells = tableRows[index + 1].cells;
       const cellLength = cells.length;
@@ -364,10 +357,8 @@ class Evaluate extends Component {
   };
 
   rubricHeaderClick = e => {
-    console.log(e.target.value);
     this.props.getSingleRubric(e.target.value, true);
     this.setState({rubricTarget:","+e.target.dataset.target})
-    console.log(e.target.dataset.target)
   };
 
   testTitleClick = e => {
@@ -388,7 +379,6 @@ class Evaluate extends Component {
 
   toScoreList() {
     const scores = this.props.evaluations.testScores.scores;
-    console.log(scores)
     if (scores.length < 1) {
       return (
         <tr>
@@ -455,13 +445,11 @@ class Evaluate extends Component {
       scoreStatus,
       testScore
     };
-    console.log(body);
     this.props.updateTestScores(this.props.evaluations.testScores.testID,body);
     this.createScoreTable()
   };
 
   createScoreTable = () => {
-    console.log("gets to create score table")
     const scoreTable = (
       <Card>
         <Card.Header>
@@ -497,7 +485,6 @@ class Evaluate extends Component {
 
   submitScores = () => {
     const scoreMap = new Map(this.state.scoreMap)
-    const scoreKeys = scoreMap.keys()
     const scoreObject = []
     scoreMap.forEach((value,key) => {
       scoreObject.push(
@@ -519,7 +506,6 @@ class Evaluate extends Component {
 
 
   render() {
-    console.log(this.props)
     let rubrics = [];
     let tests = [];
     let logs = null;
