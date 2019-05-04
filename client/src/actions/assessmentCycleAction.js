@@ -372,6 +372,9 @@ export const deleteEvaluator = (measureID, measureEvalID) => dispatch => {
       )
     )
     .then(() => dispatch(getMeasureEvaluators(measureID)))
+    .then(() => dispatch(getAssignedStudents(measureID)))
+    .then(() => dispatch(getStudentsOfMeasure(measureID)))
+
     .catch(err => {
       dispatch({
         type: GET_ERRORS,

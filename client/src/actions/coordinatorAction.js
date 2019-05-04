@@ -65,8 +65,7 @@ export const getInvitedCoordinators = (programID) => dispatch => {
             type: GET_ERRORS,
             payload: err.response.data
 
-        }
-        )
+        })
     })
 
 }

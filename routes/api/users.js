@@ -370,7 +370,7 @@ router.post(
     let corFirstName = req.body.firstName;
     let corLastName = req.body.lastName;
 
-    let sql = "SELECT * FROM COORDINATOR WHERE corId=" + db.escape(req.user.id);
+    let sql = "SELECT * FROM COORDINATOR NATURAL JOIN PROGRAM WHERE corId=" + db.escape(req.user.id);
 
     db.query(sql, (err, result) => {
       if (err) {
@@ -380,6 +380,9 @@ router.post(
         errors.message = "Coordinator Does not exist!";
         return res.status(404).json(errors);
       }
+
+      let email = result[0].corEmail
+      let programName = result[0].programName
       let sql1 =
         "UPDATE COORDINATOR SET corFirstName=" +
         db.escape(corFirstName) +
@@ -404,7 +407,28 @@ router.post(
           if (err) {
             return res.status(500).json(err);
           }
-          res.status(200).json("Name Updated Successfully!");
+          const payload = {
+            email,
+            name: corFirstName + " " + corLastName,
+            id: req.user.id,
+            programID: req.user.programID,
+            role: "coordinator",
+            programName
+          };
+          jwt.sign(
+            payload,
+            keys.secretOrkey,
+            {
+              expiresIn: 5400
+            },
+            (err, token) => {
+              res.status(200).json({
+                success: true,
+                token: "Bearer " + token,
+                message:"Updated Succesfully!"
+              });
+            }
+          );
         });
       });
     });
@@ -440,6 +464,7 @@ router.post(
         errors.messsage = "You can only update your name from Coordinator mode";
         return res.status(404).json(errors);
       }
+
       let sql1 =
         "SELECT * FROM EVALUATOR WHERE evalID=" + db.escape(req.user.id);
       db.query(sql1, (err, result) => {
@@ -450,6 +475,7 @@ router.post(
           errors.message = "Account Does not Exist!";
           return res.status(404).json(errors);
         }
+        let email = result[0].evalEmail
         let sql2 =
           "UPDATE EVALUATOR SET evalFirstName=" +
           db.escape(evalFirstName) +
@@ -462,7 +488,26 @@ router.post(
           if (err) {
             return res.status(500).json(err);
           }
-          res.status(200).json("Name Updated Successfully!");
+          const payload = {
+            email,
+            name: evalFirstName + " " + evalLastName,
+            id: req.user.id,
+            role: "evaluator",
+          };
+          jwt.sign(
+            payload,
+            keys.secretOrkey,
+            {
+              expiresIn: 5400
+            },
+            (err, token) => {
+              res.status(200).json({
+                success: true,
+                token: "Bearer " + token,
+                message:"Updated Succesfully!"
+              });
+            }
+          );
         });
       });
     });
@@ -471,7 +516,7 @@ router.post(
 
 //Update Password for Coordinator
 router.post(
-  "/updateEvalPassword",
+  "/updateCorPassword",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     const { errors, isValid } = validateUpdatePasswordInput(req.body);
@@ -527,7 +572,7 @@ router.post(
 
 //Update Password for Evaluator
 router.post(
-  "/updateCorPassword",
+  "/updateEvalPassword",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     const { errors, isValid } = validateUpdatePasswordInput(req.body);
@@ -556,9 +601,9 @@ router.post(
       }
       let sql1 =
         "SELECT * FROM EVALUATOR WHERE evalID=" +
-        db.escape(req.user.id) +
-        " evalPWHash=password(" +
-        db.escape(oldcorPWHash);
+        db.escape(req.user.id) + " AND" +
+        " evalPWHash = password(" +
+        db.escape(oldcorPWHash) +")";
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);

@@ -509,6 +509,7 @@ class Evaluate extends Component {
     let rubrics = [];
     let tests = [];
     let logs = null;
+    console.log(this.props)
     if(!this.props.logs.logLoading){
       const shortLog = this.props.logs.evalLogs.logs.splice(0,9)
       logs = shortLog.map((log,index) => {

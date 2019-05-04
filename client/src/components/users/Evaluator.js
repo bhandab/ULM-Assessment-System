@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import {Route} from 'react-router-dom';
 import EvaluatorLayout from '../layouts/EvaluatorLayout';
 import Evaluate from '../evaluator/Evaluate';
-import Logs from '../evaluator/Logs'
+import Logs from '../evaluator/Logs';
+import Profile from '../profiles/EvaluatorProfile'
 
 
 class Evaluator extends Component {
@@ -22,8 +23,9 @@ class Evaluator extends Component {
             <EvaluatorLayout/>
 
             <main>
+                <Route exact path = "/evaluator/profile" component={Profile} />
                 <Route exact path = "/evaluator/logs" component ={Logs} /> 
-                <Route exact path="/evaluator/evaluate" component ={Evaluate}/>
+                <Route exact path= "/evaluator/evaluate" component ={Evaluate}/>
             </main>
             </Fragment>
             

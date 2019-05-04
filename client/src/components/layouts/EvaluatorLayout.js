@@ -28,7 +28,7 @@ class EvaluatorLayout extends Component {
                 <header>
                     <h1>Evaluator Panel</h1>
                     <ul className="utilities">
-                        <li className="users"><Link to="#">{this.props.auth.user.name}</Link></li>
+                        <li className="users"><Link to="/evaluator/profile">{this.props.auth.user.name}</Link></li>
                         <li className="logout warn"><Link to="/" onClick={this.onLogoutClick.bind(this)}>Log Out</Link></li>
                     </ul>
                 </header>

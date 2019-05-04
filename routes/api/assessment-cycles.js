@@ -2422,6 +2422,7 @@ router.post(
     let measureEvalID = req.body.measureEvalID;
     let evalID = req.body.evalID;
     let testID = req.body.testID;
+    let measureEvalEmail = req.body.measureEvalEmail
 
     alreadyAssignedStudents = [];
     tobeAssignedStudents = [];
@@ -2445,10 +2446,10 @@ router.post(
           req.body.studentIDs,
           (value, key, callback) => {
             let sql1 =
-              "SELECT * FROM EVALUATOR_ASSIGN WHERE programID=" +
+              "SELECT * FROM EVALUATOR_ASSIGN NATURAL JOIN MEASURE_EVALUATOR WHERE programID=" +
               db.escape(programID) +
-              " AND measureEvalID=" +
-              db.escape(measureEvalID) +
+              " AND evalEmail=" +
+              db.escape(measureEvalEmail) +
               " AND studentID=" +
               db.escape(value.id) +
               " AND toolID=" +

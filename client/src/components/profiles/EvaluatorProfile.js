@@ -8,10 +8,10 @@ import {
   Button,
   Modal
 } from "react-bootstrap";
-import { updateCoorName, updateCoorPassword } from "../../actions/authActions";
+import { updateEvalName, updateEvalPassword } from "../../actions/authActions";
 import { toastr } from "react-redux-toastr";
 
-class CoordinatorProfile extends Component {
+class EvaluatorProfile extends Component {
   state = {
     updateName: false,
     updatePass: false,
@@ -26,7 +26,7 @@ class CoordinatorProfile extends Component {
       firstName: e.target.fName.value,
       lastName: e.target.lName.value
     };
-    this.props.updateCoorName(body);
+    this.props.updateEvalName(body);
     this.setState({ updateName: false });
   };
 
@@ -38,7 +38,7 @@ class CoordinatorProfile extends Component {
           password: this.state.password1,
           password2: this.state.password2
         };
-        this.props.updateCoorPassword(body)
+        this.props.updateEvalPassword(body)
         this.setState({updatePass:false})
       } else {
         toastr.error("Password Error!", "Passwords Must Match!");
@@ -119,9 +119,6 @@ class CoordinatorProfile extends Component {
                 <h3>Email: {this.props.auth.user.email}</h3>
               </ListGroup.Item>
               <ListGroup.Item>
-                <h3>Program: {this.props.auth.user.programName}</h3>
-              </ListGroup.Item>
-              <ListGroup.Item>
                 <h3>Role: {this.props.auth.user.role}</h3>
               </ListGroup.Item>
             </ListGroup>
@@ -168,9 +165,6 @@ class CoordinatorProfile extends Component {
               placeholder="Confirm Password"
               required
             />
-            <p className="mt-0 " style={{ fontSize: "12px", color: "red" }}>
-              {this.props.errors.password2}
-            </p>
 
             <p className="mb-0">Confirm New Password</p>
             <input
@@ -217,7 +211,7 @@ const MapStateToProps = state => ({
 export default connect(
   MapStateToProps,
   {
-    updateCoorName,
-    updateCoorPassword
+    updateEvalName,
+    updateEvalPassword
   }
-)(CoordinatorProfile);
+)(EvaluatorProfile);

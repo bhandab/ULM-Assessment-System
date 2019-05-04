@@ -214,9 +214,10 @@ router.post(
             }
             let successCount = 0;
             result.forEach(row => {
+              if(row.testScoreStatus !== null){
               if (row.testScoreStatus) {
                 successCount++;
-              }
+              }}
             });
             let measureStatus =
               result.length === 0 ||
