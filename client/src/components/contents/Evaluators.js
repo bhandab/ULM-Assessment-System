@@ -12,7 +12,8 @@ import { getRegisteredEvaluators,
 class Evaluators extends Component {
 
     state = {
-        invite: false
+        invite: false,
+        delete: false
     }
 
     componentDidMount() {
@@ -41,13 +42,24 @@ class Evaluators extends Component {
         this.props.unInviteEvaluator(e.target.value)
     }
 
+    evalDelete = e => {
+        this.props.deleteEvaluator(e.target.value)
+    }
+
     render() {
         let evaluatorsList = null
-
+        console.log(this.props)
         if (this.props.evaluator.evaluators !== null) {
             evaluatorsList = this.props.evaluator.evaluators.evaluators.map((item, index) => {
                 return (
                     <ListGroup.Item key={index}>{item.name} ({item.email})
+                     <button
+                    style={{ border: "none", background: "none" }}
+                    name={item.name}
+                    value={item.evalID}
+                    onClick={this.evalDelete.bind(this)}
+                    className="delete float-right"
+                  />
                     </ListGroup.Item>
                 )
             })

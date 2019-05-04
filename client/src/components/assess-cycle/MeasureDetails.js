@@ -279,6 +279,7 @@ class MeasureDetails extends Component {
     let optionList = e.target.assignedStudents.selectedOptions;
     let toolType = this.props.cycles.measureDetails.toolType;
     let measureID = this.props.match.params.measureID;
+    let measureEvalEmail = data.email
 
     for (let student of optionList) {
       studentIDs.push({ id: student.value, email: student.dataset.email });
@@ -298,7 +299,8 @@ class MeasureDetails extends Component {
         measureEvalID,
         evalID,
         testID: rubricID,
-        studentIDs
+        studentIDs,
+        measureEvalEmail
       };
       this.props.assignStudentsToTest(measureID, body);
     }
@@ -345,6 +347,7 @@ class MeasureDetails extends Component {
   };
 
   render() {
+    console.log(this.props)
     let typeRubric = false;
     let typeTest = false;
     let measureTitle = null;
@@ -403,6 +406,7 @@ class MeasureDetails extends Component {
                     name="evaluator"
                     data-measureevalid={evaluator.measureEvalID}
                     data-evalid={evaluator.evalID}
+                    data-email = {evaluator.email}
                     onChange={e => notAssignHandler(e)}
                   />{" "}
                   <label>
@@ -435,10 +439,10 @@ class MeasureDetails extends Component {
           );
         } else {
           evaluatorList = (
-            <li className="list-group-item">
+            <ListGroup.Item>
               Click the <i className="fas fa-user">+</i> button to add
               evaluators
-            </li>
+            </ListGroup.Item>
           );
         }
       }
@@ -516,10 +520,10 @@ class MeasureDetails extends Component {
           );
         } else {
           studentList = (
-            <li className="listggroup-item">
+            <ListGroup.Item>
               Click the <i className="fas fa-user-graduate">+</i> button to add
               students
-            </li>
+            </ListGroup.Item>
           );
         }
 
@@ -1108,7 +1112,7 @@ class MeasureDetails extends Component {
                     </h3>
                   </Card.Header>
                   <Card.Body className="mb-1 pt-1">
-                    <ol className="list-group measureCard">{evaluatorList}</ol>
+                    <ListGroup className="measureCard">{evaluatorList}</ListGroup>
                     {this.state.isActive ? (
                       <Button
                         className="mt-2"
@@ -1140,8 +1144,8 @@ class MeasureDetails extends Component {
                     </h3>
                   </Card.Header>
                   <Card.Body className="mb-1 pt-1">
-                    <ol className="list-group measureCard">{studentList}
-                    </ol>
+                    <ListGroup className="measureCard">{studentList}
+                    </ListGroup>
                   </Card.Body>
                 </Card>
               </CardGroup>
@@ -1187,7 +1191,7 @@ class MeasureDetails extends Component {
                 </Card.Body>
               </Card>
 
-              <Card.Header className="mt-3">
+              <Card.Header className="mt-3 text-center">
                 <h4>Student Assignment Information</h4>
               </Card.Header>
 

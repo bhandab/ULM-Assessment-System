@@ -2,7 +2,7 @@ import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { getMeasures } from "../../actions/measuresAction";
 import PropTypes from "prop-types";
-import {Spinner} from 'react-bootstrap';
+import {Spinner, ListGroup, Card, Button} from 'react-bootstrap';
 
 class Measures extends Component {
 
@@ -31,11 +31,11 @@ class Measures extends Component {
 
         else {
             if(this.props.measures.measures.length === 0){
-                measuresList = <li className="list-group-item">No Measures Present</li>
+                measuresList = <ListGroup.Item >No Measures Present</ListGroup.Item>
             }
             else {
             measuresList = this.props.measures.measures.map((measure, index) =>
-                <li className="list-group-item" key={index}>{measure.measureDescription}</li>
+                <ListGroup.Item  key={index}>{index+1}. {measure.measureDescription}</ListGroup.Item>
             )
             }
         }
@@ -43,11 +43,18 @@ class Measures extends Component {
         return (
             <Fragment>
                 <section className="panel important border border-info rounded p-3">
-                    <h2> List of Performance Measures </h2>
-                    <hr />
-                    <ol className="list-group">
+                <Card>
+                    <Card.Header> <h2> List of Performance Measures  
+                    <Button variant="danger" className="float-right" onClick={()=>this.props.history.goBack()}><i className="fas fa-times"></i></Button>
+                    </h2>
+                    </Card.Header>
+                    <Card.Body>
+                    <ListGroup>
                         {measuresList}
-                    </ol>
+                    </ListGroup>
+                   </Card.Body>
+                   </Card>
+
                 </section>
 
             </Fragment>

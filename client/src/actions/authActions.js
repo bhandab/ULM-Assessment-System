@@ -1,6 +1,7 @@
 import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 import jwt_decode from "jwt-decode";
+import {toastr} from 'react-redux-toastr'
 
 import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING } from "./types";
 
@@ -91,3 +92,100 @@ export const loginAsEval = () => dispatch => {
         })
     );
 }
+
+export const updateCoorName = (body) => dispatch => {
+    console.log(body)
+    axios
+    .post('/api/users/updateCorName',body)
+    .then(res => {
+        // Save to localStorage
+        // Set token to localStorage
+        const { token } = res.data;
+        localStorage.setItem("jwtToken", token);
+        // Set token to Auth header
+        setAuthToken(token);
+        // Decode token to get user data
+        const decoded = jwt_decode(token);
+        // Set current user
+        dispatch(setCurrentUser(decoded));
+    })
+     .then(() => toastr.success(
+        "Name Updated!",
+        "Program Coordinator Name Updated Successfully!"
+    ))
+    .catch(err =>
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+        })
+    )
+}
+
+export const updateEvalName = (body) => dispatch => {
+    console.log(body)
+    axios
+    .post('/api/users/updateEvalName',body)
+    .then(res => {
+        // Save to localStorage
+        // Set token to localStorage
+        const { token } = res.data;
+        localStorage.setItem("jwtToken", token);
+        // Set token to Auth header
+        setAuthToken(token);
+        // Decode token to get user data
+        const decoded = jwt_decode(token);
+        // Set current user
+        dispatch(setCurrentUser(decoded));
+    })
+     .then(() => toastr.success(
+        "Name Updated!",
+        "Evaluator Name Updated Successfully!"
+    ))
+    .catch(err =>
+        dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+        })
+    )
+}
+
+
+    export const updateCoorPassword = (body) => dispatch => {
+        console.log(body)
+        axios
+        .post("/api/users/updateCorPassword",body)
+
+        .then(toastr.success(
+            "Password Updated!",
+            "Program Coordinator Password Updated Successfully!"
+        ))
+
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+    
+            })
+        })
+        
+    }
+
+    export const updateEvalPassword = (body) => dispatch => {
+        console.log(body)
+        axios
+        .post("/api/users/updateEvalPassword",body)
+
+        .then(toastr.success(
+            "Password Updated!",
+            "Evaluator Password Updated Successfully!"
+        ))
+
+        .catch(err => {
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+    
+            })
+        })
+        
+    }

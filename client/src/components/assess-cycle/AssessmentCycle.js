@@ -148,9 +148,7 @@ class AssessmentCycle extends Component {
                 </Link>
               </ListGroup.Item>
             );
-          } else {
-            closedCycles.push(null);
-          }
+          } 
           if (!cycle.isClosed) {
             return (
               <ListGroup.Item key={cycle.cycleID}>
@@ -212,10 +210,11 @@ class AssessmentCycle extends Component {
             return null;
           }
         });
-        if (cyclesList.length === 0) {
+        if (cyclesList.length < 1) {
           cyclesList = <ListGroup.Item>No Cycles Present</ListGroup.Item>;
         }
-        if (closedCycles.length === 0) {
+        console.log(closedCycles)
+        if (closedCycles.length < 1) {
           closedCycles = <ListGroup.Item>No Cycles Present</ListGroup.Item>;
         }
       }

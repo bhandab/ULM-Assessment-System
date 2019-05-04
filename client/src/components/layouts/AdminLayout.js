@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Logo from "../../assets/warhawk-logo.png";
 import { logoutUser, loginAsEval } from "../../actions/authActions";
-import { Button, Dropdown } from "react-bootstrap";
+import { Dropdown } from "react-bootstrap";
 
 import "./Style.css";
 
@@ -65,16 +65,28 @@ class AdminLayout extends Component {
                 <strong>{this.props.auth.user.name}</strong>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <Dropdown.Item href="/admin/profile">
-                    <Button id="actAsEval">My Profile</Button>
+                  <Dropdown.Item as="button" className="pl-0">
+                    <Link to="/admin/profile">
+                    <strong><i className="far fa-id-badge mr-2 ml-0"></i>My Profile</strong>
+                    </Link>
                     </Dropdown.Item>
-                  <Dropdown.Item>
-                    <Button id="actAsEval" onClick = {this.actAsEval}>Evaluator Mode
-                    </Button>
+                  <Dropdown.Item as="button" className="pl-3" onClick = {this.actAsEval}>
+                    <strong>Evaluator Mode</strong>
                   </Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Item className="p-0" as="button">
+                    <Link to="/admin/outcomes">
+                   My Outcomes
+                    </Link>
+                  </Dropdown.Item>
+                  <Dropdown.Item  className="p-0" as="button">
+                    <Link to="/admin/measures">
+                   My Measures
+                    </Link>
+                  </Dropdown.Item>
+
                 </Dropdown.Menu>
               </Dropdown>
-              {/* <Link to="/admin/profile">{this.props.auth.user.name}</Link> */}
             </li>
             <li className="logout warn">
               <Link to="/login" onClick={this.onLogoutClick.bind(this)}>
@@ -85,7 +97,6 @@ class AdminLayout extends Component {
         </header>
         <div id="mySidebar" className="sidebar noprint">
         <img className = "ml-3" style={{height: '100px', width: '200px'}}src= {Logo} alt="ULM LOGO"/>
-            {/* <a href="javascript:void(0)" className="closebtn" onClick={this.closeNav}>&times;</a> */}
            <ul className="bordered m-3"style={{backgroundColor:'white'}}>
             <li className="dashboard">
               <NavLink to="/admin/dashboard"><i className="fas fa-chalkboard"></i>Dashboard</NavLink>

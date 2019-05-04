@@ -471,7 +471,7 @@ class Evaluate extends Component {
                 <th>Last Name</th>
                 <th>First Name</th>
                 <th>Email</th>
-                <th id="scoreHeader">Score {this.state.scored === "1" ? `(${this.state.type})` : null}</th>
+                <th id="scoreHeader">Score {this.state.scored === "1" ? (this.state.type!== "" ? `(${this.state.type})` : null) : null}</th>
                 <th>Evaluated</th>
               </tr>
             </thead>
@@ -509,6 +509,7 @@ class Evaluate extends Component {
     let rubrics = [];
     let tests = [];
     let logs = null;
+    console.log(this.props)
     if(!this.props.logs.logLoading){
       const shortLog = this.props.logs.evalLogs.logs.splice(0,9)
       logs = shortLog.map((log,index) => {

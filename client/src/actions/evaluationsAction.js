@@ -46,6 +46,7 @@ export const submitRubricScores = (body) => dispatch => {
 export const updateRubricScores = (body) => dispatch => {
     axios
     .post("/api/evaluations/updateScores",body)
+    .then(dispatch(getEvaluatorDetails()))
     .then(() => toastr.success(
         " Rubric Score Updated!",
         ""

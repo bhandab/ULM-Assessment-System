@@ -10,7 +10,7 @@ module.exports = function validateUpdatePasswordInput(data) {
   data.password = !isEmpty(data.password) ? data.password.trim() : "";
   data.password2 = !isEmpty(data.password2) ? data.password2.trim() : "";
 
-  if (validator.isEmpty(data.oldPassword)) {
+  if (Validator.isEmpty(data.oldPassword)) {
     errors.oldPassword = "Old Password Field Cannot Be Empty";
   }
 

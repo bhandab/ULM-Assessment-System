@@ -2,7 +2,7 @@ import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { getOutcomes } from "../../actions/outcomesAction";
 import PropTypes from "prop-types";
-import {Spinner} from 'react-bootstrap';
+import {Spinner, ListGroup, Card, Button} from 'react-bootstrap';
 
 class Outcomes extends Component {
 
@@ -25,21 +25,27 @@ class Outcomes extends Component {
         }
         else {
             outcomesList = this.props.outcomes.outcomes.map( (outcome, index) =>
-                <li className="list-group-item" key={index}>{outcome}</li>
+                <ListGroup.Item  key={index}>{outcome}</ListGroup.Item>
             )
             if(outcomesList.length === 0) {
-                outcomesList = <li className="list-group-item" key="0">No Outcomes Present</li>
+                outcomesList = <ListGroup.Item  key="0">No Outcomes Present</ListGroup.Item>
             }
         }
 
         return (
             <Fragment>
                 <section className="panel important border border-info rounded p-3">
-                    <h2> List of Outcomes </h2>
-                    <hr />
-                    <ol className="list-group">
+                <Card>
+                    <Card.Header><h2> List of Outcomes 
+                    <Button variant="danger" className="float-right" onClick={()=>this.props.history.goBack()}><i className="fas fa-times"></i></Button>
+                        </h2></Card.Header>
+                    <Card.Body>
+                    <ListGroup>
                         {outcomesList}
-                    </ol>
+                    </ListGroup>
+                    </Card.Body>
+                </Card>
+                   
                 </section>
             </Fragment>
 
