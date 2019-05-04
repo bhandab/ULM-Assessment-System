@@ -1612,7 +1612,7 @@ router.post(
         errors.measureNotFound = "Measure with the id not found!";
         return res.status(404).json(errors);
       }
-
+      let toolType = result[0].toolType;
       let sql2 =
         "SELECT * FROM MEASURE_EVALUATOR WHERE measureEvalID=" +
         db.escape(measureEvalID);
@@ -1621,9 +1621,11 @@ router.post(
           return res.status(500).json(err);
         }
         if (result.length <= 0) {
-          errors.evaluatorNotFound = "Evaluator Does not Exist!";
+          errors.evaluatorNotFound =
+            "Evaluator is not associated with this  measure!";
           return res.status(404).json(errors);
         }
+        let evalID = result[0].evalID;
         let sql3 =
           "DELETE FROM MEASURE_EVALUATOR WHERE measureEvalID=" +
           db.escape(measureEvalID);
@@ -1631,7 +1633,29 @@ router.post(
           if (err) {
             return res.status(500).json(err);
           }
-          res.status(200).json("Deleted Successfully!");
+          if (toolType.toLowerCase() === "test") {
+            let sql4 =
+              "DELETE FROM TEST_SCORE WHERE evalID=" +
+              db.escape(evalID) +
+              " AND testScoreStatus is NULL";
+            db.query(sql4, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              return res.status(200).json("Deleted Successfully!");
+            });
+          } else if (toolType.toLowerCase() === "rubric") {
+            let sql4 =
+              "DELETE FROM  EVALUATE WHERE EXISTS (SELECT * FROM EVALUATE NATURAL LEFT JOIN RUBRIC_SCORE WHERE evalID=" +
+              db.escape(evalID) +
+              " AND rubricScore is NULL)";
+            db.query(sql4, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              return res.status(200).json("Deleted Successfully!");
+            });
+          }
         });
       });
     });
