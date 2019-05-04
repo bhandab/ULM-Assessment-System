@@ -9,7 +9,7 @@ import {
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { isEmpty } from "../../utils/isEmpty";
-import { FormControl, Button, Spinner, Card, Modal } from "react-bootstrap";
+import { FormControl, Button, Spinner, Card} from "react-bootstrap";
 import './Rubric.css'
 
 class CreateRubric extends Component {
@@ -24,11 +24,6 @@ class CreateRubric extends Component {
     const rubricID = this.props.match.params.rubricID;
     this.props.getSingleRubric(rubricID, true);
   }
-
-  onClickHandler = e => {
-    console.log("clicked");
-    console.log(e.target.name);
-  };
 
   updateCriteria = e => {
     const body = {
@@ -85,8 +80,6 @@ class CreateRubric extends Component {
           weight: value
         });
       }
-      console.log(criteriaWeight);
-      console.log(sum);
       if (sum < 100) {
         const alert = "The total criteria weight should be 100%";
         window.alert(alert);
@@ -106,7 +99,6 @@ class CreateRubric extends Component {
   };
 
   render() {
-    console.log(this.props);
 
     let tableHeader = [];
     let table = [];
@@ -206,12 +198,7 @@ class CreateRubric extends Component {
           <tbody>{table}</tbody>
         </table>
       );
-      console.log(
-        typeof this.props.rubric.singleRubric.rubricDetails.structureInfo
-          .weighted
-      );
     }
-    console.log(this.props);
     return (
       <Fragment>
         {this.props.rubric.loading ? (

@@ -31,7 +31,6 @@ import {getCordActivity} from '../../actions/activityAction'
 
       searchHandle = (e) => {
         if(!this.props.logs.logLoading){
-        console.log(e.target.value)
         const allLogs = this.props.logs.coordinatorLogs.logs
         const filterLogs = allLogs.filter(log => {
           return log.activity.includes(e.target.value)

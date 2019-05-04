@@ -144,7 +144,6 @@ class CycleMeasures extends Component {
   };
 
   render() {
-    console.log(this.props)
     let title = null;
     let list = <Spinner animation="border" variant="primary" />;
     let outcomeArray = null;

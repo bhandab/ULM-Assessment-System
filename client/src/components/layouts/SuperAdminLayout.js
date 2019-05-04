@@ -10,7 +10,6 @@ class SuperAdminLayout extends Component {
   
 
   componentWillReceiveProps(nextProps) {
-    console.log(nextProps.auth);
     if (!nextProps.auth.isAuthenticated || nextProps.auth.user.role !== "superuser") {
       window.location.href = "/login";
     }
@@ -18,7 +17,6 @@ class SuperAdminLayout extends Component {
 
   onLogoutClick = e => {
     e.preventDefault();
-    console.log("Logout user!");
     this.props.logoutUser();
   };
   

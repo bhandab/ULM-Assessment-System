@@ -28,7 +28,6 @@ class CycleReport extends Component {
     let cycleName = "";
     let tableBody = [];
 
-    console.log(this.props);
     if (this.props.reports.report !== null) {
       let outcomes = this.props.reports.report;
       cycleName = this.props.reports.report.cycleName;
@@ -72,7 +71,6 @@ class CycleReport extends Component {
                     span = false
                   })
               })
-      console.log(outcomesKey);
     }
 
     return (

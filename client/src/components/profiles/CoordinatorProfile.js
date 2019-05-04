@@ -72,8 +72,6 @@ import {getOutcomes} from '../../actions/outcomesAction'
         </Popover>
       );
 
-
-      console.log(this.props)
     return (
       <section className="panel important">
       <Card>

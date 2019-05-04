@@ -41,7 +41,6 @@ class SuperAdmin extends Component {
             coordinatorEmail: email,
             programName: program 
         }
-        // console.log(body)
         this.props.inviteCoordinator(body)
         if(isEmpty(this.props.errors) === false){
             window.alert("Coordinator successfully invited")
@@ -54,7 +53,6 @@ class SuperAdmin extends Component {
 
     createProgram = e => {
       e.preventDefault();
-      console.log(e.target.programName.value)
       const body = {
         programName:e.target.programName.value
       }
@@ -71,11 +69,9 @@ class SuperAdmin extends Component {
 
       this.props.updateProgram(body)
       this.setState({updateShow:false, programID:""})
-      console.log(body)
     }
 
   render() {
-    console.log(this.props)
       let programs = []
 
       if (this.props.coordinators.programs !== null && 

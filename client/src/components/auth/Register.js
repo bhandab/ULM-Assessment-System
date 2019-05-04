@@ -23,13 +23,11 @@ class Register extends Component {
             tempCode: e.target.tempCode.value
         }
         this.props.registerUser(userData,this.props.history)
-        console.log(userData)
     }
 
 
 
     render() {
-        console.log(this.props)
         return (
 
             <div className="wrapper">

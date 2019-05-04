@@ -19,7 +19,6 @@ class Outcomes extends Component {
 
  
     render() {
-        console.log(this.props)
         let outcomesList = null
         if (this.props.outcomes.outcomes === null) {
             outcomesList = <Spinner animation='border' variant="primary"></Spinner>

@@ -7,7 +7,6 @@ export const getOutcomes = (adminID) => dispatch => {
     axios
         .get("/api/outcomes",adminID)
         .then(res => {
-            //console.log(res.data);
             dispatch({
                 type: GET_OUTCOMES,
                 payload: res.data
@@ -23,7 +22,6 @@ export const getOutcomes = (adminID) => dispatch => {
 }
 
 export const addOutcome = (outcomeDescription, history) => dispatch => {
-    console.log(history)
     axios
         .post("/api/outcomes/createOutcome", outcomeDescription)
         .then(res => history.push("/admin/outcomes"))

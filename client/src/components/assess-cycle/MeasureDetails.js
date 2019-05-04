@@ -46,7 +46,6 @@ import {
 } from "react-bootstrap";
 
 import CSVFormat from "../../assets/CSVformat";
-import { NONAME } from "dns";
 
 class MeasureDetails extends Component {
   state = {
@@ -346,7 +345,6 @@ class MeasureDetails extends Component {
   };
 
   render() {
-    console.log(this.props);
     let typeRubric = false;
     let typeTest = false;
     let measureTitle = null;
@@ -355,7 +353,6 @@ class MeasureDetails extends Component {
     let evaluatorSelect = [];
     let studentSelect = [];
     let notAssignOption = [];
-    let measureReport = [];
     let evaluatorOptions = [];
     let statusModal = null;
     let status = null;

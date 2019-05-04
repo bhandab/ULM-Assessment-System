@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { loginUser } from '../../actions/authActions';
 import PropTypes from 'prop-types';
 import {Link} from 'react-router-dom';
-import {Card} from 'react-bootstrap'
 
 
 
@@ -77,7 +76,6 @@ class Login extends Component {
     }
 
     render() {
-        console.log(this.props)
         return (
             <>
             <div className="wrapper">

@@ -49,8 +49,6 @@ class AssessmentCycle extends Component {
 
     if (e.target.migrateCheck.checked) {
       let oldCycleID = e.target.cycleSelect.value;
-      console.log(name);
-      console.log(oldCycleID);
       this.props.cycleMigrate(name, oldCycleID);
       this.setState({ migrate: false });
     } else {
@@ -111,12 +109,10 @@ class AssessmentCycle extends Component {
   };
 
   migrateSelect = e => {
-    console.log(e.target.checked);
     this.setState({ migrate: e.target.checked });
   };
 
   endCycle = () => {
-    console.log(this.state.cycleID);
     this.props.closeCycle(this.state.cycleID);
     this.props.getAssessmentCycles();
     this.setState({ cycleClose: false });
@@ -227,7 +223,6 @@ class AssessmentCycle extends Component {
       cyclesList = <Spinner animation="border" variant="primary" />;
     }
 
-    console.log(this.props);
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">

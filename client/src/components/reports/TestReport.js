@@ -20,7 +20,6 @@ import ReactHTMLTableToExcel from 'react-html-table-to-excel';
       }
     
   render() {
-      console.log(this.props)
       let measureReport = []
 
       if(!this.props.cycles.cycleLoading &&

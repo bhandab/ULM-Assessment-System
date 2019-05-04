@@ -108,7 +108,6 @@ class OutcomeMeasures extends Component {
     let tid = ""; //null
     if (ty === "rubric") {
       const selected = e.target.tool.options[e.target.tool.selectedIndex];
-      console.log(selected);
       tid = selected.dataset.id;
       let rubrScale = e.target.projectedValue.value
       rubrScale = JSON.parse(rubrScale)
@@ -116,12 +115,10 @@ class OutcomeMeasures extends Component {
       tt = selected.dataset.name;
       scaleDesc = rubrScale.desc
     }
-    console.log(pv)
     let pt = e.target.projType.value;
     let vo = "";
 
     let testType = ""; //null
-    console.log(testType);
 
     if (ty === "test") {
       tt = e.target.tool.value;
@@ -143,7 +140,6 @@ class OutcomeMeasures extends Component {
       scoreOrPass: testType,
       scaleDesc: scaleDesc
     };
-    console.log(measureDetails)
     this.props.linkMeasureToOutcome(cycleID, outcomeID, measureDetails);
   };
 
@@ -181,7 +177,6 @@ class OutcomeMeasures extends Component {
     }
   };
   measureTitleClick = e => {
-    console.log(e.target.dataset);
     this.props.getStudentsOfMeasure(e.target.value);
   };
   passingPer = (part, total) => {
@@ -203,7 +198,6 @@ class OutcomeMeasures extends Component {
   }
 
   render() {
-    console.log(window.location.hash.substr(1))
     let outcomeCourses = null
     let totalStudents = 0;
     let measures = <Spinner animation="border" variant="primary" />;
@@ -450,8 +444,6 @@ class OutcomeMeasures extends Component {
     let rubricScoreOptions = null;
     const rubricChangeHandler = e => {
       const selected = e.target.options[e.target.selectedIndex];
-
-      console.log(selected);
       let rubricID = selected.dataset.id;
       this.props.getSingleRubric(rubricID, true);
     };
@@ -467,7 +459,7 @@ class OutcomeMeasures extends Component {
         }
       );
     }
-    console.log(this.props);
+    
     return (
       <Fragment>
       <section className="panel important border border-info rounded p-3">

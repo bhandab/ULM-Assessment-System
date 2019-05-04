@@ -28,7 +28,6 @@ import {Card, Button} from 'react-bootstrap'
 
   render() {
 
-    console.log(this.props)
     let outcomeTitle = null
     let measures = null
     let courseSet = []
@@ -44,7 +43,6 @@ import {Card, Button} from 'react-bootstrap'
                 courseSet.push(measure.courseAssociated)
             }
         })
-        console.log(courseSet)
        measures =  
        <div style={{color:"black"}}>
             <Card >

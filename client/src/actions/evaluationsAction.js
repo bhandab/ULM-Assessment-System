@@ -58,7 +58,6 @@ export const updateRubricScores = (body) => dispatch => {
 }
 
 export const testScores = (body) => dispatch =>{
-    console.log("gets here")
     axios
     .post("/api/evaluations/testScores",body)
     .then(res => dispatch({

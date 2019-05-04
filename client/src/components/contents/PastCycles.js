@@ -54,27 +54,9 @@ class AssessmentCycle extends Component {
       cyclesList = <Spinner animation="border" variant="primary" />;
     }
 
-    console.log(this.props)
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">
-{/*         
-          <div className="row">
-            <div className="btn-group btn-breadcrumb">
-              <li  className="btn btn-primary brdbtn">
-                Admin
-              </li>
-              <li className="btn btn-primary brdbtn">
-                Cycles
-              </li>
-            </div>
-          </div> */}
-
-{/* <ol class="breadcrumb v1">
-	<li class="breadcrumb-level"><a href="">Level 1</a></li>
-	<li class="breadcrumb-level"><a href="">Level 2</a></li>
-	<li class="breadcrumb-level"><a>Level 3</a></li>
-</ol> */}
           <Card>
             <Card.Header>
           <h2>
