@@ -851,7 +851,6 @@ router.get(
               outcomeStatus = "failing";
               return;
             }
-
           });
           let sql4 =
             "SELECT * FROM OUTCOME_COURSE WHERE learnID=" +
@@ -1647,7 +1646,7 @@ router.post(
             });
           } else if (toolType.toLowerCase() === "rubric") {
             let sql4 =
-              "DELETE FROM  EVALUATE WHERE EXISTS (SELECT * FROM EVALUATE NATURAL LEFT JOIN RUBRIC_SCORE WHERE evalID=" +
+              "DELETE EVALUATE FROM  EVALUATE NATURAL LEFT JOIN RUBRIC_SCORE WHERE evalID=" +
               db.escape(evalID) +
               " AND rubricScore is NULL)";
             db.query(sql4, (err, result) => {
@@ -2809,7 +2808,7 @@ router.get(
             CWID: row.studentCWID,
             score: row.testScore ? row.testScore : "N/A",
             passing: row.testScoreStatus ? true : false,
-            evalName : row.evalLastName+ ", "+ row.evalFirstName
+            evalName: row.evalLastName + ", " + row.evalFirstName
           };
           if (row.testScoreStatus !== null) {
             report.push(result);
