@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {getOutcomesMeasures} from '../../actions/assessmentCycleAction';
-import {Card, Button} from 'react-bootstrap'
+import {Card, Button, Table} from 'react-bootstrap'
+import ReactHTMLTableToExcel from 'react-html-table-to-excel'
+
 
  class OutcomeReport extends Component {
 
@@ -29,13 +31,15 @@ import {Card, Button} from 'react-bootstrap'
   render() {
 
     let outcomeTitle = null
-    let measures = null
+    let measures = []
     let courseSet = []
     let disIndex = window.location.hash.substr(1)
+    let table = []
 
 
     if(!this.props.cycles.cycleLoading){
         const outcomeMeasures = this.props.cycles.outcomeMeasures
+        if(outcomeMeasures !== null){
 
         outcomeTitle = outcomeMeasures.outcomeName
         outcomeMeasures.measures.forEach(measure => {
@@ -43,17 +47,18 @@ import {Card, Button} from 'react-bootstrap'
                 courseSet.push(measure.courseAssociated)
             }
         })
-       measures =  
-       <div style={{color:"black"}}>
-            <Card >
+       measures.push(
+           <tr key="octTitle">
+           <td>
+            <Card>
                 <Card.Header style={{textAlign:"center"}}><h2>Outcome {disIndex}
-                <Button className="float-right noprint" onClick={()=> this.props.history.goBack()}>
-            <i className="fas fa-times"></i>
-            </Button></h2></Card.Header>
+            </h2></Card.Header>
                 <Card.Body>
                    <h3> {outcomeTitle} </h3>
                 </Card.Body>
-            </Card>
+            </Card></td></tr>)
+        measures.push(
+            <tr key="rltdCrs"><td>
             <Card >
                 <Card.Header style={{textAlign:"center"}}><h2>Related Courses</h2></Card.Header>
                 <Card.Body>
@@ -66,9 +71,11 @@ import {Card, Button} from 'react-bootstrap'
                     </div>
                 </Card.Body>
             </Card>
-            <Card >
+            </td></tr> )
+        measures.push(<tr key="msrsAll">
+            <td><Card>
             <Card.Title className="mt-2" style={{textAlign:"center"}}><h2>Measures Of Performance</h2></Card.Title>
-            { outcomeMeasures.measures.map((measure,index) => {
+            {outcomeMeasures.measures.map((measure,index) => {
                 return (
                     <Card key={"octRpCard"+index}>
                         <Card.Header>
@@ -88,15 +95,34 @@ import {Card, Button} from 'react-bootstrap'
                 )
             })}
             </Card>
-            
-        </div>
+            </td></tr> )
+
+            measures = <Table className="m-0" id="outcomeReport" responsive><tbody>{measures}</tbody></Table>
+    }
     }
 
 
 
     return (
           <section className="panel important">
-          {measures}
+          <Card>
+              <Card.Header as="h2">
+              <Button className="float-right noprint" onClick={()=> this.props.history.goBack()}>
+            <i className="fas fa-times"></i>
+            </Button>
+            <ReactHTMLTableToExcel
+                    id="test-table-xls-button"
+                    className="download-table-xls-button btn btn-info float-right mr-3"
+                    table="outcomeReport"
+                    filename="outcomeReport"
+                    sheet="tablexls"
+                    buttonText="Download as EXCEL"/>
+
+              </Card.Header>
+          </Card>
+        <Card.Body>
+        {measures}
+        </Card.Body>
           </section>
     )
   }
