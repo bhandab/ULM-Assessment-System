@@ -57,7 +57,7 @@ class CoordinatorProfile extends Component {
       <section className="panel important">
         <Card>
           <Card.Header as="h1" className="text-center">
-            Coordinator Profile
+            Coordinator Profile <Button variant="danger" className="float-right" onClick={()=>this.props.history.goBack()}><i className="fas fa-times"></i></Button>
           </Card.Header>
           <Card.Body>
             <ListGroup>

@@ -439,10 +439,10 @@ class MeasureDetails extends Component {
           );
         } else {
           evaluatorList = (
-            <li className="list-group-item">
+            <ListGroup.Item>
               Click the <i className="fas fa-user">+</i> button to add
               evaluators
-            </li>
+            </ListGroup.Item>
           );
         }
       }
@@ -520,10 +520,10 @@ class MeasureDetails extends Component {
           );
         } else {
           studentList = (
-            <li className="listggroup-item">
+            <ListGroup.Item>
               Click the <i className="fas fa-user-graduate">+</i> button to add
               students
-            </li>
+            </ListGroup.Item>
           );
         }
 
@@ -1112,7 +1112,7 @@ class MeasureDetails extends Component {
                     </h3>
                   </Card.Header>
                   <Card.Body className="mb-1 pt-1">
-                    <ol className="list-group measureCard">{evaluatorList}</ol>
+                    <ListGroup className="measureCard">{evaluatorList}</ListGroup>
                     {this.state.isActive ? (
                       <Button
                         className="mt-2"
@@ -1144,8 +1144,8 @@ class MeasureDetails extends Component {
                     </h3>
                   </Card.Header>
                   <Card.Body className="mb-1 pt-1">
-                    <ol className="list-group measureCard">{studentList}
-                    </ol>
+                    <ListGroup className="measureCard">{studentList}
+                    </ListGroup>
                   </Card.Body>
                 </Card>
               </CardGroup>

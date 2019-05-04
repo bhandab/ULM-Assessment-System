@@ -80,7 +80,7 @@ class AdminLayout extends Component {
                     </Link>
                   </Dropdown.Item>
                   <Dropdown.Item  className="p-0" as="button">
-                    <Link to="/admin/outcomes">
+                    <Link to="/admin/measures">
                    My Measures
                     </Link>
                   </Dropdown.Item>
