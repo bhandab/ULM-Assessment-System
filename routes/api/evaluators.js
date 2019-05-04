@@ -29,7 +29,8 @@ router.get(
       result.forEach(row => {
         evalInfo = {
           name: row.evalFirstName + " " + row.evalLastName,
-          email: row.evalEmail
+          email: row.evalEmail,
+          evalID: row.evalID
         };
         evaluators.push(evalInfo);
       });
@@ -136,7 +137,7 @@ router.post(
     let deleteUser = req.body.evalID;
 
     let sql =
-      "UPDATE EVALUATOR SET isActive=false WHERE corId=" +
+      "UPDATE EVALUATOR SET isActive=false WHERE evalID=" +
       db.escape(deleteUser);
     db.query(sql, (err, result) => {
       if (err) {
@@ -175,8 +176,8 @@ router.post(
       let sql1 =
         "DELETE FROM INVITED_EVALUATOR WHERE invitedEvalEmail=" +
         db.escape(deleteEmail) +
-        " AND corId=" +
-        db.escape(req.user.id);
+        " AND programID=" +
+        db.escape(req.user.programID);
       db.query(sql1, (err, result) => {
         if (err) {
           return res.status(500).json(err);

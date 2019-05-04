@@ -464,8 +464,8 @@ class OutcomeMeasures extends Component {
       <Fragment>
       <section className="panel important border border-info rounded p-3">
       <ul className="ml-0 mb-0" id="breadcrumb">
-  <li className="ml-0"><Link to="/admin/dashboard"><span className="icon icon-home"><i className="fas fa-home"></i></span>Dashboard </Link></li>
-  <li><Link to="/admin/cycles"><span className="icon icon-beaker"> <i className="fas fa-recycle"></i></span>Cycles</Link></li>
+  <li className="ml-0"><Link to="/admin/dashboard"><span className="icon icon-home"><i className="fas fa-home mr-1"></i></span>Dashboard </Link></li>
+  <li><Link to="/admin/cycles"><span className="icon icon-beaker"> <i className="fas fa-recycle mr-1"></i></span>Cycles</Link></li>
   <li><Link to={`/admin/cycles/cycle/${this.props.match.params.cycleID}`}><span><i className="far fa-list-alt"></i></span> Outcomes</Link></li>
   <li><Link to={{pathname:`/admin/cycles/cycle/${this.props.match.params.cycleID}/outcomes/${this.props.match.params.outcomeID}`,hash:window.location.hash}}><span><i className="fas fa-percentage"></i></span> Measures</Link></li>
 </ul>

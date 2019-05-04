@@ -1187,7 +1187,7 @@ class MeasureDetails extends Component {
                 </Card.Body>
               </Card>
 
-              <Card.Header className="mt-3">
+              <Card.Header className="mt-3 text-center">
                 <h4>Student Assignment Information</h4>
               </Card.Header>
 
