@@ -9,7 +9,7 @@ import {
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { isEmpty } from "../../utils/isEmpty";
-import { FormControl, Button, Spinner, Card } from "react-bootstrap";
+import { FormControl, Button, Spinner, Card, Modal } from "react-bootstrap";
 import './Rubric.css'
 
 class CreateRubric extends Component {
@@ -29,12 +29,6 @@ class CreateRubric extends Component {
     console.log("clicked");
     console.log(e.target.name);
   };
-
-  // onChangehandler = e => {
-  //   console.log("onChange");
-  //   console.log(e.target.value);
-  //   console.log(e.target.name);
-  // };
 
   updateCriteria = e => {
     const body = {
@@ -84,7 +78,6 @@ class CreateRubric extends Component {
         const id = "weight" + i;
         const wt = document.getElementById(id);
         const value = parseFloat(wt.value);
-        //if (value !== "number" ){value = 0}
         criteriaWeight.push(value);
         sum += value;
         criteriaWtObj.push({
@@ -92,7 +85,6 @@ class CreateRubric extends Component {
           weight: value
         });
       }
-      // console.log(criteriaWtObj)
       console.log(criteriaWeight);
       console.log(sum);
       if (sum < 100) {

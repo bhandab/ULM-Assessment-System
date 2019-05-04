@@ -61,7 +61,7 @@ import {getCordActivity} from '../../actions/activityAction'
       <Card className="mt-3" id="log-card">
         <Card.Header style={{textAlign:'center'}}><h3>  <div className="float-left row">
         <i className="fas fa-search mt-1 mr-2"></i>
-          <input type="text" onChange={this.searchHandle.bind(this)}/>
+          <input type="text" placeholder="Activity" onChange={this.searchHandle.bind(this)}/>
           </div>
           Activity Logs
         <Button className="float-right" onClick={()=>this.props.history.goBack()}><i className="fas fa-times"></i></Button>

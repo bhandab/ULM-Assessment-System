@@ -118,6 +118,7 @@ class AssessmentCycle extends Component {
   endCycle = () => {
     console.log(this.state.cycleID);
     this.props.closeCycle(this.state.cycleID);
+    this.props.getAssessmentCycles();
     this.setState({ cycleClose: false });
   };
 
@@ -173,13 +174,10 @@ class AssessmentCycle extends Component {
                   <i className="fas fa-ellipsis-v"></i>
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                  <Dropdown.Item>
-                  <Link to={`/admin/cycles/cycle/${this.props.match.params.cycleID}/report`}>
+                  <Dropdown.Item href={`/admin/cycles/cycle/${cycle.cycleID}/report`}>
                     <Button variant="success">
                     &nbsp;VIEW REPORT
                     </Button>
-                  </Link>
-
                   </Dropdown.Item>
 
                   <Dropdown.Item>
@@ -208,7 +206,6 @@ class AssessmentCycle extends Component {
                       name={cycle.cycleID}
                       value={cycle.cycleName}
                       onClick={this.deleteShow.bind(this)}
-                      // className="delete"
                     >DELETE CYCLE</Button>
                   </Dropdown.Item>
                   </Dropdown.Menu>
@@ -234,32 +231,19 @@ class AssessmentCycle extends Component {
     return (
       <Fragment>
         <section className="panel important border border-info rounded p-3">
-          {/*         
-          <div className="row">
-            <div className="btn-group btn-breadcrumb">
-              <li  className="btn btn-primary brdbtn">
-                Admin
-              </li>
-              <li className="btn btn-primary brdbtn">
-                Cycles
-              </li>
-            </div>
-          </div> */}
-
-          {/* <ol class="breadcrumb v1">
-	<li class="breadcrumb-level"><a href="">Level 1</a></li>
-	<li class="breadcrumb-level"><a href="">Level 2</a></li>
-	<li class="breadcrumb-level"><a>Level 3</a></li>
-</ol> */}
+        <ul className="ml-0 mb-0" id="breadcrumb">
+        <li className="ml-0"><Link to="/admin/dashboard"><span><i className="fas fa-home mr-1"></i></span>Dashboard </Link></li>
+  <li><Link to="/admin/cycles"><span> <i className="fas mr-1 fa-recycle"></i></span>Cycles</Link></li>
+</ul>
           <Card>
-            <Card.Header>
+            <Card.Header style={{ textAlign: "center" }}>
               <h2>
                 <strong>Assessment Cycles</strong>
               </h2>
             </Card.Header>
             <Card.Body>
               <Card>
-                <Card.Header style={{ textAlign: "center" }}>
+                <Card.Header>
                   <h2>Active Cycles</h2>
                 </Card.Header>
                 <Card.Body>
@@ -277,7 +261,7 @@ class AssessmentCycle extends Component {
               </Card>
               <Card className="mt-5">
                 <Card.Header>
-                  <h2 style={{ textAlign: "center" }}>Closed Cycles</h2>
+                  <h2>Closed Cycles</h2>
                 </Card.Header>
                 <Card.Body>
                   <ul className="list-group">

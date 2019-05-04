@@ -245,14 +245,15 @@ class OutcomeMeasures extends Component {
                       </button>
                       {measure.measureStatus && measure.evalCount > 0 ? (
                         <Link
-                        to={
-                          "/admin/cycles/cycle/" +
+                        to={{
+                          pathname:"/admin/cycles/cycle/" +
                           this.props.cycles.outcomeMeasures.cycleID +
                           "/outcomes/" +
                           this.props.cycles.outcomeMeasures.outcomeID +
                           "/measures/" +
-                          measure.measureID
-                        }
+                          measure.measureID,
+                          hash:window.location.hash
+                        }}
                       >
                          <Button
                           size="lg"
@@ -267,14 +268,15 @@ class OutcomeMeasures extends Component {
                       {!measure.measureStatus && measure.evalCount > 0 ?
                       (
                         <Link
-                        to={
-                          "/admin/cycles/cycle/" +
+                        to={{
+                          pathname:"/admin/cycles/cycle/" +
                           this.props.cycles.outcomeMeasures.cycleID +
                           "/outcomes/" +
                           this.props.cycles.outcomeMeasures.outcomeID +
                           "/measures/" +
-                          measure.measureID
-                        }
+                          measure.measureID,
+                          hash:window.location.hash
+                        }}
                       >
                           <Button
                           size="lg"
@@ -288,14 +290,15 @@ class OutcomeMeasures extends Component {
                       ) : null }
                       { measure.evalCount === 0 ? 
                        <Link
-                       to={
-                         "/admin/cycles/cycle/" +
-                         this.props.cycles.outcomeMeasures.cycleID +
-                         "/outcomes/" +
-                         this.props.cycles.outcomeMeasures.outcomeID +
-                         "/measures/" +
-                         measure.measureID
-                       }
+                       to={{
+                        pathname:"/admin/cycles/cycle/" +
+                        this.props.cycles.outcomeMeasures.cycleID +
+                        "/outcomes/" +
+                        this.props.cycles.outcomeMeasures.outcomeID +
+                        "/measures/" +
+                        measure.measureID,
+                        hash:window.location.hash
+                      }}
                      >
                          <Button
                          size="lg"
@@ -335,14 +338,15 @@ class OutcomeMeasures extends Component {
                             </Row>
                           
                           <Link
-                            to={
-                              "/admin/cycles/cycle/" +
+                            to={{
+                              pathname:"/admin/cycles/cycle/" +
                               this.props.cycles.outcomeMeasures.cycleID +
                               "/outcomes/" +
                               this.props.cycles.outcomeMeasures.outcomeID +
                               "/measures/" +
-                              measure.measureID
-                            }
+                              measure.measureID,
+                              hash:window.location.hash
+                            }}
                           >
                             <Button className="mt-2 float-right">
                               View Details
@@ -366,15 +370,15 @@ class OutcomeMeasures extends Component {
         measureTitle = this.props.cycles.outcomeMeasures.outcomeName;
 
         if(this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="pending" ){
-          status = <Badge style={{fontSize:'.5em'}} variant="warning" pill>pending</Badge>
+          status = <Badge style={{fontSize:'.5em'}} variant="warning" pill>PENDING</Badge>
         }
 
        if(this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="failing" ){
-         status = <Badge style={{fontSize:'.5em'}} size="sm" variant="danger" pill>failing</Badge>
+         status = <Badge style={{fontSize:'.5em'}} size="sm" variant="danger" pill>FAILING</Badge>
        }
       
       if(this.props.cycles.outcomeMeasures.outcomeStatus.toLowerCase()==="passing"){
-        status =  <Badge style={{fontSize:'.5em'}} size="sm" variant="success" pill>passing</Badge>
+        status =  <Badge style={{fontSize:'.5em'}} size="sm" variant="success" pill>PASSING</Badge>
       } 
 
 
@@ -467,6 +471,13 @@ class OutcomeMeasures extends Component {
     return (
       <Fragment>
       <section className="panel important border border-info rounded p-3">
+      <ul className="ml-0 mb-0" id="breadcrumb">
+  <li className="ml-0"><Link to="/admin/dashboard"><span className="icon icon-home"><i className="fas fa-home"></i></span>Dashboard </Link></li>
+  <li><Link to="/admin/cycles"><span className="icon icon-beaker"> <i className="fas fa-recycle"></i></span>Cycles</Link></li>
+  <li><Link to={`/admin/cycles/cycle/${this.props.match.params.cycleID}`}><span><i className="far fa-list-alt"></i></span> Outcomes</Link></li>
+  <li><Link to={{pathname:`/admin/cycles/cycle/${this.props.match.params.cycleID}/outcomes/${this.props.match.params.outcomeID}`,hash:window.location.hash}}><span><i className="fas fa-percentage"></i></span> Measures</Link></li>
+</ul>
+
         <Card>
           <Card.Header>
           <p style={{fontSize:'20px'}} id="measure-title-label"><strong>OUTCOME</strong></p>

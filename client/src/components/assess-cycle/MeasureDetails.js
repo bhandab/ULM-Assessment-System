@@ -35,7 +35,6 @@ import {
   Form,
   InputGroup,
   ModalBody,
-  Table,
   ProgressBar,
   ListGroup,
   Spinner,
@@ -47,6 +46,7 @@ import {
 } from "react-bootstrap";
 
 import CSVFormat from "../../assets/CSVformat";
+import { NONAME } from "dns";
 
 class MeasureDetails extends Component {
   state = {
@@ -477,7 +477,9 @@ class MeasureDetails extends Component {
 
         if (studUnassgDetail.length < 1) {
           studUnassgDetail = (
+            <ListGroup.Item>
             <Alert variant="danger">No Students Present</Alert>
+            </ListGroup.Item>
           );
         }
         if (totalStudents > 0) {
@@ -575,14 +577,14 @@ class MeasureDetails extends Component {
           }
 
             progressBar = (
-              <ProgressBar>
-                <ProgressBar
+              <ProgressBar style={{height:'25px'}}>
+                <ProgressBar 
                   variant="success"
                   now={passPer}
                   label={`Passing(${passPer}%)`}
                   key={1}
                 />
-                <ProgressBar
+                <ProgressBar 
                   variant="danger"
                   now={failPer}
                   label={`Failing(${failPer}%)`}
@@ -689,7 +691,7 @@ class MeasureDetails extends Component {
             let passPer = this.props.cycles.measureReport.passingPercentage;
             let failPer = 100 - passPer;
 
-              if(this.props.cycles.measureDetails.evalCOunt > 0){
+              if(this.props.cycles.measureDetails.evalCount > 0){
             if (this.props.cycles.measureDetails.status) {
               status = (
                 <h3>
@@ -712,7 +714,7 @@ class MeasureDetails extends Component {
             );
           }
             progressBar = (
-              <ProgressBar>
+              <ProgressBar style={{height:'20px'}}>
                 <ProgressBar
                   now={passPer}
                   variant="success"
@@ -907,7 +909,7 @@ class MeasureDetails extends Component {
       studAssignDetail = assignedStuds.map((student,index) => {
         return (
           <ListGroup.Item key={"seval" + student.studentID+""+index}>
-             <span className="statStud">{index}. {student.name}</span>
+             <span className="statStud">{index+1}. {student.name}</span>
             <Badge pill> assigned to </Badge>{" "}
             <span className="statEval">{student.evalEmail}</span>
             <button
@@ -932,15 +934,17 @@ class MeasureDetails extends Component {
 
     return (
       <Fragment>
-        <section className="panel important">
-        <div className="breadCrumbs">
-        <ol>
-          <li>Home</li>
-          <li>Cycles</li>
-        </ol>
-        </div>
-       
-          <Jumbotron className="noprint">
+        <section  className="panel important">
+
+<ul className="ml-2 mb-0" id="breadcrumb">
+  <li className="ml-0"><Link to="/admin/dashboard"><span><i className="fas fa-home mr-1"></i></span>Dashboard </Link></li>
+  <li><Link to="/admin/cycles"><span> <i className="fas mr-1 fa-recycle"></i></span>Cycles</Link></li>
+  <li><Link to={`/admin/cycles/cycle/${this.props.match.params.cycleID}`}><span><i className="far fa-list-alt"></i></span> Outcomes</Link></li>
+  <li><Link to={{pathname:`/admin/cycles/cycle/${this.props.match.params.cycleID}/outcomes/${this.props.match.params.outcomeID}`,hash:window.location.hash}}><span><i className="fas fa-percentage"></i></span> Measures</Link></li>
+  <li ><Link to={{pathname:`/admin/cycles/cycle/${this.props.match.params.cycleID}/outcomes/${this.props.match.params.outcomeID}/measures/${this.props.match.params.measureID}`,hash:window.location.hash}}><span><i className="fas fa-chart-bar"></i></span> Measure Details</Link></li>
+</ul>
+
+          <Jumbotron className="noprint m-2">
             <p id="measure-title-label">Measure Title</p>
             <h4 id="measure-title">
               {measureTitle}
@@ -1062,7 +1066,7 @@ class MeasureDetails extends Component {
             ) : null}
 
             <hr />
-            <div className="ml-0  mb-2 pl-2 pr-2 pb-2 border border-info">
+            <div className="ml-0  mb-2 pl-2 pr-2 pb-2">
               <Button
                 variant="outline-info"
                 className="mt-1 mb-1"
@@ -1192,7 +1196,7 @@ class MeasureDetails extends Component {
 
               <CardGroup id="assignInfoCard">
                 <Card className="assignmentStats">
-                  <Card.Header>Assigned Students</Card.Header>
+                  <Card.Header>Not Evaluated Students</Card.Header>
                   <Card.Body>
                     <ListGroup>{studAssignDetail}</ListGroup>
                   </Card.Body>

@@ -63,11 +63,13 @@ router.post("/register", (req, res) => {
           return res.status(500).json(err);
         }
         let sql0 =
-          "INSERT INTO EVALUATOR (evalFirstName, evalLastName,evalEmail,evalPWHash) VALUES (" +
+          "INSERT INTO EVALUATOR (evalFirstName, evalLastName,programID,evalEmail,evalPWHash) VALUES (" +
           db.escape(adminFirstName) +
           "," +
           db.escape(adminLastName) +
           ", " +
+          db.escape(programID)+
+          ", "+
           db.escape(email) +
           ",password(" +
           db.escape(password) +
@@ -92,12 +94,12 @@ router.post("/register", (req, res) => {
       let sql2 =
         "SELECT * FROM INVITED_EVALUATOR WHERE invitedEvalEmail = " +
         db.escape(email) +
-        " AND evalTempCode=password" +
+        " AND evalTempCode = password (" +
         db.escape(tempCode) +
         ")";
       db.query(sql2, (err, result) => {
         if (err) {
-          return res.status(500).json(error);
+          return res.status(500).json(err);
         }
 
         if (result.length > 0) {

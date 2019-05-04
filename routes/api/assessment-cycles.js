@@ -828,12 +828,6 @@ router.get(
           }
           let indexCount = 1;
           result.forEach(row => {
-            if (row.evalCount > 0 && row.measureStatus) {
-              outcomeStatus = "passing";
-            } else if (row.evalCount > 0 && !row.measureStatus) {
-              outcomeStatus = "failing";
-              return;
-            }
             measure = {
               measureName: row.measureDesc,
               measureID: row.measureID,
@@ -851,6 +845,13 @@ router.get(
             };
             indexCount++;
             measures.push(measure);
+            if (row.evalCount > 0 && row.measureStatus) {
+              outcomeStatus = "passing";
+            } else if (row.evalCount > 0 && !row.measureStatus) {
+              outcomeStatus = "failing";
+              return;
+            }
+
           });
           let sql4 =
             "SELECT * FROM OUTCOME_COURSE WHERE learnID=" +
@@ -2783,7 +2784,8 @@ router.get(
             studentEmail: row.studentEmail,
             CWID: row.studentCWID,
             score: row.testScore ? row.testScore : "N/A",
-            passing: row.testScoreStatus ? true : false
+            passing: row.testScoreStatus ? true : false,
+            evalName : row.evalLastName+ ", "+ row.evalFirstName
           };
           if (row.testScoreStatus !== null) {
             report.push(result);

@@ -71,10 +71,9 @@ export const cycleMigrate = (cycleName, oldCycleID) => dispatch => {
 export const closeCycle = cycleID => dispatch => {
   axios
     .post("/api/cycles/closeCycle", { cycleID })
-    .then(() =>
+    .then(()=>
       toastr.success("Cycle Closed!", "Assessment Cycle Successfully Closed!")
     )
-    .then(() => dispatch(getAssessmentCycles()))
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
@@ -110,7 +109,6 @@ export const linkMeasureToOutcome = (
   outcomeID,
   details
 ) => dispatch => {
-  // console.log(details)
   axios
     .post(
       "/api/cycles/" + cycleID + "/" + outcomeID + "/addNewMeasure",
@@ -163,7 +161,6 @@ export const updateMeasure = (
   measureID,
   body
 ) => dispatch => {
-  console.log(body);
   axios
     .post(`/api/cycles/${cycleID}/${outcomeID}/${measureID}/update`, body)
     .then(() =>
@@ -179,8 +176,6 @@ export const updateMeasure = (
 };
 
 export const getCycleMeasures = cycleID => dispatch => {
-  //outcomes of a cycle
-  //dispatch(setLoading())
   axios
     .get("/api/cycles/" + cycleID + "/outcomes")
     .then(res => {
@@ -190,7 +185,6 @@ export const getCycleMeasures = cycleID => dispatch => {
       });
     })
     .catch(err => {
-      // console.log(err)
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data
@@ -210,7 +204,6 @@ export const getOutcomesMeasures = (cycleID, outcomeID) => dispatch => {
       });
     })
     .catch(err => {
-      // console.log(err)
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data
@@ -226,7 +219,6 @@ export const updateCycleName = (cycleID, body) => dispatch => {
     )
     .then(() => dispatch(getAssessmentCycles()))
     .catch(err => {
-      // console.log(err)
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data
@@ -259,7 +251,6 @@ export const updateOutcomeName = (cycleID, outcomeID, body) => dispatch => {
     )
     .then(() => dispatch(getCycleMeasures(cycleID)))
     .catch(err => {
-      // console.log(err)
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data
@@ -275,7 +266,6 @@ export const addNewCourse = (cycleID, outcomeID, courseCode) => dispatch => {
     )
     .then(() => dispatch(getOutcomesMeasures(cycleID, outcomeID)))
     .catch(err => {
-      // console.log(err)
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data

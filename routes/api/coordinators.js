@@ -146,7 +146,7 @@ router.get(
     let registeredCoordinators = [];
     let sql =
       "SELECT * FROM COORDINATOR NATURAL JOIN PROGRAM WHERE programID = " +
-      db.escape(req.params.programID);
+      db.escape(req.params.programID) + " AND isActive = true";
     db.query(sql, (err, result) => {
       if (err) {
         return res.status(500).json(err);
