@@ -1,7 +1,9 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
+const Validator = require("validator");
 
+const isEmpty = require("../../validation/isEmpty");
 const keys = require("../../config/keys");
 
 //Load database connection
@@ -13,6 +15,7 @@ const router = express.Router();
 const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
 const validateAddEvaluatorInput = require("../../validation/addEvaluator");
+validateUpdatePasswordInput = require("../../validation/updatePassword");
 
 // @route POST api/users/register
 // @desc Register admin
@@ -62,32 +65,67 @@ router.post("/register", (req, res) => {
         if (err) {
           return res.status(500).json(err);
         }
-        let sql0 =
-          "INSERT INTO EVALUATOR (evalFirstName, evalLastName,programID,evalEmail,evalPWHash) VALUES (" +
-          db.escape(adminFirstName) +
-          "," +
-          db.escape(adminLastName) +
-          ", " +
-          db.escape(programID)+
-          ", "+
+        let sql5 =
+          "SELECT * FROM EVALUATOR WHERE evalEmail=" +
           db.escape(email) +
-          ",password(" +
-          db.escape(password) +
-          "))";
-        db.query(sql0, (err, result) => {
+          " AND programID=" +
+          db.escape(programID);
+        db.query(sql5, (err, result) => {
           if (err) {
             return res.status(500).json(err);
           }
-          let sql1 =
-            "DELETE FROM INVITED_COORDINATOR WHERE invitedCorEmail = " +
-            db.escape(email);
-          db.query(sql1, (err, result) => {
-            if (err) {
-              return res.status(500).json(err);
-            } else {
-              return res.status(200).json(result);
-            }
-          });
+          if (result.length <= 0) {
+            let sql0 =
+              "INSERT INTO EVALUATOR (evalFirstName, evalLastName,programID, evalEmail,evalPWHash) VALUES (" +
+              db.escape(adminFirstName) +
+              "," +
+              db.escape(adminLastName) +
+              ", " +
+              db.escape(programID) +
+              ", " +
+              db.escape(email) +
+              ",password(" +
+              db.escape(password) +
+              "))";
+            db.query(sql0, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+              let sql0 =
+                "UPDATE EVALUATOR SET evalPWHash=password(" +
+                db.escape(password) +
+                ") WHERE evalEmail=" +
+                db.escape(email) +
+                " AND programID=" +
+                db.escape(programID);
+              db.query(sql0, (err, result) => {
+                if (err) {
+                  return res.status(500).json(err);
+                }
+                let sql1 =
+                  "DELETE FROM INVITED_COORDINATOR WHERE invitedCorEmail = " +
+                  db.escape(email);
+                db.query(sql1, (err, result) => {
+                  if (err) {
+                    return res.status(500).json(err);
+                  } else {
+                    return res.status(200).json(result);
+                  }
+                });
+              });
+            });
+          } else {
+            let sql1 =
+              "DELETE FROM INVITED_COORDINATOR WHERE invitedCorEmail = " +
+              db.escape(email);
+            db.query(sql1, (err, result) => {
+              if (err) {
+                return res.status(500).json(err);
+              } else {
+                return res.status(200).json(result);
+              }
+            });
+          }
         });
       });
     } else if (result <= 0) {
@@ -267,9 +305,10 @@ router.post("/login", (req, res) => {
     }
   });
 });
+
 // @route POST api/users/loginAsEval
-// @desc Login User
-// @access Public
+// @desc Switch to Evaluator Mode
+// @access private
 
 router.post(
   "/loginAsEval",
@@ -314,4 +353,232 @@ router.post(
   }
 );
 
+//Update Name for Coordinator
+router.post(
+  "/updateCorName",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+    if (isEmpty(req.body.firstName)) {
+      errors.message = "First Name field cannot be empty";
+      return res.status(404).json(errors);
+    }
+    if (isEmpty(req.body.lastName)) {
+      errors.message = " Last Name field cannot be empty";
+      return res.status(404).json(errors);
+    }
+    let corFirstName = req.body.firstName;
+    let corLastName = req.body.lastName;
+
+    let sql = "SELECT * FROM COORDINATOR WHERE corId=" + db.escape(req.user.id);
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.message = "Coordinator Does not exist!";
+        return res.status(404).json(errors);
+      }
+      let sql1 =
+        "UPDATE COORDINATOR SET corFirstName=" +
+        db.escape(corFirstName) +
+        ", corLastName=" +
+        db.escape(corLastName) +
+        " WHERE corId=" +
+        db.escape(req.user.id);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        let sql2 =
+          "UPDATE EVALUATOR SET evalFirstName=" +
+          db.escape(corFirstName) +
+          ", evalLastName=" +
+          db.escape(corLastName) +
+          " WHERE evalEmail=" +
+          db.escape(req.user.email) +
+          " AND programID=" +
+          db.escape(req.user.programID);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Name Updated Successfully!");
+        });
+      });
+    });
+  }
+);
+
+//update Name for evaluator
+router.post(
+  "/updateEvalName",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    let errors = {};
+    if (isEmpty(req.body.firstName)) {
+      errors.message = "First Name field cannot be empty";
+      return res.status(404).json(errors);
+    }
+    if (isEmpty(req.body.lastName)) {
+      errors.message = " Last Name field cannot be empty";
+      return res.status(404).json(errors);
+    }
+    let evalFirstName = req.body.firstName;
+    let evalLastName = req.body.lastName;
+
+    let sql =
+      "SELECT * FROM COORDINATOR WHERE isActive=true AND corEmail=" +
+      db.escape(req.user.email);
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length > 0) {
+        errors.messsage = "You can only update your name from Coordinator mode";
+        return res.status(404).json(errors);
+      }
+      let sql1 =
+        "SELECT * FROM EVALUATOR WHERE evalID=" + db.escape(req.user.id);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (result.length <= 0) {
+          errors.message = "Account Does not Exist!";
+          return res.status(404).json(errors);
+        }
+        let sql2 =
+          "UPDATE EVALUATOR SET evalFirstName=" +
+          db.escape(evalFirstName) +
+          ", evalLastName=" +
+          db.escape(evalLastName) +
+          " WHERE evalID=" +
+          db.escape(req.user.id);
+
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Name Updated Successfully!");
+        });
+      });
+    });
+  }
+);
+
+//Update Password for Coordinator
+router.post(
+  "/updateEvalPassword",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const { errors, isValid } = validateUpdatePasswordInput(req.body);
+    if (!isValid) {
+      return res.status(404).json(errors);
+    }
+
+    let oldcorPWHash = req.body.oldPassword;
+    let newcorPWHash = req.body.password;
+
+    let sql =
+      "SELECT * FROM COORDINATOR WHERE corId=" +
+      db.escape(req.user.id) +
+      " AND corPWHash=password(" +
+      db.escape(oldcorPWHash) +
+      ")";
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length <= 0) {
+        errors.message = "Incorrect Old Password!";
+        return res.status(404).json(errors);
+      }
+
+      let sql1 =
+        "UPDATE COORDINATOR SET corPWHash=password(" +
+        db.escape(newcorPWHash) +
+        ") WHERE corId=" +
+        db.escape(req.user.id);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        let sql2 =
+          "UPDATE EVALUATOR SET evalPWHash=password(" +
+          db.escape(newcorPWHash) +
+          ") WHERE evalEmail=" +
+          db.escape(req.user.email) +
+          " AND programID=" +
+          db.escape(req.user.programID);
+        db.query(sql2, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Password Updated Successfully!");
+        });
+      });
+    });
+  }
+);
+
+//Update Password for Evaluator
+router.post(
+  "/updateCorPassword",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const { errors, isValid } = validateUpdatePasswordInput(req.body);
+    if (!isValid) {
+      return res.status(404).json(errors);
+    }
+
+    let oldcorPWHash = req.body.oldPassword;
+    let newcorPWHash = req.body.password;
+
+    let sql =
+      "SELECT * FROM COORDINATOR WHERE isActive = true AND corEmail=" +
+      db.escape(req.user.email);
+    // " AND corPWHash=password(" +
+    // db.escape(oldcorPWHash) +
+    // ")";
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      if (result.length > 0) {
+        errors.message =
+          "You can only update your password from Coordinator mode";
+        return res.status(404).json(errors);
+      }
+      let sql1 =
+        "SELECT * FROM EVALUATOR WHERE evalID=" +
+        db.escape(req.user.id) +
+        " evalPWHash=password(" +
+        db.escape(oldcorPWHash);
+      db.query(sql1, (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        } else if (result.length <= 0) {
+          errors.message = "Incorrect Old Password!";
+          return res.status(404).json(errors);
+        }
+        let sql3 =
+          "UPDATE EVALUATOR SET evalPWHash=password(" +
+          db.escape(newcorPWHash) +
+          ") WHERE evalID=" +
+          db.escape(req.user.id);
+        db.query(sql3, (err, result) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          res.status(200).json("Password Updated Successfully!");
+        });
+      });
+    });
+  }
+);
 module.exports = router;
