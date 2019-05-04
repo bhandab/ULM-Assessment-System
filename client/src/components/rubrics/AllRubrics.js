@@ -132,7 +132,7 @@ class AllRubrics extends Component {
               </Form.Group>
               <Form.Row className="mb-4">
                 <Col>
-                  <Form.Label className="font-weight-bold">Rows</Form.Label>
+                  <Form.Label className="font-weight-bold">No. of Criterias</Form.Label>
                   <Form.Control
                     type="number"
                     placeholder="No. of Rows"
@@ -142,7 +142,7 @@ class AllRubrics extends Component {
                   />
                 </Col>
                 <Col>
-                  <Form.Label className="font-weight-bold">Columns</Form.Label>
+                  <Form.Label className="font-weight-bold">No. of Grading Scales</Form.Label>
                   <Form.Control
                     type="number"
                     placeholder="No. of Cols"

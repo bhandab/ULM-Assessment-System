@@ -577,6 +577,7 @@ class MeasureDetails extends Component {
 
           }
 
+          if(this.props.cycles.measureDetails.evalCount > 0) {
             progressBar = (
               <ProgressBar style={{height:'25px'}}>
                 <ProgressBar 
@@ -593,6 +594,15 @@ class MeasureDetails extends Component {
                 />
               </ProgressBar>
             );
+          }
+          else {
+           progressBar = <ProgressBar 
+                  variant="warning"
+                  now={100}
+                  label={`pending`}
+                  key={4}
+                />
+          }
             evaluated = results.map((student, index) => {
               if (student.averageScore >= passScore) {
                 passed.push(
@@ -714,6 +724,8 @@ class MeasureDetails extends Component {
               </h3>
             );
           }
+
+          if(this.props.cycles.measureDetails.evalCount > 0){
             progressBar = (
               <ProgressBar style={{height:'20px'}}>
                 <ProgressBar
@@ -728,6 +740,14 @@ class MeasureDetails extends Component {
                 />
               </ProgressBar>
             );
+          }
+          else {
+            progressBar =   <ProgressBar
+            now={100}
+            variant="warning"
+            label={`${"pending"}`}
+          />
+          }
 
             let evaluated = [];
             let passed = [];

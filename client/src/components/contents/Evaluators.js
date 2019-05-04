@@ -53,13 +53,14 @@ class Evaluators extends Component {
             evaluatorsList = this.props.evaluator.evaluators.evaluators.map((item, index) => {
                 return (
                     <ListGroup.Item key={index}>{item.name} ({item.email})
+                    {this.props.auth.user.email !== item.email ? 
                      <button
                     style={{ border: "none", background: "none" }}
                     name={item.name}
                     value={item.evalID}
                     onClick={this.evalDelete.bind(this)}
                     className="delete float-right"
-                  />
+                  /> : null }
                     </ListGroup.Item>
                 )
             })
