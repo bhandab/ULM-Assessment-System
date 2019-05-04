@@ -417,7 +417,7 @@ router.post(
           return res.status(500).json(err);
         }
         let sql2 =
-          "SELECT * PERFORMANCE_MEASURE NATURAL JOIN LEARNING_OUTCOME NATURAL JOIN ASSESSMENT_CYCLE WHERE cycleID=" +
+          "SELECT * FROM PERFORMANCE_MEASURE NATURAL JOIN LEARNING_OUTCOME NATURAL JOIN ASSESSMENT_CYCLE WHERE cycleID=" +
           db.escape(cycleID);
         db.query(sql2, (err, result) => {
           if (err) {
@@ -1648,7 +1648,7 @@ router.post(
             let sql4 =
               "DELETE EVALUATE FROM  EVALUATE NATURAL LEFT JOIN RUBRIC_SCORE WHERE evalID=" +
               db.escape(evalID) +
-              " AND rubricScore is NULL)";
+              " AND rubricScore is NULL";
             db.query(sql4, (err, result) => {
               if (err) {
                 return res.status(500).json(err);
@@ -2422,7 +2422,7 @@ router.post(
     let measureEvalID = req.body.measureEvalID;
     let evalID = req.body.evalID;
     let testID = req.body.testID;
-    let measureEvalEmail = req.body.measureEvalEmail
+    let measureEvalEmail = req.body.measureEvalEmail;
 
     alreadyAssignedStudents = [];
     tobeAssignedStudents = [];
